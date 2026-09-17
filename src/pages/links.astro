@@ -1,0 +1,283 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import AdSense from '../components/AdSense.astro';
+
+// 都道府県別データ
+const regions = [
+  {
+    name: "北海道・東北",
+    prefectures: [
+      { name: "北海道", dept: "保健福祉部感染症対策局感染症対策課", url: "https://www.pref.hokkaido.lg.jp/hf/kkt/nanbyo/", portal: "札幌市 障がい福祉情報", portalUrl: "https://www.city.sapporo.jp/shougai/" },
+      { name: "青森県", dept: "健康医療福祉部保健衛生課", url: "https://www.pref.aomori.lg.jp/soshiki/kenko/hoken/nanbyou.html" },
+      { name: "岩手県", dept: "保健福祉部健康国保課", url: "https://www.pref.iwate.jp/kurashikankyou/iryou/kenkou/nanbyou/" },
+      { name: "宮城県", dept: "保健福祉部疾病・感染症対策課", url: "https://www.pref.miyagi.jp/soshiki/situkan/nanbyo.html", portal: "仙台市 障害福祉情報", portalUrl: "https://www.city.sendai.jp/fukushi/shogai/" },
+      { name: "秋田県", dept: "健康環境部保健・疾病対策課", url: "https://www.pref.akita.lg.jp/pages/archive/775" },
+      { name: "山形県", dept: "健康福祉部健康福祉企画課", url: "https://www.pref.yamagata.jp/090001/kenko/iryo/nanbyo/" },
+      { name: "福島県", dept: "保健福祉部地域医療課", url: "https://www.pref.fukushima.lg.jp/sec/21045c/nanbyou-josei.html" },
+    ]
+  },
+  {
+    name: "関東",
+    prefectures: [
+      { name: "東京都", dept: "福祉保健局保健企画部疾病対策課", url: "https://www.fukushihoken.metro.tokyo.lg.jp/iryo/nanbyo/", portal: "とうきょう福祉ナビゲーション（福ナビ）", portalUrl: "https://www.fukunavi.or.jp/" },
+      { name: "神奈川県", dept: "健康医療局保健医療部がん・疾病対策課", url: "https://www.pref.kanagawa.jp/docs/t7i/cnt/f531388/", portal: "横浜市 障害福祉情報ポータル", portalUrl: "https://www.city.yokohama.lg.jp/kurashi/fukushi-kaigo/fukushi/" },
+      { name: "埼玉県", dept: "保健医療部疾病対策課", url: "https://www.pref.saitama.lg.jp/a0705/nanbyou/", portal: "さいたま市 障害福祉ポータル", portalUrl: "https://www.city.saitama.lg.jp/002/003/index.html" },
+      { name: "千葉県", dept: "健康福祉部疾病対策課", url: "https://www.pref.chiba.lg.jp/shippei/nanbyou/", portal: "千葉市 障害福祉の手引き", portalUrl: "https://www.city.chiba.jp/hokenfukushi/koreishogai/shogaijiritsu/" },
+      { name: "茨城県", dept: "保健医療部疾病対策課", url: "https://www.pref.ibaraki.jp/hokenfukushi/shippei/nanbyo/" },
+      { name: "栃木県", dept: "保健福祉部健康増進課", url: "https://www.pref.tochigi.lg.jp/e04/welfare/iryou/nanbyou/" },
+      { name: "群馬県", dept: "健康福祉部保健予防課", url: "https://www.pref.gunma.jp/page/7946.html" },
+    ]
+  },
+  {
+    name: "中部・東海・北陸",
+    prefectures: [
+      { name: "愛知県", dept: "保健医療局健康医務部健康対策課", url: "https://www.pref.aichi.jp/soshiki/kenkotaisaku/nanbyou.html", portal: "ウェルネットなごや（名古屋市障害者支援情報）", portalUrl: "https://www.kaigo-wel.city.nagoya.jp/view/wel/index.html" },
+      { name: "岐阜県", dept: "健康福祉部保健医療課", url: "https://www.pref.gifu.lg.jp/page/22758.html" },
+      { name: "三重県", dept: "医療保健部薬務感染症対策課", url: "https://www.pref.mie.lg.jp/YAKUMUS/HP/nanbyo/" },
+      { name: "静岡県", dept: "健康福祉部健康局疾病対策課", url: "https://www.pref.shizuoka.jp/kenkofukushi/iryo/nanbyo/" },
+      { name: "新潟県", dept: "福祉保健部健康づくり支援課", url: "https://www.pref.niigata.lg.jp/sec/kenko/1217032734177.html" },
+      { name: "富山県", dept: "厚生部健康課", url: "https://www.pref.toyama.jp/1205/kenkou/iryou/nanbyou/" },
+      { name: "石川県", dept: "健康福祉部健康推進課", url: "https://www.pref.ishikawa.lg.jp/kenkou/nanbyo/" },
+      { name: "福井県", dept: "健康福祉部地域医療課", url: "https://www.pref.fukui.lg.jp/doc/iryou/nanbyo/" },
+      { name: "山梨県", dept: "福祉保健部健康増進課", url: "https://www.pref.yamanashi.jp/kenko-zsn/nanbyou/" },
+      { name: "長野県", dept: "健康福祉部保健・疾病対策課", url: "https://www.pref.nagano.lg.jp/hoken-shippei/kenko/iryo/nanbyo/" },
+    ]
+  },
+  {
+    name: "近畿",
+    prefectures: [
+      { name: "大阪府", dept: "健康医療部保健医療室地域保健課", url: "https://www.pref.osaka.lg.jp/o100060/chiikihoken/nanbyo/", portal: "大阪市 障がい福祉情報", portalUrl: "https://www.city.osaka.lg.jp/fukushi/page/0000004944.html" },
+      { name: "兵庫県", dept: "保健医療部疾病対策課", url: "https://web.pref.hyogo.lg.jp/kf17/nanbyo_josei.html", portal: "こうべ障害者支援ネット", portalUrl: "https://www.city.kobe.lg.jp/a52684/kenko/fukushi/shougaishafukushi/" },
+      { name: "京都府", dept: "健康福祉部医療課", url: "https://www.pref.kyoto.jp/nanbyo/", portal: "京都市 障害福祉情報ポータル", portalUrl: "https://www.city.kyoto.lg.jp/hokenfukushi/page/0000091395.html" },
+      { name: "滋賀県", dept: "健康医療福祉部健康推進課", url: "https://www.pref.shiga.lg.jp/ippan/kenkouiryouhukushi/yakumu/14299.html" },
+      { name: "奈良県", dept: "福祉医療部医療政策局疾病対策課", url: "https://www.pref.nara.jp/17926.htm" },
+      { name: "和歌山県", dept: "福祉保健部健康局健康推進課", url: "https://www.pref.wakayama.lg.jp/prefg/050100/nanbyo/" },
+    ]
+  },
+  {
+    name: "中国・四国",
+    prefectures: [
+      { name: "広島県", dept: "健康福祉局医療推進課", url: "https://www.pref.hiroshima.lg.jp/soshiki/53/nanbyo.html", portal: "広島市 障害福祉情報", portalUrl: "https://www.city.hiroshima.lg.jp/site/fukushi-shogai/" },
+      { name: "岡山県", dept: "保健福祉部健康推進課", url: "https://www.pref.okayama.jp/page/detail-45371.html" },
+      { name: "鳥取県", dept: "福祉保健部健康医療局医療政策課", url: "https://www.pref.tottori.lg.jp/nanbyou/" },
+      { name: "島根県", dept: "健康福祉部健康推進課", url: "https://www.pref.shimane.lg.jp/medical/kenko/iryo/nanbyo/" },
+      { name: "山口県", dept: "健康福祉部健康増進課", url: "https://www.pref.yamaguchi.lg.jp/soshiki/47/22378.html" },
+      { name: "徳島県", dept: "保健福祉部健康づくり課", url: "https://www.pref.tokushima.lg.jp/ippannokata/kenko/iryo/2014121500318/" },
+      { name: "香川県", dept: "健康福祉部健康づくり相談課", url: "https://www.pref.kagawa.lg.jp/kenkozoshin/nanbyo/" },
+      { name: "愛媛県", dept: "保健福祉部健康衛生局健康増進課", url: "https://www.pref.ehime.jp/h25500/nanbyou/" },
+      { name: "高知県", dept: "健康政策部健康対策課", url: "https://www.pref.kochi.lg.jp/soshiki/130401/nanbyo-index.html" },
+    ]
+  },
+  {
+    name: "九州・沖縄",
+    prefectures: [
+      { name: "福岡県", dept: "保健医療介護部がん感染症疾病対策課", url: "https://www.pref.fukuoka.lg.jp/contents/nanbyou-top.html", portal: "福岡市 障がい福祉の手引き", portalUrl: "https://www.city.fukuoka.lg.jp/fukushi/shogaishafukushi/" },
+      { name: "佐賀県", dept: "健康福祉部健康増進課", url: "https://www.pref.saga.lg.jp/kiji00338782/index.html" },
+      { name: "長崎県", dept: "福祉保健部国保・健康増進課", url: "https://www.pref.nagasaki.jp/bunrui/hukushi-hoken/kenkodukuri/nanbyou/" },
+      { name: "熊本県", dept: "健康福祉部健康局健康づくり推進課", url: "https://www.pref.kumamoto.jp/soshiki/30/50702.html" },
+      { name: "大分県", dept: "福祉保健部健康づくり支援課", url: "https://www.pref.oita.jp/soshiki/12210/nanbyo.html" },
+      { name: "宮崎県", dept: "福祉保健部健康増進課", url: "https://www.pref.miyazaki.lg.jp/kenkozoshin/kenko/iryo/nanbyo/" },
+      { name: "鹿児島県", dept: "くらし保健福祉部健康増進課", url: "https://www.pref.kagoshima.jp/ae06/kenko-fukushi/kenko-iryo/nanbyo/" },
+      { name: "沖縄県", dept: "保健医療介護部健康長寿課", url: "https://www.pref.okinawa.jp/kenko/kenko/1008985/index.html" },
+    ]
+  }
+];
+
+const nationalPortals = [
+  {
+    title: "難病情報センター（J-RND）",
+    url: "https://www.nanbyou.or.jp/",
+    desc: "公益財団法人難病医学研究財団が運営。国の指定難病341疾患の診断基準、重症度分類、病態解説、認定協力医療機関情報など最も網羅的な公式ポータル。"
+  },
+  {
+    title: "厚生労働省：難病対策・医療費助成制度",
+    url: "https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/kenkou/nanbyou/index.html",
+    desc: "指定難病制度の概要、自己負担上限額表、診断基準の改定状況、制度の最新動向が確認できる国の一次情報。"
+  },
+  {
+    title: "全国難病相談支援センター一覧（難病情報センター内）",
+    url: "https://www.nanbyou.or.jp/entry/1557",
+    desc: "各都道府県に設置されている「難病相談支援センター」の電話番号・所在地一覧。生活面・就労面の悩みを相談可能。"
+  },
+  {
+    title: "JPA 日本難病・疾病団体協議会",
+    url: "https://nanbyo.jp/",
+    desc: "全国の難病・慢性疾患の患者会・支援団体が加盟する連合組織。患者目線での政策提言や相談事業を実施。"
+  },
+  {
+    title: "独立行政法人 高齢・障害・求職者雇用支援機構（JEED）",
+    url: "https://www.jeed.go.jp/disability/",
+    desc: "難病患者の就労支援、職場適応支援、ハローワークと連携した就労定着サポートの情報。"
+  }
+];
+---
+
+<BaseLayout
+  title="全国難病支援・医療費助成 行政窓口＆生活支援情報リンク集"
+  description="各都道府県の指定難病医療費助成申請窓口、難病相談支援センター、およびウェルネットなごや等自治体の障害福祉・生活支援ポータルのリンク集です。"
+>
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
+    <!-- パンくずリスト -->
+    <nav class="flex text-xs text-slate-500 mb-6 space-x-2">
+      <a href="/" class="hover:text-teal-700">ホーム</a>
+      <span>/</span>
+      <span class="text-slate-700 font-medium">難病支援・行政リンク集</span>
+    </nav>
+
+    <!-- ヘッダー -->
+    <header class="mb-10 border-b border-slate-200 pb-8">
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 text-teal-700 border border-teal-200 text-xs font-semibold mb-3">
+        <span>全国自治体＆生活支援ポータル</span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-snug">
+        全国難病支援・医療費助成<br class="hidden sm:inline"> 行政窓口＆生活支援情報リンク集
+      </h1>
+      <p class="text-sm sm:text-base text-slate-600 mt-3 leading-relaxed">
+        難病と告知された直後は、何から手をつけてよいか分からず、行政手続きの複雑さに途方に暮れてしまう方が多くいます。<br>
+        各都道府県の<strong>指定難病医療費助成（受給者証）の申請窓口</strong>をはじめ、名古屋市の<strong>「ウェルネットなごや」</strong>のような自治体独自の生活支援・福祉情報ポータル、全国相談機関をまとめました。
+      </p>
+    </header>
+
+    <!-- 広告枠上部 -->
+    <AdSense slot="links-top" format="auto" />
+
+    <!-- 当事者からの申請ワンポイントアドバイス -->
+    <section class="my-10 bg-teal-50/60 border border-teal-200 rounded-xl p-6 sm:p-8">
+      <h2 class="text-base sm:text-lg font-bold text-teal-900 flex items-center gap-2 mb-3">
+        <span class="text-xl">💡</span>
+        <span>当事者が実感した「申請時の3つの鉄則」</span>
+      </h2>
+      <ul class="space-y-3 text-xs sm:text-sm text-slate-700 leading-relaxed">
+        <li class="flex items-start gap-2">
+          <span class="text-teal-700 font-bold">1.</span>
+          <div>
+            <strong>申請から受給者証到着までの領収書はすべて保管する（償還払い）:</strong><br>
+            受給者証が手元に届くまでに2〜3ヶ月かかります。その間に病院や調剤薬局で支払った医療費は、受給者証発行後に申請すれば、自己負担上限額を超えた分が口座に払い戻されます。レシート・領収書は絶対に捨てずに保管してください。
+          </div>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-teal-700 font-bold">2.</span>
+          <div>
+            <strong>診断書（臨床調査個人票）は「難病指定医」に依頼する:</strong><br>
+            医療費助成の申請書に添付する診断書は、都道府県から指定を受けた「難病指定医」しか記入できません。主治医に依頼する際、難病指定医であるか必ず事前に確認してください。
+          </div>
+        </li>
+        <li class="flex items-start gap-2">
+          <span class="text-teal-700 font-bold">3.</span>
+          <div>
+            <strong>「医療費助成」だけでなく「自治体の福祉ポータル」も確認する:</strong><br>
+            名古屋市の「ウェルネットなごや」のように、自治体によっては難病患者を対象とした日常生活用具給付、水道料金や交通機関の減免、手当の独自支給などを実施している場合があります。県の窓口だけでなく、お住まいの市区町村の障害福祉窓口も併せてご確認ください。
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <!-- 国の主要ポータル・全国機関 -->
+    <section class="mb-14">
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2 border-b border-slate-200 pb-3">
+        <span>全国共通・国の主要ポータル</span>
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {nationalPortals.map(item => (
+          <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-2xs hover:border-teal-500 hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+            <div>
+              <h3 class="font-bold text-slate-900 text-base mb-2">
+                <a href={item.url} target="_blank" rel="noopener noreferrer" class="hover:text-teal-700 transition-colors inline-flex items-center gap-1">
+                  {item.title}
+                  <span class="text-xs text-slate-400">&nearr;</span>
+                </a>
+              </h3>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                {item.desc}
+              </p>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-100 text-right">
+              <a href={item.url} target="_blank" rel="noopener noreferrer" class="text-xs font-semibold text-teal-700 hover:text-teal-800">
+                公式サイトを開く &rarr;
+              </a>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- 都道府県別 行政申請窓口 ＆ 自治体生活支援ポータル -->
+    <section class="mb-14">
+      <div class="mb-8">
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2 border-b border-slate-200 pb-3">
+          <span>47都道府県別 行政窓口 ＆ 生活支援ポータル</span>
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-2">
+          お住まいの地域を選択してください。各都道府県の難病対策窓口（申請・認定）と、政令市等の障害・難病生活支援ポータルを掲載しています。
+        </p>
+      </div>
+
+      <!-- 地域別アコーディオン/リスト -->
+      <div class="space-y-8">
+        {regions.map(region => (
+          <div class="bg-white border border-slate-200 rounded-xl shadow-2xs overflow-hidden">
+            <div class="bg-slate-100/80 px-6 py-3 border-b border-slate-200">
+              <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                <span class="inline-block w-2.5 h-2.5 rounded-full bg-teal-600"></span>
+                <span>{region.name} 地方</span>
+              </h3>
+            </div>
+            <div class="divide-y divide-slate-100">
+              {region.prefectures.map(pref => (
+                <div class="p-5 hover:bg-slate-50/50 transition-colors">
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <div class="flex items-center gap-2">
+                        <span class="font-bold text-slate-900 text-base">{pref.name}</span>
+                        <span class="text-xs text-slate-500">担当：{pref.dept}</span>
+                      </div>
+                      {pref.portal && (
+                        <div class="mt-1.5 flex items-center gap-2 text-xs">
+                          <span class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 font-medium">生活支援ポータル</span>
+                          <a
+                            href={pref.portalUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="text-teal-700 hover:underline font-medium inline-flex items-center gap-0.5"
+                          >
+                            {pref.portal}
+                            <span class="text-[10px] text-slate-400">&nearr;</span>
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                    <div class="shrink-0">
+                      <a
+                        href={pref.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-teal-50 hover:border-teal-400 hover:text-teal-800 text-xs font-semibold text-slate-700 transition-colors"
+                      >
+                        <span>{pref.name}の難病申請公式ページ</span>
+                        <span>&nearr;</span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- 広告枠下部 -->
+    <AdSense slot="links-bottom" format="auto" />
+
+    <!-- 戻るナビ -->
+    <div class="mt-12 pt-8 border-t border-slate-200 flex items-center justify-between">
+      <a href="/" class="text-sm font-medium text-teal-700 hover:text-teal-800 inline-flex items-center gap-1">
+        &larr; トップページに戻る
+      </a>
+      <a href="/about" class="text-sm font-medium text-slate-600 hover:text-slate-900">
+        当サイトの運営者プロフィール &rarr;
+      </a>
+    </div>
+  </div>
+</BaseLayout>
+EOF
