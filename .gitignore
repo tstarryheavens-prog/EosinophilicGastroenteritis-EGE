@@ -1,0 +1,14 @@
+dist/
+.astro/
+node_modules
+node_modules/
+.env
+.env.*
+!.env.example
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+raw_notes/
+fetch_notes.py
+convert_notes_to_markdown.py

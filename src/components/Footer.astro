@@ -1,0 +1,71 @@
+---
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="bg-slate-900 text-slate-300 border-t border-slate-800 mt-20">
+  <!-- 医療免責バナー（全ページ共通・AdSense & YMYL最重要要件） -->
+  <div class="bg-slate-950/80 border-b border-slate-800 py-6 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto text-center text-xs text-slate-400 space-y-2">
+      <div class="inline-flex items-center gap-1 text-amber-400 font-semibold mb-1">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <span>医療に関する免責事項（重要）</span>
+      </div>
+      <p class="leading-relaxed">
+        当サイトは、好酸球性胃腸炎・群発頭痛・重症喘息などの複合難病を抱える当事者個人の闘病体験、ならびに公的機関の情報や医薬品添付文書を個人的に調査した記録・ノートです。医師・医療従事者による専門的な医学的診断・助言・治療を提供するものではありません。
+      </p>
+      <p class="leading-relaxed text-slate-500">
+        症状や服薬・治療方針についての決定・変更は、自己判断せず、必ずかかりつけの主治医や専門医にご相談ください。
+      </p>
+    </div>
+  </div>
+
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <!-- サイト概要 -->
+      <div class="md:col-span-2 space-y-3">
+        <div class="flex items-center gap-2">
+          <span class="inline-flex items-center justify-center w-7 h-7 rounded-md bg-teal-600 text-white font-bold text-xs">
+            EG
+          </span>
+          <span class="text-base font-bold text-white">
+            好酸球性胃腸炎と複合難病の闘病・服薬ノート
+          </span>
+        </div>
+        <p class="text-xs text-slate-400 leading-relaxed max-w-md">
+          好酸球性消化管疾患（指定難病）・群発頭痛・片頭痛・重症喘息・小麦アレルギー・睡眠時無呼吸症候群など、多数の重複疾患と向き合う患者本人の記録。同じ病気や原因不明の痛みと戦う方々への情報共有と架け橋を目指しています。
+        </p>
+      </div>
+
+      <!-- カテゴリリンク -->
+      <div>
+        <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider mb-3">カテゴリ</h3>
+        <ul class="space-y-2 text-xs">
+          <li><a href="/category/好酸球性消化管疾患" class="hover:text-teal-400 transition-colors">好酸球性消化管疾患</a></li>
+          <li><a href="/category/群発頭痛・頭痛" class="hover:text-teal-400 transition-colors">群発頭痛・片頭痛</a></li>
+          <li><a href="/category/重症喘息・呼吸器" class="hover:text-teal-400 transition-colors">重症喘息・呼吸器</a></li>
+          <li><a href="/category/服薬調査・治療薬" class="hover:text-teal-400 transition-colors">服薬調査・治療薬</a></li>
+          <li><a href="/category/入院生活・制度" class="hover:text-teal-400 transition-colors">入院生活・医療費制度</a></li>
+          <li><a href="/category/PC・技術メモ" class="hover:text-teal-400 transition-colors">PC・技術メモ</a></li>
+        </ul>
+      </div>
+
+      <!-- サイト情報・ポリシー -->
+      <div>
+        <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider mb-3">サイト情報・ポリシー</h3>
+        <ul class="space-y-2 text-xs">
+          <li><a href="/about" class="hover:text-teal-400 transition-colors">プロフィール・闘病の歩み</a></li>
+          <li><a href="/disclaimer" class="hover:text-teal-400 transition-colors">医療免責事項</a></li>
+          <li><a href="/privacy" class="hover:text-teal-400 transition-colors">プライバシーポリシー</a></li>
+          <li><a href="/contact" class="hover:text-teal-400 transition-colors">お問い合わせ</a></li>
+          <li><a href="/rss.xml" class="hover:text-teal-400 transition-colors">RSSフィード</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-12 pt-8 border-t border-slate-800 text-center text-xs text-slate-500">
+      <p>&copy; {currentYear} 好酸球性胃腸炎と複合難病の闘病・服薬ノート All Rights Reserved.</p>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,89 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import AdSense from '../../components/AdSense.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  const categories = [...new Set(posts.map(p => p.data.category))];
+  return categories.map(category => ({
+    params: { category },
+    props: {
+      category,
+      posts: posts.filter(p => p.data.category === category).sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime())
+    }
+  }));
+}
+
+const { category, posts } = Astro.props;
+---
+
+<BaseLayout title={`${category}の記事一覧`} description={`${category}に関する闘病・服薬調査記事一覧です。`}>
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <!-- パンくずリスト -->
+    <nav class="flex text-xs text-slate-500 mb-6 space-x-2">
+      <a href="/" class="hover:text-teal-700">ホーム</a>
+      <span>/</span>
+      <span class="text-slate-700 font-medium">カテゴリ: {category}</span>
+    </nav>
+
+    <header class="mb-10 border-b border-slate-200 pb-6">
+      <div class="inline-block px-3 py-1 rounded-full bg-teal-50 text-teal-700 border border-teal-200 text-xs font-semibold mb-2">
+        カテゴリ
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">
+        {category}
+      </h1>
+      <p class="text-sm text-slate-500 mt-1">
+        全 {posts.length} 件の記事
+      </p>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {posts.map(post => (
+        <article class="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden flex flex-col hover:border-teal-500 hover:shadow-md transition-all duration-200">
+          {post.data.eyecatch && (
+            <a href={`/blog/${post.data.slug}`} class="block aspect-video overflow-hidden bg-slate-100">
+              <img
+                src={post.data.eyecatch}
+                alt={post.data.title}
+                class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                loading="lazy"
+              />
+            </a>
+          )}
+          <div class="p-5 flex-1 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <time datetime={post.data.pubDate} class="text-[11px] text-slate-400">
+                  {post.data.pubDate}
+                </time>
+              </div>
+              <h3 class="font-bold text-slate-900 text-base mb-2 leading-snug line-clamp-2">
+                <a href={`/blog/${post.data.slug}`} class="hover:text-teal-700 transition-colors">
+                  {post.data.title}
+                </a>
+              </h3>
+              <p class="text-xs text-slate-600 line-clamp-3 leading-relaxed mb-4">
+                {post.data.description}
+              </p>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+              <a
+                href={`/blog/${post.data.slug}`}
+                class="font-medium text-teal-700 hover:text-teal-800 shrink-0 inline-flex items-center gap-1"
+              >
+                読む &rarr;
+              </a>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+
+    <div class="mt-12">
+      <AdSense slot="category-bottom" format="auto" />
+    </div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,166 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import AdSense from '../components/AdSense.astro';
+
+const posts = await getCollection('blog');
+const sortedPosts = posts.sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime());
+
+const categories = [
+  {
+    name: '好酸球性消化管疾患',
+    description: '指定難病である好酸球性胃腸炎・好酸球性腸炎の診断、入退院、最新の抗体薬・治験情報',
+    icon: '🔬',
+    color: 'border-teal-500 hover:border-teal-600 bg-teal-50/40'
+  },
+  {
+    name: '群発頭痛・頭痛',
+    description: '「自殺頭痛」とも呼ばれる群発頭痛の激痛発作、片頭痛、CGRP関連薬（アイモビーク等）の記録',
+    icon: '⚡',
+    color: 'border-amber-500 hover:border-amber-600 bg-amber-50/40'
+  },
+  {
+    name: '重症喘息・呼吸器',
+    description: '好酸球性喘息、生物学的製剤（ヌーカラ・エキシデンサー等）、吸入薬（ビレーズトリ）の治療ノート',
+    icon: '🫁',
+    color: 'border-blue-500 hover:border-blue-600 bg-blue-50/40'
+  },
+  {
+    name: '服薬調査・治療薬',
+    description: '胃腸薬、神経痛薬（タリージェ等）、漢方薬（大建中湯等）、睡眠薬など実際に処方された薬のまとめ',
+    icon: '💊',
+    color: 'border-emerald-500 hover:border-emerald-600 bg-emerald-50/40'
+  },
+  {
+    name: '入院生活・制度',
+    description: '10回以上の入院生活で本当に役立った持ち物、大部屋の知恵、難病医療費助成・高額療養費の実態',
+    icon: '🏥',
+    color: 'border-purple-500 hover:border-purple-600 bg-purple-50/40'
+  },
+  {
+    name: '闘病日記・コラム',
+    description: '難病告知からの歩み、家族への想い、小麦完全除去生活（グルテンフリー）の実践と工夫',
+    icon: '📖',
+    color: 'border-rose-500 hover:border-rose-600 bg-rose-50/40'
+  }
+];
+---
+
+<BaseLayout>
+  <!-- ヒーローセクション -->
+  <section class="bg-gradient-to-b from-teal-50/70 via-slate-50 to-slate-50 border-b border-slate-200 py-12 sm:py-16">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-3xl mx-auto">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-100/80 text-teal-800 text-xs font-semibold mb-4">
+          <span>当事者による闘病＆服薬記録ノート</span>
+        </div>
+        <h1 class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight sm:leading-snug mb-4">
+          好酸球性胃腸炎と複合難病の闘病・服薬ノート
+        </h1>
+        <p class="text-sm sm:text-base text-slate-600 leading-relaxed mb-6">
+          指定難病「好酸球性消化管疾患（好酸球性胃腸炎）」をはじめ、群発頭痛、片頭痛、重症喘息、小麦アレルギーなど複数の疾患を抱える当事者のリアルな記録。
+          入退院を繰り返す中で調べ尽くした最新の治療情報・服薬知識を、同じ病気に苦しむ仲間へお届けします。
+        </p>
+
+        <!-- 当事者ステータスタグ -->
+        <div class="flex flex-wrap justify-center gap-2 text-xs">
+          <span class="px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700 shadow-2xs">入退院10回以上</span>
+          <span class="px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700 shadow-2xs">在宅酸素治療経験</span>
+          <span class="px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700 shadow-2xs">完全グルテンフリー生活</span>
+          <span class="px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700 shadow-2xs">指定難病受給者証保持</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <!-- カテゴリ選択カード -->
+    <section class="mb-12">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900 flex items-center gap-2">
+          <span>疾患・テーマ別カテゴリ</span>
+        </h2>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {categories.map(cat => (
+          <a
+            href={`/category/${cat.name}`}
+            class={`block p-5 rounded-xl border transition-all duration-200 hover:shadow-md ${cat.color}`}
+          >
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-2xl">{cat.icon}</span>
+              <h3 class="font-bold text-slate-900 text-base">{cat.name}</h3>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              {cat.description}
+            </p>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <!-- トップ広告枠 -->
+    <AdSense slot="index-top" format="auto" />
+
+    <!-- 最新記事一覧 -->
+    <section class="mt-12">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-lg sm:text-xl font-bold text-slate-900 flex items-center gap-2">
+          <span>すべての記事一覧</span>
+          <span class="text-xs font-normal text-slate-500">（全{sortedPosts.length}件）</span>
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {sortedPosts.map(post => (
+          <article class="bg-white rounded-xl border border-slate-200 shadow-2xs overflow-hidden flex flex-col hover:border-teal-500 hover:shadow-md transition-all duration-200">
+            {post.data.eyecatch && (
+              <a href={`/blog/${post.data.slug}`} class="block aspect-video overflow-hidden bg-slate-100">
+                <img
+                  src={post.data.eyecatch}
+                  alt={post.data.title}
+                  class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                  loading="lazy"
+                />
+              </a>
+            )}
+            <div class="p-5 flex-1 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200">
+                    {post.data.category}
+                  </span>
+                  <time datetime={post.data.pubDate} class="text-[11px] text-slate-400">
+                    {post.data.pubDate}
+                  </time>
+                </div>
+                <h3 class="font-bold text-slate-900 text-base mb-2 leading-snug line-clamp-2">
+                  <a href={`/blog/${post.data.slug}`} class="hover:text-teal-700 transition-colors">
+                    {post.data.title}
+                  </a>
+                </h3>
+                <p class="text-xs text-slate-600 line-clamp-3 leading-relaxed mb-4">
+                  {post.data.description}
+                </p>
+              </div>
+
+              <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                <div class="flex gap-1 overflow-hidden">
+                  {post.data.tags.slice(0, 2).map((t: string) => (
+                    <span class="text-slate-400 text-[10px] truncate">#{t}</span>
+                  ))}
+                </div>
+                <a
+                  href={`/blog/${post.data.slug}`}
+                  class="font-medium text-teal-700 hover:text-teal-800 shrink-0 inline-flex items-center gap-1"
+                >
+                  読む &rarr;
+                </a>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  </div>
+</BaseLayout>

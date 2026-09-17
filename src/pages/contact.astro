@@ -1,0 +1,65 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="お問い合わせ" description="好酸球性胃腸炎と複合難病の闘病・服薬ノートへのお問い合わせ窓口です。">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
+    <!-- パンくずリスト -->
+    <nav class="flex text-xs text-slate-500 mb-6 space-x-2">
+      <a href="/" class="hover:text-teal-700">ホーム</a>
+      <span>/</span>
+      <span class="text-slate-700 font-medium">お問い合わせ</span>
+    </nav>
+
+    <header class="mb-10 border-b border-slate-200 pb-6">
+      <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">
+        お問い合わせ
+      </h1>
+      <p class="text-sm text-slate-500 mt-2">
+        ご意見、ご感想、掲載内容に関するご連絡
+      </p>
+    </header>
+
+    <div class="prose prose-slate max-w-none text-slate-800 leading-relaxed space-y-6">
+      <p>
+        当サイト（好酸球性胃腸炎と複合難病の闘病・服薬ノート）をご覧いただきありがとうございます。<br>
+        サイト内容に関するご感想、誤字・リンク切れのご指摘、その他ご連絡がございましたら、下記の方法よりお気軽にお寄せください。
+      </p>
+
+      <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-2xs my-6 not-prose space-y-4">
+        <h3 class="font-bold text-slate-900 text-base border-b border-slate-100 pb-2">
+          公式連絡先
+        </h3>
+        <div>
+          <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">X（旧Twitter）</h4>
+          <a
+            href="https://x.com/ktononon"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-2 text-teal-700 font-semibold hover:text-teal-800 text-sm"
+          >
+            <span>@ktononon</span>
+            <span class="text-xs text-slate-400">（DMまたはリプライにて受付中） &rarr;</span>
+          </a>
+        </div>
+        <div class="pt-3 border-t border-slate-100">
+          <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">note プロフィール</h4>
+          <a
+            href="https://note.com/nanbyou_ege_cgrp"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-2 text-teal-700 font-semibold hover:text-teal-800 text-sm"
+          >
+            <span>好酸球性胃腸炎と群発頭痛と喘息と小麦アレルギーと他たくさん</span>
+            <span class="text-xs text-slate-400">&rarr;</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="bg-slate-50 rounded-lg p-5 border border-slate-200 text-xs text-slate-600 leading-relaxed">
+        <strong>※医療相談に関するお願い：</strong><br>
+        筆者は医療従事者（医師・薬剤師等）ではなく、一人の患者・当事者です。個別の症状に関する医学的な診断や、処方薬の変更・中止に関するご相談には一切応じることはできませんので、あらかじめご了承くださいますようお願い申し上げます。
+      </div>
+    </div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,112 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import AdSense from '../components/AdSense.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  pubDate: string;
+  category: string;
+  tags: string[];
+  eyecatch?: string;
+  slug: string;
+}
+
+const { title, description, pubDate, category, tags, eyecatch, slug } = Astro.props;
+---
+
+<BaseLayout title={title} description={description} image={eyecatch} article={true}>
+  <article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <!-- パンくずリスト -->
+    <nav class="flex text-xs text-slate-500 mb-6 space-x-2 overflow-x-auto whitespace-nowrap py-1">
+      <a href="/" class="hover:text-teal-700">ホーム</a>
+      <span>/</span>
+      <a href={`/category/${category}`} class="hover:text-teal-700">{category}</a>
+      <span>/</span>
+      <span class="text-slate-700 font-medium truncate max-w-xs">{title}</span>
+    </nav>
+
+    <!-- 記事ヘッダー -->
+    <header class="mb-8 border-b border-slate-200 pb-8">
+      <div class="flex items-center gap-2 mb-3 flex-wrap">
+        <a
+          href={`/category/${category}`}
+          class="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-teal-50 text-teal-700 border border-teal-200 hover:bg-teal-100 transition-colors"
+        >
+          {category}
+        </a>
+        <time datetime={pubDate} class="text-xs text-slate-500">
+          公開日: {pubDate}
+        </time>
+      </div>
+
+      <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 tracking-tight leading-snug sm:leading-tight">
+        {title}
+      </h1>
+
+      {tags && tags.length > 0 && (
+        <div class="flex items-center gap-1.5 mt-4 flex-wrap">
+          {tags.map((tag: string) => (
+            <span class="text-[11px] px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200">
+              #{tag}
+            </span>
+          ))}
+        </div>
+      )}
+    </header>
+
+    <!-- 医療免責事項コールアウト（各記事の冒頭に配置・信頼性向上） -->
+    <div class="mb-8 rounded-lg border-l-4 border-amber-500 bg-amber-50/70 p-4 text-xs text-amber-900 leading-relaxed">
+      <div class="font-bold flex items-center gap-1 mb-1 text-amber-800">
+        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>記事をお読みいただくにあたってのご注意</span>
+      </div>
+      <p>
+        本記事は、難病当事者による闘病体験および公的情報・添付文書等の個人調査に基づいています。医学的診断・処方・治療の指示を行うものではありません。服薬や治療の変更・判断は、必ずご自身の主治医にご相談ください。
+      </p>
+    </div>
+
+    <!-- アイキャッチ画像（ある場合） -->
+    {eyecatch && (
+      <div class="mb-8 rounded-xl overflow-hidden shadow-xs border border-slate-200 bg-slate-100 max-h-[420px] flex items-center justify-center">
+        <img
+          src={eyecatch}
+          alt={title}
+          class="w-full h-auto object-cover max-h-[420px]"
+          loading="lazy"
+        />
+      </div>
+    )}
+
+    <!-- 広告枠: 記事上部 -->
+    <AdSense slot="top-ad" format="auto" />
+
+    <!-- 記事本文 -->
+    <div class="prose prose-slate prose-teal max-w-none prose-headings:scroll-mt-24 prose-h2:text-xl sm:prose-h2:text-2xl prose-h2:border-b prose-h2:border-slate-200 prose-h2:pb-2 prose-h3:text-lg prose-p:leading-relaxed prose-li:my-1 text-slate-800">
+      <slot />
+    </div>
+
+    <!-- 広告枠: 記事下部 -->
+    <div class="mt-12">
+      <AdSense slot="bottom-ad" format="auto" />
+    </div>
+
+    <!-- 記事フッターナビ -->
+    <div class="mt-12 pt-8 border-t border-slate-200 flex items-center justify-between">
+      <a
+        href="/"
+        class="inline-flex items-center gap-2 text-sm font-medium text-teal-700 hover:text-teal-800"
+      >
+        &larr; 記事一覧（トップ）に戻る
+      </a>
+      <a
+        href={`/category/${category}`}
+        class="text-sm font-medium text-slate-600 hover:text-slate-900"
+      >
+        「{category}」の記事一覧 &rarr;
+      </a>
+    </div>
+  </article>
+</BaseLayout>
