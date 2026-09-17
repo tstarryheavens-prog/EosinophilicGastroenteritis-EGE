@@ -2,15 +2,64 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import AdSense from '../components/AdSense.astro';
 
-// 都道府県別データ
+// 政令指定都市（全20市）データ
+const designatedCities = [
+  {
+    region: "北海道・東北",
+    cities: [
+      { name: "札幌市", pref: "北海道", dept: "札幌市保健所感染症総合対策課", url: "https://www.city.sapporo.jp/hokenjo/d1ku/nanbyo/", portal: "札幌市 障がい福祉情報", portalUrl: "https://www.city.sapporo.jp/shougai/" },
+      { name: "仙台市", pref: "宮城県", dept: "仙台市健康福祉局健康政策課", url: "https://www.city.sendai.jp/kensui-nanbyo/kurashi/kenko/iryo/shien/nanbyo/", portal: "仙台市 障害福祉情報", portalUrl: "https://www.city.sendai.jp/fukushi/shogai/" },
+    ]
+  },
+  {
+    region: "関東",
+    cities: [
+      { name: "さいたま市", pref: "埼玉県", dept: "さいたま市保健福祉局健康科学研究センター", url: "https://www.city.saitama.lg.jp/002/001/014/004/p036136.html", portal: "さいたま市 障害福祉ポータル", portalUrl: "https://www.city.saitama.lg.jp/002/003/index.html" },
+      { name: "千葉市", pref: "千葉県", dept: "千葉市保健福祉局健康部健康支援課", url: "https://www.city.chiba.jp/hokenfukushi/kenko/shien/nanbyou.html", portal: "千葉市 障害福祉の手引き", portalUrl: "https://www.city.chiba.jp/hokenfukushi/koreishogai/shogaijiritsu/" },
+      { name: "横浜市", pref: "神奈川県", dept: "横浜市健康福祉局健康推進課難病対策担当", url: "https://www.city.yokohama.lg.jp/kurashi/fukushi-kaigo/fukushi/shougai/nanbyo/", portal: "横浜市 障害福祉情報ポータル", portalUrl: "https://www.city.yokohama.lg.jp/kurashi/fukushi-kaigo/fukushi/" },
+      { name: "川崎市", pref: "神奈川県", dept: "川崎市健康福祉局保健医療政策部感染症対策課", url: "https://www.city.kawasaki.jp/350/page/0000063462.html", portal: "かわさき障害者福祉情報ポータル", portalUrl: "https://www.city.kawasaki.jp/fukushi/" },
+      { name: "相模原市", pref: "神奈川県", dept: "相模原市保健所健康企画課", url: "https://www.city.sagamihara.kanagawa.jp/kurashi/1026489/kenko/1026500/1006456.html", portal: "相模原市 障害福祉情報", portalUrl: "https://www.city.sagamihara.kanagawa.jp/kurashi/1026489/fukushi/1026506/" },
+    ]
+  },
+  {
+    region: "中部・東海",
+    cities: [
+      { name: "新潟市", pref: "新潟県", dept: "新潟市保健所保健管理課難病対策係", url: "https://www.city.niigata.lg.jp/iryo/kenko/nanbyo/siteinanbyo.html", portal: "新潟市 障がい福祉の手引き", portalUrl: "https://www.city.niigata.lg.jp/iryo/shofuku/" },
+      { name: "静岡市", pref: "静岡県", dept: "静岡市保健所保健予防課難病対策係", url: "https://www.city.shizuoka.lg.jp/s7812/s005470.html", portal: "静岡市 障害福祉情報", portalUrl: "https://www.city.shizuoka.lg.jp/s0306/s001402.html" },
+      { name: "浜松市", pref: "静岡県", dept: "浜松市健康増進課難病対策グループ", url: "https://www.city.hamamatsu.shizuoka.jp/kenkozoshin/health/iryo/nanbyo/", portal: "はままつ障害者福祉ネット", portalUrl: "https://www.city.hamamatsu.shizuoka.jp/shogai/" },
+      { name: "名古屋市", pref: "愛知県", dept: "名古屋市健康福祉局感染症対策課難病対策係", url: "https://www.city.nagoya.jp/kenkofukushi/page/0000067645.html", portal: "ウェルネットなごや（名古屋市障害者自立支援情報）", portalUrl: "https://www.kaigo-wel.city.nagoya.jp/view/wel/index.html" },
+    ]
+  },
+  {
+    region: "近畿",
+    cities: [
+      { name: "京都市", pref: "京都府", dept: "京都市保健福祉局健康長寿推進室保健医療課", url: "https://www.city.kyoto.lg.jp/hokenfukushi/page/0000176840.html", portal: "京都市 障害保健福祉ポータル", portalUrl: "https://www.city.kyoto.lg.jp/hokenfukushi/page/0000091395.html" },
+      { name: "大阪市", pref: "大阪府", dept: "大阪市保健所感染症対策課難病対策グループ", url: "https://www.city.osaka.lg.jp/kenko/page/0000293774.html", portal: "大阪市 障がい福祉情報", portalUrl: "https://www.city.osaka.lg.jp/fukushi/page/0000004944.html" },
+      { name: "堺市", pref: "大阪府", dept: "堺市保健所保健医療課難病対策係", url: "https://www.city.sakai.lg.jp/kenko/kenko/kenkojoho/nanbyo/josei.html", portal: "堺市 障害福祉情報", portalUrl: "https://www.city.sakai.lg.jp/fukushi/shogai/" },
+      { name: "神戸市", pref: "兵庫県", dept: "神戸市保健所感染症対策課難病対策係", url: "https://www.city.kobe.lg.jp/a52684/kenko/health/infection/nanbyou/nanbyou.html", portal: "こうべ障害者支援ネット", portalUrl: "https://www.city.kobe.lg.jp/a52684/kenko/fukushi/shougaishafukushi/" },
+    ]
+  },
+  {
+    region: "中国・九州",
+    cities: [
+      { name: "岡山市", pref: "岡山県", dept: "岡山市保健所保健課難病対策係", url: "https://www.city.okayama.jp/kurashi/0000006180.html", portal: "岡山市 障害福祉の手引き", portalUrl: "https://www.city.okayama.jp/kurashi/category/1-4-2-0-0-0-0-0-0-0.html" },
+      { name: "広島市", pref: "広島県", dept: "広島市健康福祉局健康推進課難病対策係", url: "https://www.city.hiroshima.lg.jp/soshiki/71/10705.html", portal: "広島市 障害福祉情報", portalUrl: "https://www.city.hiroshima.lg.jp/site/fukushi-shogai/" },
+      { name: "北九州市", pref: "福岡県", dept: "北九州市保健福祉局保健医療課難病対策係", url: "https://www.city.kitakyushu.lg.jp/kenkou/03300067.html", portal: "北九州市 障害福祉の手引き", portalUrl: "https://www.city.kitakyushu.lg.jp/shimin/menu02_0007.html" },
+      { name: "福岡市", pref: "福岡県", dept: "福岡市保健福祉局健康増進課難病対策係", url: "https://www.city.fukuoka.lg.jp/hofuku/hokenyobo/health/nanbyou.html", portal: "福岡市 障がい福祉の手引き", portalUrl: "https://www.city.fukuoka.lg.jp/fukushi/shogaishafukushi/" },
+      { name: "熊本市", pref: "熊本県", dept: "熊本市保健所健康づくり推進課難病対策係", url: "https://www.city.kumamoto.jp/hpkiji/pub/detail.aspx?c_id=5&id=7215", portal: "熊本市 障がい福祉ポータル", portalUrl: "https://www.city.kumamoto.jp/hpkiji/pub/detail.aspx?c_id=5&id=324" },
+    ]
+  }
+];
+
+// 都道府県別データ（政令市がある場合は注記）
 const regions = [
   {
     name: "北海道・東北",
     prefectures: [
-      { name: "北海道", dept: "保健福祉部感染症対策局感染症対策課", url: "https://www.pref.hokkaido.lg.jp/hf/kkt/nanbyo/", portal: "札幌市 障がい福祉情報", portalUrl: "https://www.city.sapporo.jp/shougai/" },
+      { name: "北海道", dept: "保健福祉部感染症対策課", url: "https://www.pref.hokkaido.lg.jp/hf/kkt/nanbyo/", designated: "札幌市にお住まいの方は札幌市各区保健センターへ" },
       { name: "青森県", dept: "健康医療福祉部保健衛生課", url: "https://www.pref.aomori.lg.jp/soshiki/kenko/hoken/nanbyou.html" },
       { name: "岩手県", dept: "保健福祉部健康国保課", url: "https://www.pref.iwate.jp/kurashikankyou/iryou/kenkou/nanbyou/" },
-      { name: "宮城県", dept: "保健福祉部疾病・感染症対策課", url: "https://www.pref.miyagi.jp/soshiki/situkan/nanbyo.html", portal: "仙台市 障害福祉情報", portalUrl: "https://www.city.sendai.jp/fukushi/shogai/" },
+      { name: "宮城県", dept: "保健福祉部疾病・感染症対策課", url: "https://www.pref.miyagi.jp/soshiki/situkan/nanbyo.html", designated: "仙台市にお住まいの方は仙台市各区役所障害高齢課へ" },
       { name: "秋田県", dept: "健康環境部保健・疾病対策課", url: "https://www.pref.akita.lg.jp/pages/archive/775" },
       { name: "山形県", dept: "健康福祉部健康福祉企画課", url: "https://www.pref.yamagata.jp/090001/kenko/iryo/nanbyo/" },
       { name: "福島県", dept: "保健福祉部地域医療課", url: "https://www.pref.fukushima.lg.jp/sec/21045c/nanbyou-josei.html" },
@@ -20,9 +69,9 @@ const regions = [
     name: "関東",
     prefectures: [
       { name: "東京都", dept: "福祉保健局保健企画部疾病対策課", url: "https://www.fukushihoken.metro.tokyo.lg.jp/iryo/nanbyo/", portal: "とうきょう福祉ナビゲーション（福ナビ）", portalUrl: "https://www.fukunavi.or.jp/" },
-      { name: "神奈川県", dept: "健康医療局保健医療部がん・疾病対策課", url: "https://www.pref.kanagawa.jp/docs/t7i/cnt/f531388/", portal: "横浜市 障害福祉情報ポータル", portalUrl: "https://www.city.yokohama.lg.jp/kurashi/fukushi-kaigo/fukushi/" },
-      { name: "埼玉県", dept: "保健医療部疾病対策課", url: "https://www.pref.saitama.lg.jp/a0705/nanbyou/", portal: "さいたま市 障害福祉ポータル", portalUrl: "https://www.city.saitama.lg.jp/002/003/index.html" },
-      { name: "千葉県", dept: "健康福祉部疾病対策課", url: "https://www.pref.chiba.lg.jp/shippei/nanbyou/", portal: "千葉市 障害福祉の手引き", portalUrl: "https://www.city.chiba.jp/hokenfukushi/koreishogai/shogaijiritsu/" },
+      { name: "神奈川県", dept: "健康医療局がん・疾病対策課", url: "https://www.pref.kanagawa.jp/docs/t7i/cnt/f531388/", designated: "横浜市・川崎市・相模原市にお住まいの方は各市の窓口へ" },
+      { name: "埼玉県", dept: "保健医療部疾病対策課", url: "https://www.pref.saitama.lg.jp/a0705/nanbyou/", designated: "さいたま市にお住まいの方はさいたま市各区役所支援課へ" },
+      { name: "千葉県", dept: "健康福祉部疾病対策課", url: "https://www.pref.chiba.lg.jp/shippei/nanbyou/", designated: "千葉市にお住まいの方は千葉市各区保健福祉センターへ" },
       { name: "茨城県", dept: "保健医療部疾病対策課", url: "https://www.pref.ibaraki.jp/hokenfukushi/shippei/nanbyo/" },
       { name: "栃木県", dept: "保健福祉部健康増進課", url: "https://www.pref.tochigi.lg.jp/e04/welfare/iryou/nanbyou/" },
       { name: "群馬県", dept: "健康福祉部保健予防課", url: "https://www.pref.gunma.jp/page/7946.html" },
@@ -31,11 +80,11 @@ const regions = [
   {
     name: "中部・東海・北陸",
     prefectures: [
-      { name: "愛知県", dept: "保健医療局健康医務部健康対策課", url: "https://www.pref.aichi.jp/soshiki/kenkotaisaku/nanbyou.html", portal: "ウェルネットなごや（名古屋市障害者支援情報）", portalUrl: "https://www.kaigo-wel.city.nagoya.jp/view/wel/index.html" },
+      { name: "愛知県", dept: "保健医療局健康対策課", url: "https://www.pref.aichi.jp/soshiki/kenkotaisaku/nanbyou.html", designated: "名古屋市にお住まいの方は名古屋市各区保健センターへ" },
+      { name: "静岡県", dept: "健康福祉部疾病対策課", url: "https://www.pref.shizuoka.jp/kenkofukushi/iryo/nanbyo/", designated: "静岡市・浜松市にお住まいの方は各市の窓口へ" },
+      { name: "新潟県", dept: "福祉保健部健康づくり支援課", url: "https://www.pref.niigata.lg.jp/sec/kenko/1217032734177.html", designated: "新潟市にお住まいの方は新潟市各区役所健康福祉課へ" },
       { name: "岐阜県", dept: "健康福祉部保健医療課", url: "https://www.pref.gifu.lg.jp/page/22758.html" },
       { name: "三重県", dept: "医療保健部薬務感染症対策課", url: "https://www.pref.mie.lg.jp/YAKUMUS/HP/nanbyo/" },
-      { name: "静岡県", dept: "健康福祉部健康局疾病対策課", url: "https://www.pref.shizuoka.jp/kenkofukushi/iryo/nanbyo/" },
-      { name: "新潟県", dept: "福祉保健部健康づくり支援課", url: "https://www.pref.niigata.lg.jp/sec/kenko/1217032734177.html" },
       { name: "富山県", dept: "厚生部健康課", url: "https://www.pref.toyama.jp/1205/kenkou/iryou/nanbyou/" },
       { name: "石川県", dept: "健康福祉部健康推進課", url: "https://www.pref.ishikawa.lg.jp/kenkou/nanbyo/" },
       { name: "福井県", dept: "健康福祉部地域医療課", url: "https://www.pref.fukui.lg.jp/doc/iryou/nanbyo/" },
@@ -46,35 +95,35 @@ const regions = [
   {
     name: "近畿",
     prefectures: [
-      { name: "大阪府", dept: "健康医療部保健医療室地域保健課", url: "https://www.pref.osaka.lg.jp/o100060/chiikihoken/nanbyo/", portal: "大阪市 障がい福祉情報", portalUrl: "https://www.city.osaka.lg.jp/fukushi/page/0000004944.html" },
-      { name: "兵庫県", dept: "保健医療部疾病対策課", url: "https://web.pref.hyogo.lg.jp/kf17/nanbyo_josei.html", portal: "こうべ障害者支援ネット", portalUrl: "https://www.city.kobe.lg.jp/a52684/kenko/fukushi/shougaishafukushi/" },
-      { name: "京都府", dept: "健康福祉部医療課", url: "https://www.pref.kyoto.jp/nanbyo/", portal: "京都市 障害福祉情報ポータル", portalUrl: "https://www.city.kyoto.lg.jp/hokenfukushi/page/0000091395.html" },
+      { name: "大阪府", dept: "健康医療部地域保健課", url: "https://www.pref.osaka.lg.jp/o100060/chiikihoken/nanbyo/", designated: "大阪市・堺市にお住まいの方は各市の保健所・区役所へ" },
+      { name: "兵庫県", dept: "保健医療部疾病対策課", url: "https://web.pref.hyogo.lg.jp/kf17/nanbyo_josei.html", designated: "神戸市にお住まいの方は神戸市各区役所保健福祉課へ" },
+      { name: "京都府", dept: "健康福祉部医療課", url: "https://www.pref.kyoto.jp/nanbyo/", designated: "京都市にお住まいの方は京都市各区役所・支所へ" },
       { name: "滋賀県", dept: "健康医療福祉部健康推進課", url: "https://www.pref.shiga.lg.jp/ippan/kenkouiryouhukushi/yakumu/14299.html" },
-      { name: "奈良県", dept: "福祉医療部医療政策局疾病対策課", url: "https://www.pref.nara.jp/17926.htm" },
-      { name: "和歌山県", dept: "福祉保健部健康局健康推進課", url: "https://www.pref.wakayama.lg.jp/prefg/050100/nanbyo/" },
+      { name: "奈良県", dept: "福祉医療部疾病対策課", url: "https://www.pref.nara.jp/17926.htm" },
+      { name: "和歌山県", dept: "福祉保健部健康推進課", url: "https://www.pref.wakayama.lg.jp/prefg/050100/nanbyo/" },
     ]
   },
   {
     name: "中国・四国",
     prefectures: [
-      { name: "広島県", dept: "健康福祉局医療推進課", url: "https://www.pref.hiroshima.lg.jp/soshiki/53/nanbyo.html", portal: "広島市 障害福祉情報", portalUrl: "https://www.city.hiroshima.lg.jp/site/fukushi-shogai/" },
-      { name: "岡山県", dept: "保健福祉部健康推進課", url: "https://www.pref.okayama.jp/page/detail-45371.html" },
-      { name: "鳥取県", dept: "福祉保健部健康医療局医療政策課", url: "https://www.pref.tottori.lg.jp/nanbyou/" },
+      { name: "岡山県", dept: "保健福祉部健康推進課", url: "https://www.pref.okayama.jp/page/detail-45371.html", designated: "岡山市にお住まいの方は岡山市各区保健センターへ" },
+      { name: "広島県", dept: "健康福祉局医療推進課", url: "https://www.pref.hiroshima.lg.jp/soshiki/53/nanbyo.html", designated: "広島市にお住まいの方は広島市各区厚生部地域支えあい課へ" },
+      { name: "鳥取県", dept: "福祉保健部医療政策課", url: "https://www.pref.tottori.lg.jp/nanbyou/" },
       { name: "島根県", dept: "健康福祉部健康推進課", url: "https://www.pref.shimane.lg.jp/medical/kenko/iryo/nanbyo/" },
       { name: "山口県", dept: "健康福祉部健康増進課", url: "https://www.pref.yamaguchi.lg.jp/soshiki/47/22378.html" },
       { name: "徳島県", dept: "保健福祉部健康づくり課", url: "https://www.pref.tokushima.lg.jp/ippannokata/kenko/iryo/2014121500318/" },
       { name: "香川県", dept: "健康福祉部健康づくり相談課", url: "https://www.pref.kagawa.lg.jp/kenkozoshin/nanbyo/" },
-      { name: "愛媛県", dept: "保健福祉部健康衛生局健康増進課", url: "https://www.pref.ehime.jp/h25500/nanbyou/" },
+      { name: "愛媛県", dept: "保健福祉部健康増進課", url: "https://www.pref.ehime.jp/h25500/nanbyou/" },
       { name: "高知県", dept: "健康政策部健康対策課", url: "https://www.pref.kochi.lg.jp/soshiki/130401/nanbyo-index.html" },
     ]
   },
   {
     name: "九州・沖縄",
     prefectures: [
-      { name: "福岡県", dept: "保健医療介護部がん感染症疾病対策課", url: "https://www.pref.fukuoka.lg.jp/contents/nanbyou-top.html", portal: "福岡市 障がい福祉の手引き", portalUrl: "https://www.city.fukuoka.lg.jp/fukushi/shogaishafukushi/" },
+      { name: "福岡県", dept: "保健医療介護部がん感染症疾病対策課", url: "https://www.pref.fukuoka.lg.jp/contents/nanbyou-top.html", designated: "北九州市・福岡市にお住まいの方は各市の区役所へ" },
+      { name: "熊本県", dept: "健康福祉部健康づくり推進課", url: "https://www.pref.kumamoto.jp/soshiki/30/50702.html", designated: "熊本市にお住まいの方は熊本市各区役所保健子ども課へ" },
       { name: "佐賀県", dept: "健康福祉部健康増進課", url: "https://www.pref.saga.lg.jp/kiji00338782/index.html" },
       { name: "長崎県", dept: "福祉保健部国保・健康増進課", url: "https://www.pref.nagasaki.jp/bunrui/hukushi-hoken/kenkodukuri/nanbyou/" },
-      { name: "熊本県", dept: "健康福祉部健康局健康づくり推進課", url: "https://www.pref.kumamoto.jp/soshiki/30/50702.html" },
       { name: "大分県", dept: "福祉保健部健康づくり支援課", url: "https://www.pref.oita.jp/soshiki/12210/nanbyo.html" },
       { name: "宮崎県", dept: "福祉保健部健康増進課", url: "https://www.pref.miyazaki.lg.jp/kenkozoshin/kenko/iryo/nanbyo/" },
       { name: "鹿児島県", dept: "くらし保健福祉部健康増進課", url: "https://www.pref.kagoshima.jp/ae06/kenko-fukushi/kenko-iryo/nanbyo/" },
@@ -113,8 +162,8 @@ const nationalPortals = [
 ---
 
 <BaseLayout
-  title="全国難病支援・医療費助成 行政窓口＆生活支援情報リンク集"
-  description="各都道府県の指定難病医療費助成申請窓口、難病相談支援センター、およびウェルネットなごや等自治体の障害福祉・生活支援ポータルのリンク集です。"
+  title="全国難病支援・医療費助成 行政窓口＆生活支援情報リンク集（47都道府県＆全20政令指定都市）"
+  description="47都道府県および全20政令指定都市の指定難病医療費助成申請公式窓口、ウェルネットなごや等自治体独自の障害福祉・生活支援ポータルの完全リンク集です。"
 >
   <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
     <!-- パンくずリスト -->
@@ -127,19 +176,40 @@ const nationalPortals = [
     <!-- ヘッダー -->
     <header class="mb-10 border-b border-slate-200 pb-8">
       <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 text-teal-700 border border-teal-200 text-xs font-semibold mb-3">
-        <span>全国自治体＆生活支援ポータル</span>
+        <span>47都道府県 ＆ 全20政令指定都市 完全対応</span>
       </div>
       <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-snug">
         全国難病支援・医療費助成<br class="hidden sm:inline"> 行政窓口＆生活支援情報リンク集
       </h1>
       <p class="text-sm sm:text-base text-slate-600 mt-3 leading-relaxed">
-        難病と告知された直後は、何から手をつけてよいか分からず、行政手続きの複雑さに途方に暮れてしまう方が多くいます。<br>
-        各都道府県の<strong>指定難病医療費助成（受給者証）の申請窓口</strong>をはじめ、名古屋市の<strong>「ウェルネットなごや」</strong>のような自治体独自の生活支援・福祉情報ポータル、全国相談機関をまとめました。
+        難病法（難病の患者に対する医療等に関する法律）では、医療費助成の支給認定事務は<strong>「都道府県」だけでなく「政令指定都市」も独自に行う</strong>ことと定められています。<br>
+        47都道府県の公式申請窓口はもちろん、<strong>全国20の政令指定都市それぞれの独自申請窓口</strong>、および名古屋市の<strong>「ウェルネットなごや」</strong>をはじめとする各自治体の障害福祉・生活支援ポータルを網羅しました。
       </p>
     </header>
 
     <!-- 広告枠上部 -->
     <AdSense slot="links-top" format="auto" />
+
+    <!-- 政令指定都市にお住まいの方へ（超重要注意喚起） -->
+    <section class="my-8 bg-amber-50 border-2 border-amber-400/80 rounded-xl p-6 sm:p-7 shadow-xs">
+      <div class="flex items-start gap-3">
+        <span class="text-2xl shrink-0">⚠️</span>
+        <div>
+          <h2 class="text-base sm:text-lg font-bold text-amber-950 mb-1">
+            【最重要】政令指定都市（全国20市）にお住まいの方へ
+          </h2>
+          <p class="text-xs sm:text-sm text-amber-900 leading-relaxed">
+            政令指定都市（札幌・仙台・さいたま・千葉・横浜・川崎・相模原・新潟・静岡・浜松・名古屋・京都・大阪・堺・神戸・岡山・広島・北九州・福岡・熊本）にお住まいの方は、<strong>都道府県庁ではなく【お住まいの市（区役所・保健センター）】が申請・認定の直接の窓口</strong>となります。<br>
+            県の窓口に申請書類を送っても受理されず返送されてしまうケースがあるため、必ず下記の「政令指定都市の独自窓口」をご確認ください。
+          </p>
+          <div class="mt-3">
+            <a href="#designated-cities" class="inline-flex items-center gap-1 text-xs font-bold text-teal-800 underline hover:text-teal-950">
+              &darr; 全20政令指定都市の独自窓口一覧へジャンプ
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- 当事者からの申請ワンポイントアドバイス -->
     <section class="my-10 bg-teal-50/60 border border-teal-200 rounded-xl p-6 sm:p-8">
@@ -159,14 +229,14 @@ const nationalPortals = [
           <span class="text-teal-700 font-bold">2.</span>
           <div>
             <strong>診断書（臨床調査個人票）は「難病指定医」に依頼する:</strong><br>
-            医療費助成の申請書に添付する診断書は、都道府県から指定を受けた「難病指定医」しか記入できません。主治医に依頼する際、難病指定医であるか必ず事前に確認してください。
+            医療費助成の申請書に添付する診断書は、都道府県・政令指定都市から指定を受けた「難病指定医」しか記入できません。主治医に依頼する際、難病指定医であるか必ず事前に確認してください。
           </div>
         </li>
         <li class="flex items-start gap-2">
           <span class="text-teal-700 font-bold">3.</span>
           <div>
-            <strong>「医療費助成」だけでなく「自治体の福祉ポータル」も確認する:</strong><br>
-            名古屋市の「ウェルネットなごや」のように、自治体によっては難病患者を対象とした日常生活用具給付、水道料金や交通機関の減免、手当の独自支給などを実施している場合があります。県の窓口だけでなく、お住まいの市区町村の障害福祉窓口も併せてご確認ください。
+            <strong>「医療費助成」だけでなく「自治体の独自福祉ポータル」も確認する:</strong><br>
+            名古屋市の「ウェルネットなごや」のように、政令市や自治体によっては難病患者を対象とした日常生活用具給付、水道料金や交通機関の減免、手当の独自支給などを実施している場合があります。医療費助成だけでなく、市区町村の障害福祉窓口も併せてご確認ください。
           </div>
         </li>
       </ul>
@@ -201,24 +271,89 @@ const nationalPortals = [
       </div>
     </section>
 
-    <!-- 都道府県別 行政申請窓口 ＆ 自治体生活支援ポータル -->
-    <section class="mb-14">
+    <!-- 全20政令指定都市 独自申請窓口＆生活支援ポータル一覧 -->
+    <section id="designated-cities" class="mb-14 scroll-mt-24">
       <div class="mb-8">
+        <div class="inline-block px-3 py-1 rounded-full bg-teal-100 text-teal-900 text-xs font-bold mb-2">
+          政令指定都市にお住まいの方用
+        </div>
         <h2 class="text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2 border-b border-slate-200 pb-3">
-          <span>47都道府県別 行政窓口 ＆ 生活支援ポータル</span>
+          <span>全20政令指定都市 独自申請窓口＆生活福祉ポータル</span>
         </h2>
         <p class="text-xs sm:text-sm text-slate-500 mt-2">
-          お住まいの地域を選択してください。各都道府県の難病対策窓口（申請・認定）と、政令市等の障害・難病生活支援ポータルを掲載しています。
+          政令市にお住まいの方は各市の保健所・区役所へ直接申請します。名古屋市の「ウェルネットなごや」等、各市独自の福祉支援ポータルもあわせて掲載しています。
         </p>
       </div>
 
-      <!-- 地域別アコーディオン/リスト -->
+      <div class="space-y-8">
+        {designatedCities.map(group => (
+          <div class="bg-white border-2 border-teal-200/80 rounded-xl shadow-xs overflow-hidden">
+            <div class="bg-teal-50/80 px-6 py-3 border-b border-teal-200/80 flex items-center justify-between">
+              <h3 class="font-bold text-teal-950 text-base flex items-center gap-2">
+                <span class="inline-block w-2.5 h-2.5 rounded-full bg-teal-600"></span>
+                <span>{group.region}エリアの政令指定都市</span>
+              </h3>
+            </div>
+            <div class="divide-y divide-slate-100">
+              {group.cities.map(city => (
+                <div class="p-5 hover:bg-slate-50/60 transition-colors">
+                  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                      <div class="flex items-center gap-2 mb-1">
+                        <span class="text-lg font-bold text-slate-900">{city.name}</span>
+                        <span class="text-xs px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 font-medium">（{city.pref}）</span>
+                        <span class="text-xs text-slate-500">担当：{city.dept}</span>
+                      </div>
+                      <div class="flex items-center gap-2 text-xs flex-wrap mt-2">
+                        <span class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 font-semibold">生活・福祉支援ポータル</span>
+                        <a
+                          href={city.portalUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="text-teal-700 hover:underline font-bold inline-flex items-center gap-1"
+                        >
+                          {city.portal}
+                          <span class="text-[10px] text-slate-400">&nearr;</span>
+                        </a>
+                      </div>
+                    </div>
+                    <div class="shrink-0 flex items-center gap-2">
+                      <a
+                        href={city.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-flex items-center gap-1 px-3.5 py-2 rounded-lg bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold shadow-2xs transition-colors"
+                      >
+                        <span>{city.name}公式 難病申請ページ</span>
+                        <span>&nearr;</span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- 47都道府県別 行政申請窓口（地方別） -->
+    <section class="mb-14">
+      <div class="mb-8">
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2 border-b border-slate-200 pb-3">
+          <span>47都道府県別 難病対策課（医療費助成）窓口一覧</span>
+        </h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-2">
+          政令指定都市以外の市町村にお住まいの方は、各都道府県の所管保健所・健康福祉事務所へ申請します。
+        </p>
+      </div>
+
       <div class="space-y-8">
         {regions.map(region => (
           <div class="bg-white border border-slate-200 rounded-xl shadow-2xs overflow-hidden">
             <div class="bg-slate-100/80 px-6 py-3 border-b border-slate-200">
               <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
-                <span class="inline-block w-2.5 h-2.5 rounded-full bg-teal-600"></span>
+                <span class="inline-block w-2.5 h-2.5 rounded-full bg-slate-600"></span>
                 <span>{region.name} 地方</span>
               </h3>
             </div>
@@ -231,6 +366,12 @@ const nationalPortals = [
                         <span class="font-bold text-slate-900 text-base">{pref.name}</span>
                         <span class="text-xs text-slate-500">担当：{pref.dept}</span>
                       </div>
+                      {pref.designated && (
+                        <div class="mt-1 text-xs text-amber-700 flex items-center gap-1 font-medium">
+                          <span>※</span>
+                          <span>{pref.designated}</span>
+                        </div>
+                      )}
                       {pref.portal && (
                         <div class="mt-1.5 flex items-center gap-2 text-xs">
                           <span class="px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 font-medium">生活支援ポータル</span>
@@ -253,7 +394,7 @@ const nationalPortals = [
                         rel="noopener noreferrer"
                         class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-teal-50 hover:border-teal-400 hover:text-teal-800 text-xs font-semibold text-slate-700 transition-colors"
                       >
-                        <span>{pref.name}の難病申請公式ページ</span>
+                        <span>{pref.name}公式 難病申請ページ</span>
                         <span>&nearr;</span>
                       </a>
                     </div>
@@ -280,4 +421,3 @@ const nationalPortals = [
     </div>
   </div>
 </BaseLayout>
-EOF
