@@ -1,0 +1,375 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import AdSense from '../components/AdSense.astro';
+
+const diffPoints = [
+  {
+    title: "1. 難病患者福祉手当・見舞金（現金給付）",
+    tag: "最大で年間10〜18万円の格差",
+    urgency: "高",
+    summary: "国の一律制度ではなく、市区町村独自の予算で支給されるため、住んでいる場所によって「毎月支給」「年1回の見舞金」「制度自体なし（0円）」の差が生じます。",
+    comparison: [
+      { area: "東京都各区・一部市", detail: "月額 7,000円〜15,000円程度（年額約8万〜18万円）を定期支給。受給者証のみで対象となる区も多い。" },
+      { area: "一部政令市・中核市", detail: "年額 10,000円〜30,000円程度の「見舞金」形式。または所得制限や手帳所持が必須のケースが多い。" },
+      { area: "財政難の自治体・地方", detail: "制度そのものが存在しない（0円）、あるいは過去に財政難を理由に廃止された地域が多数。" }
+    ],
+    pitfall: "指定難病受給者証だけで申請できる自治体と、「身体障害者手帳1・2級」を併せ持たないと1円も出ない自治体があります。内臓難病（好酸球性胃腸炎など）は手帳が取れないことが多いため、手帳要件の有無で分断が生じます。"
+  },
+  {
+    title: "2. 医療費の自治体独自上乗せ助成（マル都・マル障など）",
+    tag: "自己負担限度額の免除・独自助成",
+    urgency: "高",
+    summary: "難病法の医療費助成（原則2割負担＋所得に応じた月額上限）に加えて、自治体独自に自己負担分を全額または一部肩代わりする制度です。",
+    comparison: [
+      { area: "東京都（マル都医療券）", detail: "国の指定難病だけでなく、都独自の医療費助成（人工呼吸器装着者や特定の非指定難病等）を実施。また重度心身障害者医療費助成（マル障）の範囲が広い。" },
+      { area: "先進的自治体", detail: "指定難病患者の月額自己負担額（通常1万〜2万円等）を自治体予算で助成し、実質自己負担ゼロまたは減額する上乗せ制度を実施。" },
+      { area: "標準的な自治体", detail: "国の基準通りのみ。国の自己負担上限額（上限まで全額自己負担）をそのまま支払う。" }
+    ],
+    pitfall: "国の指定難病（現在341疾病）から外れている難病・希少疾患でも、東京都など一部の自治体では独自に「特定疾患」として医療費助成を行っている場合があります。"
+  },
+  {
+    title: "3. 通院交通費・福祉タクシー券・公共交通パス",
+    tag: "通院負担の軽減",
+    urgency: "中",
+    summary: "発作時や体調急変時の通院、定期的な大学病院への通院にかかる交通費への補助制度です。",
+    comparison: [
+      { area: "東京都など", detail: "都営交通（都営地下鉄・都バス・日暮里舎人ライナー）無料乗車証の交付対象に、指定難病医療費受給者証の所持者が含まれる。" },
+      { area: "一部自治体", detail: "福祉タクシー利用券（年間1万円〜数万円分）を「指定難病受給者証所持者」にも交付。" },
+      { area: "多くの自治体", detail: "福祉タクシー券や交通無料証は「身体障害者手帳1・2級（下肢・視覚等）」のみに限定され、難病患者は完全に対象外。" }
+    ],
+    pitfall: "難病患者は「外見上は健康そうに見えても激痛や下痢・呼吸困難で公共交通に乗れない」ことが多いため、タクシー助成の有無は通院の死活問題になります。"
+  },
+  {
+    title: "4. 日常生活用具給付・在宅医療機器の非常用電源補助",
+    tag: "命に直結する災害対策",
+    urgency: "命に関わる",
+    summary: "障害者総合支援法に基づく日常生活用具給付等事業。近年、自然災害時の停電に備えた「非常用ポータブル電源・蓄電池」の助成格差が急拡大しています。",
+    comparison: [
+      { area: "先進自治体", detail: "在宅酸素療法（HOT）や人工呼吸器使用者に対し、非常用蓄電池・発電機の購入費を最大10万〜20万円（自己負担1割等）補助。" },
+      { area: "一般自治体", detail: "吸入器（ネブライザー）や吸引器、パルスオキシメーターなどの給付のみ（対象疾患や医師の意見書が必要）。" },
+      { area: "遅れている自治体", detail: "非常用電源の補助制度がなく、自費（10万〜20万円超）で購入するか、停電時に命の危険に晒される。" }
+    ],
+    pitfall: "吸入器やネブライザー、酸素濃縮器の補助は、自治体によって「難病法受給者証があれば申請可能」な地域と「障害手帳必須」な地域で対応が二分されます。"
+  },
+  {
+    title: "5. 公営住宅の優先入居・家賃減免・水道料金等の減免",
+    tag: "固定費・生活基盤の支援",
+    urgency: "中",
+    summary: "闘病によって就労が制限され収入が減少した難病患者世帯に対する生活インフラの優遇措置です。",
+    comparison: [
+      { area: "対応自治体", detail: "県営住宅・市営住宅の募集で「難病患者世帯向け優先枠」や「抽選倍率優遇（当選確率引き上げ）」、家賃減免措置を導入。" },
+      { area: "一部自治体", detail: "水道料金・下水道使用料の基本料金免除の対象に難病受給者を指定。" },
+      { area: "未対応自治体", detail: "公営住宅の優遇や公共料金減免の対象は「生活保護受給者」または「手帳保持者」のみで、難病受給者は一般枠扱い。" }
+    ],
+    pitfall: "自治体のホームページの深い階層に埋もれており、窓口で尋ねない限り案内されない典型的な「隠れ制度」の一つです。"
+  }
+];
+
+const checkList = [
+  {
+    category: "現金給付・手当",
+    question: "「指定難病受給者証を持っていますが、貴自治体独自の『難病患者福祉手当』や『難病見舞金』の支給制度はありますか？手帳がなくても受給者証だけで対象になりますか？」"
+  },
+  {
+    category: "交通費・移動支援",
+    question: "「通院のための福祉タクシー利用券や、コミュニティバス・公共交通機関の無料乗車証・割引証は、指定難病患者でも申請できますか？」"
+  },
+  {
+    category: "日常生活用具・医療機器",
+    question: "「ネブライザー（吸入器）やパルスオキシメーター、吸引器などの日常生活用具給付は対象ですか？また、在宅酸素や医療機器を使用している場合の非常用電源（蓄電池等）の購入補助制度はありますか？」"
+  },
+  {
+    category: "医療費の上乗せ",
+    question: "「指定難病の特定医療費助成以外に、市区町村独自の医療費助成や、重度心身障害者医療費助成（マル障など）の対象に難病患者が含まれる特例はありますか？」"
+  },
+  {
+    category: "住居・インフラ",
+    question: "「市営（県営）住宅への応募で、難病患者世帯向けの優先枠やポイント優遇はありますか？また、水道料金等の減免制度はありますか？」"
+  }
+];
+---
+
+<BaseLayout
+  title="住む場所でここまで違う！？難病患者の支援制度・自治体独自助成の地域格差まとめ"
+  description="国の指定難病医療費助成（一律）とは別に、市区町村や都道府県ごとに天と地ほどの格差がある難病手当・見舞金・タクシー券・非常用電源助成などの自治体独自支援を当事者目線で徹底解説。"
+>
+  <!-- ページヘッダー -->
+  <div class="bg-gradient-to-b from-teal-50/80 via-slate-50 to-slate-50 border-b border-slate-200 py-10 sm:py-14">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold mb-4 border border-amber-300 shadow-2xs">
+        <svg class="w-4 h-4 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+        </svg>
+        <span>当事者が知っておくべき行政のリアル</span>
+      </div>
+      <h1 class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-snug sm:leading-normal mb-4">
+        住む場所でここまで違う！？<br class="hidden sm:inline" />難病患者の支援制度・自治体独自助成の地域格差まとめ
+      </h1>
+      <p class="text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl mx-auto">
+        「同じ指定難病なのに、隣の市に住んでいる人は毎月手当をもらっている…」<br class="hidden sm:inline" />
+        国が一律で定める医療費助成の裏で、自治体の財政力や条例によって生じている深刻な「地域格差」と、損をしないための申請術を整理しました。
+      </p>
+    </div>
+  </div>
+
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+    <!-- 医療免責アラート -->
+    <div class="mb-10 p-4 rounded-xl bg-amber-50/80 border border-amber-200 text-amber-950 text-xs sm:text-sm leading-relaxed flex items-start gap-3">
+      <span class="text-amber-600 text-lg leading-none shrink-0 mt-0.5">⚠️</span>
+      <div>
+        <p class="font-bold text-amber-900 mb-1">自治体制度に関する重要なお断り</p>
+        <p class="text-amber-800/90 text-xs">
+          本ページで紹介する支援内容・金額・条件は、日本各地の自治体で実際に実施されている代表的な事例をもとに整理したものです。自治体独自の助成制度は各自治体の条例や毎年度の予算によって新設・改定・廃止されます。必ずお住まいの市区町村役場（障害福祉課等）や管轄保健所に最新の正確な要綱をご確認ください。
+        </p>
+      </div>
+    </div>
+
+    <!-- 制度の二層構造図解 -->
+    <section class="mb-14">
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs">
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+          <span class="w-2 h-6 bg-teal-600 rounded-full inline-block"></span>
+          <span>まず知るべき「国の制度」と「自治体独自制度」の二層構造</span>
+        </h2>
+        <p class="text-sm text-slate-700 leading-relaxed mb-6">
+          難病患者に対する公的支援は、大きく分けて<strong>「国が一律に定めている法律（難病法）」</strong>と、<strong>「市区町村や都道府県が独自予算で行っている単独事業」</strong>の2種類が存在します。ここを混同していると、「なぜ隣町と支援が違うのか」が見えなくなります。
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="p-5 rounded-xl bg-teal-50/60 border border-teal-200">
+            <div class="inline-block px-2.5 py-0.5 rounded text-[11px] font-bold bg-teal-700 text-white mb-2">
+              全国共通（格差なし）
+            </div>
+            <h3 class="font-bold text-slate-900 text-base mb-2">国の制度：指定難病特定医療費助成</h3>
+            <ul class="text-xs text-slate-700 space-y-2 leading-relaxed">
+              <li>・<strong>法律</strong>: 難病法（難病の患者に対する医療等に関する法律）</li>
+              <li>・<strong>対象</strong>: 国が指定する341疾病（好酸球性消化管疾患など）</li>
+              <li>・<strong>支援内容</strong>: 窓口自己負担が3割から2割に軽減。世帯年収に応じた月額自己負担限度額（2,500円〜30,000円など）を設定。</li>
+              <li>・<strong>地域差</strong>: 原則として全国どこに住んでいても同基準で適用。</li>
+            </ul>
+          </div>
+
+          <div class="p-5 rounded-xl bg-amber-50/60 border border-amber-200">
+            <div class="inline-block px-2.5 py-0.5 rounded text-[11px] font-bold bg-amber-700 text-white mb-2">
+              地域格差あり（天と地ほどの差）
+            </div>
+            <h3 class="font-bold text-slate-900 text-base mb-2">自治体独自制度：手当・見舞金・生活支援</h3>
+            <ul class="text-xs text-slate-700 space-y-2 leading-relaxed">
+              <li>・<strong>根拠</strong>: 各自治体の条例・単独予算事業</li>
+              <li>・<strong>対象</strong>: 自治体が独自に定める基準（手帳所持が必須の地域も）</li>
+              <li>・<strong>支援内容</strong>: 現金手当、見舞金、タクシー券、器具給付、非常用電源助成、公営住宅優遇など。</li>
+              <li>・<strong>地域差</strong>: <strong>年間数十万円の給付がある自治体もあれば、1円も出ない自治体もある。</strong></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 広告枠 -->
+    <AdSense slot="regional-top" format="auto" />
+
+    <!-- 住む場所でここまで違う！5大支援格差 -->
+    <section class="my-14 space-y-8">
+      <div>
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mb-2 flex items-center gap-2">
+          <span class="w-2 h-6 bg-teal-600 rounded-full inline-block"></span>
+          <span>住む場所でここまで違う！5つの自治体支援格差</span>
+        </h2>
+        <p class="text-sm text-slate-600">
+          実際に自治体間で大きな差が生じている主要な5つの支援項目です。
+        </p>
+      </div>
+
+      {diffPoints.map((item) => (
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs hover:border-slate-300 transition-colors">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <h3 class="text-lg sm:text-xl font-bold text-slate-900">{item.title}</h3>
+            <span class="px-2.5 py-1 rounded-md bg-rose-50 text-rose-700 border border-rose-200 text-xs font-bold">
+              {item.tag}
+            </span>
+          </div>
+
+          <p class="text-sm text-slate-700 leading-relaxed mb-5">
+            {item.summary}
+          </p>
+
+          <!-- 比較テーブル -->
+          <div class="overflow-x-auto mb-5">
+            <table class="w-full text-xs text-left border-collapse border border-slate-200 rounded-lg overflow-hidden">
+              <thead>
+                <tr class="bg-slate-100/80 text-slate-700 font-semibold border-b border-slate-200">
+                  <th class="p-3 w-1/3 border-r border-slate-200">地域・自治体のタイプ</th>
+                  <th class="p-3 w-2/3">実際の給付・対応内容の事例</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200">
+                {item.comparison.map(c => (
+                  <tr class="hover:bg-slate-50/50">
+                    <td class="p-3 font-semibold text-slate-900 bg-slate-50/40 border-r border-slate-200 align-top">
+                      {c.area}
+                    </td>
+                    <td class="p-3 text-slate-700 leading-relaxed align-top">
+                      {c.detail}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 落とし穴・注意点 -->
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-700 leading-relaxed flex items-start gap-2.5">
+            <span class="font-bold text-rose-600 shrink-0">⚠️ 注意点:</span>
+            <span>{item.pitfall}</span>
+          </div>
+        </div>
+      ))}
+    </section>
+
+    <!-- 政令指定都市と一般市町村の申請窓口の違い -->
+    <section class="mb-14">
+      <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-teal-950 text-white rounded-2xl p-6 sm:p-8 shadow-md">
+        <h2 class="text-xl sm:text-2xl font-bold mb-4 flex items-center gap-2">
+          <span class="text-teal-400">🏢</span>
+          <span>政令指定都市と一般市町村で申請先が全く違う点に注意</span>
+        </h2>
+        <div class="space-y-4 text-xs sm:text-sm text-slate-300 leading-relaxed">
+          <p>
+            難病の申請窓口は、お住まいの自治体が<strong>「一般の市区町村」</strong>か<strong>「政令指定都市（全20市）」</strong>かによって管轄が完全に分かれています。
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 my-4">
+            <div class="p-4 rounded-xl bg-white/10 border border-white/10">
+              <h4 class="font-bold text-teal-300 text-sm mb-2">一般の市町村にお住まいの場合</h4>
+              <p class="text-xs text-slate-200 leading-relaxed">
+                指定難病の医療費助成は<strong>「都道府県」</strong>が実施主体となります。そのため、窓口は都道府県が設置する管轄の<strong>「県立保健所」</strong>となります（一部、市役所窓口を経由して提出できる自治体もあります）。
+              </p>
+            </div>
+            <div class="p-4 rounded-xl bg-white/10 border border-white/10">
+              <h4 class="font-bold text-teal-300 text-sm mb-2">政令指定都市（全20市）にお住まいの場合</h4>
+              <p class="text-xs text-slate-200 leading-relaxed">
+                都道府県から権限が移譲されているため、県ではなく<strong>「市独自」</strong>で事務を行います。申請窓口は県立保健所ではなく、お住まいの区の<strong>「区役所福祉課」</strong>や<strong>「保健センター」</strong>になります。
+              </p>
+            </div>
+          </div>
+          <p class="text-amber-300 font-medium text-xs">
+            ※ 引っ越し（転出・転入）の際、県境をまたぐ場合はもちろん、同じ県内でも「一般市から政令指定都市へ転居」またはその逆の場合、受給者証の変更手続きや独自手当の再申請が必要になります。旧自治体の手当は自動的に終了し、新自治体で申請しない限り給付は受けられません。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 広告枠 -->
+    <AdSense slot="regional-middle" format="auto" />
+
+    <!-- 行政の「申請主義」を突破する窓口質問チェックシート -->
+    <section class="my-14">
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-100 text-teal-800 text-xs font-bold mb-3">
+          <span>窓口交渉の知恵</span>
+        </div>
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mb-3">
+          役所は「聞かれなければ教えない」――窓口質問チェックシート
+        </h2>
+        <p class="text-sm text-slate-700 leading-relaxed mb-6">
+          日本の福祉行政は<strong>「申請主義」</strong>です。どんなに手厚い支援制度が存在していても、患者側から「〇〇の制度はありますか？申請したいです」と申し出ない限り、担当者が親切に教えてくれることは稀です。<br />
+          役所の「障害福祉課」や「保健所」を訪れた際は、以下のチェックリストをそのまま見せて確認してください。
+        </p>
+
+        <div class="space-y-4 mb-8">
+          {checkList.map((item, idx) => (
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-teal-700 text-white font-bold text-xs">
+                  {idx + 1}
+                </span>
+                <span class="font-bold text-slate-900 text-sm">{item.category}</span>
+              </div>
+              <p class="text-xs sm:text-sm text-slate-800 bg-white p-3 rounded-lg border border-slate-200/80 font-mono leading-relaxed">
+                {item.question}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <!-- ネット検索用キーワード集 -->
+        <div class="p-5 rounded-xl bg-teal-50/70 border border-teal-200">
+          <h3 class="font-bold text-slate-900 text-sm mb-2 flex items-center gap-2">
+            <span>🔍 自宅で調べる場合のGoogle検索キーワード集</span>
+          </h3>
+          <p class="text-xs text-slate-600 mb-3">
+            お住まいの自治体名を入れて検索してみてください。思わぬ独自制度がヒットすることがあります。
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono text-slate-700">
+            <div class="bg-white p-2.5 rounded border border-teal-100">
+              <code>[自治体名] 難病患者福祉手当</code>
+            </div>
+            <div class="bg-white p-2.5 rounded border border-teal-100">
+              <code>[自治体名] 難病 見舞金</code>
+            </div>
+            <div class="bg-white p-2.5 rounded border border-teal-100">
+              <code>[自治体名] 福祉タクシー 難病</code>
+            </div>
+            <div class="bg-white p-2.5 rounded border border-teal-100">
+              <code>[自治体名] 日常生活用具 難病</code>
+            </div>
+            <div class="bg-white p-2.5 rounded border border-teal-100">
+              <code>[自治体名] 在宅酸素 非常用電源 助成</code>
+            </div>
+            <div class="bg-white p-2.5 rounded border border-teal-100">
+              <code>[自治体名] 重度障害者医療費 難病</code>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 全国難病リンク集への誘導 -->
+    <section class="mb-14">
+      <div class="bg-gradient-to-r from-teal-700 via-teal-800 to-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+        <div>
+          <span class="inline-block px-2.5 py-0.5 rounded text-[11px] font-bold bg-teal-600/60 text-teal-200 mb-2 border border-teal-500/30">
+            公式窓口を一発検索
+          </span>
+          <h3 class="text-lg sm:text-xl font-bold mb-2">
+            全国47都道府県・20政令指定都市の公式窓口リンク集
+          </h3>
+          <p class="text-xs sm:text-sm text-teal-100/90 leading-relaxed max-w-xl">
+            当サイトでは、各自治体の公式難病担当部局URLと、自治体公式内をダイレクトに検索できる専用ボタンを用意しています。お住まいの自治体の窓口探しにご活用ください。
+          </p>
+        </div>
+        <a
+          href="/links"
+          class="shrink-0 px-5 py-3 rounded-xl bg-white text-teal-900 font-bold text-xs sm:text-sm shadow-sm hover:bg-teal-50 transition-colors inline-flex items-center gap-2"
+        >
+          <span>全国リンク集を見る</span>
+          <span>&rarr;</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- 当事者としてのコラム・結び -->
+    <section class="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs">
+      <h2 class="text-lg sm:text-xl font-bold text-slate-900 mb-3 flex items-center gap-2">
+        <span class="w-2 h-5 bg-teal-600 rounded-full inline-block"></span>
+        <span>当事者としての実感：制度を知ることは、自分と家族を守る第一歩</span>
+      </h2>
+      <div class="prose prose-slate prose-sm text-xs sm:text-sm leading-relaxed text-slate-700 space-y-4">
+        <p>
+          難病を抱えて生きる日常は、常に病状の波、耐え難い痛み、薬の副作用、そして先の見えない将来への不安との戦いです。
+          私自身、好酸球性胃腸炎で10回以上入退院を繰り返し、在宅酸素や完全グルテンフリー生活、高額な生物学的製剤の治療を続けていますが、治療費や生活費の負担は重くのしかかり続けます。
+        </p>
+        <p>
+          病気そのものの苦しみは、東京に住んでいようが、地方の小さな町に住んでいようが、まったく変わりません。
+          しかし、現行の行政の仕組みでは、<strong>「たまたまどの市区町村に住民票があるか」</strong>によって、年間数万円から十数万円もの手当や、災害時の非常用電源補助を受けられるかどうかが分かれてしまっています。
+        </p>
+        <p>
+          この不条理な格差を前に、「仕方がない」と諦めてしまうのはあまりにも酷です。
+          まずは自分のお住まいの自治体にどんな独自施策があるのかを徹底的に調べ、役所の窓口で堂々と相談してください。
+          制度の存在を知り、活用できる支援を余すことなく使うことは、患者自身と支える家族の生活を守るための正当な権利です。
+        </p>
+      </div>
+    </section>
+
+  </div>
+</BaseLayout>

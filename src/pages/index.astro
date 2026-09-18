@@ -74,31 +74,59 @@ const categories = [
   </section>
 
   <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-    <!-- 全国難病支援リンク集 特集バナー -->
+    <!-- 特集・お役立ちポータルバナー（2カラム） -->
     <section class="mb-12">
-      <a
-        href="/links"
-        class="group relative block overflow-hidden rounded-2xl bg-gradient-to-r from-teal-700 via-teal-800 to-slate-900 p-6 sm:p-8 text-white shadow-md hover:shadow-xl transition-all duration-300"
-      >
-        <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div>
-            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-600/60 text-teal-200 text-xs font-semibold mb-2 border border-teal-500/30">
-              <span>重要お役立ちポータル</span>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- バナー1: 地域格差まとめ -->
+        <a
+          href="/regional-support"
+          class="group relative block overflow-hidden rounded-2xl bg-gradient-to-br from-amber-700 via-amber-800 to-slate-900 p-6 text-white shadow-md hover:shadow-xl transition-all duration-300"
+        >
+          <div class="relative z-10 flex flex-col justify-between h-full">
+            <div>
+              <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/40 text-amber-200 text-xs font-semibold mb-3 border border-amber-400/30">
+                <span>制度の落とし穴</span>
+              </div>
+              <h2 class="text-lg sm:text-xl font-bold tracking-tight text-white mb-2 group-hover:text-amber-200 transition-colors">
+                住む場所でここまで違う！？<br />難病支援・自治体助成の地域格差
+              </h2>
+              <p class="text-xs text-amber-100/90 leading-relaxed mb-4">
+                月額手当や見舞金、タクシー券、災害時非常用電源など、市区町村の独自予算による格差を整理。窓口質問チェックシート付き。
+              </p>
             </div>
-            <h2 class="text-xl sm:text-2xl font-bold tracking-tight text-white mb-2 group-hover:text-teal-200 transition-colors">
-              全国難病支援・医療費助成 行政窓口＆生活支援情報リンク集
-            </h2>
-            <p class="text-xs sm:text-sm text-teal-100/90 leading-relaxed max-w-2xl">
-              47都道府県の指定難病医療費助成（受給者証）申請先をはじめ、名古屋市の「ウェルネットなごや」等、自治体独自の障害福祉・生活支援ポータル、国の相談支援センターを網羅しました。
-            </p>
+            <div>
+              <span class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white text-slate-900 font-bold text-xs shadow-xs group-hover:bg-amber-50 transition-colors">
+                格差と申請術を見る &rarr;
+              </span>
+            </div>
           </div>
-          <div class="shrink-0">
-            <span class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white text-teal-900 font-bold text-xs sm:text-sm shadow-sm group-hover:bg-teal-50 transition-colors">
-              リンク集を見る &rarr;
-            </span>
+        </a>
+
+        <!-- バナー2: 全国難病支援リンク集 -->
+        <a
+          href="/links"
+          class="group relative block overflow-hidden rounded-2xl bg-gradient-to-br from-teal-700 via-teal-800 to-slate-900 p-6 text-white shadow-md hover:shadow-xl transition-all duration-300"
+        >
+          <div class="relative z-10 flex flex-col justify-between h-full">
+            <div>
+              <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-600/60 text-teal-200 text-xs font-semibold mb-3 border border-teal-500/30">
+                <span>公式窓口一発検索</span>
+              </div>
+              <h2 class="text-lg sm:text-xl font-bold tracking-tight text-white mb-2 group-hover:text-teal-200 transition-colors">
+                全国難病支援・医療費助成<br />行政窓口＆生活支援リンク集
+              </h2>
+              <p class="text-xs text-teal-100/90 leading-relaxed mb-4">
+                47都道府県および全20政令指定都市の独自窓口、名古屋市「ウェルネットなごや」等の生活福祉ポータルを完全網羅。
+              </p>
+            </div>
+            <div>
+              <span class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white text-teal-900 font-bold text-xs shadow-xs group-hover:bg-teal-50 transition-colors">
+                全国窓口リンク集へ &rarr;
+              </span>
+            </div>
           </div>
-        </div>
-      </a>
+        </a>
+      </div>
     </section>
 
     <!-- カテゴリ選択カード -->
