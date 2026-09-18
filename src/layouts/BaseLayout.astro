@@ -47,6 +47,15 @@ const adsenseClient = import.meta.env.PUBLIC_ADSENSE_ID || "ca-pub-1988464307898
     <link rel="alternate" type="application/rss+xml" title="好酸球性胃腸炎と複合難病の闘病・服薬ノート RSS" href="/rss.xml" />
     <link rel="sitemap" href="/sitemap-index.xml" />
 
+    <!-- 文字サイズ設定の即時復元（ちらつき防止） -->
+    <script is:inline>
+      try {
+        if (localStorage.getItem('fontSize') === 'large') {
+          document.documentElement.classList.add('font-large');
+        }
+      } catch (e) {}
+    </script>
+
     <!-- Google AdSense Script (AdSense承認・自動広告用) -->
     {adsenseClient && !adsenseClient.includes("XXXX") && (
       <script

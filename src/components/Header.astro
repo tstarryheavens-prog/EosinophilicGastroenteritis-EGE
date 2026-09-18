@@ -31,30 +31,56 @@ const navItems = [
         </a>
       </div>
 
-      <!-- デスクトップナビ -->
-      <nav class="hidden lg:flex items-center space-x-1 text-sm font-medium">
-        {navItems.map(item => (
-          <a
-            href={item.href}
-            class="px-3 py-2 rounded-md text-slate-600 hover:text-teal-700 hover:bg-slate-100 transition-colors"
+      <!-- 文字サイズ切り替え ＆ デスクトップナビ -->
+      <div class="flex items-center gap-3">
+        <!-- 文字サイズ切り替えスイッチ -->
+        <div class="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs shrink-0" role="group" aria-label="文字サイズ変更">
+          <span class="px-1.5 text-slate-500 font-medium hidden md:inline">文字</span>
+          <button
+            type="button"
+            class="btn-font-normal px-2.5 py-1 rounded-md font-bold transition-all text-slate-600 hover:text-slate-900 data-[active=true]:bg-white data-[active=true]:text-teal-800 data-[active=true]:shadow-xs"
+            data-active="true"
+            title="標準文字サイズ"
+            aria-label="文字サイズを標準にする"
           >
-            {item.label}
-          </a>
-        ))}
-      </nav>
+            標準
+          </button>
+          <button
+            type="button"
+            class="btn-font-large px-2.5 py-1 rounded-md font-bold transition-all text-slate-600 hover:text-slate-900 data-[active=true]:bg-white data-[active=true]:text-teal-800 data-[active=true]:shadow-xs"
+            data-active="false"
+            title="文字サイズを大きくする"
+            aria-label="文字サイズを大きくする"
+          >
+            大
+          </button>
+        </div>
 
-      <!-- モバイルメニュー用ボタン -->
-      <div class="flex lg:hidden">
-        <button
-          type="button"
-          id="mobile-menu-btn"
-          class="inline-flex items-center justify-center p-2 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:outline-hidden"
-          aria-label="メニューを開く"
-        >
-          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
+        <!-- デスクトップナビ -->
+        <nav class="hidden lg:flex items-center space-x-1 text-sm font-medium">
+          {navItems.map(item => (
+            <a
+              href={item.href}
+              class="px-2.5 py-2 rounded-md text-slate-700 hover:text-teal-700 hover:bg-slate-100 transition-colors"
+            >
+              {item.label}
+            </a>
+          ))}
+        </nav>
+
+        <!-- モバイルメニュー用ボタン -->
+        <div class="flex lg:hidden">
+          <button
+            type="button"
+            id="mobile-menu-btn"
+            class="inline-flex items-center justify-center p-2 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:outline-hidden"
+            aria-label="メニューを開く"
+          >
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -70,14 +96,15 @@ const navItems = [
       </a>
     ))}
     <div class="pt-2 border-t border-slate-100">
-      <a href="/disclaimer" class="block px-3 py-1.5 text-xs text-slate-500 hover:text-slate-800">医療免責事項</a>
-      <a href="/privacy" class="block px-3 py-1.5 text-xs text-slate-500 hover:text-slate-800">プライバシーポリシー</a>
-      <a href="/contact" class="block px-3 py-1.5 text-xs text-slate-500 hover:text-slate-800">お問い合わせ</a>
+      <a href="/disclaimer" class="block px-3 py-1.5 text-sm text-slate-500 hover:text-slate-800">医療免責事項</a>
+      <a href="/privacy" class="block px-3 py-1.5 text-sm text-slate-500 hover:text-slate-800">プライバシーポリシー</a>
+      <a href="/contact" class="block px-3 py-1.5 text-sm text-slate-500 hover:text-slate-800">お問い合わせ</a>
     </div>
   </div>
 </header>
 
 <script is:inline>
+  // モバイルメニュートグル
   const btn = document.getElementById('mobile-menu-btn');
   const menu = document.getElementById('mobile-menu');
   if (btn && menu) {
@@ -85,4 +112,35 @@ const navItems = [
       menu.classList.toggle('hidden');
     });
   }
+
+  // 文字サイズ切り替え
+  function updateButtons(isLarge) {
+    document.querySelectorAll('.btn-font-normal').forEach(b => b.setAttribute('data-active', (!isLarge).toString()));
+    document.querySelectorAll('.btn-font-large').forEach(b => b.setAttribute('data-active', isLarge.toString()));
+  }
+
+  function initFontSize() {
+    try {
+      const isLarge = localStorage.getItem('fontSize') === 'large';
+      updateButtons(isLarge);
+    } catch (e) {}
+  }
+
+  document.querySelectorAll('.btn-font-normal').forEach(b => {
+    b.addEventListener('click', () => {
+      document.documentElement.classList.remove('font-large');
+      try { localStorage.setItem('fontSize', 'normal'); } catch (e) {}
+      updateButtons(false);
+    });
+  });
+
+  document.querySelectorAll('.btn-font-large').forEach(b => {
+    b.addEventListener('click', () => {
+      document.documentElement.classList.add('font-large');
+      try { localStorage.setItem('fontSize', 'large'); } catch (e) {}
+      updateButtons(true);
+    });
+  });
+
+  initFontSize();
 </script>

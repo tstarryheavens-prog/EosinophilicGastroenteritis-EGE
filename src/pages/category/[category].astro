@@ -52,27 +52,27 @@ const { category, posts } = Astro.props;
               />
             </a>
           )}
-          <div class="p-5 flex-1 flex flex-col justify-between">
+          <div class="p-6 flex-1 flex flex-col justify-between">
             <div>
-              <div class="flex items-center gap-2 mb-2">
-                <time datetime={post.data.pubDate} class="text-[11px] text-slate-400">
+              <div class="flex items-center gap-2 mb-2.5">
+                <time datetime={post.data.pubDate} class="text-xs sm:text-sm text-slate-500">
                   {post.data.pubDate}
                 </time>
               </div>
-              <h3 class="font-bold text-slate-900 text-base mb-2 leading-snug line-clamp-2">
+              <h3 class="font-bold text-slate-900 text-lg sm:text-xl mb-2.5 leading-snug line-clamp-2">
                 <a href={`/blog/${post.data.slug}`} class="hover:text-teal-700 transition-colors">
                   {post.data.title}
                 </a>
               </h3>
-              <p class="text-xs text-slate-600 line-clamp-3 leading-relaxed mb-4">
+              <p class="text-sm sm:text-base text-slate-600 line-clamp-3 leading-relaxed mb-5">
                 {post.data.description}
               </p>
             </div>
 
-            <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+            <div class="pt-3.5 border-t border-slate-100 flex items-center justify-between text-sm">
               <a
                 href={`/blog/${post.data.slug}`}
-                class="font-medium text-teal-700 hover:text-teal-800 shrink-0 inline-flex items-center gap-1"
+                class="font-semibold text-teal-700 hover:text-teal-800 shrink-0 inline-flex items-center gap-1"
               >
                 読む &rarr;
               </a>
