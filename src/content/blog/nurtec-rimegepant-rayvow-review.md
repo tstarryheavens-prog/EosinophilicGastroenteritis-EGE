@@ -4,7 +4,7 @@ description: "経口CGRP受容体拮抗薬の新薬「ナルティーク（リ�
 pubDate: "2026-09-19"
 category: "群発頭痛・頭痛"
 tags: ["群発頭痛", "片頭痛", "ナルティーク", "リメゲパント", "レイボー", "ラスミジタン", "服薬調査"]
-eyecatch: "https://assets.st-note.com/production/uploads/images/280785893/rectangle_large_type_2_f4087c0979b1d149afbd41bdb3175910.png?fit=bounds&quality=85&width=1280"
+eyecatch: "/images/nurtec-rayvow-comparison.jpg"
 slug: "nurtec-rimegepant-rayvow-review"
 ---
 

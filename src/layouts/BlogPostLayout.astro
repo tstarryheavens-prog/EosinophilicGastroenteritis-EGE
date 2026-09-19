@@ -70,11 +70,11 @@ const { title, description, pubDate, category, tags, eyecatch, slug } = Astro.pr
 
     <!-- アイキャッチ画像（ある場合） -->
     {eyecatch && (
-      <div class="mb-8 rounded-xl overflow-hidden shadow-xs border border-slate-200 bg-slate-100 max-h-[420px] flex items-center justify-center">
+      <div class="mb-8 rounded-xl overflow-hidden shadow-xs border border-slate-200 bg-slate-100 flex items-center justify-center">
         <img
           src={eyecatch}
           alt={title}
-          class="w-full h-auto object-cover max-h-[420px]"
+          class="w-full h-auto object-contain max-h-[580px]"
           loading="lazy"
         />
       </div>
