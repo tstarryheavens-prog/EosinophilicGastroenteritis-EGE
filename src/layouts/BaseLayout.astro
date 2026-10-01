@@ -57,6 +57,14 @@ const adsenseClient = import.meta.env.PUBLIC_ADSENSE_ID || "ca-pub-1988464307898
       } catch (e) {}
     </script>
 
+    <!-- A8 Link Manager -->
+    <script is:inline src="//statics.8me.jp/a8link/a8linkmgr.js"></script>
+    <script is:inline>
+      a8linkmgr({
+        "config_id": "AiCzxW5LM9avBb8VJ393"
+      });
+    </script>
+
     <!-- Google AdSense Script (AdSense承認・自動広告用) -->
     {adsenseClient && !adsenseClient.includes("XXXX") && (
       <script
