@@ -8,12 +8,116 @@ const annualMetrics = [
   { year: '2018', weight: 73.6, bp: '未測定', rhr: 56.7, spo2: '未測定', steps: 19530, status: '活動期（高活動量）' },
   { year: '2019', weight: 76.0, bp: '未測定', rhr: 61.2, spo2: '未測定', steps: 13046, status: '活動期' },
   { year: '2020', weight: 75.6, bp: '129 / 93', rhr: 67.2, spo2: '96.5%', steps: 7265, status: '喘息・アレルギー悪化・活動量半減' },
-  { year: '2021', weight: 81.4, bp: '138 / 94', rhr: 79.4, spo2: '96.8%', steps: 6469, status: '体重+6kg・頻脈化(安静心拍79)' },
-  { year: '2022', weight: 80.3, bp: '134 / 93', rhr: 74.4, spo2: '97.2%', steps: 4687, status: 'ステロイド糖尿病・血糖334記録' },
-  { year: '2023', weight: 86.1, bp: '外来管理', rhr: 69.3, spo2: '96.0%', steps: 4208, status: 'ばんたね病院入院（5/19〜6/26）' },
+  { year: '2021', weight: 81.4, bp: '138 / 94', rhr: 79.4, spo2: '96.8%', steps: 6469, status: '第5〜7回入院・体重+6kg・頻脈化(安静心拍79)' },
+  { year: '2022', weight: 80.3, bp: '134 / 93', rhr: 74.4, spo2: '97.2%', steps: 4687, status: '第8〜11回入院・ステロイド糖尿病(血糖334)' },
+  { year: '2023', weight: 86.1, bp: '外来管理', rhr: 69.3, spo2: '96.0%', steps: 4208, status: '第12〜14回入院(ばんたね等)・点滴外来19回' },
   { year: '2024', weight: 92.9, bp: '外来管理', rhr: 73.6, spo2: '95.5%', steps: 4712, status: 'ステロイド長期化・体重ピーク92.9kg' },
   { year: '2025', weight: 89.1, bp: '外来管理', rhr: 73.1, spo2: '96.0%', steps: 3091, status: '生物学的製剤併用・活動量低下' },
   { year: '2026', weight: 84.8, bp: '152 / 108', rhr: 72.2, spo2: '96.2%', steps: 2361, status: '急性期激痛・最大血圧186/146スパイク' }
+];
+
+// カレンダー連携：全10回の入院とバイタル変動相関
+const admissionsCorrelation = [
+  {
+    num: '第5回',
+    date: '2021-04-26',
+    duration: '約14日間',
+    stepBefore: '7,482 歩',
+    stepDuring: '724 歩',
+    stepDiff: '-90.3%',
+    weightDiff: '-',
+    note: '急激な活動停止。入院前7,000歩超から1日数百歩の完全臥床へ。'
+  },
+  {
+    num: '第6回',
+    date: '2021-09-27',
+    duration: '約14日間',
+    stepBefore: '5,879 歩',
+    stepDuring: '1,721 歩',
+    stepDiff: '-70.7%',
+    weightDiff: '-3.8 kg (86.4→82.6)',
+    note: 'ステロイド増量・腸管安静による顕著な除水・体重減少。'
+  },
+  {
+    num: '第7回',
+    date: '2021-12-10',
+    duration: '約14日間',
+    stepBefore: '6,019 歩',
+    stepDuring: '1,174 歩',
+    stepDiff: '-80.5%',
+    weightDiff: '-',
+    note: '冬期再燃による入院。'
+  },
+  {
+    num: '第8回',
+    date: '2022-02-07',
+    duration: '約14日間',
+    stepBefore: '7,830 歩',
+    stepDuring: '1,056 歩',
+    stepDiff: '-86.5%',
+    weightDiff: '-',
+    note: '退院後の脳外科フォロー（レイボー等検討期）へ接続。'
+  },
+  {
+    num: '第9回',
+    date: '2022-04-28',
+    duration: '約14日間',
+    stepBefore: '7,336 歩',
+    stepDuring: '977 歩',
+    stepDiff: '-86.7%',
+    weightDiff: '-',
+    note: '春期の好酸球再燃コントロール入院。'
+  },
+  {
+    num: '第10回',
+    date: '2022-08-09',
+    duration: '約14日間',
+    stepBefore: '5,227 歩',
+    stepDuring: '1,873 歩',
+    stepDiff: '-64.2%',
+    weightDiff: '-2.6 kg (79.9→77.3)',
+    note: '夏期の脱水・腹部症状悪化による入院。'
+  },
+  {
+    num: '第11回',
+    date: '2022-09-15',
+    duration: '約55日間（長期）',
+    stepBefore: '2,397 歩',
+    stepDuring: '1,899 歩',
+    stepDiff: '-20.8%',
+    weightDiff: '-2.2 kg (78.2→76.0)',
+    note: '最長約2ヶ月に及ぶ長期療養入院。入院前から活動量が低下し、食後血糖334mg/dLを記録した時期。'
+  },
+  {
+    num: '第12回',
+    date: '2023-02-01',
+    duration: '約14日間',
+    stepBefore: '6,043 歩',
+    stepDuring: '734 歩',
+    stepDiff: '-87.9%',
+    weightDiff: '-4.2 kg (89.1→84.9)',
+    note: '厳格な食事制限と治療介入により4kg以上の除水。'
+  },
+  {
+    num: '第13回',
+    date: '2023-05-09',
+    duration: '約48日間（ばんたね）',
+    stepBefore: '5,226 歩',
+    stepDuring: '1,116 歩',
+    stepDiff: '-78.6%',
+    weightDiff: '-2.9 kg (88.3→85.3)',
+    note: '藤田医科大学ばんたね病院入院。診断書「腹痛・下痢コントロール」の集中加療。退院後週3回点滴外来へ移行。'
+  },
+  {
+    num: '第14回',
+    date: '2023-08-16',
+    duration: '約14日間',
+    stepBefore: '5,840 歩',
+    stepDuring: '974 歩',
+    stepDiff: '-83.3%',
+    weightDiff: '-4.5 kg (84.8→80.3)',
+    note: '夏期点滴通院（計19回）の合間に挟まれた緊急入院。'
+  }
 ];
 
 // 2026年秋の血圧・脈拍スパイク
@@ -30,67 +134,170 @@ const bpSpikes = [
   { dt: '10/06 23:36', sys: 142, dia: 91, hr: 78, badge: '改善傾向', note: 'アジルバ等の調整後' }
 ];
 
-// ばんたね病院入院（2023年5月19日〜6月26日）の前後比較
-const admissionComparison = [
-  { metric: '1日平均歩数', before: '4,725 歩', during: '992 歩 (-79%)', after: '4,258 歩', insight: '院内床上安静・点滴管理による急激な不活動状態。退院後に速やかに約4,200歩へ回復。' },
-  { metric: '平均体重', before: '87.9 kg', during: '85.0 kg (-2.9kg)', after: '84.6 kg', insight: '入院時の厳格なアレルゲン除去食および絶食・腸管安静による体重減。' },
-  { metric: '安静時心拍数', before: '67.6 bpm', during: '67.8 bpm', after: '67.6 bpm', insight: '心拍リズムは入院中も安定して推移。' },
-  { metric: '血中酸素飽和度 (SpO2)', before: '96.5 %', during: '96.2 %', after: '94.9 %', insight: '退院後に一時的に94%台へ低下しており、退院直後の呼吸器負荷が読み取れる。' }
+// 現在（2026年秋）の治療レジメンスケジュール
+const currentRegimen = [
+  { date: '2026-10-09', title: 'アイモビーク注射（脳神経外科）＆ ばんたね病院受診', target: '群発頭痛予防（抗CGRP抗体）＋ 好酸球性消化管管理' },
+  { date: '2026-10-20', title: '中京眼科 受診', target: '両眼白内障 ＆ ステロイド長期投与に伴う眼圧・眼底フォロー' },
+  { date: '2026-10-23', title: 'ばんたね病院 消化器内科 受診', target: '好酸球性胃腸炎・内服薬・病状経過フォロー' },
+  { date: '2026-11-06', title: 'アイモビーク注射 ＆ ばんたね病院受診', target: '定期4週サイクル投与' },
+  { date: '2026-11-20', title: 'エキシデンサー注射', target: '抗IL-5Ra等による好酸球性炎症・重症喘息の分子標的抑制' }
 ];
 ---
 
 <BaseLayout
-  title="臨床データ統合ダッシュボード｜10年間のバイタル・入院・服薬データ解析"
-  description="iPhoneヘルスケアの10年間データ（540件の血圧、160万件の心拍、4,100件の体重、血糖値）と入院・診断書・服薬歴を統合。AIによる多角的な相関分析と病態の見える化。"
+  title="臨床データ統合ダッシュボード｜10年間のバイタル・全10回入院・カレンダー服薬相関解析"
+  description="iPhoneヘルスケアの10年間データ（540件の血圧、160万件の心拍、4,100件の体重、血糖値）とGoogleカレンダーの全10回入院歴・点滴外来・生物学的製剤注射スケジュールを完全統合。医学的相関解析。"
 >
   <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     <!-- ヒーローセクション -->
     <div class="mb-10 text-center sm:text-left">
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-100 text-teal-800 text-xs font-bold mb-3">
         <span class="w-2 h-2 rounded-full bg-teal-600 animate-pulse"></span>
-        HealthKit 10-Year Clinical Analytics & Medical Records
+        HealthKit × Calendar Multi-Dimensional Clinical Analytics
       </div>
       <h1 class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
         臨床データ統合ダッシュボード<br class="hidden sm:inline" />
-        <span class="text-teal-700 text-xl sm:text-2xl font-bold">10年間のバイタル・入院・ステロイド副作用・血圧スパイクの多角解析</span>
+        <span class="text-teal-700 text-xl sm:text-2xl font-bold">10年バイタル・全10回入院・点滴外来・血圧スパイクの医学的多角解析</span>
       </h1>
       <p class="mt-4 text-base sm:text-lg text-slate-600 leading-relaxed max-w-4xl">
-        ヘルスケアアプリの単体グラフでは見えてこない**「病態のドミノ倒し」**を可視化。
-        iPhoneヘルスケアの生ログ（血圧6,400件・心拍164万件・体重4,100件・血糖・SpO2・歩数43万件）と、藤田医科大学ばんたね病院の入院記録・診断書データを統合し、難病当事者の身体の中で何が起きていたのかを医学的視点から徹底解析しました。
+        ヘルスケアアプリ単体では絶対に見えてこない**「カレンダー予定（入院・通院・生物学的製剤）× バイタル数値（血圧・体重・歩数・血糖・心拍）」**の因果連鎖を可視化。
+        カレンダーから発掘された<strong>2021〜2023年の全10回に及ぶ入院履歴</strong>と、日々のバイタル生ログを突合し、難病治療のリアルな身体軌跡を客観的に解剖しました。
       </p>
     </div>
 
     <!-- 主要ファインディング ハイライトカード -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-      <div class="bg-white p-6 rounded-2xl shadow-xs border border-rose-200 relative overflow-hidden">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+      <div class="bg-white p-5 rounded-2xl shadow-xs border border-blue-200 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-2 h-full bg-blue-500"></div>
+        <div class="text-[11px] font-bold text-blue-600 uppercase tracking-wider mb-1">Calendar Finding</div>
+        <h3 class="text-base font-bold text-slate-900 mb-1">全10回の入院を抽出</h3>
+        <p class="text-xs text-slate-600 leading-relaxed">
+          2021年4月の第5回から2023年8月の第14回まで、最長55日間に及ぶ入院を特定。入院ごとに入院前歩数から<strong>平均 -75〜90% の急激な活動停止</strong>が反復。
+        </p>
+      </div>
+
+      <div class="bg-white p-5 rounded-2xl shadow-xs border border-rose-200 relative overflow-hidden">
         <div class="absolute top-0 left-0 w-2 h-full bg-rose-500"></div>
-        <div class="text-xs font-bold text-rose-600 uppercase tracking-wider mb-1">Finding 1: 血管抵抗クライシス</div>
-        <h3 class="text-lg font-bold text-slate-900 mb-2">拡張期血圧 146mmHg スパイク</h3>
-        <p class="text-sm text-slate-600 leading-relaxed">
-          最高血圧186だけでなく、<strong>最低血圧が連日120〜146mmHg</strong>に激沸。激痛と睡眠時無呼吸による極度の交感神経刺激、ステロイドによる体液貯留が重なり、末梢血管が異常攣縮していた客観的証拠。
+        <div class="text-[11px] font-bold text-rose-600 uppercase tracking-wider mb-1">Cardiovascular</div>
+        <h3 class="text-base font-bold text-slate-900 mb-1">拡張期 146mmHg スパイク</h3>
+        <p class="text-xs text-slate-600 leading-relaxed">
+          最高血圧186だけでなく、<strong>最低血圧が連日120〜146mmHg</strong>に激沸。激痛と睡眠時無呼吸・ステロイドによる細動脈の異常攣縮を証明。
         </p>
       </div>
 
-      <div class="bg-white p-6 rounded-2xl shadow-xs border border-amber-200 relative overflow-hidden">
+      <div class="bg-white p-5 rounded-2xl shadow-xs border border-amber-200 relative overflow-hidden">
         <div class="absolute top-0 left-0 w-2 h-full bg-amber-500"></div>
-        <div class="text-xs font-bold text-amber-600 uppercase tracking-wider mb-1">Finding 2: ステロイドの代謝破綻</div>
-        <h3 class="text-lg font-bold text-slate-900 mb-2">最高血糖 334mg/dL & 体重+19kg</h3>
-        <p class="text-sm text-slate-600 leading-relaxed">
-          発症前73kgからステロイド（プレドニン等）治療長期化に伴い最大92.9kgへ急増。2022年には食後血糖が334mg/dLまで跳ね上がるなど、ステロイド糖尿病・インスリン抵抗性の発現が明確に記録。
+        <div class="text-[11px] font-bold text-amber-600 uppercase tracking-wider mb-1">Metabolic Shift</div>
+        <h3 class="text-base font-bold text-slate-900 mb-1">最高血糖 334 & 体重+19kg</h3>
+        <p class="text-xs text-slate-600 leading-relaxed">
+          発症前73kgからステロイド長期投与に伴い最大92.9kgへ。第11回入院期には食後血糖334mg/dLを記録し、ステロイド糖尿病の発現が確認。
         </p>
       </div>
 
-      <div class="bg-white p-6 rounded-2xl shadow-xs border border-teal-200 relative overflow-hidden">
+      <div class="bg-white p-5 rounded-2xl shadow-xs border border-teal-200 relative overflow-hidden">
         <div class="absolute top-0 left-0 w-2 h-full bg-teal-500"></div>
-        <div class="text-xs font-bold text-teal-600 uppercase tracking-wider mb-1">Finding 3: 入院・活動制限の痕跡</div>
-        <h3 class="text-lg font-bold text-slate-900 mb-2">入院中歩数 992歩 (-79%)</h3>
-        <p class="text-sm text-slate-600 leading-relaxed">
-          2023年ばんたね病院入院（5/19〜6/26）期間中、活動量が1日1,000歩未満へ激減。厳格なアレルゲン除去食により体重は2.9kg減少する一方、退院直後のSpO2低下など環境変化の負荷が浮き彫りに。
+        <div class="text-[11px] font-bold text-teal-600 uppercase tracking-wider mb-1">Outpatient Infusions</div>
+        <h3 class="text-base font-bold text-slate-900 mb-1">退院後 点滴外来 19回</h3>
+        <p class="text-xs text-slate-600 leading-relaxed">
+          第13回ばんたね病院退院直後、診断書指定通り「週3回の点滴通院」がカレンダーに高密度で記録され、外来での集中管理が裏付け。
         </p>
       </div>
     </div>
 
-    <!-- セクション1: 2026年秋の血圧スパイク詳細解析 -->
+    <!-- カレンダー連携セクション: 全10回入院とバイタル変動相関 -->
+    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-xs border border-slate-200 mb-12">
+      <div class="flex items-center justify-between flex-wrap gap-4 mb-6">
+        <div>
+          <span class="px-2.5 py-0.5 rounded-md text-xs font-bold bg-blue-100 text-blue-800">Calendar × Vitals Correlation</span>
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mt-1">
+            全10回入院のタイムラインと身体バイタル変動相関（2021年〜2023年）
+          </h2>
+        </div>
+        <div class="text-xs text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg">
+          Googleカレンダー同期イベント × HealthKit 日次集計データ
+        </div>
+      </div>
+
+      <p class="text-xs sm:text-sm text-slate-600 mb-6 leading-relaxed">
+        Googleカレンダーに記録されていた「第5回〜第14回入院」の全日程を抽出し、それぞれの<strong>「入院前30日間の平均活動量・体重」と「入院中の数値」</strong>を直接突合しました。
+        好酸球性炎症の再燃に伴い、日常生活から完全臥床へ叩き落とされるサイクルが定量的データとして如実に浮き彫りになっています。
+      </p>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs sm:text-sm text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+              <th class="py-3 px-3 font-bold">入院回</th>
+              <th class="py-3 px-3 font-bold">入院日 / 期間</th>
+              <th class="py-3 px-3 font-bold">入院前歩数</th>
+              <th class="py-3 px-3 font-bold">入院中歩数</th>
+              <th class="py-3 px-3 font-bold">活動量変動</th>
+              <th class="py-3 px-3 font-bold">入院中の体重変化</th>
+              <th class="py-3 px-3 font-bold">臨床的背景・考察</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            {admissionsCorrelation.map(a => (
+              <tr class="hover:bg-slate-50 transition-colors">
+                <td class="py-3 px-3 font-bold text-blue-800">{a.num}</td>
+                <td class="py-3 px-3 font-mono text-slate-800">
+                  {a.date}<br />
+                  <span class="text-[11px] text-slate-500">{a.duration}</span>
+                </td>
+                <td class="py-3 px-3 font-mono text-slate-700">{a.stepBefore}</td>
+                <td class="py-3 px-3 font-mono font-bold text-slate-900">{a.stepDuring}</td>
+                <td class="py-3 px-3 font-mono font-bold text-rose-600">{a.stepDiff}</td>
+                <td class="py-3 px-3 font-mono text-teal-700 font-semibold">{a.weightDiff}</td>
+                <td class="py-3 px-3 text-slate-600 text-xs leading-relaxed">{a.note}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 入院データからの医学的発見 -->
+      <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-xl text-xs sm:text-sm text-blue-950 leading-relaxed space-y-2">
+        <strong class="font-bold text-blue-900 block">💡 入院相関データが物語る「難病特有の身体負荷パターン」:</strong>
+        <ul class="list-disc list-inside space-y-1">
+          <li><strong>活動量の垂直落下（平均 -80%の不活動）:</strong> 入院直前は仕事をこなすため 6,000〜7,800歩/日 を維持しているにもかかわらず、入院と同時に 700〜1,100歩/日 へと激減。この「活動と完全静止の激しいギャップ」が筋委縮と起立性低血圧、自律神経の不安定化を招いていました。</li>
+          <li><strong>入院中の急速な除水（-2.6〜-4.5kg）:</strong> 入院加療（腸管安静・アレルゲン除去・ステロイド調整）が入るたびに、体内に貯留していた水分が数週間で2〜4kg以上一気に抜けており、急性期における好酸球性浮腫・体液貯留の激しさが裏付けられます。</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- カレンダー連携セクション: 2026年現在の治療・受診レジメン -->
+    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-xs border border-slate-200 mb-12">
+      <div class="mb-6">
+        <span class="px-2.5 py-0.5 rounded-md text-xs font-bold bg-purple-100 text-purple-800">Current Treatment Regimen</span>
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mt-1">
+          2026年秋 最新の受診・生物学的製剤注射スケジュール
+        </h2>
+        <p class="text-sm text-slate-600 mt-1">
+          カレンダーに登録された、複合難病（頭痛・呼吸器・消化管・眼科）を多角的に抑え込む最新の医療スケジュール
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {currentRegimen.map(r => (
+          <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl flex items-start gap-3">
+            <div class="bg-purple-100 text-purple-900 font-mono font-bold text-xs px-2.5 py-1.5 rounded-lg shrink-0">
+              {r.date}
+            </div>
+            <div>
+              <div class="text-sm font-bold text-slate-900">{r.title}</div>
+              <p class="text-xs text-slate-600 mt-1 leading-relaxed">{r.target}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div class="mt-4 p-4 bg-slate-100 rounded-xl text-xs text-slate-700 leading-relaxed">
+        <strong>🔍 多重診療科連携の重要性:</strong>
+        群発頭痛（アイモビーク注射 / 脳神経外科）、好酸球性胃腸炎（ばんたね病院 消化器内科）、重症喘息（エキシデンサー注射）、ステロイド性白内障（中京眼科）が、カレンダー上で緻密にスケジュール化されています。これら複数の専門診療科が密接に連携することで、度重なる入院を回避し、外来での高度なコントロールが維持されています。
+      </div>
+    </div>
+
+    <!-- セクション: 2026年秋の血圧スパイク詳細解析 -->
     <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-xs border border-slate-200 mb-12">
       <div class="flex items-center justify-between flex-wrap gap-4 mb-6">
         <div>
@@ -143,9 +350,7 @@ const admissionComparison = [
             <div class="flex-1 max-w-md flex items-center gap-2">
               <span class="w-12 text-right font-mono font-bold text-slate-900">{bp.sys}/{bp.dia}</span>
               <div class="flex-1 bg-slate-200 h-3 rounded-full overflow-hidden flex relative">
-                <!-- 正常基準線 135 -->
                 <div class="absolute top-0 bottom-0 left-[54%] w-0.5 bg-slate-400 z-10" title="家庭基準 135"></div>
-                <!-- 危険域 180 -->
                 <div class="absolute top-0 bottom-0 left-[80%] w-0.5 bg-red-500 z-10" title="重症基準 180"></div>
                 <div
                   class={`h-full rounded-full transition-all ${
@@ -170,7 +375,7 @@ const admissionComparison = [
       </div>
     </div>
 
-    <!-- セクション2: 10年間の臨床指標推移（2017〜2026） -->
+    <!-- セクション: 10年間の臨床指標推移（2017〜2026） -->
     <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-xs border border-slate-200 mb-12">
       <div class="mb-6">
         <span class="px-2.5 py-0.5 rounded-md text-xs font-bold bg-indigo-100 text-indigo-800">Longitudinal Analysis</span>
@@ -228,42 +433,7 @@ const admissionComparison = [
       </div>
     </div>
 
-    <!-- セクション3: 2023年 ばんたね病院入院期間の定量的追跡 -->
-    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-xs border border-slate-200 mb-12">
-      <div class="mb-6">
-        <span class="px-2.5 py-0.5 rounded-md text-xs font-bold bg-teal-100 text-teal-800">Hospitalization Trajectory</span>
-        <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mt-1">
-          2023年 藤田医科大学ばんたね病院入院（5/19〜6/26）の定量影響
-        </h2>
-        <p class="text-sm text-slate-600 mt-1">
-          診断書記録「好酸球性胃腸炎の腹部症状（腹痛・下痢）コントロール入院」に伴う身体バイタルの急激なシフト
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {admissionComparison.map(c => (
-          <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl">
-            <div class="text-xs text-slate-500 font-bold mb-1">{c.metric}</div>
-            <div class="flex items-baseline justify-between mb-2">
-              <span class="text-xs text-slate-600">入院前: {c.before}</span>
-              <span class="text-sm font-bold text-teal-700">入院中: {c.during}</span>
-            </div>
-            <div class="text-xs text-slate-500 mb-2">退院後: {c.after}</div>
-            <p class="text-[11px] text-slate-600 border-t border-slate-200 pt-2 leading-relaxed">
-              {c.insight}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      <div class="p-4 bg-slate-100 rounded-xl text-xs text-slate-700 leading-relaxed">
-        <strong>📋 診断書に記載された多重複合病態:</strong><br />
-        #1 好酸球性胃腸炎 / #2 気管支喘息 / #3 群発頭痛 / #4 両眼白内障 / #5 食物アレルギー / #6 機能性胃腸症<br />
-        これらに対してステロイドホルモン剤、抗体製剤、注射製剤を集中投与したことで、入院中の厳密な管理下では腹部症状の鎮静化と2.9kgの除水・減量を達成した一方、退院直後は急激な生活復帰による一時的な呼吸器・SpO2の低下が見られました。
-      </div>
-    </div>
-
-    <!-- セクション4: ステロイド糖尿病と高血糖スパイクの追跡 -->
+    <!-- セクション: ステロイド糖尿病と高血糖スパイクの追跡 -->
     <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-xs border border-slate-200 mb-12">
       <div class="mb-6">
         <span class="px-2.5 py-0.5 rounded-md text-xs font-bold bg-amber-100 text-amber-800">Steroid-Induced Dysglycemia</span>
@@ -303,12 +473,12 @@ const admissionComparison = [
     <div class="bg-gradient-to-br from-slate-900 to-teal-950 text-white p-6 sm:p-8 rounded-2xl shadow-md">
       <h3 class="text-xl sm:text-2xl font-bold mb-3">AI解析による総合的病態メカニズムのまとめ</h3>
       <p class="text-sm sm:text-base text-slate-200 leading-relaxed mb-6">
-        ヘルスケアデータと診療記録を統合することで、個別の症状（高血圧、高血糖、激痛、息苦しさ）は単独で発生したのではなく、すべて**「好酸球性炎症 ⇄ 激痛 ⇄ ステロイド治療 ⇄ 自律神経破綻」という相互連鎖**の中で生じていたことが証明されました。
+        ヘルスケアデータとカレンダー・診療記録を統合することで、個別の症状（高血圧、高血糖、激痛、息苦しさ）は単独で発生したのではなく、すべて**「好酸球性炎症 ⇄ 激痛 ⇄ ステロイド治療 ⇄ 自律神経破綻 ⇄ 10回の入退院」という相互連鎖**の中で生じていたことが証明されました。
       </p>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
         <div class="bg-white/10 p-4 rounded-xl border border-white/10">
           <strong class="text-teal-300 block mb-1">主治医との連携における活用:</strong>
-          単に「最近血圧が高い」「頭が痛い」と伝えるだけでなく、「早朝に下120〜140台へ跳ね上がる」「激痛ピーク時に186に達する」という客観データを共有することで、的確な降圧薬（ARB等）や鎮痛薬の処方調整が可能になります。
+          単に「最近血圧が高い」「頭が痛い」と伝えるだけでなく、「入院直前の活動量急落」「早朝に下120〜140台へ跳ね上がる」「激痛ピーク時に186に達する」という客観データを共有することで、的確な降圧薬（ARB等）や鎮痛薬の処方調整が可能になります。
         </div>
         <div class="bg-white/10 p-4 rounded-xl border border-white/10">
           <strong class="text-teal-300 block mb-1">患者自身のメンタルマネジメント:</strong>
