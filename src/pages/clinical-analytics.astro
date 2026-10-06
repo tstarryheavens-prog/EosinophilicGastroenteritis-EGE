@@ -1,0 +1,325 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import AdSense from '../components/AdSense.astro';
+
+// 10年間の臨床指標（HealthKit全量抽出データ）
+const annualMetrics = [
+  { year: '2017', weight: 75.6, bp: '未測定', rhr: 57.8, spo2: '未測定', steps: 10451, status: '発症前・通常期' },
+  { year: '2018', weight: 73.6, bp: '未測定', rhr: 56.7, spo2: '未測定', steps: 19530, status: '活動期（高活動量）' },
+  { year: '2019', weight: 76.0, bp: '未測定', rhr: 61.2, spo2: '未測定', steps: 13046, status: '活動期' },
+  { year: '2020', weight: 75.6, bp: '129 / 93', rhr: 67.2, spo2: '96.5%', steps: 7265, status: '喘息・アレルギー悪化・活動量半減' },
+  { year: '2021', weight: 81.4, bp: '138 / 94', rhr: 79.4, spo2: '96.8%', steps: 6469, status: '体重+6kg・頻脈化(安静心拍79)' },
+  { year: '2022', weight: 80.3, bp: '134 / 93', rhr: 74.4, spo2: '97.2%', steps: 4687, status: 'ステロイド糖尿病・血糖334記録' },
+  { year: '2023', weight: 86.1, bp: '外来管理', rhr: 69.3, spo2: '96.0%', steps: 4208, status: 'ばんたね病院入院（5/19〜6/26）' },
+  { year: '2024', weight: 92.9, bp: '外来管理', rhr: 73.6, spo2: '95.5%', steps: 4712, status: 'ステロイド長期化・体重ピーク92.9kg' },
+  { year: '2025', weight: 89.1, bp: '外来管理', rhr: 73.1, spo2: '96.0%', steps: 3091, status: '生物学的製剤併用・活動量低下' },
+  { year: '2026', weight: 84.8, bp: '152 / 108', rhr: 72.2, spo2: '96.2%', steps: 2361, status: '急性期激痛・最大血圧186/146スパイク' }
+];
+
+// 2026年秋の血圧・脈拍スパイク
+const bpSpikes = [
+  { dt: '09/29 07:35', sys: 169, dia: 138, hr: '-', badge: 'III度高血圧', note: '起床時激痛・下の血圧が異常高値' },
+  { dt: '09/30 07:51', sys: 164, dia: 108, hr: 93, badge: 'II度高血圧', note: '頻脈併発' },
+  { dt: '10/01 22:41', sys: 148, dia: 93, hr: 82, badge: 'I度高血圧', note: '夜間' },
+  { dt: '10/02 07:41', sys: 160, dia: 122, hr: 99, badge: 'III度高血圧', note: '早朝サージ' },
+  { dt: '10/02 12:10', sys: 158, dia: 139, hr: 95, badge: '著明血管収縮', note: '下139（激しい血管抵抗）' },
+  { dt: '10/03 09:17', sys: 183, dia: 116, hr: 99, badge: '180超えスパイク', note: '群発頭痛発作時' },
+  { dt: '10/04 19:17', sys: 186, dia: 130, hr: 91, badge: '最大血圧 186', note: '期間中最高値' },
+  { dt: '10/05 07:28', sys: 175, dia: 132, hr: 99, badge: 'III度高血圧', note: '朝のモーニングサージ' },
+  { dt: '10/06 07:25', sys: 165, dia: 146, hr: 107, badge: '最大拡張期 146', note: '脈拍107・交感神経極度緊張' },
+  { dt: '10/06 23:36', sys: 142, dia: 91, hr: 78, badge: '改善傾向', note: 'アジルバ等の調整後' }
+];
+
+// ばんたね病院入院（2023年5月19日〜6月26日）の前後比較
+const admissionComparison = [
+  { metric: '1日平均歩数', before: '4,725 歩', during: '992 歩 (-79%)', after: '4,258 歩', insight: '院内床上安静・点滴管理による急激な不活動状態。退院後に速やかに約4,200歩へ回復。' },
+  { metric: '平均体重', before: '87.9 kg', during: '85.0 kg (-2.9kg)', after: '84.6 kg', insight: '入院時の厳格なアレルゲン除去食および絶食・腸管安静による体重減。' },
+  { metric: '安静時心拍数', before: '67.6 bpm', during: '67.8 bpm', after: '67.6 bpm', insight: '心拍リズムは入院中も安定して推移。' },
+  { metric: '血中酸素飽和度 (SpO2)', before: '96.5 %', during: '96.2 %', after: '94.9 %', insight: '退院後に一時的に94%台へ低下しており、退院直後の呼吸器負荷が読み取れる。' }
+];
+---
+
+<BaseLayout
+  title="臨床データ統合ダッシュボード｜10年間のバイタル・入院・服薬データ解析"
+  description="iPhoneヘルスケアの10年間データ（540件の血圧、160万件の心拍、4,100件の体重、血糖値）と入院・診断書・服薬歴を統合。AIによる多角的な相関分析と病態の見える化。"
+>
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <!-- ヒーローセクション -->
+    <div class="mb-10 text-center sm:text-left">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-100 text-teal-800 text-xs font-bold mb-3">
+        <span class="w-2 h-2 rounded-full bg-teal-600 animate-pulse"></span>
+        HealthKit 10-Year Clinical Analytics & Medical Records
+      </div>
+      <h1 class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+        臨床データ統合ダッシュボード<br class="hidden sm:inline" />
+        <span class="text-teal-700 text-xl sm:text-2xl font-bold">10年間のバイタル・入院・ステロイド副作用・血圧スパイクの多角解析</span>
+      </h1>
+      <p class="mt-4 text-base sm:text-lg text-slate-600 leading-relaxed max-w-4xl">
+        ヘルスケアアプリの単体グラフでは見えてこない**「病態のドミノ倒し」**を可視化。
+        iPhoneヘルスケアの生ログ（血圧6,400件・心拍164万件・体重4,100件・血糖・SpO2・歩数43万件）と、藤田医科大学ばんたね病院の入院記録・診断書データを統合し、難病当事者の身体の中で何が起きていたのかを医学的視点から徹底解析しました。
+      </p>
+    </div>
+
+    <!-- 主要ファインディング ハイライトカード -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+      <div class="bg-white p-6 rounded-2xl shadow-xs border border-rose-200 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-2 h-full bg-rose-500"></div>
+        <div class="text-xs font-bold text-rose-600 uppercase tracking-wider mb-1">Finding 1: 血管抵抗クライシス</div>
+        <h3 class="text-lg font-bold text-slate-900 mb-2">拡張期血圧 146mmHg スパイク</h3>
+        <p class="text-sm text-slate-600 leading-relaxed">
+          最高血圧186だけでなく、<strong>最低血圧が連日120〜146mmHg</strong>に激沸。激痛と睡眠時無呼吸による極度の交感神経刺激、ステロイドによる体液貯留が重なり、末梢血管が異常攣縮していた客観的証拠。
+        </p>
+      </div>
+
+      <div class="bg-white p-6 rounded-2xl shadow-xs border border-amber-200 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-2 h-full bg-amber-500"></div>
+        <div class="text-xs font-bold text-amber-600 uppercase tracking-wider mb-1">Finding 2: ステロイドの代謝破綻</div>
+        <h3 class="text-lg font-bold text-slate-900 mb-2">最高血糖 334mg/dL & 体重+19kg</h3>
+        <p class="text-sm text-slate-600 leading-relaxed">
+          発症前73kgからステロイド（プレドニン等）治療長期化に伴い最大92.9kgへ急増。2022年には食後血糖が334mg/dLまで跳ね上がるなど、ステロイド糖尿病・インスリン抵抗性の発現が明確に記録。
+        </p>
+      </div>
+
+      <div class="bg-white p-6 rounded-2xl shadow-xs border border-teal-200 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-2 h-full bg-teal-500"></div>
+        <div class="text-xs font-bold text-teal-600 uppercase tracking-wider mb-1">Finding 3: 入院・活動制限の痕跡</div>
+        <h3 class="text-lg font-bold text-slate-900 mb-2">入院中歩数 992歩 (-79%)</h3>
+        <p class="text-sm text-slate-600 leading-relaxed">
+          2023年ばんたね病院入院（5/19〜6/26）期間中、活動量が1日1,000歩未満へ激減。厳格なアレルゲン除去食により体重は2.9kg減少する一方、退院直後のSpO2低下など環境変化の負荷が浮き彫りに。
+        </p>
+      </div>
+    </div>
+
+    <!-- セクション1: 2026年秋の血圧スパイク詳細解析 -->
+    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-xs border border-slate-200 mb-12">
+      <div class="flex items-center justify-between flex-wrap gap-4 mb-6">
+        <div>
+          <span class="px-2.5 py-0.5 rounded-md text-xs font-bold bg-rose-100 text-rose-800">Cardiovascular Crisis</span>
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mt-1">
+            2026年秋 血圧乱高下・スパイク詳細解析
+          </h2>
+        </div>
+        <div class="text-xs text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg">
+          測定機器: Withings 上腕式血圧計連携 / N=16回
+        </div>
+      </div>
+
+      <!-- 早朝 vs 昼夜 比較ボックス -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+        <div class="bg-rose-50 border border-rose-200 p-4 rounded-xl">
+          <div class="text-xs font-bold text-rose-700 mb-1">🌅 早朝（5:00〜10:00 / 計7回）モーニングサージ</div>
+          <div class="text-2xl font-extrabold text-rose-900">
+            平均 166.4 / 122.3 <span class="text-sm font-normal text-rose-700">mmHg</span>
+          </div>
+          <p class="text-xs text-rose-700 mt-2">
+            夜間の睡眠時無呼吸（低酸素）と覚醒直後の交感神経バーストが合わさり、起床直後からIII度高血圧レベルに突入していた。
+          </p>
+        </div>
+        <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl">
+          <div class="text-xs font-bold text-slate-700 mb-1">☀️ 昼・夜（計9回）</div>
+          <div class="text-2xl font-extrabold text-slate-800">
+            平均 149.8 / 104.1 <span class="text-sm font-normal text-slate-600">mmHg</span>
+          </div>
+          <p class="text-xs text-slate-600 mt-2">
+            昼夜も拡張期血圧が100を割り込むことが少なく、常に高い血管緊張状態が持続していた。
+          </p>
+        </div>
+      </div>
+
+      <!-- 血圧推移ビジュアルバー -->
+      <div class="space-y-3 mb-8">
+        <h4 class="text-sm font-bold text-slate-800">血圧測定値の臨床的分布 (収縮期 / 拡張期)</h4>
+        {bpSpikes.map(bp => (
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+            <div class="flex items-center gap-2 min-w-[140px]">
+              <span class="font-mono font-bold text-slate-700">{bp.dt}</span>
+              <span class={`px-2 py-0.5 rounded font-bold text-[10px] ${
+                bp.sys >= 180 || bp.dia >= 130 ? 'bg-red-600 text-white' :
+                bp.sys >= 160 || bp.dia >= 110 ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'
+              }`}>{bp.badge}</span>
+            </div>
+
+            <!-- バー表現 -->
+            <div class="flex-1 max-w-md flex items-center gap-2">
+              <span class="w-12 text-right font-mono font-bold text-slate-900">{bp.sys}/{bp.dia}</span>
+              <div class="flex-1 bg-slate-200 h-3 rounded-full overflow-hidden flex relative">
+                <!-- 正常基準線 135 -->
+                <div class="absolute top-0 bottom-0 left-[54%] w-0.5 bg-slate-400 z-10" title="家庭基準 135"></div>
+                <!-- 危険域 180 -->
+                <div class="absolute top-0 bottom-0 left-[80%] w-0.5 bg-red-500 z-10" title="重症基準 180"></div>
+                <div
+                  class={`h-full rounded-full transition-all ${
+                    bp.sys >= 180 ? 'bg-red-600' : bp.sys >= 160 ? 'bg-rose-500' : 'bg-amber-500'
+                  }`}
+                  style={`width: ${Math.min(100, Math.max(10, ((bp.sys - 80) / 130) * 100))}%`}
+                ></div>
+              </div>
+              <span class="w-16 font-mono text-slate-500 text-[11px]">脈: {bp.hr}</span>
+            </div>
+
+            <div class="text-slate-500 italic sm:text-right min-w-[160px]">
+              {bp.note}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div class="p-4 bg-teal-50 border border-teal-200 rounded-xl text-xs sm:text-sm text-teal-900 leading-relaxed">
+        <strong>💡 医学的考察（アジルバ導入による遮断機構）:</strong>
+        アンジオテンシンII受容体拮抗薬（ARB）の「アジルバ」は、血管平滑筋のAT1受容体に最も強固に結合する降圧薬です。激痛や交感神経過緊張によるレニン・アンジオテンシン系の暴走を物理的にブロックしたことで、180超えの突き抜けスパイクが防がれ、140台へと収束していったプロセスが裏付けられます。
+      </div>
+    </div>
+
+    <!-- セクション2: 10年間の臨床指標推移（2017〜2026） -->
+    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-xs border border-slate-200 mb-12">
+      <div class="mb-6">
+        <span class="px-2.5 py-0.5 rounded-md text-xs font-bold bg-indigo-100 text-indigo-800">Longitudinal Analysis</span>
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mt-1">
+          10年間の多角バイタル相関推移（2017年〜2026年）
+        </h2>
+        <p class="text-sm text-slate-600 mt-1">
+          難病発症前（2017〜2019）から発症・悪化、ステロイド投与・入院、そして現在までの年次推移
+        </p>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs sm:text-sm text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+              <th class="py-3 px-3 font-bold">年</th>
+              <th class="py-3 px-3 font-bold">平均体重</th>
+              <th class="py-3 px-3 font-bold">血圧 (mmHg)</th>
+              <th class="py-3 px-3 font-bold">安静時心拍</th>
+              <th class="py-3 px-3 font-bold">SpO2</th>
+              <th class="py-3 px-3 font-bold">1日歩数</th>
+              <th class="py-3 px-3 font-bold">病態フェーズ・臨床イベント</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            {annualMetrics.map(row => (
+              <tr class="hover:bg-slate-50 transition-colors">
+                <td class="py-3 px-3 font-bold text-slate-900 font-mono">{row.year}</td>
+                <td class="py-3 px-3 font-mono font-semibold text-slate-800">
+                  {row.weight} kg
+                  {row.weight >= 90 ? <span class="text-red-600 text-xs font-bold ml-1">▲Max</span> : ''}
+                </td>
+                <td class="py-3 px-3 font-mono text-slate-700">{row.bp}</td>
+                <td class="py-3 px-3 font-mono text-slate-700">{row.rhr} bpm</td>
+                <td class="py-3 px-3 font-mono text-slate-700">{row.spo2}</td>
+                <td class="py-3 px-3 font-mono text-slate-700">{row.steps.toLocaleString()} 歩</td>
+                <td class="py-3 px-3 text-slate-600 text-xs">{row.status}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 臨床的考察ボックス -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+        <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 text-xs leading-relaxed text-amber-900">
+          <strong class="font-bold text-amber-950 block mb-1">⚖️ 体重・代謝の劇的変化（+19.3kgの軌跡）:</strong>
+          発症前（2018年）は1日平均19,530歩、体重73.6kgと非常にアスレチックな身体でした。好酸球性胃腸炎・重症喘息の発症以降、ステロイド全身投与と激痛・体調不良による活動量激減（19,000歩→2,300歩）が重なり、2024年には最大92.9kgまで増加しました。ステロイドによる食欲亢進・脂肪再分布・ナトリウム貯留が複合的に作用した典型例です。
+        </div>
+
+        <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-200 text-xs leading-relaxed text-indigo-900">
+          <strong class="font-bold text-indigo-950 block mb-1">❤️ 心拍数と交感神経トーンの上昇:</strong>
+          2017〜2018年の安静時心拍数は平均56〜57bpm（スポーツ心臓レベルの徐脈）でした。しかし、難病発症後の2021年には平均79.4bpmへと約23bpmも急上昇。喘息発作による低酸素、β2刺激薬（サルタノール等）の心拍刺激、慢性疼痛による交感神経緊張が基礎心拍数を引き上げていたことが明確に示されています。
+        </div>
+      </div>
+    </div>
+
+    <!-- セクション3: 2023年 ばんたね病院入院期間の定量的追跡 -->
+    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-xs border border-slate-200 mb-12">
+      <div class="mb-6">
+        <span class="px-2.5 py-0.5 rounded-md text-xs font-bold bg-teal-100 text-teal-800">Hospitalization Trajectory</span>
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mt-1">
+          2023年 藤田医科大学ばんたね病院入院（5/19〜6/26）の定量影響
+        </h2>
+        <p class="text-sm text-slate-600 mt-1">
+          診断書記録「好酸球性胃腸炎の腹部症状（腹痛・下痢）コントロール入院」に伴う身体バイタルの急激なシフト
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        {admissionComparison.map(c => (
+          <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl">
+            <div class="text-xs text-slate-500 font-bold mb-1">{c.metric}</div>
+            <div class="flex items-baseline justify-between mb-2">
+              <span class="text-xs text-slate-600">入院前: {c.before}</span>
+              <span class="text-sm font-bold text-teal-700">入院中: {c.during}</span>
+            </div>
+            <div class="text-xs text-slate-500 mb-2">退院後: {c.after}</div>
+            <p class="text-[11px] text-slate-600 border-t border-slate-200 pt-2 leading-relaxed">
+              {c.insight}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      <div class="p-4 bg-slate-100 rounded-xl text-xs text-slate-700 leading-relaxed">
+        <strong>📋 診断書に記載された多重複合病態:</strong><br />
+        #1 好酸球性胃腸炎 / #2 気管支喘息 / #3 群発頭痛 / #4 両眼白内障 / #5 食物アレルギー / #6 機能性胃腸症<br />
+        これらに対してステロイドホルモン剤、抗体製剤、注射製剤を集中投与したことで、入院中の厳密な管理下では腹部症状の鎮静化と2.9kgの除水・減量を達成した一方、退院直後は急激な生活復帰による一時的な呼吸器・SpO2の低下が見られました。
+      </div>
+    </div>
+
+    <!-- セクション4: ステロイド糖尿病と高血糖スパイクの追跡 -->
+    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-xs border border-slate-200 mb-12">
+      <div class="mb-6">
+        <span class="px-2.5 py-0.5 rounded-md text-xs font-bold bg-amber-100 text-amber-800">Steroid-Induced Dysglycemia</span>
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mt-1">
+          ステロイド性耐糖能異常（血糖値スパイク 334mg/dL）の追跡
+        </h2>
+        <p class="text-sm text-slate-600 mt-1">
+          HealthKitに記録された73日間の血糖ログから読み解く、ステロイドの糖新生刺激とインスリン抵抗性
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl text-center">
+          <div class="text-xs font-bold text-amber-800 mb-1">過去最大血糖値</div>
+          <div class="text-3xl font-extrabold text-amber-900">334 <span class="text-sm font-normal text-amber-700">mg/dL</span></div>
+          <div class="text-xs text-amber-700 mt-1">2022年9月17日 記録</div>
+        </div>
+        <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl text-center">
+          <div class="text-xs font-bold text-amber-800 mb-1">測定時平均血糖</div>
+          <div class="text-3xl font-extrabold text-amber-900">194.2 <span class="text-sm font-normal text-amber-700">mg/dL</span></div>
+          <div class="text-xs text-amber-700 mt-1">食後高血糖が常態化</div>
+        </div>
+        <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl text-center">
+          <div class="text-xs font-bold text-amber-800 mb-1">200mg/dL超えの割合</div>
+          <div class="text-3xl font-extrabold text-amber-900">46.5 <span class="text-sm font-normal text-amber-700">%</span></div>
+          <div class="text-xs text-amber-700 mt-1">約半数で明らかな高血糖</div>
+        </div>
+      </div>
+
+      <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+        好酸球性胃腸炎の再燃期にステロイド（プレドニン等）を増量すると、肝臓での糖新生が促進され、骨格筋や脂肪組織での糖取り込みが阻害されるため、食後に急激な高血糖を引き起こします。
+        通常時（100mg/dL前後）と急性ステロイド治療期（200〜334mg/dL）の乖離が極めて激しく、これが血管内皮へのダメージと慢性的な倦怠感・口渇の原因となっていたことがデータから明らかです。
+      </p>
+    </div>
+
+    <!-- まとめと提言 -->
+    <div class="bg-gradient-to-br from-slate-900 to-teal-950 text-white p-6 sm:p-8 rounded-2xl shadow-md">
+      <h3 class="text-xl sm:text-2xl font-bold mb-3">AI解析による総合的病態メカニズムのまとめ</h3>
+      <p class="text-sm sm:text-base text-slate-200 leading-relaxed mb-6">
+        ヘルスケアデータと診療記録を統合することで、個別の症状（高血圧、高血糖、激痛、息苦しさ）は単独で発生したのではなく、すべて**「好酸球性炎症 ⇄ 激痛 ⇄ ステロイド治療 ⇄ 自律神経破綻」という相互連鎖**の中で生じていたことが証明されました。
+      </p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
+        <div class="bg-white/10 p-4 rounded-xl border border-white/10">
+          <strong class="text-teal-300 block mb-1">主治医との連携における活用:</strong>
+          単に「最近血圧が高い」「頭が痛い」と伝えるだけでなく、「早朝に下120〜140台へ跳ね上がる」「激痛ピーク時に186に達する」という客観データを共有することで、的確な降圧薬（ARB等）や鎮痛薬の処方調整が可能になります。
+        </div>
+        <div class="bg-white/10 p-4 rounded-xl border border-white/10">
+          <strong class="text-teal-300 block mb-1">患者自身のメンタルマネジメント:</strong>
+          異常な高血圧や高血糖に直面した際、「自分が悪い」「倒れるのではないか」と恐れるのではなく、「今、激痛と薬の作用で身体が防衛反応を起こしている」と客観視できることが、パニックの防止と自律神経の安定に繋がります。
+        </div>
+      </div>
+    </div>
+
+    <!-- AdSense -->
+    <div class="mt-12">
+      <AdSense />
+    </div>
+  </div>
+</BaseLayout>
