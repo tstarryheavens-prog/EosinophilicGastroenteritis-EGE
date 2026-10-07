@@ -1,6 +1,7 @@
 ---
 import BaseLayout from './BaseLayout.astro';
 import AdSense from '../components/AdSense.astro';
+import RakutenBanner from '../components/RakutenBanner.astro';
 
 interface Props {
   title: string;
@@ -88,8 +89,11 @@ const { title, description, pubDate, category, tags, eyecatch, slug } = Astro.pr
       <slot />
     </div>
 
-    <!-- 広告枠: 記事下部 -->
-    <div class="mt-12">
+    <!-- 記事下部: 楽天スポンサーリンク -->
+    <RakutenBanner variant="double" className="mt-12" />
+
+    <!-- 広告枠: 記事下部 AdSense -->
+    <div class="mt-6">
       <AdSense slot="bottom-ad" format="auto" />
     </div>
 

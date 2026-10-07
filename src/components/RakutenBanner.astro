@@ -1,0 +1,76 @@
+---
+interface Props {
+  variant?: 'single' | 'double';
+  className?: string;
+}
+
+const { variant = 'double', className = '' } = Astro.props;
+---
+
+<div class={`my-8 text-center overflow-hidden rakuten-banner-container ${className}`}>
+  <div class="text-[11px] text-slate-400 font-sans tracking-wider mb-2">おすすめ・スポンサーリンク</div>
+
+  {variant === 'double' ? (
+    <div class="flex flex-col md:flex-row items-center justify-center gap-4">
+      <!-- 楽天バナー 1 -->
+      <div class="inline-block max-w-full overflow-hidden rounded-lg shadow-2xs border border-slate-200/80 hover:shadow-md transition-shadow bg-white p-1">
+        <a
+          href="https://rpx.a8.net/svt/ejp?a8mat=3ZHR1F+CTF1OY+2HOM+609HT&rakuten=y&a8ejpredirect=http%3A%2F%2Fhb.afl.rakuten.co.jp%2Fhgc%2F0ea62065.34400275.0ea62066.204f04c0%2Fa24101314848_3ZHR1F_CTF1OY_2HOM_609HT%3Fpc%3Dhttp%253A%252F%252Fwww.rakuten.co.jp%252F%26m%3Dhttp%253A%252F%252Fm.rakuten.co.jp%252F"
+          rel="nofollow sponsored"
+          target="_blank"
+          class="block"
+        >
+          <img
+            src="http://hbb.afl.rakuten.co.jp/hsb/0eb4bbb3.93b2e556.0eb4bbaa.95151395/"
+            alt="楽天市場"
+            width="468"
+            height="60"
+            class="max-w-full h-auto mx-auto block"
+            loading="lazy"
+          />
+        </a>
+        <img border="0" width="1" height="1" src="https://www17.a8.net/0.gif?a8mat=3ZHR1F+CTF1OY+2HOM+609HT" alt="" class="hidden" />
+      </div>
+
+      <!-- 楽天バナー 2 -->
+      <div class="inline-block max-w-full overflow-hidden rounded-lg shadow-2xs border border-slate-200/80 hover:shadow-md transition-shadow bg-white p-1">
+        <a
+          href="https://rpx.a8.net/svt/ejp?a8mat=3ZHR1F+CTF1OY+2HOM+601S1&rakuten=y&a8ejpredirect=http%3A%2F%2Fhb.afl.rakuten.co.jp%2Fhgc%2F0ea62065.34400275.0ea62066.204f04c0%2Fa24101314848_3ZHR1F_CTF1OY_2HOM_601S1%3Fpc%3Dhttp%253A%252F%252Fwww.rakuten.co.jp%252F%26m%3Dhttp%253A%252F%252Fm.rakuten.co.jp%252F"
+          rel="nofollow sponsored"
+          target="_blank"
+          class="block"
+        >
+          <img
+            src="http://hbb.afl.rakuten.co.jp/hsb/0eb4bbb1.717c6090.0eb4bbaa.95151395/"
+            alt="楽天市場"
+            width="468"
+            height="60"
+            class="max-w-full h-auto mx-auto block"
+            loading="lazy"
+          />
+        </a>
+        <img border="0" width="1" height="1" src="https://www19.a8.net/0.gif?a8mat=3ZHR1F+CTF1OY+2HOM+601S1" alt="" class="hidden" />
+      </div>
+    </div>
+  ) : (
+    <!-- 単体バナー -->
+    <div class="inline-block max-w-full overflow-hidden rounded-lg shadow-2xs border border-slate-200/80 hover:shadow-md transition-shadow bg-white p-1">
+      <a
+        href="https://rpx.a8.net/svt/ejp?a8mat=3ZHR1F+CTF1OY+2HOM+609HT&rakuten=y&a8ejpredirect=http%3A%2F%2Fhb.afl.rakuten.co.jp%2Fhgc%2F0ea62065.34400275.0ea62066.204f04c0%2Fa24101314848_3ZHR1F_CTF1OY_2HOM_609HT%3Fpc%3Dhttp%253A%252F%252Fwww.rakuten.co.jp%252F%26m%3Dhttp%253A%252F%252Fm.rakuten.co.jp%252F"
+        rel="nofollow sponsored"
+        target="_blank"
+        class="block"
+      >
+        <img
+          src="http://hbb.afl.rakuten.co.jp/hsb/0eb4bbb3.93b2e556.0eb4bbaa.95151395/"
+          alt="楽天市場"
+          width="468"
+          height="60"
+          class="max-w-full h-auto mx-auto block"
+          loading="lazy"
+        />
+      </a>
+      <img border="0" width="1" height="1" src="https://www17.a8.net/0.gif?a8mat=3ZHR1F+CTF1OY+2HOM+609HT" alt="" class="hidden" />
+    </div>
+  )}
+</div>

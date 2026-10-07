@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import AdSense from '../components/AdSense.astro';
+import RakutenBanner from '../components/RakutenBanner.astro';
 
 const posts = await getCollection('blog');
 const sortedPosts = posts.sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime());
@@ -154,11 +155,11 @@ const categories = [
       </div>
     </section>
 
-    <!-- トップ広告枠 -->
-    <AdSense slot="index-top" format="auto" />
+    <!-- スポンサーリンク（楽天） -->
+    <RakutenBanner variant="double" className="my-10" />
 
     <!-- 最新記事一覧 -->
-    <section class="mt-12">
+    <section class="mt-8">
       <div class="flex items-center justify-between mb-6">
         <h2 class="text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2">
           <span>すべての記事一覧</span>
