@@ -14,29 +14,30 @@ const navItems = [
 
 <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between min-h-16 py-2.5 sm:py-3">
+    <!-- 上段: サイトタイトル ＆ ツール（文字サイズ・メニューボタン） -->
+    <div class="flex items-center justify-between py-3 border-b border-slate-100 lg:border-none">
       <!-- サイトタイトル -->
-      <div class="min-w-0 pr-3">
+      <div class="flex-1 min-w-0 pr-4">
         <a href="/" class="group block">
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2.5">
             <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-teal-600 text-white font-bold text-sm shadow-xs group-hover:bg-teal-700 transition-colors shrink-0">
               EG
             </span>
-            <span class="text-base sm:text-lg font-bold text-slate-900 tracking-tight group-hover:text-teal-700 transition-colors line-clamp-1">
+            <span class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight group-hover:text-teal-700 transition-colors truncate">
               好酸球性胃腸炎と複合難病の闘病・服薬ノート
             </span>
           </div>
-          <p class="text-xs text-slate-500 hidden md:block mt-0.5 tracking-wide leading-normal">
+          <p class="text-xs text-slate-500 hidden sm:block mt-0.5 tracking-wide">
             好酸球性消化管疾患・群発頭痛・重症喘息・小麦アレルギー当事者のリアルな治療・服薬記録
           </p>
         </a>
       </div>
 
-      <!-- 文字サイズ切り替え ＆ デスクトップナビ -->
-      <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+      <!-- 右側ツール: 文字サイズ切り替え ＆ モバイルメニュートグル -->
+      <div class="flex items-center gap-3 shrink-0">
         <!-- 文字サイズ切り替えスイッチ -->
         <div class="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs shrink-0" role="group" aria-label="文字サイズ変更">
-          <span class="px-1.5 text-slate-500 font-medium hidden md:inline">文字</span>
+          <span class="px-1.5 text-slate-500 font-medium hidden sm:inline">文字</span>
           <button
             type="button"
             class="btn-font-normal px-2.5 py-1 rounded-md font-bold transition-all text-slate-600 hover:text-slate-900 data-[active=true]:bg-white data-[active=true]:text-teal-800 data-[active=true]:shadow-xs"
@@ -57,37 +58,35 @@ const navItems = [
           </button>
         </div>
 
-        <!-- デスクトップナビ -->
-        <nav class="hidden xl:flex items-center space-x-0.5 text-xs lg:text-sm font-medium">
-          {navItems.map(item => (
-            <a
-              href={item.href}
-              class="px-2 py-1.5 rounded-md text-slate-700 hover:text-teal-700 hover:bg-slate-100 transition-colors whitespace-nowrap"
-            >
-              {item.label}
-            </a>
-          ))}
-        </nav>
-
-        <!-- モバイル・タブレットメニュー用ボタン -->
-        <div class="flex xl:hidden">
-          <button
-            type="button"
-            id="mobile-menu-btn"
-            class="inline-flex items-center justify-center p-2 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:outline-hidden"
-            aria-label="メニューを開く"
-          >
-            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-        </div>
+        <!-- モバイルメニュー用ハンバーガーボタン -->
+        <button
+          type="button"
+          id="mobile-menu-btn"
+          class="lg:hidden inline-flex items-center justify-center p-2 rounded-md text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:outline-hidden"
+          aria-label="メニューを開く"
+        >
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
       </div>
     </div>
+
+    <!-- 下段: デスクトップナビゲーションバー（lg以上で水平展開、スクロール可能） -->
+    <nav class="hidden lg:flex items-center gap-1 py-1.5 overflow-x-auto border-t border-slate-100 text-sm font-medium scrollbar-none">
+      {navItems.map(item => (
+        <a
+          href={item.href}
+          class="px-3 py-1.5 rounded-md text-slate-700 hover:text-teal-700 hover:bg-slate-50 transition-colors whitespace-nowrap shrink-0"
+        >
+          {item.label}
+        </a>
+      ))}
+    </nav>
   </div>
 
   <!-- モバイルメニュー -->
-  <div id="mobile-menu" class="hidden xl:hidden border-t border-slate-200 bg-white px-4 pt-2 pb-4 space-y-1 shadow-lg">
+  <div id="mobile-menu" class="hidden lg:hidden border-t border-slate-200 bg-white px-4 pt-2 pb-4 space-y-1 shadow-lg">
     {navItems.map(item => (
       <a
         href={item.href}
