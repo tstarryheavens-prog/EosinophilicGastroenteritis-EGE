@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Google AdSense Crawler
+User-agent: Mediapartners-Google
+Allow: /
+
+# Sitemap
+Sitemap: https://eosinophilicgastroenteritis-ege.pages.dev/sitemap-index.xml
