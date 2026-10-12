@@ -1,0 +1,26 @@
+{
+  "name": "好酸球性胃腸炎と複合難病の闘病・服薬ノート",
+  "short_name": "難病ノート",
+  "description": "好酸球性消化管疾患・群発頭痛・重症喘息・小麦アレルギー当事者のリアルな治療・服薬記録と10年生体データ解析ポータル",
+  "icons": [
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#0d9488",
+  "background_color": "#042f2e",
+  "display": "standalone",
+  "start_url": "/"
+}
