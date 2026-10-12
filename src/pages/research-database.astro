@@ -1,0 +1,550 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import AdSense from '../components/AdSense.astro';
+import RakutenBanner from '../components/RakutenBanner.astro';
+import { researchEntries } from '../data/researchDatabase';
+
+const totalCount = researchEntries.length;
+---
+
+<BaseLayout
+  title="好酸球性胃腸炎・消化管疾患 学術論文＆最新治験データベース"
+  description="世界中のNEJM、Lancet、Gut等に掲載された好酸球性胃腸炎（EGE）・好酸球性消化管疾患（EGID）の学術論文、国際治験（Phase 3）、バイオ製剤エビデンスを網羅。各論文の1000字要約と当事者による1000字臨床所感を収録。"
+>
+  <!-- データベース専用ヒーローヘッダー -->
+  <section class="relative overflow-hidden bg-gradient-to-b from-slate-900 via-teal-950 to-slate-950 text-white border-b border-slate-800 py-12 sm:py-16">
+    <div class="absolute inset-0 bg-[linear-gradient(to_right,#0f766e15_1px,transparent_1px),linear-gradient(to_bottom,#0f766e15_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
+
+    <div class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- パンくずリスト -->
+      <nav class="flex text-xs text-slate-400 mb-5 space-x-2">
+        <a href="/" class="hover:text-teal-300 transition-colors">ホーム</a>
+        <span>/</span>
+        <span class="text-teal-300 font-medium">学術論文・治験データベース</span>
+      </nav>
+
+      <div class="max-w-4xl space-y-4">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/20 border border-teal-400/40 text-teal-300 text-xs sm:text-sm font-semibold tracking-wide">
+          <span class="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></span>
+          <span>世界最前線のエビデンス ✕ 当事者臨床考察</span>
+        </div>
+
+        <h1 class="text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight sm:leading-snug text-white">
+          好酸球性胃腸炎・消化管疾患<br class="hidden sm:inline" />
+          学術論文＆治験エビデンス・データベース
+        </h1>
+
+        <p class="text-sm sm:text-base text-slate-300 leading-relaxed max-w-3xl">
+          世界最高峰の医学誌（NEJM、Lancet、Gastroenterology等）に発表された好酸球性消化管疾患（EGE/EoE/EGID）の主要論文、最新の国際臨床治験（Phase 2/3）、新規分子標的薬（バイオ製剤）のデータを網羅。
+          客観的な学術要約（約1,000字）と、10回以上の入院・ステロイド治療を経験した当事者視点の臨床的所感（約1,000字）を各エントリーに収録しています。
+        </p>
+
+        <!-- メトリクスバッジ -->
+        <div class="flex flex-wrap gap-2.5 pt-2 text-xs font-semibold">
+          <span class="px-3 py-1.5 rounded-lg bg-slate-800/90 border border-slate-700 text-teal-300">
+            収録エビデンス: {totalCount}件
+          </span>
+          <span class="px-3 py-1.5 rounded-lg bg-slate-800/90 border border-slate-700 text-sky-300">
+            対象: デュピクセント / ファセンラ / ヌーカラ / テゼスパイア / エキシデンサー / AK002 / SFED
+          </span>
+          <span class="px-3 py-1.5 rounded-lg bg-slate-800/90 border border-slate-700 text-amber-300">
+            全件DOI・治験番号（NCT）直接リンク付き
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <!-- 医療免責事項コールアウト -->
+    <div class="mb-8 rounded-xl border-l-4 border-amber-500 bg-amber-50/80 p-4 sm:p-5 text-xs sm:text-sm text-amber-950 leading-relaxed shadow-2xs">
+      <div class="font-bold flex items-center gap-1.5 mb-1 text-amber-900">
+        <svg class="w-4 h-4 shrink-0 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>学術データベースのご利用にあたって</span>
+      </div>
+      <p>
+        本データベースに掲載されている要約および所感は、査読付き学術論文・国際治験レジストリ等の公開情報をもとに当事者が調査・整理したものです。特定の医薬品や治療法の有効性を個別に保証するものではなく、医療行為の指示・勧誘を目的とするものではありません。治療や投薬に関する判断は、必ずご自身の主治医にご相談ください。
+      </p>
+    </div>
+
+    <!-- コントロールパネル: 検索・フィルター・ソートバー -->
+    <div class="sticky top-16 z-30 mb-8 p-4 sm:p-5 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-sm space-y-4">
+      <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+        <!-- フリーワード検索バー -->
+        <div class="relative flex-1">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <input
+            type="text"
+            id="search-input"
+            placeholder="薬剤名（デュピクセント、ヌーカラ等）、キーワード（好酸球、マスト細胞、タイトジャンクション等）で検索..."
+            class="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 transition-all placeholder:text-slate-400"
+          />
+        </div>
+
+        <!-- ソートセレクター -->
+        <div class="flex items-center gap-2 shrink-0">
+          <label for="sort-select" class="text-xs font-bold text-slate-600 whitespace-nowrap">並び替え:</label>
+          <select
+            id="sort-select"
+            class="py-2.5 pl-3 pr-8 text-xs sm:text-sm rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 font-medium text-slate-700 transition-all cursor-pointer"
+          >
+            <option value="post-desc">投稿順（新着順）</option>
+            <option value="post-asc">投稿順（古い順）</option>
+            <option value="publish-desc">引用元時系列（新しい順）</option>
+            <option value="publish-asc">引用元時系列（古い順）</option>
+            <option value="category">分類（カテゴリ順）</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 分類フィルタータブ -->
+      <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs font-semibold">
+        <span class="text-slate-500 whitespace-nowrap shrink-0 pr-1">分類絞り込み:</span>
+        <button
+          type="button"
+          class="filter-btn px-3 py-1.5 rounded-lg transition-all whitespace-nowrap bg-teal-600 text-white shadow-2xs"
+          data-category="all"
+        >
+          すべて ({totalCount})
+        </button>
+        <button
+          type="button"
+          class="filter-btn px-3 py-1.5 rounded-lg transition-all whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
+          data-category="biologics"
+        >
+          バイオ製剤・抗体薬
+        </button>
+        <button
+          type="button"
+          class="filter-btn px-3 py-1.5 rounded-lg transition-all whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
+          data-category="clinical-trials"
+        >
+          国際臨床治験 (Phase 2/3)
+        </button>
+        <button
+          type="button"
+          class="filter-btn px-3 py-1.5 rounded-lg transition-all whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
+          data-category="diet-biomarkers"
+        >
+          食事療法・バイオマーカー
+        </button>
+      </div>
+    </div>
+
+    <!-- 検索ヒット件数表示 -->
+    <div class="flex items-center justify-between mb-4 text-xs sm:text-sm text-slate-500 px-1">
+      <div>
+        該当件数: <span id="filtered-count" class="font-bold text-teal-700 text-base">{totalCount}</span> 件
+      </div>
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          id="expand-all-btn"
+          class="text-xs text-teal-700 hover:text-teal-800 font-bold hover:underline"
+        >
+          すべて展開
+        </button>
+        <span class="text-slate-300">|</span>
+        <button
+          type="button"
+          id="collapse-all-btn"
+          class="text-xs text-slate-500 hover:text-slate-700 font-bold hover:underline"
+        >
+          すべて閉じる
+        </button>
+      </div>
+    </div>
+
+    <!-- データベースエントリー一覧コンテナ -->
+    <div id="entries-container" class="space-y-6">
+      {researchEntries.map(entry => (
+        <article
+          class="research-entry-card bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden transition-all duration-200 hover:border-teal-300 hover:shadow-md"
+          data-id={entry.id}
+          data-category={entry.category}
+          data-post-date={entry.postDate}
+          data-publish-date={entry.publishDate}
+          data-search-text={`${entry.title} ${entry.originalTitle} ${entry.molecules.join(' ')} ${entry.targetDiseases.join(' ')} ${entry.source.journalOrRegistry} ${entry.source.authorsOrSponsor} ${entry.summary} ${entry.commentary}`.toLowerCase()}
+        >
+          <!-- カードヘッダー（常に表示） -->
+          <div class="p-6 sm:p-7 border-b border-slate-100 bg-gradient-to-r from-slate-50/50 via-white to-white">
+            <div class="flex flex-wrap items-center justify-between gap-2.5 mb-3">
+              <div class="flex flex-wrap items-center gap-2">
+                <!-- 分類バッジ -->
+                <span class="text-xs font-bold px-2.5 py-1 rounded-md bg-teal-50 text-teal-800 border border-teal-200">
+                  {entry.categoryLabel}
+                </span>
+
+                <!-- ステータスバッジ -->
+                <span class={`text-xs font-bold px-2.5 py-1 rounded-md border ${entry.statusBadgeColor}`}>
+                  {entry.status}
+                </span>
+              </div>
+
+              <!-- 時系列インフォ -->
+              <div class="flex items-center gap-3 text-xs text-slate-500 font-medium">
+                <span title="論文発表・治験公式発表日">
+                  📅 原著発表: <strong class="text-slate-700">{entry.publishDate}</strong>
+                </span>
+                <span class="hidden sm:inline text-slate-300">|</span>
+                <span class="hidden sm:inline" title="当サイトへの登録・最終更新日">
+                  登録: {entry.postDate}
+                </span>
+              </div>
+            </div>
+
+            <!-- タイトル -->
+            <h2 class="text-lg sm:text-2xl font-bold text-slate-900 tracking-tight leading-snug mb-1.5">
+              {entry.title}
+            </h2>
+
+            <!-- 原題 -->
+            <p class="text-xs sm:text-sm text-slate-500 font-mono italic mb-3">
+              {entry.originalTitle}
+            </p>
+
+            <!-- 出典・DOI・リンク情報 -->
+            <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-200/80 mb-4">
+              <div class="flex items-center gap-1.5">
+                <span class="font-bold text-slate-700">掲載誌/機関:</span>
+                <span>{entry.source.journalOrRegistry}</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="font-bold text-slate-700">著者/治験責任:</span>
+                <span>{entry.source.authorsOrSponsor}</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="font-bold text-slate-700">識別番号:</span>
+                <span class="font-mono text-teal-800 font-semibold">{entry.source.identifier}</span>
+              </div>
+              <div class="ml-auto">
+                <a
+                  href={entry.source.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center gap-1 text-teal-700 hover:text-teal-900 font-bold hover:underline"
+                >
+                  <span>論文・治験公式ページを開く</span>
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </a>
+              </div>
+            </div>
+
+            <!-- 対象疾患＆標的分子タグ -->
+            <div class="flex flex-wrap items-center gap-1.5 mb-4">
+              <span class="text-xs font-bold text-slate-400 mr-1">対象・標的:</span>
+              {entry.targetDiseases.map(d => (
+                <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-sky-50 text-sky-800 border border-sky-200">
+                  {d}
+                </span>
+              ))}
+              {entry.molecules.map(m => (
+                <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
+                  {m}
+                </span>
+              ))}
+            </div>
+
+            <!-- キーテイクアウェイ（主要ハイライト3点） -->
+            <div class="bg-teal-50/50 border border-teal-200/80 rounded-xl p-3.5 sm:p-4 text-xs sm:text-sm text-slate-800">
+              <div class="font-bold text-teal-900 mb-2 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-teal-600"></span>
+                <span>エビデンスの重要ポイント（要約ハイライト）</span>
+              </div>
+              <ul class="space-y-1.5 list-disc list-inside text-slate-700 leading-relaxed">
+                {entry.keyTakeaways.map(point => (
+                  <li>{point}</li>
+                ))}
+              </ul>
+            </div>
+
+            <!-- 開閉トグルボタン -->
+            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+              <button
+                type="button"
+                class="toggle-detail-btn inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 hover:bg-teal-50 text-slate-700 hover:text-teal-800 border border-slate-200 hover:border-teal-300 transition-colors cursor-pointer"
+              >
+                <span class="btn-text">詳細を読む（1000字要約 ＆ 1000字当事者所感）</span>
+                <svg class="chevron-icon w-4 h-4 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              <span class="text-xs text-slate-400 font-mono">
+                約2,000文字の臨床分析
+              </span>
+            </div>
+          </div>
+
+          <!-- アコーディオン詳細本文（クリックで展開） -->
+          <div class="entry-detail-body hidden bg-white p-6 sm:p-8 space-y-8 border-t border-slate-100 text-slate-800 leading-relaxed text-sm sm:text-base">
+            <!-- セクション1: 内容の学術要約（約1,000字） -->
+            <div class="space-y-3">
+              <div class="flex items-center gap-2 border-b border-teal-200 pb-2">
+                <span class="text-lg">📑</span>
+                <h3 class="text-base sm:text-xl font-bold text-slate-900">
+                  1. 学術論文・臨床試験 内容の要約（約1,000字）
+                </h3>
+              </div>
+              <div class="bg-slate-50/70 p-5 sm:p-6 rounded-xl border border-slate-200 text-slate-700 leading-relaxed sm:leading-loose whitespace-pre-line text-sm sm:text-base">
+                {entry.summary}
+              </div>
+            </div>
+
+            <!-- セクション2: 当事者としての臨床所感・考察（約1,000字） -->
+            <div class="space-y-3">
+              <div class="flex items-center gap-2 border-b border-amber-300 pb-2">
+                <span class="text-lg">💭</span>
+                <h3 class="text-base sm:text-xl font-bold text-slate-900">
+                  2. 難病当事者としての臨床的所感・考察（約1,000字）
+                </h3>
+              </div>
+              <div class="bg-amber-50/40 p-5 sm:p-6 rounded-xl border border-amber-200/80 text-amber-950 leading-relaxed sm:leading-loose whitespace-pre-line text-sm sm:text-base">
+                {entry.commentary}
+              </div>
+            </div>
+
+            <!-- エントリーフッター情報 -->
+            <div class="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between text-xs text-slate-500 gap-2">
+              <div>
+                引用元ID: <span class="font-mono font-semibold text-slate-700">{entry.source.identifier}</span>
+              </div>
+              <a
+                href={entry.source.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-teal-700 hover:text-teal-800 font-bold inline-flex items-center gap-1 hover:underline"
+              >
+                <span>原著論文（PubMed / NEJM）へのリンク</span> &rarr;
+              </a>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+
+    <!-- 検索結果がゼロ件の場合の表示 -->
+    <div id="no-results" class="hidden p-12 text-center bg-white rounded-2xl border border-slate-200 my-8">
+      <div class="text-4xl mb-3">🔍</div>
+      <h3 class="text-lg font-bold text-slate-800 mb-1">該当する論文・治験が見つかりませんでした</h3>
+      <p class="text-sm text-slate-500 max-w-md mx-auto mb-4">
+        検索キーワードを変えるか、分類絞り込みを「すべて」に戻してお試しください。
+      </p>
+      <button
+        type="button"
+        id="reset-search-btn"
+        class="px-4 py-2 rounded-xl bg-teal-600 text-white text-xs font-bold hover:bg-teal-700 transition-colors cursor-pointer"
+      >
+        検索条件をリセット
+      </button>
+    </div>
+
+    <!-- スポンサーリンク -->
+    <div class="mt-14">
+      <AdSense format="auto" />
+      <RakutenBanner variant="double" className="my-8" />
+    </div>
+  </div>
+</BaseLayout>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('search-input');
+    const sortSelect = document.getElementById('sort-select');
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const entriesContainer = document.getElementById('entries-container');
+    const noResults = document.getElementById('no-results');
+    const filteredCount = document.getElementById('filtered-count');
+    const resetBtn = document.getElementById('reset-search-btn');
+    const expandAllBtn = document.getElementById('expand-all-btn');
+    const collapseAllBtn = document.getElementById('collapse-all-btn');
+
+    let currentCategory = 'all';
+    let currentQuery = '';
+    let currentSort = 'post-desc';
+
+    const cards = Array.from(document.querySelectorAll('.research-entry-card'));
+
+    // 各カードのトグルボタン処理
+    cards.forEach(card => {
+      const toggleBtn = card.querySelector('.toggle-detail-btn');
+      const detailBody = card.querySelector('.entry-detail-body');
+      const chevron = card.querySelector('.chevron-icon');
+      const btnText = card.querySelector('.btn-text');
+
+      if (toggleBtn && detailBody) {
+        toggleBtn.addEventListener('click', () => {
+          const isHidden = detailBody.classList.contains('hidden');
+          if (isHidden) {
+            detailBody.classList.remove('hidden');
+            chevron.classList.add('rotate-180');
+            btnText.textContent = '詳細を閉じる';
+          } else {
+            detailBody.classList.add('hidden');
+            chevron.classList.remove('rotate-180');
+            btnText.textContent = '詳細を読む（1000字要約 ＆ 1000字当事者所感）';
+          }
+        });
+      }
+    });
+
+    // すべて展開 / すべて閉じる
+    if (expandAllBtn) {
+      expandAllBtn.addEventListener('click', () => {
+        cards.forEach(card => {
+          const detailBody = card.querySelector('.entry-detail-body');
+          const chevron = card.querySelector('.chevron-icon');
+          const btnText = card.querySelector('.btn-text');
+          if (detailBody) {
+            detailBody.classList.remove('hidden');
+            if (chevron) chevron.classList.add('rotate-180');
+            if (btnText) btnText.textContent = '詳細を閉じる';
+          }
+        });
+      });
+    }
+
+    if (collapseAllBtn) {
+      collapseAllBtn.addEventListener('click', () => {
+        cards.forEach(card => {
+          const detailBody = card.querySelector('.entry-detail-body');
+          const chevron = card.querySelector('.chevron-icon');
+          const btnText = card.querySelector('.btn-text');
+          if (detailBody) {
+            detailBody.classList.add('hidden');
+            if (chevron) chevron.classList.remove('rotate-180');
+            if (btnText) btnText.textContent = '詳細を読む（1000字要約 ＆ 1000字当事者所感）';
+          }
+        });
+      });
+    }
+
+    // フィルタ & ソート適用関数
+    function applyFilterAndSort() {
+      let visibleCount = 0;
+
+      // 1. フィルタ判定
+      cards.forEach(card => {
+        const category = card.getAttribute('data-category');
+        const searchText = card.getAttribute('data-search-text') || '';
+
+        const matchesCategory = (currentCategory === 'all' || category === currentCategory);
+        const matchesQuery = (!currentQuery || searchText.includes(currentQuery.toLowerCase()));
+
+        if (matchesCategory && matchesQuery) {
+          card.classList.remove('hidden');
+          visibleCount++;
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+
+      // 2. 件数表示更新
+      if (filteredCount) {
+        filteredCount.textContent = visibleCount.toString();
+      }
+
+      if (noResults && entriesContainer) {
+        if (visibleCount === 0) {
+          noResults.classList.remove('hidden');
+          entriesContainer.classList.add('hidden');
+        } else {
+          noResults.classList.add('hidden');
+          entriesContainer.classList.remove('hidden');
+        }
+      }
+
+      // 3. ソート順序の変更
+      const sortedCards = [...cards].sort((a, b) => {
+        const postA = a.getAttribute('data-post-date') || '';
+        const postB = b.getAttribute('data-post-date') || '';
+        const pubA = a.getAttribute('data-publish-date') || '';
+        const pubB = b.getAttribute('data-publish-date') || '';
+        const catA = a.getAttribute('data-category') || '';
+        const catB = b.getAttribute('data-category') || '';
+
+        switch (currentSort) {
+          case 'post-desc':
+            return postB.localeCompare(postA);
+          case 'post-asc':
+            return postA.localeCompare(postB);
+          case 'publish-desc':
+            return pubB.localeCompare(pubA);
+          case 'publish-asc':
+            return pubA.localeCompare(pubB);
+          case 'category':
+            return catA.localeCompare(catB);
+          default:
+            return 0;
+        }
+      });
+
+      // DOMに並び替えを反映
+      sortedCards.forEach(card => {
+        entriesContainer.appendChild(card);
+      });
+    }
+
+    // 検索入力イベント
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        currentQuery = e.target.value.trim();
+        applyFilterAndSort();
+      });
+    }
+
+    // ソート変更イベント
+    if (sortSelect) {
+      sortSelect.addEventListener('change', (e) => {
+        currentSort = e.target.value;
+        applyFilterAndSort();
+      });
+    }
+
+    // カテゴリフィルターボタン切り替え
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterButtons.forEach(b => {
+          b.classList.remove('bg-teal-600', 'text-white', 'shadow-2xs');
+          b.classList.add('bg-slate-100', 'text-slate-600');
+        });
+        btn.classList.add('bg-teal-600', 'text-white', 'shadow-2xs');
+        btn.classList.remove('bg-slate-100', 'text-slate-600');
+
+        currentCategory = btn.getAttribute('data-category') || 'all';
+        applyFilterAndSort();
+      });
+    });
+
+    // 検索リセット
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        if (searchInput) searchInput.value = '';
+        currentQuery = '';
+        currentCategory = 'all';
+        currentSort = 'post-desc';
+        if (sortSelect) sortSelect.value = 'post-desc';
+
+        filterButtons.forEach(b => {
+          if (b.getAttribute('data-category') === 'all') {
+            b.classList.add('bg-teal-600', 'text-white', 'shadow-2xs');
+            b.classList.remove('bg-slate-100', 'text-slate-600');
+          } else {
+            b.classList.remove('bg-teal-600', 'text-white', 'shadow-2xs');
+            b.classList.add('bg-slate-100', 'text-slate-600');
+          }
+        });
+
+        applyFilterAndSort();
+      });
+    }
+  });
+</script>
