@@ -3,9 +3,9 @@
 
 @layer base {
   html {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
-    color: #1e293b;
-    background-color: #f8fafc;
+    font-family: 'Zen Maru Gothic', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+    color: #3D3A35;
+    background-color: #FDFBF7;
     font-size: 17px;
     line-height: 1.8;
     letter-spacing: 0.02em;
@@ -19,12 +19,14 @@
   }
 
   /* 文字サイズ「特大」モード切り替え用 */
-  html.font-large {
+  html.font-large,
+  body.text-large {
     font-size: 19px;
   }
 
   @media (min-width: 640px) {
-    html.font-large {
+    html.font-large,
+    body.text-large {
       font-size: 21px;
     }
   }
@@ -34,24 +36,13 @@
   }
 }
 
-/* Figma-inspired Medical Design Tokens & Utilities */
-.glass-panel {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+/* 温かみのあるユニバーサルデザイン用トークン */
+.warm-shadow {
+  box-shadow: 0 8px 24px -4px rgba(140, 120, 100, 0.12);
 }
 
-.medical-gradient-teal {
-  background: linear-gradient(135deg, #0d9488 0%, #0f766e 50%, #115e59 100%);
-}
-
-.medical-gradient-dark {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0f766e 100%);
-}
-
-.medical-gradient-card {
-  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+.warm-shadow-sm {
+  box-shadow: 0 2px 8px -2px rgba(140, 120, 100, 0.08);
 }
 
 .vital-stat-badge {
@@ -64,6 +55,6 @@
   transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
 }
 .card-hover-fx:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 24px -6px rgba(15, 23, 42, 0.08), 0 4px 8px -2px rgba(15, 23, 42, 0.03);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px -4px rgba(140, 120, 100, 0.15);
 }

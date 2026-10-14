@@ -19,417 +19,584 @@ const categories = [
     name: '好酸球性消化管疾患',
     description: '指定難病である好酸球性胃腸炎・好酸球性腸炎の診断、入退院、最新の抗体薬・治験情報',
     icon: '🔬',
-    theme: 'teal',
-    color: 'border-teal-300 hover:border-teal-500 bg-teal-50/50 hover:bg-teal-50/80',
-    badge: 'bg-teal-100 text-teal-800'
+    bg: 'bg-[#F4F9F6] border-[#D8EAE0]',
+    badge: 'bg-[#81B29A] text-white',
+    accent: '#81B29A'
   },
   {
     name: '群発頭痛・頭痛',
     description: '「自殺頭痛」とも呼ばれる群発頭痛の激痛発作、片頭痛、CGRP関連薬（アイモビーク等）の記録',
     icon: '⚡',
-    theme: 'amber',
-    color: 'border-amber-300 hover:border-amber-500 bg-amber-50/50 hover:bg-amber-50/80',
-    badge: 'bg-amber-100 text-amber-800'
+    bg: 'bg-[#FDF6F0] border-[#F5DFD5]',
+    badge: 'bg-[#E07A5F] text-white',
+    accent: '#E07A5F'
   },
   {
     name: '重症喘息・呼吸器',
     description: '好酸球性喘息、生物学的製剤（ヌーカラ・エキシデンサー等）、吸入薬（ビレーズトリ）の治療ノート',
     icon: '🫁',
-    theme: 'blue',
-    color: 'border-blue-300 hover:border-blue-500 bg-blue-50/50 hover:bg-blue-50/80',
-    badge: 'bg-blue-100 text-blue-800'
+    bg: 'bg-[#F0F5FA] border-[#D6E4F0]',
+    badge: 'bg-[#5B8FB9] text-white',
+    accent: '#5B8FB9'
   },
   {
     name: '服薬調査・治療薬',
     description: '胃腸薬、神経痛薬（タリージェ等）、漢方薬（大建中湯等）、睡眠薬など実際に処方された薬のまとめ',
     icon: '💊',
-    theme: 'emerald',
-    color: 'border-emerald-300 hover:border-emerald-500 bg-emerald-50/50 hover:bg-emerald-50/80',
-    badge: 'bg-emerald-100 text-emerald-800'
+    bg: 'bg-[#F5F8F2] border-[#DEE8D5]',
+    badge: 'bg-[#769F6B] text-white',
+    accent: '#769F6B'
   },
   {
     name: '入院生活・制度',
     description: '10回以上の入院生活で本当に役立った持ち物、大部屋の知恵、難病医療費助成・高額療養費の実態',
     icon: '🏥',
-    theme: 'purple',
-    color: 'border-purple-300 hover:border-purple-500 bg-purple-50/50 hover:bg-purple-50/80',
-    badge: 'bg-purple-100 text-purple-800'
+    bg: 'bg-[#F8F4FA] border-[#E8DEF0]',
+    badge: 'bg-[#9D81BA] text-white',
+    accent: '#9D81BA'
   },
   {
     name: '闘病日記・コラム',
     description: '難病告知からの歩み、家族への想い、小麦完全除去生活（グルテンフリー）の実践と工夫',
     icon: '📖',
-    theme: 'rose',
-    color: 'border-rose-300 hover:border-rose-500 bg-rose-50/50 hover:bg-rose-50/80',
-    badge: 'bg-rose-100 text-rose-800'
+    bg: 'bg-[#FDF5F7] border-[#F5D8E0]',
+    badge: 'bg-[#D67D8F] text-white',
+    accent: '#D67D8F'
   }
 ];
 
-// カテゴリに応じたプレースホルダー色・アイコン定義
+// カテゴリに応じた温かみのあるプレースホルダースタイル定義
 const getCategoryPlaceholderStyle = (category: string) => {
   switch (category) {
     case '好酸球性消化管疾患':
-      return { gradient: 'from-teal-600 to-emerald-700', icon: '🔬', text: '好酸球性消化管疾患' };
+      return { gradient: 'from-[#81B29A] to-[#588157]', icon: '🔬', text: '好酸球性消化管疾患' };
     case '群発頭痛・頭痛':
-      return { gradient: 'from-amber-600 to-rose-700', icon: '⚡', text: '群発頭痛・片頭痛' };
+      return { gradient: 'from-[#E07A5F] to-[#C95D42]', icon: '⚡', text: '群発頭痛・片頭痛' };
     case '重症喘息・呼吸器':
-      return { gradient: 'from-sky-600 to-blue-700', icon: '🫁', text: '重症喘息・呼吸器' };
+      return { gradient: 'from-[#5B8FB9] to-[#3D6E94]', icon: '🫁', text: '重症喘息・呼吸器' };
     case '服薬調査・治療薬':
-      return { gradient: 'from-emerald-600 to-teal-700', icon: '💊', text: '服薬調査・治療薬' };
+      return { gradient: 'from-[#769F6B] to-[#537A49]', icon: '💊', text: '服薬調査・治療薬' };
     case '入院生活・制度':
-      return { gradient: 'from-indigo-600 to-purple-700', icon: '🏥', text: '入院生活・医療費制度' };
+      return { gradient: 'from-[#9D81BA] to-[#7B5E9C]', icon: '🏥', text: '入院生活・医療費制度' };
     case '闘病日記・コラム':
-      return { gradient: 'from-rose-600 to-pink-700', icon: '📖', text: '闘病日記・コラム' };
+      return { gradient: 'from-[#D67D8F] to-[#B5596D]', icon: '📖', text: '闘病日記・コラム' };
     default:
-      return { gradient: 'from-slate-700 to-slate-900', icon: '📋', text: category };
+      return { gradient: 'from-[#7D766D] to-[#5C554C]', icon: '📋', text: category };
   }
 };
 ---
 
 <BaseLayout>
-  <!-- ヒーローセクション: 医療×データサイエンス融合型デザイン -->
-  <section class="relative overflow-hidden bg-gradient-to-b from-teal-900 via-slate-900 to-slate-950 text-white border-b border-slate-800 py-12 sm:py-16 lg:py-20">
-    <!-- 背景装飾グリッド -->
-    <div class="absolute inset-0 bg-[linear-gradient(to_right,#0f766e15_1px,transparent_1px),linear-gradient(to_bottom,#0f766e15_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
-
-    <div class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-        <!-- 左カラム: メインメッセージ ＆ 当事者ステータス -->
-        <div class="lg:col-span-7 text-center lg:text-left space-y-5">
-          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/20 border border-teal-400/40 text-teal-300 text-xs sm:text-sm font-semibold tracking-wide">
-            <span class="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></span>
-            <span>難病当事者 ✕ 10年ヘルスケア生体データ解析</span>
+  <!-- 1画面完結型 Bento Grid ＆ タブ切り替えコンテナ -->
+  <div class="max-w-7xl mx-auto px-3 sm:px-6 py-4 md:py-6">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-5 md:h-[calc(100vh-130px)] md:min-h-[640px]">
+      
+      <!-- ================= 左カラム：固定ナビゲーション ＆ 当事者サマリー（4列） ================= -->
+      <aside class="md:col-span-4 bg-[#F4F1EA] rounded-3xl p-5 sm:p-6 flex flex-col justify-between border border-[#E6DFD3] warm-shadow overflow-y-auto">
+        <div class="space-y-4">
+          <!-- やさしいガイドバッジ -->
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 bg-[#81B29A] text-white text-xs font-bold px-3 py-1 rounded-full shadow-2xs">
+              <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+              当事者 ✕ 10年生体データ
+            </span>
           </div>
 
-          <h1 class="text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight sm:leading-snug text-white">
-            好酸球性胃腸炎と<br class="hidden sm:inline" />複合難病の闘病・服薬ノート
-          </h1>
+          <!-- タイトル ＆ メッセージ -->
+          <div>
+            <h1 class="text-xl sm:text-2xl font-bold text-[#2C3E35] leading-snug tracking-tight mb-2">
+              好酸球性胃腸炎と<br class="hidden sm:inline" />複合難病の闘病・服薬ノート
+            </h1>
+            <p class="text-xs sm:text-sm text-[#5C574F] leading-relaxed">
+              ひとりじゃない。必要な情報を、すぐ手元に。<br />
+              10年間の実測データ解析と、闘病・服薬・暮らしの工夫をタブ切り替えですぐ閲覧できます。
+            </p>
+          </div>
 
-          <p class="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl mx-auto lg:mx-0">
-            指定難病「好酸球性消化管疾患（好酸球性胃腸炎）」をはじめ、群発頭痛・重症喘息・小麦アレルギーと生きる当事者のリアルな治療記録。
-            Apple Watch・Withingsで蓄積した10年分3GBの生体ログをAIで解剖し、患者自身が病態の主導権を取り戻すためのデータ闘病ポータルです。
+          <!-- 当事者ステータスバッジ（大きめで見やすい） -->
+          <div class="flex flex-wrap gap-1.5 pt-1 text-[11px] sm:text-xs">
+            <span class="px-2.5 py-1 rounded-xl bg-white/90 border border-[#E0D8C8] text-[#2C3E35] font-bold shadow-2xs">入退院10回以上</span>
+            <span class="px-2.5 py-1 rounded-xl bg-white/90 border border-[#E0D8C8] text-[#2C3E35] font-bold shadow-2xs">在宅酸素経験</span>
+            <span class="px-2.5 py-1 rounded-xl bg-white/90 border border-[#E0D8C8] text-[#2C3E35] font-bold shadow-2xs">完全グルテンフリー</span>
+            <span class="px-2.5 py-1 rounded-xl bg-white/90 border border-[#E0D8C8] text-[#2C3E35] font-bold shadow-2xs">指定難病受給者証保持</span>
+          </div>
+
+          <!-- タブ切り替えナビゲーション（押しやすい大きめのユニバーサルボタン） -->
+          <nav class="flex flex-col gap-2.5 pt-2" role="tablist" aria-label="メインコンテンツ切り替え">
+            <button
+              onclick="switchTab('tab-diseases')"
+              id="btn-tab-diseases"
+              class="tab-btn w-full text-left px-4 sm:px-5 py-3.5 rounded-2xl font-bold transition-all flex items-center justify-between bg-[#E07A5F] text-white warm-shadow cursor-pointer"
+              role="tab"
+              aria-selected="true"
+              aria-controls="tab-diseases"
+            >
+              <span class="flex items-center gap-2">
+                <span class="text-lg">🌱</span>
+                <span>疾患・テーマ別カテゴリ</span>
+              </span>
+              <span class="text-sm font-bold opacity-90">&rarr;</span>
+            </button>
+
+            <button
+              onclick="switchTab('tab-data')"
+              id="btn-tab-data"
+              class="tab-btn w-full text-left px-4 sm:px-5 py-3.5 rounded-2xl font-bold transition-all flex items-center justify-between bg-white text-[#3D3A35] hover:bg-[#FAF6F0] border border-[#E6DFD3] cursor-pointer"
+              role="tab"
+              aria-selected="false"
+              aria-controls="tab-data"
+            >
+              <span class="flex items-center gap-2">
+                <span class="text-lg">📊</span>
+                <span>データ解析・論文DB</span>
+              </span>
+              <span class="text-sm font-bold text-[#8C857B]">&rarr;</span>
+            </button>
+
+            <button
+              onclick="switchTab('tab-articles')"
+              id="btn-tab-articles"
+              class="tab-btn w-full text-left px-4 sm:px-5 py-3.5 rounded-2xl font-bold transition-all flex items-center justify-between bg-white text-[#3D3A35] hover:bg-[#FAF6F0] border border-[#E6DFD3] cursor-pointer"
+              role="tab"
+              aria-selected="false"
+              aria-controls="tab-articles"
+            >
+              <span class="flex items-center gap-2">
+                <span class="text-lg">📝</span>
+                <span>すべての記事一覧</span>
+                <span class="text-xs px-2 py-0.5 rounded-full bg-[#F4F1EA] text-[#6E685F]">{sortedPosts.length}件</span>
+              </span>
+              <span class="text-sm font-bold text-[#8C857B]">&rarr;</span>
+            </button>
+
+            <button
+              onclick="switchTab('tab-support')"
+              id="btn-tab-support"
+              class="tab-btn w-full text-left px-4 sm:px-5 py-3.5 rounded-2xl font-bold transition-all flex items-center justify-between bg-white text-[#3D3A35] hover:bg-[#FAF6F0] border border-[#E6DFD3] cursor-pointer"
+              role="tab"
+              aria-selected="false"
+              aria-controls="tab-support"
+            >
+              <span class="flex items-center gap-2">
+                <span class="text-lg">☕</span>
+                <span>暮らしの工夫・相談窓口</span>
+              </span>
+              <span class="text-sm font-bold text-[#8C857B]">&rarr;</span>
+            </button>
+          </nav>
+        </div>
+
+        <!-- 緊急・相談メッセージ常設枠 -->
+        <div class="mt-4 pt-3.5 border-t border-[#E0D8C8] text-xs text-[#6E685F] leading-relaxed">
+          <div class="flex items-center gap-1.5 font-bold text-[#2C3E35] mb-1">
+            <span>💡</span>
+            <span>迷ったときは</span>
+          </div>
+          <p>
+            急な体調不良や公的制度の相談は、右側タブの「相談窓口」より専門機関へご相談ください。
           </p>
+        </div>
+      </aside>
 
-          <!-- 当事者ステータスタグ -->
-          <div class="flex flex-wrap justify-center lg:justify-start gap-2 pt-1 text-xs sm:text-sm">
-            <span class="px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700/80 text-teal-300 font-medium shadow-xs">入退院10回以上</span>
-            <span class="px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700/80 text-amber-300 font-medium shadow-xs">在宅酸素治療経験</span>
-            <span class="px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700/80 text-emerald-300 font-medium shadow-xs">完全グルテンフリー生活</span>
-            <span class="px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700/80 text-blue-300 font-medium shadow-xs">指定難病受給者証保持</span>
+      <!-- ================= 右カラム：コンテンツ表示エリア（8列・内部スクロール対応） ================= -->
+      <section class="md:col-span-8 bg-white rounded-3xl p-5 sm:p-7 md:p-8 warm-shadow border border-[#F0EAE1] overflow-y-auto flex flex-col justify-between">
+        
+        <!-- ================= タブ1：🌱 疾患・テーマ別カテゴリ（初期表示） ================= -->
+        <div id="tab-diseases" class="tab-content space-y-5">
+          <div class="border-b-2 border-[#F4F1EA] pb-3 flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <div class="inline-flex items-center gap-1.5 text-xs font-bold text-[#81B29A] uppercase tracking-wider mb-1">
+                <span>Category Guide</span>
+              </div>
+              <h2 class="text-xl sm:text-2xl font-bold text-[#2C3E35]">🌱 疾患・テーマ別の基礎知識と記録</h2>
+              <p class="text-xs sm:text-sm text-[#6E685F] mt-0.5">当事者が実際に経験・調査したテーマごとに情報を整理しています。</p>
+            </div>
+            <span class="text-xs font-bold text-[#81B29A] bg-[#F4F9F6] px-3 py-1 rounded-full border border-[#D8EAE0]">
+              全6テーマ
+            </span>
           </div>
 
-          <!-- クイックアクションボタン -->
-          <div class="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-3">
+          <!-- Bento Grid: 6カテゴリカード -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
+            {categories.map(cat => {
+              const count = postCounts[cat.name] || 0;
+              return (
+                <a
+                  href={`/category/${cat.name}`}
+                  class={`group p-4 sm:p-5 rounded-2xl border transition-all duration-200 card-hover-fx ${cat.bg} flex flex-col justify-between`}
+                >
+                  <div>
+                    <div class="flex items-center justify-between mb-2">
+                      <span class="text-2xl group-hover:scale-110 transition-transform">{cat.icon}</span>
+                      <span class={`text-[11px] font-bold px-2 py-0.5 rounded-full ${cat.badge}`}>
+                        {count}件
+                      </span>
+                    </div>
+                    <h3 class="font-bold text-[#2C3E35] text-base mb-1.5 group-hover:text-[#E07A5F] transition-colors leading-snug">
+                      {cat.name}
+                    </h3>
+                    <p class="text-xs text-[#5C574F] leading-relaxed line-clamp-3">
+                      {cat.description}
+                    </p>
+                  </div>
+                  <div class="pt-3 mt-3 border-t border-black/5 flex items-center justify-between text-xs font-bold text-[#2C3E35] group-hover:text-[#E07A5F]">
+                    <span>記事一覧</span>
+                    <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+
+          <!-- カテゴリ補足メッセージ -->
+          <div class="bg-[#FDFBF7] p-4 rounded-2xl border border-[#EFECE6] text-xs text-[#6E685F] leading-relaxed">
+            <span class="font-bold text-[#2C3E35]">📌 閲覧のヒント：</span>
+            各カードをクリックすると、対象疾患に関する詳細な治療経過、処方薬の作用機序、日々の生活上の注意点などの記事をまとめてご覧いただけます。
+          </div>
+        </div>
+
+        <!-- ================= タブ2：📊 データ解析・論文DB（初期非表示） ================= -->
+        <div id="tab-data" class="tab-content hidden space-y-5">
+          <div class="border-b-2 border-[#F4F1EA] pb-3 flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <div class="inline-flex items-center gap-1.5 text-xs font-bold text-[#81B29A] uppercase tracking-wider mb-1">
+                <span>Clinical & Vital Analytics</span>
+              </div>
+              <h2 class="text-xl sm:text-2xl font-bold text-[#2C3E35]">📊 10年データ解析 ＆ 論文・治験データベース</h2>
+              <p class="text-xs sm:text-sm text-[#6E685F] mt-0.5">Apple Watch・Withingsで蓄積した生ログと国際学術エビデンスを公開。</p>
+            </div>
+            <a href="/research-database" class="text-xs font-bold text-[#E07A5F] hover:underline flex items-center gap-1">
+              論文DB全件 &rarr;
+            </a>
+          </div>
+
+          <!-- 10年間の実測バイタルメトリクスカード -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="p-3.5 rounded-2xl bg-[#F4F9F6] border border-[#D8EAE0]">
+              <div class="text-[11px] text-[#5C574F] font-bold">生体生ログ容量</div>
+              <div class="text-xl sm:text-2xl font-extrabold text-[#2C3E35] vital-stat-badge my-0.5">3.14 <span class="text-xs font-bold text-[#6E685F]">GB</span></div>
+              <div class="text-[10px] text-[#8C857B]">約1,500万行XML</div>
+            </div>
+            <div class="p-3.5 rounded-2xl bg-[#FDF6F0] border border-[#F5DFD5]">
+              <div class="text-[11px] text-[#5C574F] font-bold">心拍数測定件数</div>
+              <div class="text-xl sm:text-2xl font-extrabold text-[#E07A5F] vital-stat-badge my-0.5">164 <span class="text-xs font-bold text-[#6E685F]">万件</span></div>
+              <div class="text-[10px] text-[#8C857B]">Apple Watch常時</div>
+            </div>
+            <div class="p-3.5 rounded-2xl bg-[#F0F5FA] border border-[#D6E4F0]">
+              <div class="text-[11px] text-[#5C574F] font-bold">歩数記録件数</div>
+              <div class="text-xl sm:text-2xl font-extrabold text-[#5B8FB9] vital-stat-badge my-0.5">43 <span class="text-xs font-bold text-[#6E685F]">万件</span></div>
+              <div class="text-[10px] text-[#8C857B]">10年間の活動量</div>
+            </div>
+            <div class="p-3.5 rounded-2xl bg-[#FDF5F7] border border-[#F5D8E0]">
+              <div class="text-[11px] text-[#5C574F] font-bold">特定された入院歴</div>
+              <div class="text-xl sm:text-2xl font-extrabold text-[#D67D8F] vital-stat-badge my-0.5">全 10 <span class="text-xs font-bold text-[#6E685F]">回</span></div>
+              <div class="text-[10px] text-[#8C857B]">歩数-80%・除水相関</div>
+            </div>
+          </div>
+
+          <!-- 4大注目特集ポータル（Bento Grid） -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <!-- 特集1: 10年データAI解析新連載 -->
             <a
               href="/blog/ai-health-analytics-ep1-3gb-raw-data-reveal"
-              class="px-5 py-3 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-sm sm:text-base shadow-md transition-all hover:scale-[1.02] active:scale-[0.98]"
+              class="group p-5 rounded-2xl bg-[#F4F1EA] border border-[#E6DFD3] hover:border-[#81B29A] transition-all card-hover-fx flex flex-col justify-between"
             >
-              🌟 新連載：10年データ解析を読む
+              <div>
+                <span class="inline-block bg-[#81B29A] text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full mb-2">
+                  🌟 新連載・第1話
+                </span>
+                <h3 class="font-bold text-base text-[#2C3E35] group-hover:text-[#E07A5F] transition-colors mb-1.5 leading-snug">
+                  10年分の生体データ3GBをAIで解剖した話
+                </h3>
+                <p class="text-xs text-[#5C574F] leading-relaxed">
+                  Apple Watch・Withingsの生ログから暴かれた「好酸球炎症 ⇄ 激痛 ⇄ 代謝破綻」の全貌。
+                </p>
+              </div>
+              <div class="pt-3 mt-3 border-t border-[#E0D8C8] flex items-center justify-between text-xs font-bold text-[#81B29A]">
+                <span>第1話を読む</span>
+                <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+              </div>
             </a>
+
+            <!-- 特集2: 学術論文＆最新治験データベース -->
             <a
               href="/research-database"
-              class="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-teal-300 border border-slate-700 font-bold text-sm sm:text-base shadow-xs transition-colors"
+              class="group p-5 rounded-2xl bg-[#F4F1EA] border border-[#E6DFD3] hover:border-[#E07A5F] transition-all card-hover-fx flex flex-col justify-between"
             >
-              📑 論文・治験データベース
+              <div>
+                <span class="inline-block bg-[#E07A5F] text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full mb-2">
+                  📑 論文データベース
+                </span>
+                <h3 class="font-bold text-base text-[#2C3E35] group-hover:text-[#E07A5F] transition-colors mb-1.5 leading-snug">
+                  学術論文・国際治験エビデンスDB
+                </h3>
+                <p class="text-xs text-[#5C574F] leading-relaxed">
+                  NEJMやLancetの主要論文・Phase 3治験を網羅。各論文の1000字要約＆1000字当事者所感を収録。
+                </p>
+              </div>
+              <div class="pt-3 mt-3 border-t border-[#E0D8C8] flex items-center justify-between text-xs font-bold text-[#E07A5F]">
+                <span>論文DBを開く</span>
+                <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+              </div>
             </a>
+
+            <!-- 特集3: 臨床データ解析ダッシュボード -->
             <a
               href="/clinical-analytics"
-              class="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-300 border border-slate-700 font-bold text-sm sm:text-base shadow-xs transition-colors"
+              class="group p-5 rounded-2xl bg-[#F4F1EA] border border-[#E6DFD3] hover:border-[#5B8FB9] transition-all card-hover-fx flex flex-col justify-between"
             >
-              📊 臨床データダッシュボード
-            </a>
-          </div>
-        </div>
-
-        <!-- 右カラム: 10年間の実測データメトリクスカード（Figmaスタイル） -->
-        <div class="lg:col-span-5">
-          <div class="p-6 sm:p-7 rounded-2xl bg-slate-800/60 border border-slate-700/80 backdrop-blur-md shadow-xl">
-            <div class="flex items-center justify-between border-b border-slate-700/60 pb-3 mb-5">
-              <span class="text-xs font-bold text-teal-400 tracking-wider uppercase">臨床・生体データ統合基盤</span>
-              <span class="inline-flex items-center gap-1 text-[11px] text-slate-400">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 2016-2026 実測
-              </span>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3.5">
-              <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
-                <div class="text-[11px] text-slate-400 font-medium mb-1">生体生ログ容量</div>
-                <div class="text-2xl sm:text-3xl font-extrabold text-teal-300 vital-stat-badge">3.14 <span class="text-sm font-semibold text-slate-400">GB</span></div>
-                <div class="text-[10px] text-slate-500 mt-0.5">約1,500万行のXML</div>
-              </div>
-
-              <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
-                <div class="text-[11px] text-slate-400 font-medium mb-1">心拍数測定件数</div>
-                <div class="text-2xl sm:text-3xl font-extrabold text-white vital-stat-badge">164 <span class="text-sm font-semibold text-slate-400">万件</span></div>
-                <div class="text-[10px] text-slate-500 mt-0.5">Apple Watch常時測定</div>
-              </div>
-
-              <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
-                <div class="text-[11px] text-slate-400 font-medium mb-1">歩数記録件数</div>
-                <div class="text-2xl sm:text-3xl font-extrabold text-white vital-stat-badge">43 <span class="text-sm font-semibold text-slate-400">万件</span></div>
-                <div class="text-[10px] text-slate-500 mt-0.5">10年間の身体活動量</div>
-              </div>
-
-              <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800">
-                <div class="text-[11px] text-slate-400 font-medium mb-1">特定された入院歴</div>
-                <div class="text-2xl sm:text-3xl font-extrabold text-amber-300 vital-stat-badge">全 10 <span class="text-sm font-semibold text-slate-400">回</span></div>
-                <div class="text-[10px] text-slate-500 mt-0.5">歩数-80%・除水相関</div>
-              </div>
-            </div>
-
-            <div class="mt-4 pt-3.5 border-t border-slate-700/50 flex items-center justify-between text-xs text-slate-300">
-              <span>学術論文＆治験データベース新設</span>
-              <a href="/research-database" class="text-teal-400 hover:text-teal-300 font-semibold inline-flex items-center gap-1">
-                論文DBを見る &rarr;
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
-    <!-- 4大注目特集ポータルカード（グリッド配置） -->
-    <section class="mb-14">
-      <div class="flex items-center justify-between mb-6">
-        <div>
-          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <span>注目特集・データポータル</span>
-          </h2>
-          <p class="text-xs sm:text-sm text-slate-500 mt-0.5">学術エビデンス、当事者の生体データ、公的支援制度を多角的に可視化</p>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-        <!-- 特集1: 10年データAI解析新連載 -->
-        <a
-          href="/blog/ai-health-analytics-ep1-3gb-raw-data-reveal"
-          class="group relative flex flex-col justify-between overflow-hidden rounded-2xl bg-gradient-to-br from-teal-900 via-teal-950 to-slate-900 p-5 text-white shadow-md hover:shadow-xl transition-all duration-300 card-hover-fx border border-teal-800/60"
-        >
-          <div>
-            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-teal-500/30 text-teal-200 text-[11px] font-semibold mb-2.5 border border-teal-400/30">
-              <span class="w-1.5 h-1.5 rounded-full bg-teal-400"></span>
-              <span>新連載・第1話</span>
-            </div>
-            <h3 class="text-base sm:text-lg font-bold tracking-tight text-white mb-2 group-hover:text-teal-200 transition-colors">
-              10年分の生体データ3GBをAIで解剖した話
-            </h3>
-            <p class="text-xs text-teal-100/80 leading-relaxed mb-3">
-              Apple Watch・Withingsの生ログから暴かれた「好酸球炎症 ⇄ 激痛 ⇄ 代謝破綻」の全貌。
-            </p>
-          </div>
-          <div class="pt-2 border-t border-teal-800/60 flex items-center justify-between text-xs">
-            <span class="font-bold text-teal-300 group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
-              第1話を読む &rarr;
-            </span>
-            <span class="text-[10px] text-teal-200/60">全20話</span>
-          </div>
-        </a>
-
-        <!-- 特集2: 学術論文＆最新治験データベース -->
-        <a
-          href="/research-database"
-          class="group relative flex flex-col justify-between overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-900 via-slate-950 to-teal-950 p-5 text-white shadow-md hover:shadow-xl transition-all duration-300 card-hover-fx border border-indigo-800/60"
-        >
-          <div>
-            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-500/30 text-indigo-200 text-[11px] font-semibold mb-2.5 border border-indigo-400/30">
-              <span>NEW データベース</span>
-            </div>
-            <h3 class="text-base sm:text-lg font-bold tracking-tight text-white mb-2 group-hover:text-indigo-200 transition-colors">
-              学術論文・国際治験<br />エビデンスデータベース
-            </h3>
-            <p class="text-xs text-indigo-100/80 leading-relaxed mb-3">
-              NEJMやLancetの主要論文・Phase 3治験を網羅。各論文の1000字要約＆1000字当事者所感を収録。
-            </p>
-          </div>
-          <div class="pt-2 border-t border-indigo-800/60 flex items-center justify-between text-xs">
-            <span class="font-bold text-indigo-300 group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
-              論文DBを見る &rarr;
-            </span>
-            <span class="text-[10px] text-indigo-200/60">ソート・検索完備</span>
-          </div>
-        </a>
-
-        <!-- 特集3: 臨床データ解析ダッシュボード -->
-        <a
-          href="/clinical-analytics"
-          class="group relative flex flex-col justify-between overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-sky-950 to-indigo-950 p-5 text-white shadow-md hover:shadow-xl transition-all duration-300 card-hover-fx border border-sky-800/60"
-        >
-          <div>
-            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-sky-500/30 text-sky-200 text-[11px] font-semibold mb-2.5 border border-sky-400/30">
-              <span>インタラクティブ</span>
-            </div>
-            <h3 class="text-base sm:text-lg font-bold tracking-tight text-white mb-2 group-hover:text-sky-200 transition-colors">
-              臨床データダッシュボード<br />10年バイタル＆入院相関
-            </h3>
-            <p class="text-xs text-sky-100/80 leading-relaxed mb-3">
-              体重推移・安静時心拍数・歩数急落率（-80%）と入院時除水を動的グラフ化。
-            </p>
-          </div>
-          <div class="pt-2 border-t border-sky-800/60 flex items-center justify-between text-xs">
-            <span class="font-bold text-sky-300 group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
-              データを見る &rarr;
-            </span>
-            <span class="text-[10px] text-sky-200/60">全10回入院追跡</span>
-          </div>
-        </a>
-
-        <!-- 特集4: 地域支援格差 ＆ 全国リンク集 -->
-        <a
-          href="/regional-support"
-          class="group relative flex flex-col justify-between overflow-hidden rounded-2xl bg-gradient-to-br from-amber-900 via-amber-950 to-slate-900 p-5 text-white shadow-md hover:shadow-xl transition-all duration-300 card-hover-fx border border-amber-800/60"
-        >
-          <div>
-            <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/30 text-amber-200 text-[11px] font-semibold mb-2.5 border border-amber-400/30">
-              <span>制度・医療費</span>
-            </div>
-            <h3 class="text-base sm:text-lg font-bold tracking-tight text-white mb-2 group-hover:text-amber-200 transition-colors">
-              住む場所でここまで違う！？<br />難病支援・自治体助成格差
-            </h3>
-            <p class="text-xs text-amber-100/80 leading-relaxed mb-3">
-              月額手当や見舞金、タクシー券、災害電源等、市区町村の独自格差を整理。
-            </p>
-          </div>
-          <div class="pt-2 border-t border-amber-800/60 flex items-center justify-between text-xs">
-            <span class="font-bold text-amber-300 group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
-              格差と申請術 &rarr;
-            </span>
-            <span class="text-[10px] text-amber-200/60">47都道府県</span>
-          </div>
-        </a>
-      </div>
-    </section>
-
-    <!-- 疾患・テーマ別カテゴリカード -->
-    <section class="mb-14">
-      <div class="flex items-center justify-between mb-6">
-        <div>
-          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <span>疾患・テーマ別カテゴリ</span>
-          </h2>
-          <p class="text-xs sm:text-sm text-slate-500 mt-0.5">当事者が実際に経験・調査したテーマごとに探す</p>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-        {categories.map(cat => {
-          const count = postCounts[cat.name] || 0;
-          return (
-            <a
-              href={`/category/${cat.name}`}
-              class={`block p-5 sm:p-6 rounded-2xl border transition-all duration-200 card-hover-fx ${cat.color}`}
-            >
-              <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-2.5">
-                  <span class="text-2xl">{cat.icon}</span>
-                  <h3 class="font-bold text-slate-900 text-base sm:text-lg">{cat.name}</h3>
-                </div>
-                <span class={`text-xs font-bold px-2.5 py-1 rounded-full ${cat.badge}`}>
-                  {count}件
+              <div>
+                <span class="inline-block bg-[#5B8FB9] text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full mb-2">
+                  📊 インタラクティブ
                 </span>
+                <h3 class="font-bold text-base text-[#2C3E35] group-hover:text-[#E07A5F] transition-colors mb-1.5 leading-snug">
+                  臨床データダッシュボード
+                </h3>
+                <p class="text-xs text-[#5C574F] leading-relaxed">
+                  体重推移・安静時心拍数・歩数急落率（-80%）と入院時除水を動的グラフで可視化。
+                </p>
               </div>
-              <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                {cat.description}
-              </p>
+              <div class="pt-3 mt-3 border-t border-[#E0D8C8] flex items-center justify-between text-xs font-bold text-[#5B8FB9]">
+                <span>データを見る</span>
+                <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+              </div>
             </a>
-          );
-        })}
-      </div>
-    </section>
 
-    <!-- Google AdSense 広告枠（トップページ） -->
-    <AdSense className="my-8" />
-
-    <!-- スポンサーリンク（楽天） -->
-    <RakutenBanner variant="double" className="my-10" />
-
-    <!-- 最新記事一覧 -->
-    <section class="mt-8">
-      <div class="flex items-center justify-between mb-6">
-        <div>
-          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <span>すべての記事一覧</span>
-            <span class="text-sm font-semibold text-teal-700 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-200">
-              全{sortedPosts.length}件
-            </span>
-          </h2>
-          <p class="text-xs sm:text-sm text-slate-500 mt-0.5">最新の闘病記、服薬調査、生体データ解析記事</p>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {sortedPosts.map(post => {
-          const placeholder = getCategoryPlaceholderStyle(post.data.category);
-          return (
-            <article class="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden flex flex-col hover:border-teal-400 card-hover-fx transition-all duration-200">
-              <!-- アイキャッチ画像 または カテゴリ別グラフィカルカバー -->
-              <a href={`/blog/${post.data.slug}`} class="block aspect-video overflow-hidden bg-slate-100 relative group">
-                {post.data.eyecatch ? (
-                  <img
-                    src={post.data.eyecatch}
-                    alt={post.data.title}
-                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div class={`w-full h-full bg-gradient-to-br ${placeholder.gradient} p-6 flex flex-col justify-between text-white group-hover:opacity-95 transition-opacity`}>
-                    <div class="flex items-center justify-between">
-                      <span class="text-3xl">{placeholder.icon}</span>
-                      <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-white/20 backdrop-blur-xs text-white/90">
-                        {post.data.category}
-                      </span>
-                    </div>
-                    <div class="space-y-1">
-                      <div class="text-xs text-white/70 line-clamp-1">{post.data.category} 調査ノート</div>
-                      <div class="text-base sm:text-lg font-bold text-white line-clamp-2 leading-snug drop-shadow-xs">
-                        {post.data.title}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </a>
-
-              <div class="p-6 flex-1 flex flex-col justify-between">
-                <div>
-                  <div class="flex items-center gap-2.5 mb-2.5">
-                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200">
-                      {post.data.category}
-                    </span>
-                    <time datetime={post.data.pubDate} class="text-xs text-slate-500 font-medium">
-                      {post.data.pubDate}
-                    </time>
-                  </div>
-                  <h3 class="font-bold text-slate-900 text-base sm:text-lg mb-2 leading-snug line-clamp-2">
-                    <a href={`/blog/${post.data.slug}`} class="hover:text-teal-700 transition-colors">
-                      {post.data.title}
-                    </a>
-                  </h3>
-                  <p class="text-xs sm:text-sm text-slate-600 line-clamp-3 leading-relaxed mb-4">
-                    {post.data.description}
-                  </p>
-                </div>
-
-                <div class="pt-3.5 border-t border-slate-100 flex items-center justify-between text-sm">
-                  <div class="flex gap-1.5 overflow-hidden">
-                    {post.data.tags.slice(0, 2).map((t: string) => (
-                      <span class="text-slate-500 text-xs truncate bg-slate-100 px-2 py-0.5 rounded">
-                        #{t}
-                      </span>
-                    ))}
-                  </div>
-                  <a
-                    href={`/blog/${post.data.slug}`}
-                    class="font-bold text-teal-700 hover:text-teal-800 text-xs sm:text-sm shrink-0 inline-flex items-center gap-1 hover:translate-x-0.5 transition-transform"
-                  >
-                    読む &rarr;
-                  </a>
-                </div>
+            <!-- 特集4: 地域支援格差 ＆ 全国リンク集 -->
+            <a
+              href="/regional-support"
+              class="group p-5 rounded-2xl bg-[#F4F1EA] border border-[#E6DFD3] hover:border-[#F2CC8F] transition-all card-hover-fx flex flex-col justify-between"
+            >
+              <div>
+                <span class="inline-block bg-[#DDA15E] text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full mb-2">
+                  🏛️ 支援格差
+                </span>
+                <h3 class="font-bold text-base text-[#2C3E35] group-hover:text-[#E07A5F] transition-colors mb-1.5 leading-snug">
+                  難病支援・自治体助成の地域格差
+                </h3>
+                <p class="text-xs text-[#5C574F] leading-relaxed">
+                  月額手当や見舞金、タクシー券、災害電源等、市区町村独自の助成格差と申請ノウハウ。
+                </p>
               </div>
-            </article>
-          );
-        })}
-      </div>
-    </section>
+              <div class="pt-3 mt-3 border-t border-[#E0D8C8] flex items-center justify-between text-xs font-bold text-[#DDA15E]">
+                <span>格差と申請術を見る</span>
+                <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <!-- ================= タブ3：📝 すべての記事一覧（初期非表示） ================= -->
+        <div id="tab-articles" class="tab-content hidden space-y-5">
+          <div class="border-b-2 border-[#F4F1EA] pb-3 flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <div class="inline-flex items-center gap-1.5 text-xs font-bold text-[#81B29A] uppercase tracking-wider mb-1">
+                <span>Article Archive</span>
+              </div>
+              <h2 class="text-xl sm:text-2xl font-bold text-[#2C3E35]">📝 すべての記事一覧</h2>
+              <p class="text-xs sm:text-sm text-[#6E685F] mt-0.5">最新の闘病記、服薬調査、生体データ解析記事（全{sortedPosts.length}件）</p>
+            </div>
+            <span class="text-xs font-bold text-[#E07A5F] bg-[#FDF6F0] px-3 py-1 rounded-full border border-[#F5DFD5]">
+              全{sortedPosts.length}件を収録
+            </span>
+          </div>
+
+          <!-- 記事グリッド（スクロール可能） -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {sortedPosts.map(post => {
+              const placeholder = getCategoryPlaceholderStyle(post.data.category);
+              return (
+                <article class="bg-[#FDFBF7] rounded-2xl border border-[#EFECE6] overflow-hidden flex flex-col hover:border-[#E07A5F] card-hover-fx transition-all duration-200">
+                  <a href={`/blog/${post.data.slug}`} class="block aspect-video overflow-hidden bg-[#F4F1EA] relative group">
+                    {post.data.eyecatch ? (
+                      <img
+                        src={post.data.eyecatch}
+                        alt={post.data.title}
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div class={`w-full h-full bg-gradient-to-br ${placeholder.gradient} p-4 flex flex-col justify-between text-white group-hover:opacity-95 transition-opacity`}>
+                        <div class="flex items-center justify-between">
+                          <span class="text-2xl">{placeholder.icon}</span>
+                          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-xs text-white">
+                            {post.data.category}
+                          </span>
+                        </div>
+                        <div class="space-y-0.5">
+                          <div class="text-[11px] text-white/80 line-clamp-1">{post.data.category} 調査ノート</div>
+                          <div class="text-sm font-bold text-white line-clamp-2 leading-snug">
+                            {post.data.title}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </a>
+
+                  <div class="p-4 flex-1 flex flex-col justify-between">
+                    <div>
+                      <div class="flex items-center gap-2 mb-2">
+                        <span class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-[#F4F1EA] text-[#2C3E35] border border-[#E6DFD3]">
+                          {post.data.category}
+                        </span>
+                        <time datetime={post.data.pubDate} class="text-[11px] text-[#8C857B] font-medium">
+                          {post.data.pubDate}
+                        </time>
+                      </div>
+                      <h3 class="font-bold text-[#2C3E35] text-sm sm:text-base mb-1.5 leading-snug line-clamp-2">
+                        <a href={`/blog/${post.data.slug}`} class="hover:text-[#E07A5F] transition-colors">
+                          {post.data.title}
+                        </a>
+                      </h3>
+                      <p class="text-xs text-[#5C574F] line-clamp-2 leading-relaxed mb-3">
+                        {post.data.description}
+                      </p>
+                    </div>
+
+                    <div class="pt-2.5 border-t border-[#EFECE6] flex items-center justify-between text-xs">
+                      <div class="flex gap-1 overflow-hidden">
+                        {post.data.tags.slice(0, 2).map((t: string) => (
+                          <span class="text-[#8C857B] text-[10px] truncate bg-white px-1.5 py-0.5 rounded border border-[#E6DFD3]">
+                            #{t}
+                          </span>
+                        ))}
+                      </div>
+                      <a
+                        href={`/blog/${post.data.slug}`}
+                        class="font-bold text-[#E07A5F] hover:text-[#D0694E] text-xs shrink-0 inline-flex items-center gap-1 hover:translate-x-0.5 transition-transform"
+                      >
+                        読む &rarr;
+                      </a>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </div>
+
+        <!-- ================= タブ4：☕ 暮らしの工夫・相談窓口（初期非表示） ================= -->
+        <div id="tab-support" class="tab-content hidden space-y-5">
+          <div class="border-b-2 border-[#F4F1EA] pb-3 flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <div class="inline-flex items-center gap-1.5 text-xs font-bold text-[#81B29A] uppercase tracking-wider mb-1">
+                <span>Patient Support & Relief</span>
+              </div>
+              <h2 class="text-xl sm:text-2xl font-bold text-[#2C3E35]">☕ 暮らしの工夫 ＆ 公的相談窓口</h2>
+              <p class="text-xs sm:text-sm text-[#6E685F] mt-0.5">一人で抱え込まず、使える制度と安心できる窓口をステップ形式で整理。</p>
+            </div>
+            <a href="/links" class="text-xs font-bold text-[#81B29A] hover:underline flex items-center gap-1">
+              全国行政リンク集 &rarr;
+            </a>
+          </div>
+
+          <!-- 医療費助成3ステップ -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+            <div class="bg-[#F4F9F6] p-4 sm:p-5 rounded-2xl border border-[#D8EAE0]">
+              <span class="inline-block px-2 py-0.5 rounded-full bg-[#81B29A] text-white text-[10px] font-bold">STEP 1</span>
+              <h3 class="font-bold text-sm sm:text-base text-[#2C3E35] mt-1.5 mb-1">指定難病の医療費助成</h3>
+              <p class="text-xs text-[#5C574F] leading-relaxed">
+                受給者証の申請手順、臨床調査個人票の依頼法、自己負担上限額管理票の仕組みを解説。
+              </p>
+            </div>
+
+            <div class="bg-[#FDF6F0] p-4 sm:p-5 rounded-2xl border border-[#F5DFD5]">
+              <span class="inline-block px-2 py-0.5 rounded-full bg-[#E07A5F] text-white text-[10px] font-bold">STEP 2</span>
+              <h3 class="font-bold text-sm sm:text-base text-[#2C3E35] mt-1.5 mb-1">高額療養費制度</h3>
+              <p class="text-xs text-[#5C574F] leading-relaxed">
+                毎月の病院・薬局での窓口負担を抑える「限度額適用認定証」の事前交付と多数回該当の活用。
+              </p>
+            </div>
+
+            <div class="bg-[#F0F5FA] p-4 sm:p-5 rounded-2xl border border-[#D6E4F0]">
+              <span class="inline-block px-2 py-0.5 rounded-full bg-[#5B8FB9] text-white text-[10px] font-bold">STEP 3</span>
+              <h3 class="font-bold text-sm sm:text-base text-[#2C3E35] mt-1.5 mb-1">地域の福祉サービス</h3>
+              <p class="text-xs text-[#5C574F] leading-relaxed">
+                自治体独自の手当・見舞金、障害福祉サービス、日常生活用具の給付制度の調べ方。
+              </p>
+            </div>
+          </div>
+
+          <!-- 相談窓口カード -->
+          <div class="bg-[#FDFBF7] p-5 rounded-2xl border border-[#EFECE6] space-y-3">
+            <div class="flex items-center gap-2">
+              <span class="text-xl">📞</span>
+              <h3 class="font-bold text-base text-[#2C3E35]">難病相談支援センター・患者会のご案内</h3>
+            </div>
+            <p class="text-xs sm:text-sm text-[#5C574F] leading-relaxed">
+              各都道府県に設置されている「難病相談支援センター」では、専任の相談員（看護師・ソーシャルワーカー）が、療養生活の悩み、就労、福祉制度について無料で個別相談を受け付けています。
+            </p>
+            <div class="flex flex-wrap gap-2.5 pt-1">
+              <a href="/links" class="px-4 py-2 rounded-xl bg-[#81B29A] text-white text-xs font-bold hover:bg-[#6FA088] transition-colors shadow-2xs">
+                全国の相談窓口一覧を見る &rarr;
+              </a>
+              <a href="/about" class="px-4 py-2 rounded-xl bg-white text-[#2C3E35] border border-[#E6DFD3] text-xs font-bold hover:bg-[#F4F1EA] transition-colors">
+                当サイトについて・闘病の歩み
+              </a>
+            </div>
+          </div>
+
+          <!-- スポンサー・広告エリア（温かい枠組み） -->
+          <div class="space-y-4 pt-2">
+            <AdSense className="my-2" />
+            <RakutenBanner variant="double" className="my-2" />
+          </div>
+        </div>
+
+        <!-- ================= フッター相当バー（右カラム内下部・スクロール不要設計） ================= -->
+        <div class="pt-4 mt-6 border-t border-[#F0EAE1] flex flex-wrap justify-between items-center text-xs text-[#8C857B] gap-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-[#81B29A]"></span>
+            <span>JIS X 8341-3（AA準拠コントラスト）対応ユニバーサルデザイン</span>
+          </div>
+          <span>好酸球性胃腸炎と複合難病の闘病・服薬ノート © 2026</span>
+        </div>
+      </section>
+
+    </div>
   </div>
 </BaseLayout>
+
+<script is:inline>
+  function switchTab(tabId) {
+    // 全タブコンテンツを非表示
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+    
+    // 選択されたタブコンテンツを表示
+    const targetContent = document.getElementById(tabId);
+    if (targetContent) {
+      targetContent.classList.remove('hidden');
+    }
+
+    // 全タブボタンのスタイルを標準状態（白背景＋グレー文字）にリセット
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.className = "tab-btn w-full text-left px-4 sm:px-5 py-3.5 rounded-2xl font-bold transition-all flex items-center justify-between bg-white text-[#3D3A35] hover:bg-[#FAF6F0] border border-[#E6DFD3] cursor-pointer";
+      btn.setAttribute('aria-selected', 'false');
+      const arrow = btn.querySelector('span:last-child');
+      if (arrow) arrow.className = "text-sm font-bold text-[#8C857B]";
+    });
+
+    // 選択されたタブボタンをアクティブスタイル（テラコッタ背景＋白文字＋ソフトシャドウ）に設定
+    const activeBtn = document.getElementById('btn-' + tabId);
+    if (activeBtn) {
+      activeBtn.className = "tab-btn w-full text-left px-4 sm:px-5 py-3.5 rounded-2xl font-bold transition-all flex items-center justify-between bg-[#E07A5F] text-white warm-shadow cursor-pointer";
+      activeBtn.setAttribute('aria-selected', 'true');
+      const arrow = activeBtn.querySelector('span:last-child');
+      if (arrow) arrow.className = "text-sm font-bold opacity-90";
+    }
+
+    // URLハッシュを更新（履歴を残さず同期）
+    try {
+      history.replaceState(null, '', '#' + tabId);
+    } catch (e) {}
+  }
+
+  // 初期化：URLハッシュに対応するタブがあればそれを開く
+  window.addEventListener('DOMContentLoaded', () => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash && document.getElementById(hash)) {
+      switchTab(hash);
+    }
+  });
+</script>
+
