@@ -1,0 +1,264 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import AdSense from '../components/AdSense.astro';
+
+const checklistCategories = [
+  {
+    id: 'docs',
+    title: '📄 手続き・重要書類・貴重品',
+    icon: '🏥',
+    color: 'border-[#81B29A] bg-[#F4F9F6]',
+    badge: 'bg-[#81B29A] text-white',
+    items: [
+      { id: 'doc-1', name: '健康保険証 / マイナ保険証', note: '必須。限度額適用認定の紐付け確認' },
+      { id: 'doc-2', name: '指定難病受給者証 ＆ 自己負担上限額管理票', note: '難病患者は最重要。入院窓口で必ず提示' },
+      { id: 'doc-3', name: '診察券（受診先・他院含む）', note: 'かかりつけ医、他科の受診履歴確認用' },
+      { id: 'doc-4', name: 'お薬手帳 ＆ 現在服用中の全持参薬', note: '目薬・吸入器・頓服（トリプタン等）もすべて現物持参' },
+      { id: 'doc-5', name: '入院申込書・同意書一式', note: '保証人・緊急連絡先の記入確認' },
+      { id: 'doc-6', name: '限度額適用認定証（マイナ非対応時）', note: '高額療養費の窓口負担を抑えるため事前取得' },
+      { id: 'doc-7', name: '現金（千円札・小銭数千円）', note: 'テレビカード、コインランドリー、自販機用' },
+      { id: 'doc-8', name: '印鑑（シャチハタ可否を病院要綱で確認）', note: '各種同意書類の捺印用' }
+    ]
+  },
+  {
+    id: 'clothes',
+    title: '👕 衣類・点滴対応（ソルラクト等）の服装',
+    icon: '💧',
+    color: 'border-[#E07A5F] bg-[#FDF6F0]',
+    badge: 'bg-[#E07A5F] text-white',
+    items: [
+      { id: 'clo-1', name: '前開きパジャマ・ゆったりした服（3〜4着）', note: '重要！点滴ルートを通したまま着替えられる袖口の広い前開きタイプ' },
+      { id: 'clo-2', name: '下着・靴下（4〜5日分）', note: 'コインランドリー利用前提でも余裕を持つ' },
+      { id: 'clo-3', name: '羽織りもの（カーディガン・前開きパーカー）', note: '病棟内の急な空調冷え対策。点滴を通しやすいもの' },
+      { id: 'clo-4', name: 'かかとのある履き慣れた室内履き（スリッポン等）', note: '転倒防止のためスリッパ禁止の病院が主流。着脱しやすいもの' },
+      { id: 'clo-5', name: '洗濯ネット（大・小）', note: '着用済みの仕分けと、そのままランドリーへ投入可能' }
+    ]
+  },
+  {
+    id: 'hygiene',
+    title: '🧼 洗面・衛生・病棟乾燥対策',
+    icon: '🧴',
+    color: 'border-[#5B8FB9] bg-[#F0F5FA]',
+    badge: 'bg-[#5B8FB9] text-white',
+    items: [
+      { id: 'hyg-1', name: '歯ブラシ・歯磨き粉・コップ（割れない素材）', note: 'ベッドサイドでうがいできる持ち手付きプラスチック' },
+      { id: 'hyg-2', name: 'バスタオル ＆ フェイスタオル（各3〜4枚）', note: 'レンタルタオルがない場合は速乾マイクロファイバーが重宝' },
+      { id: 'hyg-3', name: 'ボディソープ・シャンプー・洗顔料（トラベル用）', note: '浴室に備え付けがない場合が多いため必須' },
+      { id: 'hyg-4', name: '保湿クリーム・リップクリーム', note: '病室は空調が24時間稼働し極度に乾燥。手肌・唇の荒れ防止' },
+      { id: 'hyg-5', name: 'ウェットティッシュ・除菌シート', note: '点滴で手が動かしにくい時、ベッド上での手拭きに' },
+      { id: 'hyg-6', name: 'ボックスティッシュ（1箱）', note: '必需品。枕元に常備' },
+      { id: 'hyg-7', name: 'マスク（個包装・多め）', note: '病棟内の感染対策、就寝時の喉の保湿' }
+    ]
+  },
+  {
+    id: 'gadgets',
+    title: '🔌 ガジェット・電源・通信環境',
+    icon: '📱',
+    color: 'border-[#769F6B] bg-[#F5F8F2]',
+    badge: 'bg-[#769F6B] text-white',
+    items: [
+      { id: 'gad-1', name: '長尺の充電ケーブル（2m〜3m）', note: '神アイテム！コンセントがベッド頭上の遠い位置にあるため2m以上必須' },
+      { id: 'gad-2', name: '急速充電器（複数ポート付き）', note: 'スマホ・Apple Watch・タブレットを同時充電' },
+      { id: 'gad-3', name: '有線イヤホン ＆ 変換アダプタ（3.5mm）', note: 'テレビ視聴時は有線イヤホン必須。Bluetoothは不可の場合あり' },
+      { id: 'gad-4', name: 'ノイズキャンセリングイヤホン（ワイヤレス）', note: '大部屋の同室者のいびき・ナースコールの遮音に絶大な効果' },
+      { id: 'gad-5', name: '延長コード（電源タップ 1.5〜2m）', note: 'ベッド周りのコンセント数を補う' },
+      { id: 'gad-6', name: 'モバイルバッテリー', note: '検査移動時やベッドから電源が遠い場合の補助' }
+    ]
+  },
+  {
+    id: 'hacks',
+    title: '💡 10回の入院で厳選！劇的に快適になる神グッズ',
+    icon: '✨',
+    color: 'border-[#9D81BA] bg-[#F8F4FA]',
+    badge: 'bg-[#9D81BA] text-white',
+    items: [
+      { id: 'hac-1', name: 'S字フック ＆ 吊り下げメッシュバッグ', note: 'ベッド柵にゴミ袋やスマホ・イヤホンを吊り下げて手の届く位置に固定' },
+      { id: 'hac-2', name: 'ペットボトル用ストローキャップ（ワンタッチ）', note: '100均で買える神アイテム。点滴中で寝たきりでも片手で水分補給可能' },
+      { id: 'hac-3', name: '耳栓 ＆ アイマスク（立体型）', note: '消灯後の巡回・バイタル測定の明かりと騒音をシャットアウト' },
+      { id: 'hac-4', name: '小型トートバッグ（エコバッグ）', note: '売店、シャワー室、検査室へ向かう時の小物入れ' },
+      { id: 'hac-5', name: 'クリアファイル（2〜3枚）', note: '毎日渡される検査結果用紙、入院計画書、領収書の整理' },
+      { id: 'hac-6', name: '時計（文字盤が見やすい置時計）', note: 'ベッドから見えやすい角度に置ける小型デジタル時計' }
+    ]
+  }
+];
+---
+
+<BaseLayout
+  title="10回以上の入院から厳選！本当に役立つ入院持ち物チェックリスト"
+  description="好酸球性胃腸炎・複合難病で10回以上の入院、ソルラクト点滴生活を経験した当事者が厳選した入院準備持ち物チェックリスト。点滴対応パジャマ、長尺ケーブル、S字フックなど現場の知恵。保存・印刷対応。"
+>
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <!-- パンくず -->
+    <nav class="flex text-xs text-[#8C857B] mb-6 space-x-2">
+      <a href="/" class="hover:text-[#E07A5F]">ホーム</a>
+      <span>/</span>
+      <span class="text-[#3D3A35] font-medium">入院持ち物チェックリスト</span>
+    </nav>
+
+    <!-- ヘッダー -->
+    <header class="mb-8 border-b border-[#F0EAE1] pb-6">
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E07A5F]/15 text-[#E07A5F] text-xs font-bold mb-3 border border-[#E07A5F]/30">
+        <span>🏥 当事者サバイバル知恵袋</span>
+      </div>
+      <h1 class="text-2xl sm:text-4xl font-extrabold text-[#2C3E35] tracking-tight leading-tight mb-3">
+        10回以上の入院から厳選！<br class="hidden sm:inline" />本当に役立つ入院持ち物チェックリスト
+      </h1>
+      <p class="text-sm sm:text-base text-[#5C574F] leading-relaxed max-w-3xl">
+        好酸球性消化管疾患の急性期入院、ソルラクト24時間点滴（1日1,000ml）、大部屋生活を何度も乗り越えてきた当事者による完全実践型チェックリストです。チェック状態はブラウザに自動保存されます。
+      </p>
+
+      <!-- 操作ツールバー -->
+      <div class="flex flex-wrap items-center justify-between gap-3 mt-6 pt-4 border-t border-[#F0EAE1]">
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-[#6E685F] font-bold">進捗状況:</span>
+          <span id="progress-text" class="text-xs font-bold px-2.5 py-1 rounded-full bg-[#81B29A] text-white">0 / 0 完了 (0%)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button
+            id="btn-print"
+            onclick="window.print()"
+            class="px-3.5 py-1.5 rounded-xl bg-white border border-[#E6DFD3] text-xs font-bold text-[#2C3E35] hover:bg-[#F4F1EA] transition-colors flex items-center gap-1 shadow-2xs cursor-pointer"
+          >
+            <span>🖨️</span>
+            <span>印刷する</span>
+          </button>
+          <button
+            id="btn-reset"
+            class="px-3.5 py-1.5 rounded-xl bg-[#F4F1EA] text-xs font-bold text-[#6E685F] hover:text-[#2C3E35] hover:bg-[#EFECE6] transition-colors cursor-pointer"
+          >
+            リセット
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- 点滴生活（ソルラクト等）のワンポイントアドバイス -->
+    <div class="mb-10 p-5 rounded-2xl bg-[#FDF6F0] border border-[#F5DFD5] text-[#2C3E35] space-y-2">
+      <div class="flex items-center gap-2 text-[#E07A5F] font-bold text-sm sm:text-base">
+        <span>💧</span>
+        <span>当事者アドバイス：24時間持続点滴（ソルラクト1日2本等）を快適に乗り切るコツ</span>
+      </div>
+      <p class="text-xs sm:text-sm text-[#5C574F] leading-relaxed">
+        絶食で1日1,000mlの輸液を受けている間は、点滴針が腕に刺さったまま数日から数週間過ごします。
+        服は必ず**「袖口が広く、前開きのパジャマ」**を選んでください。Tシャツタイプは点滴チューブを抜かないと着替えられず看護師さんの手を煩わせます。
+        また、点滴スタンドのフックに**「S字フック」**を掛けておくと、トイレ移動時に小物やチューブを引っ掛けずに安全に移動できます。
+      </p>
+    </div>
+
+    <!-- チェックリスト本体 -->
+    <div class="space-y-8">
+      {checklistCategories.map(cat => (
+        <section class={`p-6 rounded-3xl border ${cat.color} warm-shadow-sm`}>
+          <div class="flex items-center justify-between mb-4 border-b border-black/5 pb-3">
+            <h2 class="text-lg sm:text-xl font-bold text-[#2C3E35] flex items-center gap-2">
+              <span>{cat.title}</span>
+            </h2>
+            <span class={`text-xs font-bold px-2.5 py-0.5 rounded-full ${cat.badge}`}>
+              全{cat.items.length}項目
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {cat.items.map(item => (
+              <label
+                for={item.id}
+                class="checklist-item flex items-start gap-3 p-3.5 rounded-2xl bg-white border border-[#EFECE6] hover:border-[#81B29A] transition-all cursor-pointer shadow-2xs group"
+              >
+                <input
+                  type="checkbox"
+                  id={item.id}
+                  class="mt-1 w-4 h-4 rounded text-[#E07A5F] focus:ring-[#E07A5F] border-[#D0C7B8] cursor-pointer"
+                />
+                <div class="flex-1 min-w-0">
+                  <div class="text-sm font-bold text-[#2C3E35] group-hover:text-[#E07A5F] transition-colors item-title">
+                    {item.name}
+                  </div>
+                  <div class="text-xs text-[#6E685F] mt-0.5 leading-relaxed">
+                    {item.note}
+                  </div>
+                </div>
+              </label>
+            ))}
+          </div>
+        </section>
+      ))}
+    </div>
+
+    <!-- 広告・スポンサーリンク -->
+    <div class="mt-12 space-y-4">
+      <AdSense />
+    </div>
+  </div>
+</BaseLayout>
+
+<script is:inline>
+  // ローカルストレージによるチェック状態の永続化
+  const STORAGE_KEY = 'hospital_checklist_state';
+
+  function getSavedState() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function saveState(state) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {}
+  }
+
+  function updateProgress() {
+    const checkboxes = document.querySelectorAll('.checklist-item input[type="checkbox"]');
+    const total = checkboxes.length;
+    let checked = 0;
+
+    checkboxes.forEach(cb => {
+      const label = cb.closest('.checklist-item');
+      if (cb.checked) {
+        checked++;
+        label?.classList.add('opacity-60', 'bg-[#FAF6F0]');
+      } else {
+        label?.classList.remove('opacity-60', 'bg-[#FAF6F0]');
+      }
+    });
+
+    const percent = total > 0 ? Math.round((checked / total) * 100) : 0;
+    const progressEl = document.getElementById('progress-text');
+    if (progressEl) {
+      progressEl.textContent = `${checked} / ${total} 完了 (${percent}%)`;
+      if (percent === 100) {
+        progressEl.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-[#E07A5F] text-white animate-bounce";
+      } else {
+        progressEl.className = "text-xs font-bold px-2.5 py-1 rounded-full bg-[#81B29A] text-white";
+      }
+    }
+  }
+
+  // 初期復元
+  const saved = getSavedState();
+  document.querySelectorAll('.checklist-item input[type="checkbox"]').forEach(cb => {
+    if (saved[cb.id]) {
+      cb.checked = true;
+    }
+    cb.addEventListener('change', () => {
+      saved[cb.id] = cb.checked;
+      saveState(saved);
+      updateProgress();
+    });
+  });
+
+  // リセットボタン
+  document.getElementById('btn-reset')?.addEventListener('click', () => {
+    if (confirm('チェックをすべて外してリセットしますか？')) {
+      localStorage.removeItem(STORAGE_KEY);
+      document.querySelectorAll('.checklist-item input[type="checkbox"]').forEach(cb => {
+        cb.checked = false;
+      });
+      updateProgress();
+    }
+  });
+
+  updateProgress();
+</script>

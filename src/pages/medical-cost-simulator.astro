@@ -1,0 +1,261 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import AdSense from '../components/AdSense.astro';
+---
+
+<BaseLayout
+  title="指定難病受給者証 × 高額療養費 かんたん医療費自己負担シミュレーター"
+  description="指定難病の医療費助成（2割負担＋自己負担上限額）と高額療養費制度の自己負担額をかんたんに試算できるシミュレーター。生物学的製剤（ヌーカラ・エキシデンサー等）や入院時の実質負担額をリアルタイム計算。"
+>
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <!-- パンくず -->
+    <nav class="flex text-xs text-[#8C857B] mb-6 space-x-2">
+      <a href="/" class="hover:text-[#E07A5F]">ホーム</a>
+      <span>/</span>
+      <span class="text-[#3D3A35] font-medium">医療費シミュレーター</span>
+    </nav>
+
+    <!-- ヘッダー -->
+    <header class="mb-8 border-b border-[#F0EAE1] pb-6">
+      <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#81B29A]/15 text-[#2C3E35] border border-[#81B29A]/30 text-xs font-bold mb-3">
+        <span>💰 制度・医療費支援ツール</span>
+      </div>
+      <h1 class="text-2xl sm:text-4xl font-extrabold text-[#2C3E35] tracking-tight leading-tight mb-3">
+        指定難病 ✕ 高額療養費<br class="hidden sm:inline" />医療費自己負担 かんたん試算シミュレーター
+      </h1>
+      <p class="text-sm sm:text-base text-[#5C574F] leading-relaxed max-w-3xl">
+        生物学的製剤（ヌーカラ、エキシデンサー等）や長期入院で高額になりがちな医療費。指定難病受給者証を使うと毎月の窓口支払いがいくらに抑えられるのか、制度ごとの違いを瞬時に比較試算できます。
+      </p>
+    </header>
+
+    <!-- シミュレーター入力＆結果グリッド -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <!-- 入力コントロールパネル（5列） -->
+      <div class="lg:col-span-5 bg-white p-6 sm:p-7 rounded-3xl border border-[#F0EAE1] warm-shadow space-y-5">
+        <h2 class="text-lg font-bold text-[#2C3E35] border-b border-[#F0EAE1] pb-3 flex items-center gap-2">
+          <span>⚙️</span>
+          <span>条件を選択してください</span>
+        </h2>
+
+        <!-- 所得区分（市町村民税額・年収目安） -->
+        <div>
+          <label for="income-tier" class="block text-xs font-bold text-[#2C3E35] mb-1.5">
+            1. 世帯の所得区分（市町村民税額）
+          </label>
+          <select
+            id="income-tier"
+            class="w-full px-3.5 py-2.5 rounded-xl border border-[#D0C7B8] bg-[#FDFBF7] text-sm font-medium text-[#2C3E35] focus:ring-2 focus:ring-[#E07A5F] focus:outline-hidden"
+          >
+            <option value="low1">生活保護世帯</option>
+            <option value="low2">低所得I（市町村民税非課税・年収約80万円以下）</option>
+            <option value="low3">低所得II（市町村民税非課税・一般）</option>
+            <option value="mid1" selected>一般所得I（市町村民税課税額 7.1万円未満 / 年収約370万円以下）</option>
+            <option value="mid2">一般所得II（市町村民税課税額 7.1万〜25.1万円未満 / 年収約370万〜770万円）</option>
+            <option value="high">上位所得（市町村民税課税額 25.1万円以上 / 年収約770万円超）</option>
+          </select>
+          <p class="text-[11px] text-[#8C857B] mt-1">※受給者証に印字されている「階層区分」を選択</p>
+        </div>
+
+        <!-- 高額かつ長期の特例 -->
+        <div>
+          <label class="block text-xs font-bold text-[#2C3E35] mb-1.5">
+            2. 「高額かつ長期」特例の該当
+          </label>
+          <div class="flex items-center gap-3">
+            <label class="flex items-center gap-2 text-sm text-[#3D3A35] cursor-pointer">
+              <input type="radio" name="long-term" value="yes" class="text-[#E07A5F] focus:ring-[#E07A5F]" />
+              <span>該当する</span>
+            </label>
+            <label class="flex items-center gap-2 text-sm text-[#3D3A35] cursor-pointer">
+              <input type="radio" name="long-term" value="no" checked class="text-[#E07A5F] focus:ring-[#E07A5F]" />
+              <span>該当しない（または不明）</span>
+            </label>
+          </div>
+          <p class="text-[11px] text-[#8C857B] mt-1">
+            ※過去12ヶ月で難病医療費総額が5万円超（10割換算）の月が6回以上ある場合
+          </p>
+        </div>
+
+        <!-- 医療費の想定（1ヶ月の総医療費・10割換算） -->
+        <div>
+          <label for="medical-cost-preset" class="block text-xs font-bold text-[#2C3E35] mb-1.5">
+            3. 想定される治療・1ヶ月の医療費規模（10割）
+          </label>
+          <select
+            id="medical-cost-preset"
+            class="w-full px-3.5 py-2.5 rounded-xl border border-[#D0C7B8] bg-[#FDFBF7] text-sm font-medium text-[#2C3E35] focus:ring-2 focus:ring-[#E07A5F] focus:outline-hidden"
+          >
+            <option value="50000">通常の定期通院・内服薬（総額 50,000円）</option>
+            <option value="150000">生物学的製剤 1回投与（総額 150,000円）</option>
+            <option value="300000" selected>生物学的製剤＋多科通院（総額 300,000円）</option>
+            <option value="800000">急性期入院・ソルラクト点滴加療（総額 800,000円）</option>
+          </select>
+        </div>
+
+        <div class="pt-3 border-t border-[#F0EAE1] text-xs text-[#6E685F] leading-relaxed">
+          💡 指定難病受給者証をお持ちの場合、対象の指定難病に関する診療・調剤の窓口負担は<strong>一律2割</strong>となり、さらに下記の月額上限額が適用されます。
+        </div>
+      </div>
+
+      <!-- 試算結果表示パネル（7列） -->
+      <div class="lg:col-span-7 bg-[#F4F1EA] p-6 sm:p-8 rounded-3xl border border-[#E6DFD3] warm-shadow space-y-6">
+        <div>
+          <span class="text-xs font-bold text-[#81B29A] uppercase tracking-wider">Simulation Result</span>
+          <h2 class="text-xl sm:text-2xl font-bold text-[#2C3E35] mt-0.5">
+            1ヶ月のあなたの実質自己負担額
+          </h2>
+        </div>
+
+        <!-- メイン金額カード（指定難病受給者証適用時） -->
+        <div class="p-6 rounded-2xl bg-white border border-[#E0D8C8] warm-shadow-sm text-center space-y-2">
+          <div class="text-xs font-bold text-[#E07A5F]">
+            🌟 指定難病受給者証を適用した場合の窓口上限額
+          </div>
+          <div class="text-3xl sm:text-4xl font-extrabold text-[#2C3E35] vital-stat-badge">
+            <span id="res-nanbyo-copay">10,000</span> <span class="text-lg font-bold text-[#6E685F]">円 / 月</span>
+          </div>
+          <p id="res-nanbyo-note" class="text-xs text-[#5C574F]">
+            （一般所得I：月額上限 10,000円 が適用されます）
+          </p>
+        </div>
+
+        <!-- 制度比較テーブル -->
+        <div class="space-y-3">
+          <h3 class="text-sm font-bold text-[#2C3E35]">📊 制度による負担額の比較（1ヶ月あたり）</h3>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+            <!-- 助成なし（3割負担） -->
+            <div class="p-3.5 rounded-xl bg-white/70 border border-[#E0D8C8]">
+              <div class="text-[#8C857B] font-bold">① 助成なし（3割）</div>
+              <div class="text-lg font-bold text-[#3D3A35] my-1" id="res-normal-copay">90,000 円</div>
+              <div class="text-[10px] text-[#8C857B]">通常の健康保険のみ</div>
+            </div>
+
+            <!-- 高額療養費のみ -->
+            <div class="p-3.5 rounded-xl bg-white/70 border border-[#E0D8C8]">
+              <div class="text-[#8C857B] font-bold">② 高額療養費のみ</div>
+              <div class="text-lg font-bold text-[#3D3A35] my-1" id="res-kougaku-copay">57,600 円</div>
+              <div class="text-[10px] text-[#8C857B]">限度額適用認定証</div>
+            </div>
+
+            <!-- 指定難病受給者証 -->
+            <div class="p-3.5 rounded-xl bg-[#81B29A]/15 border border-[#81B29A]/40">
+              <div class="text-[#2C3E35] font-bold">③ 指定難病受給者証</div>
+              <div class="text-lg font-extrabold text-[#2C3E35] my-1" id="res-final-copay">10,000 円</div>
+              <div class="text-[10px] text-[#2C3E35] font-bold">最大で毎月数万円軽減</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 年間試算とメリット解説 -->
+        <div class="p-4 rounded-xl bg-white border border-[#E0D8C8] text-xs leading-relaxed space-y-2">
+          <div class="font-bold text-[#2C3E35] flex items-center justify-between">
+            <span>年間（12ヶ月）の自己負担軽減効果（試算）:</span>
+            <span class="text-sm font-bold text-[#E07A5F]" id="res-yearly-savings">約 57 万円おトク</span>
+          </div>
+          <p class="text-[#5C574F]">
+            ヌーカラやエキシデンサーなどの高額な生物学的製剤を継続投与する場合、指定難病受給者証を取得しているかどうかで年間の医療費負担が50万円〜100万円以上変わることがあります。
+          </p>
+        </div>
+
+        <div class="pt-2 text-right">
+          <a href="/regional-support" class="text-xs font-bold text-[#E07A5F] hover:underline">
+            さらに自治体ごとの「難病手当・見舞金」の地域格差を見る &rarr;
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 制度の解説アコーディオン / 補足 -->
+    <div class="mt-12 bg-white p-6 sm:p-8 rounded-3xl border border-[#F0EAE1] warm-shadow-sm space-y-4">
+      <h3 class="text-lg font-bold text-[#2C3E35]">💡 知っておきたい難病医療費助成のポイント</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs leading-relaxed text-[#5C574F]">
+        <div class="p-4 rounded-xl bg-[#FDFBF7] border border-[#EFECE6]">
+          <strong class="text-[#2C3E35] font-bold block mb-1">Q. 複数の病院・薬局に行っても上限額は通算されますか？</strong>
+          A. はい、「自己負担上限額管理票」に病院・薬局ごとの支払額を合算して記入するため、1ヶ月の合計額が上限に達した時点でその月はそれ以上の支払いがゼロになります。
+        </div>
+        <div class="p-4 rounded-xl bg-[#FDFBF7] border border-[#EFECE6]">
+          <strong class="text-[#2C3E35] font-bold block mb-1">Q. 「高額かつ長期」はどうやって申請しますか？</strong>
+          A. 過去1年間で月総医療費5万円超（10割換算）が6回以上ある場合、領収書や管理票のコピーを添えて自治体の保健所へ申請することで上限額がさらに引き下げられます。
+        </div>
+      </div>
+    </div>
+
+    <!-- 広告エリア -->
+    <div class="mt-10">
+      <AdSense />
+    </div>
+  </div>
+</BaseLayout>
+
+<script is:inline>
+  // 難病自己負担上限額マトリクス
+  // [通常上限, 高額かつ長期上限]
+  const NANBYO_LIMITS = {
+    low1: [0, 0],
+    low2: [2500, 2500],
+    low3: [5000, 5000],
+    mid1: [10000, 5000],
+    mid2: [20000, 10000],
+    high: [30000, 20000]
+  };
+
+  // 高額療養費月額上限（70歳未満・一般的な目安）
+  const KOUGAKU_LIMITS = {
+    low1: 35400,
+    low2: 35400,
+    low3: 35400,
+    mid1: 57600,
+    mid2: 80100, // ＋α計算簡略化
+    high: 167400
+  };
+
+  function calculate() {
+    const tier = document.getElementById('income-tier').value;
+    const isLongTerm = document.querySelector('input[name="long-term"]:checked').value === 'yes';
+    const totalCost = parseInt(document.getElementById('medical-cost-preset').value, 10);
+
+    // ① 通常3割負担（上限なし）
+    const normalCopay = Math.round(totalCost * 0.3);
+
+    // ② 高額療養費のみ適用
+    let kougakuLimit = KOUGAKU_LIMITS[tier] || 57600;
+    if (tier === 'mid2' && totalCost > 267000) {
+      kougakuLimit = 80100 + Math.round((totalCost - 267000) * 0.01);
+    } else if (tier === 'high' && totalCost > 558000) {
+      kougakuLimit = 167400 + Math.round((totalCost - 558000) * 0.01);
+    }
+    const kougakuCopay = Math.min(normalCopay, kougakuLimit);
+
+    // ③ 指定難病受給者証適用（2割負担＋上限額）
+    const nanbyo2wari = Math.round(totalCost * 0.2);
+    const limits = NANBYO_LIMITS[tier] || [10000, 5000];
+    const nanbyoLimit = isLongTerm ? limits[1] : limits[0];
+    const finalCopay = Math.min(nanbyo2wari, nanbyoLimit);
+
+    // 画面反映
+    document.getElementById('res-nanbyo-copay').textContent = finalCopay.toLocaleString();
+    document.getElementById('res-normal-copay').textContent = normalCopay.toLocaleString() + ' 円';
+    document.getElementById('res-kougaku-copay').textContent = kougakuCopay.toLocaleString() + ' 円';
+    document.getElementById('res-final-copay').textContent = finalCopay.toLocaleString() + ' 円';
+
+    // 差額（年間）
+    const monthlySaved = Math.max(0, kougakuCopay - finalCopay);
+    const yearlySaved = Math.round((monthlySaved * 12) / 10000);
+    document.getElementById('res-yearly-savings').textContent = `約 ${yearlySaved} 万円おトク`;
+
+    // 注記
+    const longTermText = isLongTerm ? '（高額かつ長期特例 適用中）' : '';
+    document.getElementById('res-nanbyo-note').textContent = `上限額: 月額 ${nanbyoLimit.toLocaleString()} 円 ${longTermText}`;
+  }
+
+  document.getElementById('income-tier')?.addEventListener('change', calculate);
+  document.getElementById('medical-cost-preset')?.addEventListener('change', calculate);
+  document.querySelectorAll('input[name="long-term"]').forEach(el => {
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+</script>
