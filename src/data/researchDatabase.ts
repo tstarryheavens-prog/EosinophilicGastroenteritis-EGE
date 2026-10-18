@@ -23,6 +23,85 @@ export interface ResearchEntry {
 
 export const researchEntries: ResearchEntry[] = [
   {
+    id: "tezepelumab-egid-case-42891062",
+    title: "【テゼペルマブ】難治性好酸球性消化管疾患（EGID）における臨床的・組織学的寛解達成の症例報告",
+    originalTitle: "Achieving clinical and histologic remission with tezepelumab in an adolescent with refractory eosinophilic gastrointestinal disease: A case report",
+    category: "biologics",
+    categoryLabel: "バイオ製剤・抗体薬",
+    targetDiseases: ["好酸球性消化管疾患 (EGID)", "難治性好酸球性胃腸炎 (EGE)"],
+    molecules: ["テゼペルマブ (Tezepelumab)", "抗TSLP抗体", "最上流アラーミン阻害"],
+    status: "Clinical Evidence",
+    statusBadgeColor: "bg-purple-100 text-purple-800 border-purple-300",
+    publishDate: "2026 Oct 15",
+    postDate: "2026-10-18",
+    source: {
+      journalOrRegistry: "JPGN Rep",
+      authorsOrSponsor: "Newsome D, Sharlin C, Bauer CS",
+      identifier: "PMID: 42891062",
+      url: "https://pubmed.ncbi.nlm.nih.gov/42891062/"
+    },
+    keyTakeaways: [
+      "既存のステロイドや生物学的製剤で難治であった青少年EGID患者において、抗TSLP抗体テゼペルマブ投与により組織学的・臨床的寛解を達成。",
+      "上皮細胞由来アラーミンサイトカインであるTSLPを最上流で阻害することで、好酸球のみならずマスト細胞やTh2炎症カスケード全体を鎮静化。",
+      "既存抗体薬（抗IL-4/13、抗IL-5）に反応しなかった難治例に対する新たな分子標的選択肢としての臨床的実証。"
+],
+    summary: `本症例報告は、既存の全身性副腎皮質ステロイド治療および複数の免疫抑制療法に対して抵抗性を示し、頻回な再燃を繰り返していた難治性好酸球性消化管疾患（EGID）の若年患者に対し、胸腺間質性リンパ球新生因子（TSLP）に対するヒトモノクローナル抗体であるテゼペルマブ（Tezepelumab）を導入し、劇的な臨床的改善と生検組織における組織学的寛解を達成した経過をまとめたものである。好酸球性消化管疾患の病態形成において、消化管上皮バリアの物理的・免疫的破綻を起点として放出される上流アラーミン（TSLP、IL-33、IL-25）は、樹状細胞や2型自然リンパ球（ILC2）を刺激し、下流のIL-4、IL-5、IL-13の分泌を爆発的に誘導する。テゼペルマブは受容体結合複合体の形成を最上流で阻害するため、好酸球単独の遊走・生存抑制にとどまらず、粘膜組織内の肥満細胞（マスト細胞）の活性化や神経刺激ペプチドの放出をも包括的に沈静化させたと考えられる。内視鏡的生検での好酸球数減少（高倍率視野あたり正常範囲化）に加え、長期間苦しんでいた激しい腹痛・下痢・倦怠感が著明に消失し、経口ステロイドの完全離脱（ゼロ化）に成功した極めて重要なエビデンスである。`,
+    commentary: `このテゼペルマブの症例報告を読んだとき、難病を抱える患者コミュニティにとって待望の光が差したと感じました。好酸球性胃腸炎の現場では、デュピクセント（抗IL-4/13）やファセンラ（抗IL-5R）を使っても『好酸球数は下がったのに、腹痛や吐き気、異常な胃の重苦しさが取れない』『ステロイドをどうしても減らせない』という壁にぶつかる患者が少なくありません。テゼペルマブがターゲットとするTSLPは、いわば炎症の『火元（司令塔）』です。下流の好酸球だけを消すのではなく、消化管粘膜のバリアが傷ついたときに真っ先に叫び声を上げるTSLPを抑え込むことで、マスト細胞や自律神経への飛び火を根こそぎ防ぐことができます。喘息やアトピー性皮膚炎で既に安全性が証明されている薬剤だからこそ、難治性EGIDに対する適応拡大や医師主導治験の加速が強く望まれます。`
+  },
+  {
+    id: "egid-paper-42853141",
+    title: "【最新知見】好酸球性腸炎および関連消化管疾患の病態解明（2026 Oct 8）",
+    originalTitle: "Mechanistic insight into eosinophilic enteritis and related disorders",
+    category: "pathology",
+    categoryLabel: "病態機序・免疫学",
+    targetDiseases: ["好酸球性腸炎 (EGE)", "好酸球性消化管疾患 (EGID)"],
+    molecules: ["好酸球性炎症", "粘膜上皮バリア", "Th2シグナル"],
+    status: "Published Paper",
+    statusBadgeColor: "bg-blue-100 text-blue-800 border-blue-300",
+    publishDate: "2026 Oct 8",
+    postDate: "2026-10-18",
+    source: {
+      journalOrRegistry: "Curr Opin Pediatr",
+      authorsOrSponsor: "Syverson EP, Venkatesh RD, Bailey DD",
+      identifier: "PMID: 42853141",
+      url: "https://pubmed.ncbi.nlm.nih.gov/42853141/"
+    },
+    keyTakeaways: [
+      "好酸球性腸炎における最新の免疫病態モデルと上皮バリア障害のメカニズムを体系的に整理。",
+      "小腸・大腸粘膜における好酸球と肥満細胞（マスト細胞）の相互作用が消化管運動不全と腹痛を引き起こす経路を提示。",
+      "単一の好酸球数のみならず、局所脱顆粒産物と神経伝達物質の観点から複合治療の重要性を提唱。"
+],
+    summary: `本総説論文（Current Opinion in Pediatrics）は、小児および成人の好酸球性腸炎（Eosinophilic Enteritis）における最新の病態機序と診断・治療アプローチの動向を包括的に概説したものである。小腸粘膜における粘膜免疫機構の破綻、タイトジャンクションの機能低下、好酸球脱顆粒産物（MBP、ECP、EDN、EPO）が平滑筋細胞および粘膜下神経叢に及ぼす影響を詳細に解説している。`,
+    commentary: `好酸球性胃腸炎は、食道炎と比べて症例数が少なく、病態の解明が遅れがちな領域です。本論文のように小腸病変に焦点を当てた包括的レビューが発表されることは、臨床医の理解を深める上でも大きな意義があります。`
+  },
+  {
+    id: "blood-proteomics-eg-42848338",
+    title: "【バイオマーカー】好酸球性胃炎の活動性を反映する組織連動型血液プロテオミクスシグネチャ",
+    originalTitle: "A tissue-informed blood proteomic signature of eosinophilic gastritis activity",
+    category: "diet-biomarkers",
+    categoryLabel: "食事療法・バイオマーカー",
+    targetDiseases: ["好酸球性胃炎 (EG)", "好酸球性消化管疾患 (EGID)"],
+    molecules: ["血液プロテオミクス", "エオタキシン-3 (CCL26)", "非侵襲的疾患活動性モニタリング"],
+    status: "Published Paper",
+    statusBadgeColor: "bg-emerald-100 text-emerald-800 border-emerald-300",
+    publishDate: "2026 Oct 7",
+    postDate: "2026-10-18",
+    source: {
+      journalOrRegistry: "J Allergy Clin Immunol",
+      authorsOrSponsor: "Ahye M, Sato H, Karns R",
+      identifier: "PMID: 42848338",
+      url: "https://pubmed.ncbi.nlm.nih.gov/42848338/"
+    },
+    keyTakeaways: [
+      "胃内視鏡生検を行わずに、血液検査（プロテオミクス解析）で好酸球性胃炎の粘膜炎症活動性を高精度に評価するパネルを同定。",
+      "組織の好酸球浸潤密度および遺伝子発現プロファイルと密接に連動する複数の血清タンパク質マーカー群を検証。",
+      "苦痛を伴う頻回な内視鏡検査を減らし、治療効果判定や再燃の早期予測を血液一本で実現する非侵襲的アプローチ。"
+],
+    summary: `Journal of Allergy and Clinical Immunology (JACI) に掲載された本研究は、活動性好酸球性胃炎（EG）患者の胃組織トランスクリプトームと大規模血液プロテオミクスデータを統合解析し、内視鏡生検に依存しない非侵襲的な疾患活動性評価パネル（シグネチャ）を開発・検証した論文である。好酸球性消化管疾患は病変が斑状（パッチ状）に分布するため、生検部位のサンプリングエラーによって炎症の見落としが発生しやすいという構造的課題があった。研究チームはEG患者および対照群の血清を用いて数千種類のタンパク質を網羅的測定し、胃粘膜組織内の好酸球浸潤度や上皮傷害スコアと有意に相関する特異的プロテイン群を抽出した。これにより、エオタキシン-3をはじめとするケモカインや上皮再構築関連因子の複合スコアを算出することで、感度・特異度ともに高い精度で活動性炎症を識別することに成功した。`,
+    commentary: `胃カメラ（上部消化管内視鏡）を定期的に受ける患者にとって、この非侵襲バイオマーカーの実用化は悲願とも言える進歩です。現在、私たちは治療が効いているか確認するためだけに、喉の麻酔や鎮静剤を使い、組織を何箇所も千切る苦痛に耐えなければなりません。特に小児や若年の患者にとって、毎年の内視鏡検査は心身ともに極めて重い負担となっています。採血だけで『今、胃の粘膜がどれくらい炎症を起こしているか』が客観的な数値で把握できるようになれば、食事制限の解除テストや抗体薬の投与間隔の調整がはるかに安全かつスピーディに行えるようになります。臨床現場への早期導入を期待します。`
+  },
+
+  {
     id: "dupixent-liberty-eoe-treet",
     title: "【デュピルマブ】好酸球性食道炎・消化管疾患に対する第III相国際二重盲検比較試験（LIBERTY EoE TREET）",
     originalTitle: "Dupilumab in Adults and Adolescents with Eosinophilic Esophagitis (LIBERTY EoE TREET Phase 3)",
