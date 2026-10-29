@@ -9,43 +9,54 @@ const { slot = "", format = "auto", className = "" } = Astro.props;
 const adsenseClient = import.meta.env.PUBLIC_ADSENSE_ID || "ca-pub-1988464307898443";
 const isConfigured = adsenseClient && !adsenseClient.includes("XXXX");
 
-// Google AdSenseの正規広告スロットIDは数字列（例: 1234567890）
-const hasNumericSlot = Boolean(slot && /^\d+$/.test(slot.trim()));
+// スロットIDのマッピング（環境変数または個別ID設定）
+const envSlots: Record<string, string | undefined> = {
+  'top-ad': import.meta.env.PUBLIC_ADSENSE_SLOT_TOP,
+  'bottom-ad': import.meta.env.PUBLIC_ADSENSE_SLOT_BOTTOM,
+  'category-bottom': import.meta.env.PUBLIC_ADSENSE_SLOT_CATEGORY,
+};
+
+let effectiveSlot = "";
+if (slot && /^\d+$/.test(slot.trim())) {
+  effectiveSlot = slot.trim();
+} else if (slot && envSlots[slot.trim()]) {
+  effectiveSlot = envSlots[slot.trim()]!;
+}
 ---
 
 <div class={`my-8 text-center overflow-hidden ad-container ${className}`}>
   <div class="text-[11px] text-slate-400 font-sans tracking-wider mb-2">スポンサーリンク</div>
 
-  {isConfigured && hasNumericSlot ? (
-    <!-- 手動広告ユニット（個別スロットID指定時） -->
-    <ins
-      class="adsbygoogle block"
-      style="display:block"
-      data-ad-client={adsenseClient}
-      data-ad-slot={slot.trim()}
-      data-ad-format={format}
-      data-full-width-responsive="true"
-    ></ins>
-    <script is:inline>
-      try {
-        (adsbygoogle = window.adsbygoogle || []).push({});
-      } catch (e) {
-        console.debug('AdSense push error:', e);
-      }
-    </script>
-  ) : isConfigured ? (
-    <!-- 自動広告（Auto Ads）対応エリア / 審査中レスポンシブ枠 -->
-    <div class="min-h-[100px] sm:min-h-[140px] flex items-center justify-center rounded-xl bg-slate-50/60 border border-dashed border-slate-200/80 p-4 text-xs text-slate-400">
-      <div class="flex flex-col items-center gap-1">
-        <span class="inline-flex items-center gap-1.5 text-slate-500 font-medium">
-          <svg class="w-3.5 h-3.5 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          Google AdSense 広告配信エリア
-        </span>
-        <span class="text-[11px] text-slate-400">（サイト審査完了後、または自動広告設定により最適配信されます）</span>
-      </div>
-    </div>
+  {isConfigured ? (
+    <>
+      {effectiveSlot ? (
+        <!-- Google AdSense 手動ユニット（スロット指定） -->
+        <ins
+          class="adsbygoogle block"
+          style="display:block"
+          data-ad-client={adsenseClient}
+          data-ad-slot={effectiveSlot}
+          data-ad-format={format}
+          data-full-width-responsive="true"
+        ></ins>
+      ) : (
+        <!-- Google AdSense レスポンシブ広告ユニット（自動最適化） -->
+        <ins
+          class="adsbygoogle block"
+          style="display:block"
+          data-ad-client={adsenseClient}
+          data-ad-format={format}
+          data-full-width-responsive="true"
+        ></ins>
+      )}
+      <script is:inline>
+        try {
+          (adsbygoogle = window.adsbygoogle || []).push({});
+        } catch (e) {
+          console.debug('AdSense push error:', e);
+        }
+      </script>
+    </>
   ) : (
     <!-- 未設定プレースホルダー -->
     <div class="border border-dashed border-slate-300 rounded-lg p-6 bg-slate-50 text-slate-400 text-xs flex flex-col items-center justify-center min-h-[100px]">
