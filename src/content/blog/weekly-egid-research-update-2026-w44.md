@@ -4,7 +4,7 @@ description: "好酸球性消化管疾患（EGID/EGE）の最新エビデンス�
 pubDate: "2026-10-26"
 category: "好酸球性消化管疾患"
 tags: ["好酸球性胃腸炎", "EGID", "学術論文", "治験情報", "TriNetX", "Gut誌総説", "ストリングテスト", "デュピクセント", "ステロイド離脱", "週刊ダイジェスト"]
-eyecatch: "https://assets.st-note.com/production/uploads/images/194838258/rectangle_large_type_2_d898657663115a59629819f3887dab55.png"
+eyecatch: "/images/eyecatches/weekly-egid-research-update-2026-w44.jpg"
 slug: "weekly-egid-research-update-2026-w44"
 ---
 

@@ -4,7 +4,7 @@ description: "AK002（リレンテリマブ）は、好酸球性胃腸炎をは�
 pubDate: "2025-06-20"
 category: "好酸球性消化管疾患"
 tags: ["好酸球性胃腸炎", "抗体製剤"]
-eyecatch: "https://assets.st-note.com/production/uploads/images/197253212/rectangle_large_type_2_13d36cc70cddea83b8285a35672acce7.jpeg?fit=bounds&quality=85&width=1280"
+eyecatch: "/images/eyecatches/n23f36ccec1dc.jpg"
 slug: "n23f36ccec1dc"
 ---
 

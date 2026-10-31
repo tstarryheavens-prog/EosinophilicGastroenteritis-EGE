@@ -4,7 +4,7 @@ description: "好酸球性胃腸炎・消化管疾患（EGID）の最新医学�
 pubDate: "2026-10-18"
 category: "好酸球性消化管疾患"
 tags: ["好酸球性胃腸炎", "EGID", "学術論文", "治験情報", "テゼペルマブ", "プロテオミクス", "バイオマーカー", "週刊ダイジェスト"]
-eyecatch: "https://assets.st-note.com/production/uploads/images/194838258/rectangle_large_type_2_d898657663115a59629819f3887dab55.png"
+eyecatch: "/images/eyecatches/weekly-egid-research-update-2026-w42-2026-10-18.jpg"
 slug: "weekly-egid-research-update-2026-w42-2026-10-18"
 ---
 

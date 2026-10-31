@@ -4,7 +4,7 @@ description: "Asrock Deskmeet X300とRyzen 5700Gの組み合わせで起動し�
 pubDate: "2023-10-21"
 category: "PC・技術メモ"
 tags: ["PC・技術メモ"]
-eyecatch: ""
+eyecatch: "/images/eyecatches/n9e1b67dcd5c3.jpg"
 slug: "n9e1b67dcd5c3"
 ---
 

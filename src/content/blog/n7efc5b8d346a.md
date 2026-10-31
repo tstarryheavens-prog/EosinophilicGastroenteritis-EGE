@@ -4,7 +4,7 @@ description: "アタラックスP（一般名 **ヒドロキシジン塩酸塩**
 pubDate: "2026-03-01"
 category: "重症喘息・呼吸器"
 tags: ["喘息", "服薬調査"]
-eyecatch: ""
+eyecatch: "/images/eyecatches/n7efc5b8d346a.jpg"
 slug: "n7efc5b8d346a"
 ---
 

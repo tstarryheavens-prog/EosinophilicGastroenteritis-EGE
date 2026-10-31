@@ -4,7 +4,7 @@ description: "1. **作用機序**:"
 pubDate: "2025-05-17"
 category: "服薬調査・治療薬"
 tags: ["服薬調査・治療薬"]
-eyecatch: "https://assets.st-note.com/production/uploads/images/190766945/rectangle_large_type_2_9fd19ce9fbfa88736ea88b90d27b27c3.png?fit=bounds&quality=85&width=1280"
+eyecatch: "/images/eyecatches/n110ed1eb8a7b.jpg"
 slug: "n110ed1eb8a7b"
 ---
 

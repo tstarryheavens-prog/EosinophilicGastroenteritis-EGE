@@ -4,7 +4,7 @@ description: "ある日のタクシーでの出来事"
 pubDate: "2023-05-18"
 category: "闘病日記・コラム"
 tags: ["闘病日記・コラム"]
-eyecatch: "https://assets.st-note.com/production/uploads/images/107093457/rectangle_large_type_2_2c3fe8654c4e70794261c8ef5f7e2b07.jpeg?fit=bounds&quality=85&width=1280"
+eyecatch: "/images/eyecatches/n4b1afe357eff.jpg"
 slug: "n4b1afe357eff"
 ---
 

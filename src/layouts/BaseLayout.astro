@@ -8,29 +8,84 @@ interface Props {
   description?: string;
   image?: string;
   article?: boolean;
+  lang?: 'ja' | 'en';
+  enSlug?: string;
+  originalJaSlug?: string;
 }
 
 const {
   title = "好酸球性胃腸炎と複合難病の闘病・服薬ノート",
   description = "好酸球性消化管疾患・群発頭痛・重症喘息・小麦アレルギーと生きる当事者のリアルな闘病・服薬記録と最新治療調査ノート。",
   image = "https://assets.st-note.com/production/uploads/images/194838258/rectangle_large_type_2_d898657663115a59629819f3887dab55.png",
-  article = false
+  article = false,
+  lang = "ja",
+  enSlug,
+  originalJaSlug
 } = Astro.props;
 
-const siteTitle = title.includes("好酸球性胃腸炎") ? title : `${title} | 好酸球性胃腸炎と複合難病の闘病・服薬ノート`;
+const siteName = lang === "en"
+  ? "Eosinophilic Gastroenteritis & Intractable Disease Real-World Evidence Portal"
+  : "好酸球性胃腸炎と複合難病の闘病・服薬ノート";
+
+const defaultTitle = lang === "en"
+  ? "Eosinophilic Gastroenteritis & Intractable Disease Real-World Evidence Portal"
+  : "好酸球性胃腸炎と複合難病の闘病・服薬ノート";
+
+const siteTitle = title === defaultTitle || title.includes("好酸球性胃腸炎") || title.includes("Eosinophilic Gastroenteritis")
+  ? title
+  : `${title} | ${siteName}`;
+
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const ogImage = image.startsWith("http") ? image : new URL(image, Astro.site).toString();
 const adsenseClient = import.meta.env.PUBLIC_ADSENSE_ID || "ca-pub-1988464307898443";
+
+// Hreflang logic
+const path = Astro.url.pathname;
+let jaUrl = "";
+let enUrl = "";
+
+if (lang === "en") {
+  enUrl = canonicalURL.toString();
+  if (originalJaSlug) {
+    jaUrl = new URL(`/blog/${originalJaSlug}`, Astro.site).toString();
+  } else if (path === "/en" || path === "/en/") {
+    jaUrl = new URL("/", Astro.site).toString();
+  } else if (path.startsWith("/en/research-database")) {
+    jaUrl = new URL("/research-database", Astro.site).toString();
+  } else if (path.startsWith("/en/clinical-analytics")) {
+    jaUrl = new URL("/clinical-analytics", Astro.site).toString();
+  }
+} else {
+  jaUrl = canonicalURL.toString();
+  if (enSlug) {
+    enUrl = new URL(`/en/blog/${enSlug}`, Astro.site).toString();
+  } else if (path === "/" || path === "") {
+    enUrl = new URL("/en/", Astro.site).toString();
+  } else if (path.startsWith("/research-database")) {
+    enUrl = new URL("/en/research-database", Astro.site).toString();
+  } else if (path.startsWith("/clinical-analytics")) {
+    enUrl = new URL("/en/clinical-analytics", Astro.site).toString();
+  }
+}
 ---
 
 <!DOCTYPE html>
-<html lang="ja" class="scroll-smooth">
+<html lang={lang} class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="canonical" href={canonicalURL} />
     <title>{siteTitle}</title>
     <meta name="description" content={description} />
+
+    <!-- Multi-Language SEO (Hreflang Tags) -->
+    {jaUrl && <link rel="alternate" hreflang="ja" href={jaUrl} />}
+    {enUrl && <link rel="alternate" hreflang="en" href={enUrl} />}
+    {enUrl ? (
+      <link rel="alternate" hreflang="x-default" href={enUrl} />
+    ) : (
+      <link rel="alternate" hreflang="x-default" href={jaUrl} />
+    )}
 
     <!-- Favicon & App Icons -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />

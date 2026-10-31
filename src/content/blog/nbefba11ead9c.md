@@ -4,7 +4,7 @@ description: "食後の胃もたれ・膨満感・食欲低下など、「機能
 pubDate: "2026-03-01"
 category: "服薬調査・治療薬"
 tags: ["服薬調査"]
-eyecatch: ""
+eyecatch: "/images/eyecatches/nbefba11ead9c.jpg"
 slug: "nbefba11ead9c"
 ---
 

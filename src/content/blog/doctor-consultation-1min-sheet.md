@@ -5,6 +5,7 @@ pubDate: "2026-10-18"
 category: "服薬調査・治療薬"
 tags: ["受診のコツ", "診察メモ", "好酸球性胃腸炎", "服薬管理", "主治医とのコミュニケーション"]
 slug: "doctor-consultation-1min-sheet"
+eyecatch: "/images/eyecatches/doctor-consultation-1min-sheet.jpg"
 ---
 
 大学病院や総合病院の難病外来。待合室で1〜2時間待ち、ようやく呼ばれた診察室での持ち時間は、実質**「3分から5分」**です。

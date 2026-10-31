@@ -4,7 +4,7 @@ description: "エキシデンサー（デペモキマブ）：好酸球性疾患
 pubDate: "2026-05-30"
 category: "好酸球性消化管疾患"
 tags: ["好酸球性胃腸炎", "喘息", "生物学的製剤", "ステロイド"]
-eyecatch: "https://assets.st-note.com/production/uploads/images/280783221/rectangle_large_type_2_75c91d48956dc990db9176ab916a2422.jpg?fit=bounds&quality=85&width=1280"
+eyecatch: "/images/eyecatches/n0ef7d64f18cc.jpg"
 slug: "n0ef7d64f18cc"
 ---
 

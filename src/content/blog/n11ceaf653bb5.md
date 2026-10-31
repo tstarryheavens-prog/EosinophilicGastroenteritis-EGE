@@ -4,7 +4,7 @@ description: "好酸球性胃腸炎の薬については、以下のようなこ
 pubDate: "2024-02-12"
 category: "好酸球性消化管疾患"
 tags: ["好酸球性胃腸炎", "好酸球性消化管疾患", "指定難病", "喘息", "ステロイド", "医療費助成"]
-eyecatch: ""
+eyecatch: "/images/eyecatches/n11ceaf653bb5.jpg"
 slug: "n11ceaf653bb5"
 ---
 

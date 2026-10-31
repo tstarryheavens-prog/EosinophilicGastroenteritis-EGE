@@ -1,0 +1,167 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import AdSense from '../../components/AdSense.astro';
+import { researchEntries } from '../../data/researchDatabase';
+
+const totalCount = researchEntries.length;
+---
+
+<BaseLayout
+  title="EGID Clinical Trials & PubMed Research Intelligence Database"
+  description="Comprehensive open-access database of peer-reviewed clinical trials, Phase 2/3 results, and targeted biologics (Dupixent, Fasenra, Nucala, Tezspire, Lirentelimab) for Eosinophilic Gastroenteritis (EGE) and EGID."
+  lang="en"
+>
+  <!-- Hero Section -->
+  <section class="relative overflow-hidden bg-gradient-to-b from-slate-900 via-teal-950 to-slate-950 text-white border-b border-slate-800 py-12 sm:py-16">
+    <div class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav class="flex text-xs text-slate-400 mb-5 space-x-2">
+        <a href="/en/" class="hover:text-teal-300 transition-colors">Home (EN)</a>
+        <span>/</span>
+        <span class="text-teal-300 font-medium">Research Database</span>
+      </nav>
+
+      <div class="max-w-4xl space-y-4">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/20 border border-teal-400/40 text-teal-300 text-xs sm:text-sm font-semibold tracking-wide">
+          <span class="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></span>
+          <span>International Peer-Reviewed Evidence ✕ Patient Real-World Insights</span>
+        </div>
+
+        <h1 class="text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight text-white">
+          Eosinophilic Gastroenteritis & EGID<br class="hidden sm:inline" />
+          Clinical Trials & Research Intelligence
+        </h1>
+
+        <p class="text-sm sm:text-base text-slate-300 leading-relaxed max-w-3xl">
+          A continuously updated index aggregating trials from PubMed, ClinicalTrials.gov, and major medical journals (NEJM, Lancet, Gastroenterology) on targeted biologics, elemental dietary protocols, and eosinophil depletion mechanisms.
+        </p>
+
+        <div class="flex flex-wrap gap-2.5 pt-2 text-xs font-semibold">
+          <span class="px-3 py-1.5 rounded-lg bg-slate-800/90 border border-slate-700 text-teal-300">
+            Total Cataloged Trials: {totalCount}
+          </span>
+          <span class="px-3 py-1.5 rounded-lg bg-slate-800/90 border border-slate-700 text-sky-300">
+            Biologics: Dupilumab / Benralizumab / Mepolizumab / Tezepelumab / Lirentelimab
+          </span>
+          <span class="px-3 py-1.5 rounded-lg bg-slate-800/90 border border-slate-700 text-amber-300">
+            Live PubMed Sync Active
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Database Content -->
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <AdSense slot="top-ad" format="auto" className="mb-8" />
+
+    <!-- Search & Filter Controls -->
+    <div class="mb-8 p-6 rounded-2xl bg-white border border-slate-200 shadow-sm">
+      <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
+        <div class="w-full sm:max-w-md">
+          <label for="search-input" class="sr-only">Search Clinical Trials</label>
+          <input
+            type="text"
+            id="search-input"
+            placeholder="Search by drug, target (IL-5, Siglec-8), author, or PubMed ID..."
+            class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+          />
+        </div>
+        <div class="flex items-center gap-2 text-xs font-bold text-slate-600 overflow-x-auto w-full sm:w-auto">
+          <span>Filter:</span>
+          <button class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 active-filter" data-filter="all">All</button>
+          <button class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700" data-filter="biologic">Biologics</button>
+          <button class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700" data-filter="trial">Phase 2/3 Trials</button>
+          <button class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700" data-filter="diet">Dietary Protocols</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trial Cards List -->
+    <div class="space-y-6" id="trials-container">
+      {researchEntries.map((entry) => (
+        <article
+          class="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm hover:border-teal-300 hover:shadow-md transition-all trial-card"
+          data-category={entry.category}
+          data-text={`${entry.title} ${entry.academicSummary || entry.description} ${entry.identifier || ''}`.toLowerCase()}
+        >
+          <div class="flex flex-wrap items-center gap-2 mb-3">
+            <span class="px-2.5 py-0.5 rounded text-xs font-bold bg-teal-50 text-teal-800 border border-teal-200">
+              {entry.source}
+            </span>
+            <span class="text-xs text-slate-500 font-medium">{entry.pubDate}</span>
+            {entry.phase && (
+              <span class="px-2.5 py-0.5 rounded text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                {entry.phase}
+              </span>
+            )}
+            {entry.identifier && (
+              <span class="text-xs font-mono text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                ID: {entry.identifier}
+              </span>
+            )}
+          </div>
+
+          <h2 class="text-xl font-bold text-slate-900 leading-snug mb-3">
+            {entry.title}
+          </h2>
+
+          <div class="text-sm text-slate-700 leading-relaxed mb-4 space-y-3">
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+              <strong class="text-xs uppercase font-extrabold text-teal-800 block mb-1">Academic Abstract & Clinical Findings:</strong>
+              <p>{entry.academicSummary || entry.description}</p>
+            </div>
+
+            {entry.patientPerspective && (
+              <div class="p-4 rounded-xl bg-amber-50/50 border border-amber-100">
+                <strong class="text-xs uppercase font-extrabold text-amber-900 block mb-1">Patient Real-World Clinical Commentary:</strong>
+                <p>{entry.patientPerspective}</p>
+              </div>
+            )}
+          </div>
+
+          <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+            <div class="flex flex-wrap gap-1.5">
+              {entry.tags && entry.tags.map((t: string) => (
+                <span class="text-[11px] text-slate-600 bg-slate-100 px-2 py-0.5 rounded">
+                  #{t}
+                </span>
+              ))}
+            </div>
+            {entry.url && (
+              <a
+                href={entry.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-xs sm:text-sm font-bold text-teal-700 hover:text-teal-800 inline-flex items-center gap-1"
+              >
+                Official Source on PubMed / Trial Registry ↗
+              </a>
+            )}
+          </div>
+        </article>
+      ))}
+    </div>
+
+    <AdSense slot="bottom-ad" format="auto" className="mt-12" />
+  </main>
+
+  <script is:inline>
+    // Client-side quick filter
+    const searchInput = document.getElementById('search-input');
+    const cards = document.querySelectorAll('.trial-card');
+
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        const q = e.target.value.toLowerCase().trim();
+        cards.forEach(card => {
+          const text = card.getAttribute('data-text') || '';
+          if (!q || text.includes(q)) {
+            card.style.display = 'block';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    }
+  </script>
+</BaseLayout>

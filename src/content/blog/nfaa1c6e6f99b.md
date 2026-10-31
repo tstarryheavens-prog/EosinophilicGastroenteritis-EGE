@@ -4,7 +4,7 @@ description: "入院が決まったとき、多くの人が不安を感じるも
 pubDate: "2024-10-09"
 category: "入院生活・制度"
 tags: ["入院生活"]
-eyecatch: "https://assets.st-note.com/production/uploads/images/190770294/rectangle_large_type_2_5af7f18f3fa570d0d2fa0d65701525ac.png?fit=bounds&quality=85&width=1280"
+eyecatch: "/images/eyecatches/nfaa1c6e6f99b.jpg"
 slug: "nfaa1c6e6f99b"
 ---
 

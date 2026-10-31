@@ -4,7 +4,7 @@ description: "国の指定難病医療費助成（全国共通）とは別に、
 pubDate: "2026-09-18"
 category: "入院生活・制度"
 tags: ["難病医療費助成", "難病手当", "自治体格差", "特定医療費助成", "指定難病", "障害福祉", "入院生活・制度"]
-eyecatch: "https://assets.st-note.com/production/uploads/images/233083658/rectangle_large_type_2_eb965aee1cbca33246fbe4c70d4cbb8f.png?width=800"
+eyecatch: "/images/eyecatches/regional-support-differences.jpg"
 slug: "regional-support-differences"
 ---
 

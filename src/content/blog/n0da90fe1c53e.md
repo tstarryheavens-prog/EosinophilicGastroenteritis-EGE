@@ -4,7 +4,7 @@ description: "レイボー（一般名 **ラスミジタン**）は、**片頭�
 pubDate: "2026-03-01"
 category: "群発頭痛・頭痛"
 tags: ["群発頭痛", "片頭痛", "服薬調査"]
-eyecatch: ""
+eyecatch: "/images/eyecatches/n0da90fe1c53e.jpg"
 slug: "n0da90fe1c53e"
 ---
 

@@ -4,7 +4,7 @@ description: "5月に半年持続型の抗IL-5抗体薬エキシデンサーを�
 pubDate: "2026-09-18"
 category: "重症喘息・呼吸器"
 tags: ["重症喘息", "エキシデンサー", "デペモキマブ", "好酸球性胃腸炎", "サルタノール", "群発頭痛", "服薬調査"]
-eyecatch: "https://assets.st-note.com/production/uploads/images/280783221/rectangle_large_type_2_75c91d48956dc990db9176ab916a2422.jpg?width=800"
+eyecatch: "/images/eyecatches/exidenser-5months-review.jpg"
 slug: "exidenser-5months-review"
 ---
 

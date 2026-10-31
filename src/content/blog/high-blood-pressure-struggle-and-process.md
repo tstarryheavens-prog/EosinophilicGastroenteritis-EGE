@@ -4,7 +4,7 @@ description: "好酸球性胃腸炎や群発頭痛、重症喘息と戦う中で
 pubDate: "2026-10-01"
 category: "闘病日記・コラム"
 tags: ["高血圧", "群発頭痛", "好酸球性胃腸炎", "重症喘息", "アジルバ", "アジルサルタン", "闘病記録"]
-eyecatch: "https://assets.st-note.com/production/uploads/images/194838258/rectangle_large_type_2_d898657663115a59629819f3887dab55.png?fit=bounds&quality=85&width=1280"
+eyecatch: "/images/eyecatches/high-blood-pressure-struggle-and-process.jpg"
 slug: "high-blood-pressure-struggle-and-process"
 ---
 

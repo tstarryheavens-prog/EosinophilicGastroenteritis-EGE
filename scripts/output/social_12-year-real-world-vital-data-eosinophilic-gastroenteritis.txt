@@ -1,0 +1,45 @@
+=== X (TWITTER) THREAD ===
+
+📊 12-Year Real-World Evidence Study:
+12-Year Real-World Patient Evidence: Longitudinal Vital Signs & Morning Surge Blood Pressure in Eosinophilic Gastroenteritis (EGE)
+
+Key finding: Morning blood pressure surges (Sys > 180 mmHg) consistently correlate with acute eosinophilic mucosal inflammation, revealing an under-recognized cardiovascular pressor effect.
+
+🧵 Thread on data & kinetics below 👇
+
+--- TWEET BREAK ---
+
+📈 4,389 Consecutive Days Tracked:
+• 8,700+ Omron certified BP logs
+• Nocturnal SpO2 dipped to 93-94% 48-72h BEFORE overt GI flare-ups
+• Provides a predictive biomarker window for early elemental dietary intervention.
+
+--- TWEET BREAK ---
+
+🔬 Pharmacology & Hemodynamics:
+Standard ACE inhibitors provided incomplete blunting during flares, whereas high-affinity ARB (Azilsartan 20mg) settled morning spikes without compromising baseline daytime perfusion.
+
+Full open dataset & interactive charts:
+🔗 https://eosinophilicgastroenteritis-ege.pages.dev/en/blog/12-year-real-world-vital-data-eosinophilic-gastroenteritis
+
+========================================
+
+=== REDDIT POST ===
+
+[Patient Evidence & Data] 12-Year Real-World Patient Evidence: Longitudinal Vital Signs & Morning Surge Blood Pressure in Eosinophilic Gastroenteritis (EGE)
+
+**Background & Methodology:**
+While randomized clinical trials (RCTs) typically evaluate targeted biologics over 12-24 weeks, longitudinal multi-metric trajectories over a decade are virtually absent in EGID literature. 
+
+As a diagnosed EGE patient, I recorded verified daily telemetry across **4,389 consecutive days (2014-2026)** encompassing over 8,700 blood pressure measurements, nocturnal SpO2, and step counts.
+
+**Primary Findings:**
+1. **Severe Morning Surge Hypertension**: Acute gastrointestinal eosinophilic flares triggered dramatic morning systolic spikes (up to 186 mmHg), likely driven by autonomic arousal and localized cytokine cascades.
+2. **SpO2 as a Pre-Symptomatic Prodrome**: Resting SpO2 desaturation (96.5% -> 93.5%) consistently preceded gastrointestinal abdominal pain by 48-72 hours.
+3. **Targeted ARB Efficacy**: Azilsartan demonstrated superior hemodynamic blunting of the morning surge compared to earlier-generation ACE-Is during active mucosal inflammation.
+
+**Full Report & Open-Access De-identified Dataset:**
+The complete longitudinal analysis and research database can be accessed here:
+https://eosinophilicgastroenteritis-ege.pages.dev/en/blog/12-year-real-world-vital-data-eosinophilic-gastroenteritis
+
+*Disclaimer: This is de-identified real-world observational data and does not constitute medical advice. Happy to discuss the data and observations with clinicians and fellow patients!*

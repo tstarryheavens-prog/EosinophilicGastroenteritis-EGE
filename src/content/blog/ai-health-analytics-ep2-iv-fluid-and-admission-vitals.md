@@ -4,14 +4,17 @@ description: "好酸球性胃腸炎による全10回以上の入院記録を徹�
 pubDate: "2026-10-18"
 category: "闘病日記・コラム"
 tags: ["ヘルスケアデータ分析", "好酸球性胃腸炎", "入院生活", "点滴治療", "AppleWatch", "データ闘病記"]
-eyecatch: "/images/analytics/ai_health_analytics_hero.jpg"
+eyecatch: "/images/eyecatches/ai-health-analytics-ep2-iv-fluid-and-admission-vitals.jpg"
 slug: "ai-health-analytics-ep2-iv-fluid-and-admission-vitals"
 ---
 
 <div class="my-4 p-4 rounded-2xl bg-[#F4F9F6] border border-[#D8EAE0] text-[#2C3E35] text-sm leading-relaxed">
   <strong>【連載：10年分の生体ログをAIで解き明かすデータ闘病記】</strong><br />
   <a href="/blog/ai-health-analytics-ep1-3gb-raw-data-reveal" class="text-[#E07A5F] hover:underline font-bold">第1話：プロローグ｜3.1GBの生体ログをAIに食わせた日</a><br />
-  <strong>第2話：全10回入院バイタルと「ソルラクト点滴」の輸液動態（本記事）</strong>
+  <strong>第2話：全10回入院バイタルと「ソルラクト点滴」の輸液動態（本記事）</strong><br />
+  <a href="/blog/ai-health-analytics-ep3-admission-timeline-vitals" class="text-[#E07A5F] hover:underline font-bold">第3話：全10回入院タイムラインとバイタル相関</a><br />
+  <a href="/blog/ai-health-analytics-ep4-extreme-hypertension-morning-surge" class="text-[#E07A5F] hover:underline font-bold">第4話：最高186/最低146mmHgの恐怖とモーニングサージ</a><br />
+  <a href="/blog/ai-health-analytics-ep5-azilsartan-blood-pressure-defense" class="text-[#E07A5F] hover:underline font-bold">第5話：最強降圧薬アジルバで防壁を築くまで</a>
 </div>
 
 ## 1. 入院中の点滴：ソルラクト500ml×2本（1日1,000ml）の日常

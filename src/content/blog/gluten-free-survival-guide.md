@@ -5,6 +5,7 @@ pubDate: "2026-10-18"
 category: "闘病日記・コラム"
 tags: ["グルテンフリー", "小麦アレルギー", "好酸球性胃腸炎", "食事療法", "サバイバル術"]
 slug: "gluten-free-survival-guide"
+eyecatch: "/images/eyecatches/gluten-free-survival-guide.jpg"
 ---
 
 好酸球性消化管疾患（好酸球性胃腸炎・食道炎・腸炎）の治療において、ステロイドや生物学的製剤と並んで最も基本的かつ強力な柱となるのが**「食事療法（アレルゲン除去）」**です。

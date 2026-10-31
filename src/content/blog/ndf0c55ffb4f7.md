@@ -4,7 +4,7 @@ description: "カルボシステイン（一般名 **L-カルボシステイン*
 pubDate: "2026-03-01"
 category: "好酸球性消化管疾患"
 tags: ["好酸球性胃腸炎", "重症喘息", "喘息", "服薬調査"]
-eyecatch: ""
+eyecatch: "/images/eyecatches/ndf0c55ffb4f7.jpg"
 slug: "ndf0c55ffb4f7"
 ---
 

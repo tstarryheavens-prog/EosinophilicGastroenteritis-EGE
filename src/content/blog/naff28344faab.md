@@ -4,7 +4,7 @@ description: "好酸球性胃腸炎(指定難病：好酸球性消化管疾患)�
 pubDate: "2022-10-13"
 category: "好酸球性消化管疾患"
 tags: ["好酸球性胃腸炎", "好酸球性消化管疾患", "指定難病", "群発頭痛", "片頭痛", "重症喘息", "喘息"]
-eyecatch: "https://assets.st-note.com/production/uploads/images/88878676/rectangle_large_type_2_1a29267a872a88882818675ec6257bb8.jpg?fit=bounds&quality=85&width=1280"
+eyecatch: "/images/eyecatches/naff28344faab.jpg"
 slug: "naff28344faab"
 ---
 

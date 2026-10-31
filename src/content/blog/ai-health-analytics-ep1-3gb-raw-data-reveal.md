@@ -4,15 +4,17 @@ description: "iPhone、Apple Watch、Withingsで10年間記録し続けたヘル
 pubDate: "2026-10-10"
 category: "闘病日記・コラム"
 tags: ["ヘルスケアデータ分析", "AppleWatch", "Withings", "好酸球性胃腸炎", "重症喘息", "群発頭痛", "データ闘病記"]
-eyecatch: "/images/analytics/ai_health_analytics_hero.jpg"
+eyecatch: "/images/eyecatches/ai-health-analytics-ep1-3gb-raw-data-reveal.jpg"
 slug: "ai-health-analytics-ep1-3gb-raw-data-reveal"
 ---
 
-<div class="my-4 p-4 rounded-xl bg-teal-50 border border-teal-200 text-teal-950 text-sm leading-relaxed">
-  <strong>【連載：10年分の生体ログをAIで解き明かすデータ闘病記（全20話予定）】</strong><br />
-  第1話：プロローグ｜3.1GBの生体ログをAIに食わせた日（本記事）<br />
-  第2話：データ基盤解剖｜心拍164万件・歩数43万件の生データ構造（次回予定）<br />
-  第3話：全10回入院タイムラインとバイタル相関（準備中）
+<div class="my-4 p-4 rounded-2xl bg-[#F4F9F6] border border-[#D8EAE0] text-[#2C3E35] text-sm leading-relaxed">
+  <strong>【連載：10年分の生体ログをAIで解き明かすデータ闘病記】</strong><br />
+  <strong>第1話：プロローグ｜3.1GBの生体ログをAIに食わせた日（本記事）</strong><br />
+  <a href="/blog/ai-health-analytics-ep2-iv-fluid-and-admission-vitals" class="text-[#E07A5F] hover:underline font-bold">第2話：全10回入院バイタルと「ソルラクト点滴」の輸液動態</a><br />
+  <a href="/blog/ai-health-analytics-ep3-admission-timeline-vitals" class="text-[#E07A5F] hover:underline font-bold">第3話：全10回入院タイムラインとバイタル相関</a><br />
+  <a href="/blog/ai-health-analytics-ep4-extreme-hypertension-morning-surge" class="text-[#E07A5F] hover:underline font-bold">第4話：最高186/最低146mmHgの恐怖とモーニングサージ</a><br />
+  <a href="/blog/ai-health-analytics-ep5-azilsartan-blood-pressure-defense" class="text-[#E07A5F] hover:underline font-bold">第5話：最強降圧薬アジルバで防壁を築くまで</a>
 </div>
 
 ## 1. スマホの奥底に眠っていた「3.1ギガバイト」の闘病記録

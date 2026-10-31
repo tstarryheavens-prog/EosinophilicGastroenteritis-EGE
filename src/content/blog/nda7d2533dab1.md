@@ -4,7 +4,7 @@ description: "入院と日々の治療ってめっちゃお金かかるのです
 pubDate: "2023-02-26"
 category: "好酸球性消化管疾患"
 tags: ["好酸球性胃腸炎", "指定難病", "群発頭痛", "重症喘息", "喘息", "医療費助成"]
-eyecatch: "https://assets.st-note.com/production/uploads/images/98919120/rectangle_large_type_2_1b6e9adf1d916f7863a679a84b7d4664.png?fit=bounds&quality=85&width=1280"
+eyecatch: "/images/eyecatches/nda7d2533dab1.jpg"
 slug: "nda7d2533dab1"
 ---
 
