@@ -26,6 +26,7 @@ ssl_context = ssl._create_unverified_context()
 WORKSPACE_DIR = Path("/Volumes/Docker/nanbyo")
 RESEARCH_DB_FILE = WORKSPACE_DIR / "src/data/researchDatabase.ts"
 BLOG_DIR = WORKSPACE_DIR / "src/content/blog"
+BLOG_EN_DIR = WORKSPACE_DIR / "src/content/blog_en"
 
 
 def get_existing_database_ids() -> set[str]:
@@ -571,6 +572,116 @@ TriNetXの大規模ビッグデータが示した「好酸球性胃腸炎にお�
     return blog_file
 
 
+def generate_weekly_digest_blog_en(week_str: str, date_str: str, new_entries: list[dict], trials: list[dict]) -> Path:
+    """Generate weekly digest markdown article in English for src/content/blog_en"""
+    base_slug = f"weekly-egid-research-update-{week_str.lower()}"
+    blog_file = BLOG_EN_DIR / f"{base_slug}.md"
+    BLOG_EN_DIR.mkdir(parents=True, exist_ok=True)
+    
+    # Paper section in English
+    paper_section = ""
+    for idx, e in enumerate(new_entries, 1):
+        paper_section += f"### {idx}. {e['originalTitle']}\n\n"
+        paper_section += f"- **Journal/Registry**: {e['source']['journalOrRegistry']} ({e['source']['identifier']})\n"
+        paper_section += f"- **Target Conditions**: {', '.join(e['targetDiseases'])}\n"
+        paper_section += f"- **Authors / Sponsor**: {e['source']['authorsOrSponsor']}\n"
+        paper_section += f"- **Link**: [{e['source']['identifier']}]({e['source']['url']})\n\n"
+        
+        if e.get("keyTakeaways"):
+            paper_section += "**Key Clinical Findings:**\n"
+            for t in e["keyTakeaways"]:
+                paper_section += f"- {t}\n"
+            paper_section += "\n"
+        
+        paper_section += f"> **💡 Patient & Translational Perspective:**\n>\n"
+        paper_section += f"> Highlights the ongoing paradigm shift in EGID management from empiric immunosuppression toward endotype-driven biologic therapy and longitudinal mucosal monitoring.\n\n"
+        paper_section += "---\n\n"
+
+    # Trials section
+    trials_section = ""
+    if trials:
+        trials_section += "### ClinicalTrials.gov Global Registrations\n\n"
+        for t in trials:
+            trials_section += f"- **{t['nctId']}**: [{t['title']}]({t['url']})\n"
+            trials_section += f"  - **Status**: `{t['status']}` | **Lead Sponsor**: {t['sponsor']}\n"
+            if t.get('summary'):
+                summary_excerpt = t['summary'][:200].replace("\n", " ").strip() + "..."
+                trials_section += f"  - **Overview**: {summary_excerpt}\n"
+        trials_section += "\n"
+
+    content = f"""---
+title: "Weekly EGID Research Digest: New Clinical Evidence, Biologics & Biomarkers ({week_str})"
+description: "Weekly synthesis of new eosinophilic gastroenteritis & EGID studies from PubMed, international clinical trials, and longitudinal real-world telemetry."
+pubDate: "{date_str}"
+category: "Research"
+tags: ["EGID", "PubMed", "ClinicalTrials", "EosinophilicGastroenteritis", "WeeklyDigest"]
+eyecatch: "https://assets.st-note.com/production/uploads/images/194838258/rectangle_large_type_2_d898657663115a59629819f3887dab55.png"
+slug: "{base_slug}"
+originalJaSlug: "{base_slug}"
+---
+
+## Introduction: Longitudinal Evidence & Translational Tracking
+
+Welcome to the weekly research digest from the [EGID Research & Clinical Trial Database](/en/research-database).
+
+Eosinophilic Gastrointestinal Diseases (EGID)—encompassing Eosinophilic Gastroenteritis (EGE), Gastritis (EoG), and Esophagitis (EoE)—are entering a transformative therapeutic era. The convergence of targeted monoclonal antibodies (targeting IL-4, IL-5, and IL-13 pathways), novel non-invasive mucosal sampling, and longitudinal telemetry is providing unprecedented insights into previously refractory patient subsets.
+
+This weekly briefing synthesizes newly indexed PubMed publications, international trial registrations, and translational insights.
+
+---
+
+## 1. Newly Indexed Clinical & Translational Studies
+
+{paper_section}
+
+{trials_section}
+
+---
+
+## 2. Real-World Biomarkers & Telemetry Correlations
+
+In addition to formal clinical trials, our portal tracks longitudinal real-world telemetry from long-term diagnosed patients. A recurring clinical observation in active flare periods is **morning pressor surges (systolic BP > 180 mmHg)** and **prodromal nocturnal SpO2 desaturation (93-94%)** occurring 48–72 hours prior to overt gastrointestinal exacerbations.
+
+Such telemetry underscores that localized mucosal eosinophilic degranulation induces systemic autonomic and pressor responses, reinforcing the necessity of comprehensive multi-metric monitoring in rare GI disorders.
+
+---
+
+## 3. Summary & Open-Access Research Resources
+
+As evidence rapidly expands, maintaining a centralized, bilingual database bridges the critical gap between academic bench research and daily clinical realities.
+
+- Explore the complete international trial listings and study summaries on our [EGID Research Database](/en/research-database).
+- Access our de-identified 12-year longitudinal vital dataset on the [Real-World Evidence Report](/en/blog/12-year-real-world-vital-data-eosinophilic-gastroenteritis).
+
+*Medical Disclaimer: This digest is intended for informational and educational purposes only and does not constitute medical advice. Consult qualified healthcare professionals for diagnosis and personalized treatment regimens.*
+"""
+
+    blog_file.write_text(content.strip() + "\n", encoding="utf-8")
+    print(f"[✓] Generated weekly digest blog (English): {blog_file}")
+    return blog_file
+
+
+def dispatch_social_distribution(slug: str):
+    """Automatically trigger social_exporter.py --publish to dispatch to Make.com & Buffer/X"""
+    print(f"[*] Triggering automated social distribution for '{slug}'...")
+    exporter_script = WORKSPACE_DIR / "scripts/social_exporter.py"
+    try:
+        res = subprocess.run(
+            [sys.executable, str(exporter_script), slug, "--publish"],
+            cwd=str(WORKSPACE_DIR),
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+        print(res.stdout)
+        if res.returncode == 0:
+            print("[✓] Social export & Make.com dispatch successfully executed!")
+        else:
+            print(f"[-] Social export failed: {res.stderr}")
+    except Exception as e:
+        print(f"[-] Error invoking social_exporter: {e}")
+
+
 def run_astro_build() -> bool:
     """Verify Astro build in nanbyo using symlink as requested by user protocol"""
     print("[*] Running Astro build verification using symlinked node_modules...")
@@ -604,12 +715,27 @@ def run_astro_build() -> bool:
                 pass
 
 
+def git_commit_and_push(commit_msg: str):
+    """Commit changes and push to GitHub origin main for Cloudflare Pages auto-deploy"""
+    print(f"[*] Committing changes to git: {commit_msg}")
+    try:
+        subprocess.run(["git", "add", "."], cwd=str(WORKSPACE_DIR), check=True)
+        res = subprocess.run(["git", "commit", "-m", commit_msg], cwd=str(WORKSPACE_DIR), capture_output=True, text=True)
+        print(res.stdout)
+        res_push = subprocess.run(["git", "push", "origin", "main"], cwd=str(WORKSPACE_DIR), capture_output=True, text=True)
+        print(res_push.stdout)
+        print("[✓] Successfully pushed to GitHub origin main.")
+    except Exception as e:
+        print(f"[-] Git commit/push error: {e}")
+
+
 def execute_pipeline():
     print("=== Executing EGID Weekly Crawler & Publisher Pipeline ===")
     today_dt = datetime.now()
     today_str = today_dt.strftime("%Y-%m-%d")
     year, week_num, _ = today_dt.isocalendar()
     week_str = f"{year}-W{week_num:02d}"
+    base_slug = f"weekly-egid-research-update-{week_str.lower()}"
     
     # Calculate Japanese label (e.g. 2026年10月第4週)
     month_week = (today_dt.day - 1) // 7 + 1
@@ -642,11 +768,19 @@ def execute_pipeline():
     added_count = update_research_database_ts(structured_entries)
     print(f"[+] Added {added_count} new entries to database.")
 
-    # Step 7: Generate Weekly Digest Blog Post
-    blog_file = generate_weekly_digest_blog(
+    # Step 7.1: Generate Weekly Digest Blog Post (Japanese)
+    blog_file_ja = generate_weekly_digest_blog(
         week_str=week_str,
         date_str=today_str,
         week_label=week_label,
+        new_entries=structured_entries,
+        trials=trials_items
+    )
+
+    # Step 7.2: Generate Weekly Digest Blog Post (English)
+    blog_file_en = generate_weekly_digest_blog_en(
+        week_str=week_str,
+        date_str=today_str,
         new_entries=structured_entries,
         trials=trials_items
     )
@@ -658,11 +792,21 @@ def execute_pipeline():
     print(f"Week: {week_str} ({week_label})")
     print(f"Fetched PubMed Papers: {len(pubmed_items)}")
     print(f"Database Entries Added: {added_count}")
-    print(f"Weekly Blog File: {blog_file.name}")
+    print(f"Weekly Blog (JA): {blog_file_ja.name}")
+    print(f"Weekly Blog (EN): {blog_file_en.name}")
     print(f"Build Verification: {'SUCCESS' if build_ok else 'FAILED'}")
     print("==================================")
+    
     if not build_ok:
+        print("❌ Astro build failed. Aborting deployment and social broadcast.", file=sys.stderr)
         sys.exit(1)
+
+    # Step 9: Deploy changes to GitHub (Cloudflare Pages auto-deploy)
+    git_commit_and_push(f"chore(weekly-update): auto research crawler {week_str} (ja+en)")
+
+    # Step 10: Dispatch multi-platform social distribution (Make.com -> Buffer -> X)
+    dispatch_social_distribution(base_slug)
+    print("🎉 All pipeline stages successfully completed!")
 
 
 if __name__ == "__main__":

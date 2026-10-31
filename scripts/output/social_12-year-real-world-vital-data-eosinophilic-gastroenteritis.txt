@@ -1,32 +1,28 @@
 === X (TWITTER) THREAD ===
 
-📊 12-Year Real-World Evidence Study:
-12-Year Real-World Patient Evidence: Longitudinal Vital Signs & Morning Surge Blood Pressure in Eosinophilic Gastroenteritis (EGE)
+📊 12-Year Real-World Evidence (4,389 Days):
+Morning BP surges (Sys >180 mmHg) correlate directly with acute eosinophilic flares, uncovering a mucosal-pressor connection.
 
-Key finding: Morning blood pressure surges (Sys > 180 mmHg) consistently correlate with acute eosinophilic mucosal inflammation, revealing an under-recognized cardiovascular pressor effect.
-
-🧵 Thread on data & kinetics below 👇
+Open dataset & clinical review 👇
 
 --- TWEET BREAK ---
 
 📈 4,389 Consecutive Days Tracked:
 • 8,700+ Omron certified BP logs
-• Nocturnal SpO2 dipped to 93-94% 48-72h BEFORE overt GI flare-ups
-• Provides a predictive biomarker window for early elemental dietary intervention.
+• Nocturnal SpO2 dropped to 93-94% 48-72h BEFORE overt GI symptoms
+• Predictive biomarker window for early dietary intervention.
 
 --- TWEET BREAK ---
 
 🔬 Pharmacology & Hemodynamics:
-Standard ACE inhibitors provided incomplete blunting during flares, whereas high-affinity ARB (Azilsartan 20mg) settled morning spikes without compromising baseline daytime perfusion.
+High-affinity ARB (Azilsartan 20mg) settled morning spikes without compromising baseline perfusion, unlike standard ACE-Is.
 
-Full open dataset & interactive charts:
+Full study & charts:
 🔗 https://eosinophilicgastroenteritis-ege.pages.dev/en/blog/12-year-real-world-vital-data-eosinophilic-gastroenteritis
 
 ========================================
 
 === REDDIT POST ===
-
-[Patient Evidence & Data] 12-Year Real-World Patient Evidence: Longitudinal Vital Signs & Morning Surge Blood Pressure in Eosinophilic Gastroenteritis (EGE)
 
 **Background & Methodology:**
 While randomized clinical trials (RCTs) typically evaluate targeted biologics over 12-24 weeks, longitudinal multi-metric trajectories over a decade are virtually absent in EGID literature. 

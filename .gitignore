@@ -12,3 +12,6 @@ yarn-error.log*
 raw_notes/
 fetch_notes.py
 convert_notes_to_markdown.py
+scripts/__pycache__/
+scripts/config/social_config.json
+scripts/output/
