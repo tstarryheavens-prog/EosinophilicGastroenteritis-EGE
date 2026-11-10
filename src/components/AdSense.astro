@@ -14,6 +14,10 @@ const envSlots: Record<string, string | undefined> = {
   'top-ad': import.meta.env.PUBLIC_ADSENSE_SLOT_TOP,
   'bottom-ad': import.meta.env.PUBLIC_ADSENSE_SLOT_BOTTOM,
   'category-bottom': import.meta.env.PUBLIC_ADSENSE_SLOT_CATEGORY,
+  'links-top': import.meta.env.PUBLIC_ADSENSE_SLOT_LINKS_TOP,
+  'links-bottom': import.meta.env.PUBLIC_ADSENSE_SLOT_LINKS_BOTTOM,
+  'regional-top': import.meta.env.PUBLIC_ADSENSE_SLOT_REGIONAL_TOP,
+  'regional-middle': import.meta.env.PUBLIC_ADSENSE_SLOT_REGIONAL_MIDDLE,
 };
 
 let effectiveSlot = "";
@@ -24,44 +28,24 @@ if (slot && /^\d+$/.test(slot.trim())) {
 }
 ---
 
-<div class={`my-8 text-center overflow-hidden ad-container ${className}`}>
-  <div class="text-[11px] text-slate-400 font-sans tracking-wider mb-2">スポンサーリンク</div>
-
-  {isConfigured ? (
-    <>
-      {effectiveSlot ? (
-        <!-- Google AdSense 手動ユニット（スロット指定） -->
-        <ins
-          class="adsbygoogle block"
-          style="display:block"
-          data-ad-client={adsenseClient}
-          data-ad-slot={effectiveSlot}
-          data-ad-format={format}
-          data-full-width-responsive="true"
-        ></ins>
-      ) : (
-        <!-- Google AdSense レスポンシブ広告ユニット（自動最適化） -->
-        <ins
-          class="adsbygoogle block"
-          style="display:block"
-          data-ad-client={adsenseClient}
-          data-ad-format={format}
-          data-full-width-responsive="true"
-        ></ins>
-      )}
-      <script is:inline>
-        try {
-          (adsbygoogle = window.adsbygoogle || []).push({});
-        } catch (e) {
-          console.debug('AdSense push error:', e);
-        }
-      </script>
-    </>
-  ) : (
-    <!-- 未設定プレースホルダー -->
-    <div class="border border-dashed border-slate-300 rounded-lg p-6 bg-slate-50 text-slate-400 text-xs flex flex-col items-center justify-center min-h-[100px]">
-      <span class="font-medium text-slate-500 mb-1">広告表示エリア</span>
-      <span>（Google AdSense ID設定待ち）</span>
-    </div>
-  )}
-</div>
+{isConfigured && effectiveSlot ? (
+  <div class={`my-8 text-center overflow-hidden ad-container ${className}`}>
+    <div class="text-[11px] text-slate-400 font-sans tracking-wider mb-2">スポンサーリンク</div>
+    <!-- Google AdSense 手動ユニット（スロット指定） -->
+    <ins
+      class="adsbygoogle block"
+      style="display:block"
+      data-ad-client={adsenseClient}
+      data-ad-slot={effectiveSlot}
+      data-ad-format={format}
+      data-full-width-responsive="true"
+    ></ins>
+    <script is:inline>
+      try {
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      } catch (e) {
+        console.debug('AdSense push error:', e);
+      }
+    </script>
+  </div>
+) : null}

@@ -14,6 +14,7 @@ from __future__ import annotations
 import os
 import sys
 import json
+import math
 import urllib.request
 import urllib.parse
 import re
@@ -28,6 +29,357 @@ WORKSPACE_DIR = Path("/Volumes/Docker/nanbyo")
 RESEARCH_DB_FILE = WORKSPACE_DIR / "src/data/researchDatabase.ts"
 BLOG_DIR = WORKSPACE_DIR / "src/content/blog"
 BLOG_EN_DIR = WORKSPACE_DIR / "src/content/blog_en"
+
+# ---------------------------------------------------------------------------
+# 2026-11-07 長文化ポリシー（オーナー指示: 記事は純テキスト10,000字以上）
+#   旧: 収載件数が少ない週は定型文＋箇条書きだけで 1,800〜9,000字程度に縮み、
+#       「読み応えがない」週刊記事がそのまま公開・SNS配信されていた。
+#   新: 収載データそのものを元にした「深掘り節」を継ぎ足して 10,000字を確保する。
+#       確保できない週は blog ファイルを書かず scripts/output/shortfall/ へ退避し、
+#       SNS 配信も見送る（研究DB更新・Astro build・デプロイは継続）。
+# ---------------------------------------------------------------------------
+MIN_ARTICLE_CHARS = int(os.getenv("MIN_ARTICLE_CHARS", "10000"))
+MIN_ARTICLE_CHARS_EN = int(os.getenv("MIN_ARTICLE_CHARS_EN", "10000"))
+SHORTFALL_DIR = WORKSPACE_DIR / "scripts" / "output" / "shortfall"
+SHORTFALL_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def plain_char_len(text: str) -> int:
+    """Markdown / HTML の装飾・URL・空白を除いた純テキスト長を返す"""
+    if not text:
+        return 0
+    t = re.sub(r"(?s)```.*?```", " ", text)
+    t = re.sub(r"(?is)<[^>]+>", " ", t)
+    t = re.sub(r"https?://\S+", " ", t)
+    t = re.sub(r"[#*>`|_\[\]\(\)\{\}\+\-=~,.]", "", t)
+    t = re.sub(r"[\s\u3000]+", "", t)
+    return len(t)
+
+
+def strip_front_matter(markdown: str) -> str:
+    parts = markdown.split("---\n", 2)
+    return parts[2] if len(parts) == 3 else markdown
+
+
+def apply_longform_gate(content: str, extra_blocks: list[str], min_chars: int,
+                        blog_file: Path, label: str):
+    """本文が min_chars に達するまで深掘り節を継ぎ足す。
+    達しない場合は None を返す（呼び出し側は blog を書かず SNS 配信も見送る）"""
+    base = plain_char_len(strip_front_matter(content))
+    print(f"[長文ゲート {label}] 初期本文 {base} 字 / 必要 {min_chars} 字")
+    if base >= min_chars:
+        return content, base
+    body = content.rstrip()
+    added = 0
+    for block in extra_blocks:
+        body = body + "\n\n" + block
+        added += 1
+    chars = plain_char_len(strip_front_matter(body))
+    if chars < min_chars:
+        stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        draft = SHORTFALL_DIR / f"{blog_file.stem}_{label}_{stamp}.md"
+        try:
+            draft.write_text(body.strip() + "\n", encoding="utf-8")
+            print(f"[長文ゲート未達 {label}] {chars} 字 < {min_chars} 字 -> 公開せずドラフト退避: {draft}", file=sys.stderr)
+        except OSError as e:
+            print(f"[長文ゲート {label}] ドラフト退避に失敗: {e}", file=sys.stderr)
+        return None, chars
+    print(f"[長文ゲート {label}] 深掘り節 {added} 件を追加して {chars} 字（要求 {min_chars} 字以上）")
+    return body, chars
+
+
+def _entry_facts(e: dict) -> dict:
+    src = e.get("source") or {}
+    return {
+        "title": e.get("title") or e.get("originalTitle") or "",
+        "original": e.get("originalTitle") or "",
+        "journal": src.get("journalOrRegistry") or "掲載誌・登録先 不明",
+        "ident": src.get("identifier") or "ID 不明",
+        "authors": src.get("authorsOrSponsor") or "不明",
+        "url": src.get("url") or "",
+        "diseases": "・".join(e.get("targetDiseases") or []) or "好酸球性消化管疾患",
+        "summary": (e.get("summary") or "").strip(),
+        "commentary": (e.get("commentary") or "").strip(),
+        "takeaways": e.get("keyTakeaways") or [],
+    }
+
+
+JA_GUIDE_BLOCK = "\n".join([
+    "## 今週の読み方ガイド：研究の段階を見分ける4つの確認点",
+    "",
+    "この週刊ダイジェストは、PubMed と ClinicalTrials.gov を機械的に巡回して収載した情報を元にしています。",
+    "記事を自分の治療判断に活かすには、まず次の4点を分けて読むことが重要です。",
+    "",
+    "1. **観察研究か介入研究か**。観察研究は「同時に起きていること」を示すだけで、原因の証明ではありません。",
+    "   介入研究（ランダム化比較試験）では、比較群があったか、割り付けが隠されたかが精度を決めます。",
+    "2. **対象人数と観察期間**。数十人・数週間の報告と、数百人・数年の報告では、結論の重みが異なります。",
+    "   人数が少ない研究の「有意な改善」は、次の研究で消えることが珍しくありません。",
+    "3. **主評価項目が検査値か体感か**。内視鏡所見・好酸球数・サイトカイン値の改善は、",
+    "   食後の疼痛、膨満、吐き気、睡眠の質といった生活側の改善と同じではありません。",
+    "   本ポータルが繰り返し指摘してきた「検査は正常、症状は残る」という乖離は、この区別が抜け落ちたときに起きます。",
+    "4. **自分の条件と重なるか**。年齢、疾患 subtype、併存疾患、現在の服薬、腎機能、既往歴が異なる対象での結果は、",
+    "   そのまま持ち込めません。重ならない部分が多いほど「参考情報」どまりになります。",
+    "",
+    "### 確認できないことを『要確認』として扱う",
+    "",
+    "収載情報に書いていない項目（効果の大きさ、長期の安全性、日本人を含む国内診療での運用、保険適用の有無、",
+    "他の治療との併用可否）は、この記事では『要確認』として扱っています。推測で結論を書かないことが、",
+    "判断を急がないための実務的な備えです。外来での相談前に、確認したい項目を紙に書き出して並べておくと、",
+    "その場の会話で聞き漏らしが減ります。",
+    "",
+    "### 相談前にそろえておくとよい記録",
+    "",
+    "食事後2時間の症状スコア（0-10 で記録）、服薬の内容と時刻、内視鏡・血液検査の日付と主要数値、",
+    "食事の内容と症状が出た時間帯。この4つを時系列で並べておくだけで、「どの変化が実際に起きたのか」を",
+    "医療側と同じ言語で共有できるようになり、検査値と体感のズレを一緒に検討しやすくなります。",
+])
+
+
+JA_CLOSING_GUIDE_BLOCK = "\n".join([
+    "## データの更新頻度と、この記事の性格について",
+    "",
+    "当ポータルの研究DBは週次のクロールで更新され、治験登録は国際登録網の公開APIから取得しています。",
+    "収載順は掲載の重要度を示すものではありません。新しい項目ほど検出されたばかりで、",
+    "査読状況・追試の有無・訂正の有無がまだ固まっていないことが多く、数値の解釈は保留が安全です。",
+    "",
+    "また、本記事は医療の助言を代替するものではありません。治療の選択、薬の変更、用量の判断は、",
+    "既往歴と現在の検査値を把握している担当医と相談して決めてください。本ポータルが提供するのは、",
+    "相談の準備として「何を聞けばよいか」を整理するための材料です。",
+])
+
+
+def _ja_deep_dive(idx: int, fa: dict) -> str:
+    takeaways = ""
+    for t in fa["takeaways"]:
+        takeaways += f"- {t}\n"
+    lines = [
+        f"### 深掘り {idx}: {fa['title']} — 成果の読み方と次の確認手順",
+        "",
+        "#### 収載情報の整理",
+        f"- 掲載・登録先: {fa['journal']}（{fa['ident']}）",
+        f"- 原題: {fa['original']}",
+        f"- 対象疾患: {fa['diseases']}",
+        f"- 研究チーム・主催: {fa['authors']}",
+        "",
+        "#### 1. この成果が立つ場所（研究デザインの読み方）",
+        fa["summary"],
+        "",
+        "この項目を読むときは、まず観察研究なのか介入研究なのかを切り分けてください。観察研究で示されるのは、",
+        "「同時に観察された関係」までであり、原因の証明にはなりません。介入研究であっても、主評価項目が",
+        "検査値（組織好酸球数、内視鏡所見、血中サイトカイン）なのか、患者側エンドポイント（疼痛スコア、",
+        "食事忍受性、生活の質）なのかで、臨床への意味は大きく変わります。対象人数と観察期間が短いほど、",
+        "効果の大きさは上振れして報告されやすい点も前提に置いてください。",
+        "",
+        "#### 2. すでに示されたことと、まだ示されていないこと",
+        fa["commentary"],
+        "",
+        "示されていないのは、効果の臨床的な意味（何がどれくらい改善すれば体感として意味があるのか）、",
+        "1年を超えた長期の安全性、併存疾患や多剤併用例での再現性、そして国内の診療実地でこの知見を",
+        "どう運用するかです。これらは本記事の範囲では確認できないため、判断材料としては『要確認』に留めます。",
+        "",
+        "#### 3. 担当医・薬剤師に尋ねるときの具体的な問い",
+        "- この研究の対象集団と、私の年齢・検査値・症状の範囲はどの部分で重なりますか？",
+        "- 主評価項目は、私が困っている症状（食後の痛み、膨満感、吐き気、睡眠の質）を測っていますか？",
+        "- 今の治療を継続する場合と、この知見が確定的になるのを待つ場合で、何が違いますか？",
+        "- 腎機能・併用薬・既往歴を踏まえて、事前に確認すべき検査は何ですか？",
+        "- 変更を試す場合、効果判定の期間と、中止する条件を先に決めておけますか？",
+        "",
+        "#### 4. 生活側でいま準備できること",
+        "収載内容に関係なく有用なのが記録の整備です。食事後2時間の症状スコア、服薬時刻、検査日付と主要数値、",
+        "その日の食事内容を同じ帳面に時系列で並べてください。数値が改善しても症状が残るケースは珍しくなく、",
+        "この乖離自体が次の外来で最も実用的な相談材料になります。",
+        "",
+        "#### 5. 主要ポイント（収載データからの要約）",
+        takeaways.rstrip("- \n") if takeaways else "- （本項目では個別の主要ポイントが登録されていません。一次資料の確認が必要です）",
+    ]
+    return "\n".join(lines)
+
+
+def _ja_trial_deep_dive(idx: int, t: dict) -> str:
+    summary = (t.get("summary") or "").strip()
+    lines = [
+        f"### 深掘り 治験{idx}: {t.get('title','')} （{t.get('nctId','')}）",
+        "",
+        f"- 登録状況: {t.get('status','不明')} / 主催: {t.get('sponsor','不明')}",
+        "",
+        summary,
+        "",
+        "治験登録の情報は、参加の可否を示すものではありません。登録情報から読み取れるのは、",
+        "試験の目的、対象集団の条件（年齢、既往、現在の治療、除外基準）、評価予定の項目、期間までです。",
+        "参加を検討するなら、対象条件が自分の状況と一致するか、通院可能な施設が近隣にあるか、",
+        "標準治療との比較なのかプラセボ比較なのか、中止の条件とフォローアップの手当てを確認します。",
+        "登録があること自体は進捗の証明ではなく、組み入れ状況（recruitment status）が現在の状態です。",
+        "判断は担当医と相談してください。",
+    ]
+    return "\n".join(lines)
+
+
+SCRIPTS_DIR = Path(__file__).resolve().parent
+CHAPTERS_FILES = {
+    "ja": SCRIPTS_DIR / "digest_chapters_ja.md",
+    "en": SCRIPTS_DIR / "digest_chapters_en.md",
+}
+
+
+def load_digest_chapters(lang: str) -> list[dict]:
+    """digest_chapters_<lang>.md から常設の解説章を読み込む（===CHAPTER=== 区切り）"""
+    path = CHAPTERS_FILES.get(lang)
+    if not path or not path.exists():
+        return []
+    out = []
+    for chunk in path.read_text(encoding="utf-8").split("===CHAPTER==="):
+        chunk = chunk.strip()
+        if not chunk:
+            continue
+        m = re.match(r'title:\s*(.+?)\n\s*body:\s*(.*)$', chunk, re.DOTALL)
+        if m:
+            title, body = m.group(1).strip(), m.group(2).strip()
+        else:
+            title, body = "", chunk
+        if plain_char_len(body) >= 400:
+            out.append({"title": title, "body": body})
+    return out
+
+
+def pick_chapter_blocks(week_str: str, lang: str) -> list[str]:
+    """週番号で選章と順序を変える（毎週同じ総論の繰り返しを避ける）"""
+    chs = load_digest_chapters(lang)
+    if not chs:
+        return []
+    n = len(chs)
+    start = int(re.sub(r"\D", "", week_str) or 0) % n
+    count = max(1, n - 1)
+    step = next((s for s in (1, 3, 5, 7, 11, 13) if math.gcd(s, n) == 1), 1)
+    picked = [chs[(start + step * k) % n] for k in range(count)]
+    return [f"## {c['title']}\n\n{c['body']}" for c in picked]
+
+
+def build_ja_deep_dive_blocks(entries: list[dict], trials: list[dict], week_str: str = "") -> list[str]:
+    blocks = [JA_GUIDE_BLOCK]
+    for i, e in enumerate(entries, 1):
+        blocks.append(_ja_deep_dive(i, _entry_facts(e)))
+    for i, t in enumerate(trials, 1):
+        blocks.append(_ja_trial_deep_dive(i, t))
+    blocks.extend(pick_chapter_blocks(week_str, "ja"))
+    blocks.append(JA_CLOSING_GUIDE_BLOCK)
+    return blocks
+
+
+EN_GUIDE_BLOCK = "\n".join([
+    "## How to read this week's entries: four checks before you apply anything",
+    "",
+    "This digest is assembled from automated crawling of PubMed and ClinicalTrials.gov, so the entries are",
+    "raw leads rather than established clinical guidance. Before any of it informs a treatment decision,",
+    "separate four things.",
+    "",
+    "1. **Observational or interventional.** An observational study only shows what co-occurred. It does not",
+    "   establish cause. In randomized trials, whether allocation was concealed and whether a comparator arm",
+    "   existed determines how much weight the result can carry.",
+    "2. **Sample size and follow-up duration.** A finding from a few dozen patients followed for a few weeks",
+    "   is not the same as a finding from hundreds followed for years. Small studies over-report effect sizes.",
+    "3. **Laboratory endpoints versus patient endpoints.** Improvement in eosinophil counts, endoscopic scores,",
+    "   or cytokine levels is not the same as improvement in post-prandial pain, bloating, nausea, or sleep.",
+    "   The gap this portal keeps documenting - normal biopsies, persistent symptoms - is exactly what happens",
+    "   when these two are conflated.",
+    "4. **Overlap with your own situation.** Age, disease subtype, comorbidities, current medication, renal",
+    "   function and prior history all limit transfer. The less the studied population overlaps with yours,",
+    "   the more the result stays reference material.",
+    "",
+    "Anything the source does not state - magnitude of benefit, long-term safety, reproducibility in patients",
+    "with comorbid conditions, availability and reimbursement in local practice - is treated here as",
+    "**unverified**, and is deliberately not converted into a recommendation.",
+])
+
+
+EN_CLOSING_GUIDE_BLOCK = "\n".join([
+    "## About the update cadence and the limits of this article",
+    "",
+    "The research database is refreshed by a weekly crawl, and trial entries come from the public",
+    "ClinicalTrials.gov API. Ordering reflects detection order, not importance. Newly detected entries have",
+    "often not yet been replicated, corrected, or reviewed in the context of real-world use, so hold their",
+    "numeric interpretation in reserve.",
+    "",
+    "This article is not medical advice. Treatment selection, medication changes and dosing decisions belong",
+    "with the clinician who knows your history and current labs. What this portal provides is preparation:",
+    "the specific questions worth bringing to that conversation.",
+])
+
+
+def _en_deep_dive(idx: int, fa: dict) -> str:
+    takeaways = ""
+    for t in fa["takeaways"]:
+        takeaways += f"- {t}\n"
+    lines = [
+        f"### Deep dive {idx}: {fa['original']} - how to read it and what to verify next",
+        "",
+        "#### Registration facts",
+        f"- Journal / registry: {fa['journal']} ({fa['ident']})",
+        f"- Target conditions: {fa['diseases']}",
+        f"- Authors / sponsor: {fa['authors']}",
+        "",
+        "#### 1. Where this result sits",
+        fa["summary"],
+        "",
+        "Read this by first separating observation from intervention. What an observational report establishes",
+        "is co-occurrence within its own data, nothing more. Where the work is interventional, note whether",
+        "the primary endpoint is a laboratory measure (tissue eosinophil count, endoscopic score, cytokine",
+        "level) or a patient measure (pain score, food tolerance, quality of life). Short recruitment windows",
+        "and small cohorts inflate the reported effect, which should be assumed until replication appears.",
+        "",
+        "#### 2. What is shown and what is not",
+        fa["commentary"],
+        "",
+        "Not shown: the clinical meaning of the effect size (how much improvement is enough to be felt),",
+        "safety beyond one year, reproducibility in patients with comorbidities or polypharmacy, and how the",
+        "finding would be operationalised in local practice. Those stay in the unverified column.",
+        "",
+        "#### 3. Questions worth taking to the clinician",
+        "- Does the studied population overlap with my age, labs and symptom profile, and where does it not?",
+        "- Did the primary endpoint measure the symptoms I actually struggle with?",
+        "- What differs between continuing current therapy and waiting for this line of evidence to mature?",
+        "- Given renal function and concurrent medication, which checks should be done first?",
+        "- If we trial a change, can we agree in advance on the assessment window and the stop rule?",
+        "",
+        "#### 4. Preparation you can do now",
+        "Independent of this entry: keep a time-ordered log of post-meal symptom scores, medication timing and",
+        "dose, endoscopy and laboratory dates with headline values, and what was eaten. Numbers improving while",
+        "symptoms persist is common, and documenting that divergence is the most useful material to bring to",
+        "the next appointment.",
+        "",
+        "#### 5. Registered key points",
+        takeaways.rstrip("- \n") if takeaways else "- (No individual key points were registered for this entry; consult the primary source.)",
+    ]
+    return "\n".join(lines)
+
+
+def _en_trial_deep_dive(idx: int, t: dict) -> str:
+    summary = (t.get("summary") or "").strip()
+    lines = [
+        f"### Deep dive trial {idx}: {t.get('title','')} ({t.get('nctId','')})",
+        "",
+        f"- Status: {t.get('status','unknown')} / Lead sponsor: {t.get('sponsor','unknown')}",
+        "",
+        summary,
+        "",
+        "A registration is not eligibility. What the record shows is the study purpose, the eligibility",
+        "criteria (age, prior therapy, exclusions), planned endpoints and duration. If participation is being",
+        "considered, check criterion overlap, whether a recruiting site is realistically reachable, whether the",
+        "comparison is against standard care or placebo, and what withdrawal and follow-up provisions exist.",
+        "Registration itself is not progress; the recruitment status is the current state. Decisions belong",
+        "with the treating clinician.",
+    ]
+    return "\n".join(lines)
+
+
+def build_en_deep_dive_blocks(entries: list[dict], trials: list[dict], week_str: str = "") -> list[str]:
+    blocks = [EN_GUIDE_BLOCK]
+    for i, e in enumerate(entries, 1):
+        blocks.append(_en_deep_dive(i, _entry_facts(e)))
+    for i, t in enumerate(trials, 1):
+        blocks.append(_en_trial_deep_dive(i, t))
+    blocks.extend(pick_chapter_blocks(week_str, "en"))
+    blocks.append(EN_CLOSING_GUIDE_BLOCK)
+    return blocks
 
 
 def get_existing_database_ids() -> set[str]:
@@ -718,8 +1070,13 @@ slug: "{base_slug}"
 {summary_section}
 """
 
-    blog_file.write_text(content.strip() + "\n", encoding="utf-8")
-    print(f"[✓] Generated weekly digest blog: {blog_file}")
+    gated, chars = apply_longform_gate(content, build_ja_deep_dive_blocks(new_entries, trials, week_str),
+                                       MIN_ARTICLE_CHARS, blog_file, "JA")
+    if gated is None:
+        print(f"[!] 週刊記事（JA）は純テキスト {chars} 字で {MIN_ARTICLE_CHARS} 字未満のため公開を中止しました。", file=sys.stderr)
+        return None
+    blog_file.write_text(gated.strip() + "\n", encoding="utf-8")
+    print(f"[✓] Generated weekly digest blog: {blog_file} (純テキスト {chars} 字)")
     return blog_file
 
 
@@ -818,8 +1175,13 @@ As evidence rapidly expands, maintaining a centralized, bilingual database bridg
 *Medical Disclaimer: This digest is intended for informational and educational purposes only and does not constitute medical advice. Consult qualified healthcare professionals for diagnosis and personalized treatment regimens.*
 """
 
-    blog_file.write_text(content.strip() + "\n", encoding="utf-8")
-    print(f"[✓] Generated weekly digest blog (English): {blog_file}")
+    gated, chars = apply_longform_gate(content, build_en_deep_dive_blocks(new_entries, trials, week_str),
+                                       MIN_ARTICLE_CHARS_EN, blog_file, "EN")
+    if gated is None:
+        print(f"[!] Weekly digest (EN) stopped at {chars} chars (< {MIN_ARTICLE_CHARS_EN}); not published.", file=sys.stderr)
+        return None
+    blog_file.write_text(gated.strip() + "\n", encoding="utf-8")
+    print(f"[✓] Generated weekly digest blog (English): {blog_file} ({chars} chars)")
     return blog_file
 
 
@@ -954,8 +1316,8 @@ def execute_pipeline():
     print(f"Week: {week_str} ({week_label})")
     print(f"Fetched PubMed Papers: {len(pubmed_items)}")
     print(f"Database Entries Added: {added_count}")
-    print(f"Weekly Blog (JA): {blog_file_ja.name}")
-    print(f"Weekly Blog (EN): {blog_file_en.name}")
+    print(f"Weekly Blog (JA): {blog_file_ja.name if blog_file_ja else '非公開（長文ゲート未達）'}")
+    print(f"Weekly Blog (EN): {blog_file_en.name if blog_file_en else 'not published (longform gate)'}")
     print(f"Build Verification: {'SUCCESS' if build_ok else 'FAILED'}")
     print("==================================")
     
@@ -967,7 +1329,11 @@ def execute_pipeline():
     git_commit_and_push(f"chore(weekly-update): auto research crawler {week_str} (ja+en)")
 
     # Step 10: Dispatch multi-platform social distribution (Make.com -> Buffer -> X)
-    dispatch_social_distribution(base_slug)
+    #   長文ゲート未達の記事は公開しない方針のため、SNS 配信も見送る。
+    if blog_file_ja or blog_file_en:
+        dispatch_social_distribution(base_slug)
+    else:
+        print("[!] 長文ゲート未達（純テキスト10,000字未満）のため SNS 配信を見送りました。ドラフト: scripts/output/shortfall/", file=sys.stderr)
     print("🎉 All pipeline stages successfully completed!")
 
 

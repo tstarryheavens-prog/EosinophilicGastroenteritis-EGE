@@ -15,3 +15,6 @@ convert_notes_to_markdown.py
 scripts/__pycache__/
 scripts/config/social_config.json
 scripts/output/
+
+# 長文ゲート未達の非公開ドラフト
+scripts/output/shortfall/

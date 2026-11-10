@@ -103,7 +103,7 @@ AI（大規模言語モデルおよび多変量時系列解析スクリプト）
 Apple Watchは、「心が痛がっている」のではなく「心臓と自律神経が物理的に悲鳴を上げている」という事実を、心拍ログとして正確に拾い上げていたのです。
 
 <div class="my-8 text-center">
-  <div class="text-[11px] text-slate-400 font-sans tracking-wider mb-2">おすすめ・スポンサーリンク</div>
+  <div class="text-[11px] text-slate-400 font-sans tracking-wider mb-2">スポンサーリンク</div>
   <a href="https://rpx.a8.net/svt/ejp?a8mat=3ZHR1F+CTF1OY+2HOM+601S1&rakuten=y&a8ejpredirect=http%3A%2F%2Fhb.afl.rakuten.co.jp%2Fhgc%2F0ea62065.34400275.0ea62066.204f04c0%2Fa24101314848_3ZHR1F_CTF1OY_2HOM_601S1%3Fpc%3Dhttp%253A%252F%252Fwww.rakuten.co.jp%252F%26m%3Dhttp%253A%252F%252Fm.rakuten.co.jp%252F" rel="nofollow sponsored" target="_blank" class="inline-block border border-slate-200 rounded-lg p-1 hover:shadow-md transition-shadow bg-white">
     <img src="http://hbb.afl.rakuten.co.jp/hsb/0eb4bbb1.717c6090.0eb4bbaa.95151395/" alt="楽天市場" width="468" height="60" class="max-w-full h-auto" />
   </a>
