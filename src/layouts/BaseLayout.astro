@@ -177,8 +177,8 @@ if (lang === "en") {
       <h2 style="font-size:18px;font-weight:800;margin:0;color:#0f172a;">📚 好酸球性胃腸炎・難病ポータル 統合記事アーカイブ（最新特集）</h2>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <a href="https://ai-living-lab.pages.dev/divisions/nanbyo" target="_blank" rel="noopener" style="background:#1e40af;color:#fff;font-size:12px;font-weight:700;padding:8px 14px;border-radius:8px;text-decoration:none;">事業部ポータルで全記事を見る ➔</a>
-      <a href="https://ai-living-lab.pages.dev" target="_blank" rel="noopener" style="background:#f8fafc;color:#334155;border:1px solid #cbd5e1;font-size:12px;font-weight:700;padding:8px 14px;border-radius:8px;text-decoration:none;">Smart AI Life 本社へ ↗</a>
+      <a href="/ai-living-lab/divisions/nanbyo" style="background:#1e40af;color:#fff;font-size:12px;font-weight:700;padding:8px 14px;border-radius:8px;text-decoration:none;">事業部ポータルで全記事を見る ➔</a>
+      <a href="/ai-living-lab" style="background:#f8fafc;color:#334155;border:1px solid #cbd5e1;font-size:12px;font-weight:700;padding:8px 14px;border-radius:8px;text-decoration:none;">AI Living Lab 本部へ ↗</a>
     </div>
   </div>
   <div id="emdash-feed-grid-nanbyo" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;">
@@ -189,19 +189,19 @@ if (lang === "en") {
 (function(){
   var grid = document.getElementById('emdash-feed-grid-nanbyo');
   if (!grid) return;
-  fetch('https://ai-living-lab.pages.dev/_emdash/api/content/posts?site_id=nanbyo&limit=6')
+  fetch('/_emdash/api/content/posts?site_id=nanbyo&limit=6')
     .then(function(r){ return r.json(); })
     .then(function(res){
       var items = (res && res.data && res.data.items) ? res.data.items.slice(0, 6) : [];
       if (!items.length) {
-        grid.innerHTML = '<p style="font-size:13px;color:#64748b;">記事一覧は <a href="https://ai-living-lab.pages.dev/divisions/nanbyo" target="_blank" style="color:#1e40af;font-weight:700;">Smart AI Life 事業部ページ</a> からご覧いただけます。</p>';
+        grid.innerHTML = '<p style="font-size:13px;color:#64748b;">記事一覧は <a href="/ai-living-lab/divisions/nanbyo" style="color:#1e40af;font-weight:700;">Smart AI Life 事業部ページ</a> からご覧いただけます。</p>';
         return;
       }
       grid.innerHTML = items.map(function(it){
-        var url = 'https://ai-living-lab.pages.dev/articles/' + encodeURIComponent(it.slug || it.id);
+        var url = '/articles/' + encodeURIComponent(it.slug || it.id);
         var title = (it.title || '記事詳細').replace(/</g, '&lt;');
         var excerpt = ((it.excerpt || (it.data && it.data.excerpt) || '') + '').replace(/</g, '&lt;').slice(0, 80);
-        return '<a href="' + url + '" target="_blank" rel="noopener" style="display:flex;flex-direction:column;justify-content:space-between;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px;text-decoration:none;color:inherit;transition:all 0.15s ease;">' +
+        return '<a href="' + url + '" style="display:flex;flex-direction:column;justify-content:space-between;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px;text-decoration:none;color:inherit;transition:all 0.15s ease;">' +
           '<div><div style="font-size:10px;font-weight:700;color:#0284c7;margin-bottom:4px;">最新特集記事</div>' +
           '<h3 style="font-size:14px;font-weight:800;color:#0f172a;margin:0 0 6px 0;line-height:1.4;">' + title + '</h3>' +
           '<p style="font-size:12px;color:#64748b;margin:0 0 10px 0;line-height:1.5;">' + excerpt + '...</p></div>' +
@@ -209,7 +209,7 @@ if (lang === "en") {
       }).join('');
     })
     .catch(function(){
-      grid.innerHTML = '<p style="font-size:13px;color:#64748b;"><a href="https://ai-living-lab.pages.dev/divisions/nanbyo" target="_blank" style="color:#1e40af;font-weight:700;">📚 Smart AI Life 統合記事アーカイブを開く ↗</a></p>';
+      grid.innerHTML = '<p style="font-size:13px;color:#64748b;"><a href="/ai-living-lab/divisions/nanbyo" style="color:#1e40af;font-weight:700;">📚 Smart AI Life 統合記事アーカイブを開く ↗</a></p>';
     });
 })();
 </script>

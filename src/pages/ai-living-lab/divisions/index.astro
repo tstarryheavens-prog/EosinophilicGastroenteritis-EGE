@@ -1,0 +1,269 @@
+---
+export const prerender = false;
+
+import BaseLayout from '../../../layouts/SmartAIBaseLayout.astro';
+import { ARTICLES, type Article } from '../../../data/articles';
+import { DIVISIONS_DATA } from '../../../data/divisions';
+import { LOCAL_ADDRESS_REGEX } from '../../../data/ops_config';
+import { env } from 'cloudflare:workers';
+import { isInternalSiteId, isPublicArticle, internalQuotedList } from '../../../data/public_scope';
+
+const isLocalUrl = (u?: string): boolean => !!u && LOCAL_ADDRESS_REGEX.test(u);
+
+const CAT_BY_DIVISION: Record<string, string> = {
+  'aichi-high': 'education',
+  'wakwak-money': 'education',
+  'toyotahome': 'automation',
+  'nanbyo': 'automation',
+  'ai-hems': 'energy',
+  'hobby-labs': 'automation',
+  'smartailife': 'decision',
+};
+
+const TONE_BY_DIVISION: Record<string, string> = {
+  'ai-hems': 'sun',
+  'wakwak-money': 'green',
+  'toyotahome': 'tin',
+  'nanbyo': 'orange',
+  'aichi-high': 'sun',
+  'hobby-labs': 'tin',
+  'smartailife': 'green',
+};
+
+// 内部専用サイト（モータ学術論文など）は一般公開の索引一覧に出さない
+const divisions = Object.values(DIVISIONS_DATA).filter((d: any) => !isInternalSiteId(d?.id));
+
+let dbLatest: Array<{ slug: string; title: string; site_id: string }> = [];
+try {
+  const cfEnv = env as any;
+  const db = cfEnv?.DB || (Astro.locals as any)?.runtime?.env?.DB;
+  if (db) {
+    const latest = await db
+      .prepare(
+        `SELECT slug, title, site_id FROM ec_posts WHERE status = 'published' AND site_id NOT IN (${internalQuotedList()}) ORDER BY published_at DESC LIMIT 60`
+      )
+      .all();
+    dbLatest = (latest?.results || []).filter((p: any) => p?.slug);
+  }
+} catch {}
+
+const staticByDivision = (id: string): Article[] =>
+  ARTICLES.filter(
+    (a) => a.siteId === id || (id === 'aichi-high' && a.category === 'education')
+  );
+
+const articlesFor = (id: string): Article[] => {
+  const staticPosts = staticByDivision(id);
+  const slugs = new Set(staticPosts.map((a) => a.slug));
+  const fromDb: Article[] = dbLatest
+    .filter((p: any) => p.site_id === id && !slugs.has(p.slug))
+    .map((p: any) => ({
+      slug: p.slug,
+      title: p.title || p.slug,
+      excerpt: '',
+      category: 'automation',
+      categoryLabel: '実践ハック',
+      tags: [],
+      date: '',
+      readTime: '',
+      draftFile: '',
+      siteId: id,
+    }));
+  return [...staticPosts, ...fromDb];
+};
+---
+
+<BaseLayout
+  title="7つのラボ（テーマ別一覧） ｜ Smart AI Life"
+  description="電気代・住宅ローン・家計・高校受験・難病医療・自作AI・特撮ホビー。7つの専門テーマ別に、実践記録と解説手順をまとめて探せる索引ページです。"
+>
+  <!-- 1. Nabu Casa Rounded Hero Banner -->
+  <section class="nc-hero hero-sun">
+    <div class="nc-hero-inner">
+      <p class="eyebrow" style="color: var(--nc-color-charcoal); opacity: 0.78;">Lab Index</p>
+      <h1 class="nc-hero-title">7つのラボ（テーマ別インデックス）</h1>
+      <p class="nc-hero-lead">
+        電気代・蓄電池制御、100歳家計シミュレーション、トヨタホーム維持管理、指定難病医療、愛知高校受験、EVモータ論文、特撮ホビーまで。分野別の実践記事と自作システムをまとめています。
+      </p>
+    </div>
+  </section>
+
+  <!-- 2. Nabu Casa Sub-Hero Row: Breadcrumbs + Pill Search -->
+  <section class="nc-sub-hero">
+    <div class="nc-sub-hero-row">
+      <ol class="nc-breadcrumbs" aria-label="パンくずリスト">
+        <li><a href="/">Smart AI Life</a></li>
+        <li><span>7つのラボ一覧</span></li>
+      </ol>
+
+      <form class="nc-search-wrapper small" action="/articles" method="get" role="search">
+        <div class="nc-search-field">
+          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M13.5 13.5L17.5 17.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <input
+            type="search"
+            name="q"
+            class="nc-search-input"
+            placeholder="記事を検索..."
+            aria-label="記事を検索"
+          />
+        </div>
+        <button type="submit" class="btn btn-dark">検索</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- 3. Nabu Casa Split Category Cards + Article Previews -->
+  <div class="nc-container" style="padding-bottom: 3rem;">
+    <div class="nc-divisions-grid">
+      {divisions.map((div: any) => {
+        const articles = articlesFor(div.id);
+        const publicExt = div.extUrl && !isLocalUrl(div.extUrl) ? div.extUrl : null;
+        const localOnly = isLocalUrl(div.extUrl);
+        const cat = CAT_BY_DIVISION[div.id];
+        const tone = TONE_BY_DIVISION[div.id] || 'tin';
+
+        return (
+          <article class={`nc-category-card ${tone} nc-div-card`}>
+            <div class="nc-category-card-content">
+              <div class="nc-category-card-title">
+                <span class="nc-div-badge">{div.icon} {div.badge}</span>
+                <div>
+                  <h2><a href={`/divisions/${div.id}`}>{div.shortTitle}</a></h2>
+                  <p class="nc-div-stats">
+                    記事 {articles.length}本 · 機能 {div.features.length}基
+                  </p>
+                </div>
+              </div>
+
+              <div class="nc-category-card-description">
+                <p class="nc-div-mission">{div.mission}</p>
+
+                {articles.length > 0 && (
+                  <ul class="nc-div-articles">
+                    {articles.slice(0, 3).map((a) => (
+                      <li>
+                        <a href={`/articles/${a.slug}`}>{a.title}</a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {localOnly && (
+                  <p class="nc-local-note">
+                    ※ 自作Webツール本体は自宅LAN内専用です。構成と再現手順は公開記事をご覧ください。
+                  </p>
+                )}
+
+                <div class="nc-div-actions">
+                  <a href={`/divisions/${div.id}`} class="btn btn-dark">詳細を見る →</a>
+                  {cat && <a href={`/articles?cat=${cat}`} class="btn">関連記事</a>}
+                  {publicExt && (
+                    <a href={publicExt} target="_blank" rel="noopener noreferrer" class="btn">
+                      {div.extLabel || '特設サイト ↗'}
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .nc-divisions-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  @media (min-width: 960px) {
+    .nc-divisions-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .nc-div-card h2 {
+    font-size: 1.35rem;
+    font-weight: 450;
+    margin: 0 0 0.35rem;
+  }
+
+  .nc-div-card h2 a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .nc-div-badge {
+    font-family: var(--nc-font-serif);
+    font-size: 0.84rem;
+    opacity: 0.9;
+  }
+
+  .nc-div-stats {
+    font-size: 0.8rem;
+    opacity: 0.85;
+    margin: 0;
+  }
+
+  .nc-div-mission {
+    font-size: 0.9rem;
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  .nc-div-articles {
+    list-style: none;
+    padding: 0.65rem 0 0;
+    margin: 0;
+    border-top: 1px solid var(--nc-color-gray);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .nc-div-articles li {
+    font-size: 0.83rem;
+    line-height: 1.4;
+  }
+
+  .nc-div-articles a {
+    color: var(--nc-color-charcoal);
+    text-decoration: underline;
+    text-decoration-color: var(--nc-color-tin);
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .nc-div-articles a:hover {
+    text-decoration-color: var(--nc-color-orange);
+  }
+
+  .nc-local-note {
+    font-size: 0.76rem;
+    background-color: var(--nc-color-light-gray);
+    color: var(--nc-color-taupe);
+    padding: 0.45rem 0.65rem;
+    border-radius: 0.5rem;
+    margin: 0;
+  }
+
+  .nc-div-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: auto;
+  }
+
+  .nc-div-actions .btn {
+    font-size: 0.8rem;
+    padding: 0.45rem 0.9rem;
+  }
+</style>

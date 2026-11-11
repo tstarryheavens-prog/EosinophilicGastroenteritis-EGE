@@ -1,0 +1,297 @@
+---
+// CodeBlockEnhancer.astro - テック系ブログ風のコピーボタン付きコードブロック拡張コンポーネント
+---
+
+<style is:global>
+  /* テック系コードブロック コンテナ */
+  .code-block-container {
+    position: relative;
+    margin: 1.75rem 0;
+    background: #0d1117 !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    border-radius: 12px !important;
+    overflow: hidden;
+    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.5);
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+
+  /* ヘッダーバー */
+  .code-block-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.55rem 1rem;
+    background: #161b22;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    user-select: none;
+  }
+
+  /* macOS風3色ドット */
+  .code-block-dots {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .code-block-dots .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .code-block-dots .dot.red {
+    background-color: #ff5f56;
+  }
+
+  .code-block-dots .dot.yellow {
+    background-color: #ffbd2e;
+  }
+
+  .code-block-dots .dot.green {
+    background-color: #27c93f;
+  }
+
+  /* 言語ラベル */
+  .code-block-lang {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #94a3b8;
+    text-transform: uppercase;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    margin-left: 10px;
+    margin-right: auto;
+  }
+
+  /* コピーボタン */
+  .copy-code-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #cbd5e1;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none;
+  }
+
+  .copy-code-btn:hover {
+    background: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+  }
+
+  .copy-code-btn:active {
+    transform: translateY(0);
+  }
+
+  .copy-code-btn.copied {
+    background: rgba(16, 185, 129, 0.2) !important;
+    border-color: #10b981 !important;
+    color: #34d399 !important;
+  }
+
+  .copy-code-btn svg {
+    flex-shrink: 0;
+    transition: transform 0.2s;
+  }
+
+  /* コード本文エリア */
+  .code-block-body {
+    position: relative;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+  }
+
+  .code-block-body pre {
+    margin: 0 !important;
+    padding: 1.1rem 1.25rem !important;
+    overflow-x: auto !important;
+    background: transparent !important;
+    color: #e2e8f0 !important;
+    font-size: 0.88rem !important;
+    line-height: 1.65 !important;
+    font-family: inherit !important;
+    white-space: pre !important;
+  }
+
+  .code-block-body pre code {
+    background: transparent !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    color: inherit !important;
+    font-size: inherit !important;
+    border: none !important;
+  }
+
+  /* スクロールバーのカスタマイズ */
+  .code-block-body pre::-webkit-scrollbar {
+    height: 8px;
+  }
+  .code-block-body pre::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+  }
+  .code-block-body pre::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+  }
+  .code-block-body pre::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.25);
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    function detectLanguage(codeText, preEl) {
+      const codeEl = preEl.querySelector('code');
+      const classStr = ((preEl.className || '') + ' ' + (codeEl ? codeEl.className || '' : '')).toLowerCase();
+      const match = classStr.match(/(?:lang|language)-([a-z0-9_-]+)/i);
+      if (match && match[1]) {
+        return match[1].toUpperCase();
+      }
+
+      const dataLang = preEl.getAttribute('data-language') || (codeEl && codeEl.getAttribute('data-language'));
+      if (dataLang) return dataLang.toUpperCase();
+
+      const trimmed = codeText.trim();
+      if (trimmed.startsWith('{') && (trimmed.endsWith('}') || trimmed.includes('"mcpServers"') || trimmed.includes('"dependencies"'))) {
+        return 'JSON';
+      }
+      if (trimmed.startsWith('#!') || trimmed.startsWith('curl ') || trimmed.startsWith('npm ') || trimmed.startsWith('npx ') || trimmed.startsWith('docker ') || trimmed.startsWith('git ') || trimmed.startsWith('export ') || trimmed.startsWith('python3 ') || trimmed.startsWith('ls ') || trimmed.includes('\\\n') || trimmed.includes(' && ')) {
+        return 'BASH';
+      }
+      if (trimmed.startsWith('import ') || trimmed.startsWith('from ') || trimmed.startsWith('def ') || trimmed.includes('print(')) {
+        return 'PYTHON';
+      }
+      if (trimmed.startsWith('const ') || trimmed.startsWith('let ') || trimmed.startsWith('function ') || trimmed.includes('=>') || trimmed.includes('console.log')) {
+        return 'JAVASCRIPT';
+      }
+      if (trimmed.startsWith('SELECT ') || trimmed.startsWith('INSERT ') || trimmed.startsWith('CREATE TABLE')) {
+        return 'SQL';
+      }
+      if (trimmed.startsWith('<') && (trimmed.endsWith('>') || trimmed.includes('</'))) {
+        return 'HTML';
+      }
+
+      return 'CODE';
+    }
+
+    function enhanceCodeBlocks() {
+      const preElements = document.querySelectorAll('pre');
+      
+      preElements.forEach((pre) => {
+        if (pre.closest('.code-block-container') || pre.classList.contains('enhanced-code')) {
+          return;
+        }
+
+        pre.classList.add('enhanced-code');
+
+        const rawCode = pre.innerText || pre.textContent || '';
+        const lang = detectLanguage(rawCode, pre);
+
+        const container = document.createElement('div');
+        container.className = 'code-block-container';
+
+        const header = document.createElement('div');
+        header.className = 'code-block-header';
+        header.innerHTML = `
+          <div class="code-block-dots">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+          </div>
+          <span class="code-block-lang">${lang}</span>
+          <button class="copy-code-btn" type="button" aria-label="コードをクリップボードにコピー">
+            <svg class="copy-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            <span class="copy-text">コピー</span>
+          </button>
+        `;
+
+        const body = document.createElement('div');
+        body.className = 'code-block-body';
+
+        const parent = pre.parentElement;
+        const isInlineWrapperDiv = parent && 
+          parent.tagName === 'DIV' && 
+          parent.children.length === 1 && 
+          parent.getAttribute('style') && 
+          (parent.getAttribute('style').includes('0f172a') || parent.getAttribute('style').includes('1e293b'));
+
+        if (isInlineWrapperDiv) {
+          parent.parentNode.insertBefore(container, parent);
+          body.appendChild(pre);
+          container.appendChild(header);
+          container.appendChild(body);
+          parent.remove();
+        } else {
+          pre.parentNode.insertBefore(container, pre);
+          body.appendChild(pre);
+          container.appendChild(header);
+          container.appendChild(body);
+        }
+
+        const copyBtn = header.querySelector('.copy-code-btn');
+        const copyTextEl = copyBtn.querySelector('.copy-text');
+        const copyIcon = copyBtn.querySelector('.copy-icon');
+
+        copyBtn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(rawCode.trim());
+            copyBtn.classList.add('copied');
+            copyTextEl.textContent = 'コピー完了！';
+            copyIcon.innerHTML = '<polyline points="20 6 9 17 4 12"></polyline>';
+
+            setTimeout(() => {
+              copyBtn.classList.remove('copied');
+              copyTextEl.textContent = 'コピー';
+              copyIcon.innerHTML = `
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              `;
+            }, 1800);
+          } catch (err) {
+            const textarea = document.createElement('textarea');
+            textarea.value = rawCode.trim();
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            copyBtn.classList.add('copied');
+            copyTextEl.textContent = 'コピー完了！';
+            copyIcon.innerHTML = '<polyline points="20 6 9 17 4 12"></polyline>';
+
+            setTimeout(() => {
+              copyBtn.classList.remove('copied');
+              copyTextEl.textContent = 'コピー';
+              copyIcon.innerHTML = `
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              `;
+            }, 1800);
+          }
+        });
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', enhanceCodeBlocks);
+    } else {
+      enhanceCodeBlocks();
+    }
+    document.addEventListener('astro:page-load', enhanceCodeBlocks);
+  })();
+</script>

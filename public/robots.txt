@@ -1,9 +1,19 @@
+# Eosinophilic Gastroenteritis & AI Living Lab Portal - robots.txt
+
+# --- Google AdSense 広告クローラー（審査・広告配信マッチング優先） ---
+User-agent: Mediapartners-Google
+Allow: /
+
+# --- 一般検索エンジン・クローラー ---
 User-agent: *
 Allow: /
 
-# Google AdSense Crawler
-User-agent: Mediapartners-Google
-Allow: /
+# --- 運営側（CMS・API・内部機能）: クロール除外 ---
+Disallow: /_emdash
+Disallow: /ops-login
+Disallow: /api/
+Disallow: /draft
+Disallow: /preview
 
 # Sitemap
 Sitemap: https://eosinophilicgastroenteritis-ege.pages.dev/sitemap-index.xml

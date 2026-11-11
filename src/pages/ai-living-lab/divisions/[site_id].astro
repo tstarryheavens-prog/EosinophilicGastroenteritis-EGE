@@ -1,0 +1,683 @@
+---
+export const prerender = false;
+import BaseLayout from '../../../layouts/SmartAIBaseLayout.astro';
+import AdBanner from '../../../components/AdBanner.astro';
+import { ARTICLES } from '../../../data/articles';
+import { DIVISIONS_DATA, type Division } from '../../../data/divisions';
+import { env } from 'cloudflare:workers';
+import { isInternalSiteId, internalQuotedList } from '../../../data/public_scope';
+import { LOCAL_ADDRESS_REGEX } from '../../../data/ops_config';
+
+const isLocalUrl = (u?: string): boolean => !!u && LOCAL_ADDRESS_REGEX.test(u);
+
+const { site_id } = Astro.params;
+
+// モータ学術論文など内部専用テーマは公開面では 404（運営面 = NAS HUD / NAS WebUI :8520 でのみ扱う）
+if (isInternalSiteId(site_id)) {
+  return new Response('Not Found', {
+    status: 404,
+    headers: {
+      'content-type': 'text/plain; charset=utf-8',
+      'cache-control': 'private, no-store, max-age=0',
+      'x-robots-tag': 'noindex, nofollow',
+    },
+  });
+}
+
+const allDivisions = Object.values(DIVISIONS_DATA).filter((d: any) => !isInternalSiteId(d?.id));
+
+// 存在しないテーマ ID には汎用ページを作らない（"?site=..." のような誤入力や `/divisions/<id>&x=1` は 404）
+if (!site_id || !DIVISIONS_DATA[site_id]) {
+  return new Response('Not Found', {
+    status: 404,
+    headers: {
+      'content-type': 'text/plain; charset=utf-8',
+      'cache-control': 'private, no-store, max-age=0',
+      'x-robots-tag': 'noindex, nofollow',
+    },
+  });
+}
+
+const currentDiv: Division = (site_id && DIVISIONS_DATA[site_id]) ? DIVISIONS_DATA[site_id] : {
+  id: site_id || 'unknown',
+  title: `Smart AI Life ラボ (${site_id})`,
+  shortTitle: site_id || 'ラボ',
+  subtitle: 'EmDash CMS 統合ドキュメントハブ',
+  icon: '🏢',
+  badge: 'Specialized Lab',
+  badgeColor: '#1f1f1c',
+  themeColor: '#1f1f1c',
+  themeBg: '#ecebe7',
+  themeBorder: '#1f1f1c',
+  themeText: '#1f1f1c',
+  status: 'active',
+  statusLabel: '本番稼働中',
+  path: `/Volumes/Docker/${site_id}`,
+  monetization: 'AdBanner ＋ 送客ハブ',
+  mission: '特化領域の課題をAIと自動化ツールで解決する。',
+  overview: 'Smart AI Life 傘下のラボ。',
+  features: [],
+  roadmap: [],
+  stats: { toolsCount: 1, updateFrequency: '随時', kpi: 'コンテンツ・ツール価値最大化' },
+  techStack: ['Astro', 'Cloudflare Pages'],
+  adSite: 'smartailife',
+};
+
+const HERO_TONE_MAP: Record<string, string> = {
+  'ai-hems': 'hero-sun',
+  'wakwak-money': 'hero-green',
+  'toyotahome': 'hero-tin',
+  'nanbyo': 'hero-orange',
+  'aichi-high': 'hero-sun',
+  'hobby-labs': 'hero-tin',
+  'smartailife': 'hero-tin',
+};
+const heroTone = HERO_TONE_MAP[currentDiv.id] || 'hero-tin';
+
+let dbPosts: any[] = [];
+try {
+  const cfEnv = env as any;
+  const db = cfEnv?.DB || (Astro.locals as any)?.runtime?.env?.DB;
+  if (db) {
+    // LIMIT 50 固定だと 51 本目以降が二度と辿れないため、LIMIT/OFFSET で全件取り切る
+    const CHUNK = 100;
+    for (let offset = 0; offset < 1000; offset += CHUNK) {
+      const res = await db.prepare(
+        `SELECT id, slug, title, excerpt, published_at, site_id FROM ec_posts WHERE site_id = ? ORDER BY published_at DESC LIMIT ${CHUNK} OFFSET ${offset}`
+      ).bind(site_id).all();
+      const rows = res?.results || [];
+      dbPosts = dbPosts.concat(rows);
+      if (rows.length < CHUNK) break;
+    }
+  }
+} catch {}
+
+const staticPosts = ARTICLES.filter((a) => a.siteId === site_id || (site_id === 'aichi-high' && a.category === 'education'));
+const staticSlugs = new Set(staticPosts.map((p) => p.slug));
+const uniqueDbPosts = dbPosts.filter((p) => p.slug && !staticSlugs.has(p.slug));
+const totalArticles = uniqueDbPosts.length + staticPosts.length;
+// テーマページには最新 30 本まで。残りは /articles?site=<id> の一覧（全件＋ページ送り）へ
+const PREVIEW_LIMIT = 30;
+const previewStatic = staticPosts.slice(0, PREVIEW_LIMIT);
+const previewDb = uniqueDbPosts.slice(0, Math.max(0, PREVIEW_LIMIT - previewStatic.length));
+---
+
+<BaseLayout
+  title={`${currentDiv.title} ｜ Smart AI Life`}
+  description={currentDiv.subtitle}
+>
+  <!-- 1. Nabu Casa Rounded Hero Banner -->
+  <section class={`nc-hero ${heroTone}`}>
+    <div class="nc-hero-inner">
+      <p class="eyebrow" style="color: inherit; opacity: 0.82;">{currentDiv.icon} {currentDiv.badge} · {currentDiv.statusLabel}</p>
+      <h1 class="nc-hero-title">{currentDiv.title}</h1>
+      <p class="nc-hero-lead">{currentDiv.subtitle}</p>
+    </div>
+  </section>
+
+  <!-- 2. Nabu Casa Sub-Hero Row: Breadcrumbs + Pill Search -->
+  <section class="nc-sub-hero">
+    <div class="nc-sub-hero-row">
+      <ol class="nc-breadcrumbs" aria-label="パンくずリスト">
+        <li><a href="/">Smart AI Life</a></li>
+        <li><a href="/divisions">7つのラボ</a></li>
+        <li><span>{currentDiv.shortTitle}</span></li>
+      </ol>
+
+      <form class="nc-search-wrapper small" action="/articles" method="get" role="search">
+        <div class="nc-search-field">
+          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M13.5 13.5L17.5 17.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <input
+            type="search"
+            name="q"
+            class="nc-search-input"
+            placeholder="記事を検索..."
+            aria-label="記事を検索"
+          />
+        </div>
+        <button type="submit" class="btn btn-dark">検索</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- 3. Nabu Casa 3-Column Layout (Left Sticky TOC & Lab Switcher | Center Main Content | Right Sidebar Cards) -->
+  <div class="nc-container" style="padding-bottom: 3rem;">
+    <div class="nc-article-layout has-toc">
+      <!-- Left Sticky Column: On this page + Topic Lab Switcher -->
+      <aside class="nc-div-toc" aria-label="ラボ内ナビゲーション">
+        <p class="nc-toc-heading">On this page</p>
+        <ul class="nc-toc-links">
+          <li><a href="#section-articles" class="is-active">📚 公開記事 ({totalArticles}本)</a></li>
+          <li><a href="#section-mission">🎯 ミッション＆概要</a></li>
+          <li><a href="#section-features">⚡ 搭載機能 ({currentDiv.features.length}基)</a></li>
+        </ul>
+
+        <p class="nc-toc-heading" style="margin-top: 1.75rem;">Labs</p>
+        <ul class="nc-toc-links">
+          {allDivisions.map((d) => (
+            <li>
+              <a
+                href={d.id === 'smartailife' ? '/' : `/divisions/${d.id}`}
+                class={d.id === currentDiv.id ? 'is-active' : ''}
+              >
+                {d.icon} {d.shortTitle}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </aside>
+
+      <!-- Center Main Column -->
+      <div class="nc-div-main">
+        <!-- Published Articles Section -->
+        <section id="section-articles" class="nc-section">
+          <div class="nc-sec-header">
+            <div>
+              <p class="eyebrow">Published Documentation</p>
+              <h2>公開中の実践記事アーカイブ（全 {totalArticles} 本）</h2>
+            </div>
+          </div>
+
+          {totalArticles === 0 ? (
+            <div class="nc-empty-box">現在このテーマの記事を準備中です。</div>
+          ) : (
+            <div class="nc-div-articles-list">
+              {previewStatic.map((post) => (
+                <a href={`/articles/${post.slug}`} class="nc-div-article-item">
+                  <div>
+                    <span class="nc-sun-pill">{post.categoryLabel}</span>
+                    <h3>{post.title}</h3>
+                    <p>{post.excerpt}</p>
+                  </div>
+                  <span class="nc-arrow-circle" aria-hidden="true">→</span>
+                </a>
+              ))}
+              {previewDb.map((p) => (
+                <a href={`/articles/${p.slug}`} class="nc-div-article-item">
+                  <div>
+                    <span class="nc-sun-pill">EmDash CMS</span>
+                    <h3>{p.title}</h3>
+                    <p>{p.excerpt || p.title}</p>
+                  </div>
+                  <span class="nc-arrow-circle" aria-hidden="true">→</span>
+                </a>
+              ))}
+              {totalArticles > previewStatic.length + previewDb.length && (
+                <div style="grid-column: 1 / -1; margin-top: .75rem;">
+                  <a class="btn btn-dark" href={`/articles?site=${site_id}`}>
+                    このテーマの公開記事 全 {totalArticles} 本を一覧で見る（ページ送り付き）→
+                  </a>
+                </div>
+              )}
+            </div>
+          )}
+        </section>
+
+        <!-- Mission & Overview -->
+        <section id="section-mission" class="nc-section nc-gray-panel">
+          <p class="eyebrow">Mission & Architecture</p>
+          <h2>ラボミッション＆運用概要</h2>
+          <blockquote class="nc-mission-quote">{currentDiv.mission}</blockquote>
+          <p style="line-height: 1.7; margin-bottom: 1rem;">{currentDiv.overview}</p>
+          {currentDiv.techStack && currentDiv.techStack.length > 0 && (
+            <div class="nc-tech-pills">
+              {currentDiv.techStack.map((tech) => (
+                <span class="nc-tech-pill">{tech}</span>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <!-- Capabilities & Features -->
+        <section id="section-features" class="nc-section">
+          <div class="nc-sec-header">
+            <div>
+              <p class="eyebrow">Capabilities & Automation</p>
+              <h2>搭載機能・自作システム一覧（{currentDiv.features.length}基）</h2>
+            </div>
+          </div>
+
+          <div class="nc-features-grid">
+            {currentDiv.features.map((feat) => (
+              <div class="nc-feat-card">
+                <div class="nc-feat-top">
+                  <span class="nc-sun-pill">{feat.tag}</span>
+                  <span class="nc-feat-status">{feat.status === 'live' ? '本番稼働' : '自動稼働'}</span>
+                </div>
+                <h3>{feat.name}</h3>
+                <p>{feat.description}</p>
+                {feat.link && !isLocalUrl(feat.link) && (
+                  <div style="margin-top: auto; padding-top: 0.5rem;">
+                    <a
+                      href={feat.link}
+                      target={feat.link.startsWith('http') ? '_blank' : undefined}
+                      rel={feat.link.startsWith('http') ? 'noopener noreferrer' : undefined}
+                      class="btn btn-dark"
+                      style="font-size: 0.82rem; padding: 0.45rem 1rem;"
+                    >
+                      {feat.link.startsWith('http') ? '特設サイトを開く ↗' : '解説記事を読む →'}
+                    </a>
+                  </div>
+                )}
+                {(feat.localLink || (feat.link && isLocalUrl(feat.link))) && (
+                  <p class="nc-local-badge">※ 自宅LAN内専用ツール（記事にて手順公開中）</p>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <AdBanner siteId={currentDiv.adSite} />
+      </div>
+
+      <!-- Right Sidebar Column: Nabu Casa Item Cards -->
+      <aside class="nc-item-cards" aria-label="ラボ概要カード">
+        <div class="nc-item-card product">
+          <p class="eyebrow">Lab Metrics</p>
+          <h3>{currentDiv.shortTitle}</h3>
+          <p>公開記事: {totalArticles}本 · 稼働ツール: {currentDiv.features.length}基 · 更新: {currentDiv.stats.updateFrequency}</p>
+          <div style="margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem;">
+            {currentDiv.extUrl && !isLocalUrl(currentDiv.extUrl) && (
+              <a href={currentDiv.extUrl} target="_blank" rel="noopener noreferrer" class="btn btn-light">
+                {currentDiv.extLabel || '特設サイト ↗'}
+              </a>
+            )}
+            {currentDiv.ghUrl && (
+              <a href={currentDiv.ghUrl} target="_blank" rel="noopener noreferrer" class="btn btn-light">
+                GitHub ↗
+              </a>
+            )}
+          </div>
+        </div>
+
+        <div class="nc-item-card primary">
+          <h3>他のラボを探す</h3>
+          <p>Smart AI Lifeの7つのラボから、興味のある分野のドキュメントへ移動できます。</p>
+          <div style="margin-top: 0.5rem;">
+            <a href="/divisions" class="btn btn-dark">全8ラボ一覧へ →</a>
+          </div>
+        </div>
+
+        <a href="/articles" class="nc-item-card">
+          <h3>全記事インデックス</h3>
+          <p>すべての分野を横断してキーワード・タグで記事を検索します。</p>
+        </a>
+      </aside>
+    </div>
+  </div>
+</BaseLayout>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', function() {
+    var searchInput = document.getElementById('wb-paper-search');
+    var filterPills = document.querySelectorAll('.wb-pill');
+    var sampleItems = document.querySelectorAll('.wb-paper-item');
+    if (!sampleItems.length) return;
+
+    var currentFilter = 'all';
+
+    function applyFilter() {
+      var q = (searchInput ? searchInput.value : '').toLowerCase().trim();
+      sampleItems.forEach(function(item) {
+        var text = (item.getAttribute('data-title') || '').toLowerCase();
+        var matchesQuery = !q || q.split(/\s+/).every(function(t) { return text.indexOf(t) !== -1; });
+        var matchesPill = true;
+        if (currentFilter === 'reviewed') {
+          matchesPill = text.indexOf('解説') !== -1;
+        } else if (currentFilter === 'maxwell') {
+          matchesPill = text.indexOf('maxwell') !== -1 || text.indexOf('応力') !== -1 || text.indexOf('ローレンツ') !== -1;
+        } else if (currentFilter === 'sic') {
+          matchesPill = text.indexOf('sic') !== -1 || text.indexOf('gan') !== -1 || text.indexOf('インバータ') !== -1;
+        } else if (currentFilter === 'wffsm') {
+          matchesPill = text.indexOf('wffsm') !== -1 || text.indexOf('wound') !== -1 || text.indexOf('巻線') !== -1;
+        } else if (currentFilter === 'hairpin') {
+          matchesPill = text.indexOf('hairpin') !== -1 || text.indexOf('ヘアピン') !== -1 || text.indexOf('平角線') !== -1;
+        }
+        item.style.display = matchesQuery && matchesPill ? '' : 'none';
+      });
+    }
+
+    if (searchInput) searchInput.addEventListener('input', applyFilter);
+    filterPills.forEach(function(pill) {
+      pill.addEventListener('click', function() {
+        filterPills.forEach(function(p) {
+          p.classList.remove('is-active', 'btn-dark');
+        });
+        pill.classList.add('is-active', 'btn-dark');
+        currentFilter = pill.getAttribute('data-filter') || 'all';
+        applyFilter();
+      });
+    });
+  });
+</script>
+
+<style>
+  .nc-div-toc {
+    border-left: 1px solid var(--nc-color-gray);
+    padding-left: 1rem;
+  }
+
+  @media (min-width: 1024px) {
+    .nc-div-toc {
+      position: sticky;
+      top: 1.5rem;
+    }
+  }
+
+  .nc-toc-heading {
+    font-family: var(--nc-font-serif);
+    font-size: 1.05rem;
+    font-weight: 300;
+    color: var(--nc-color-taupe);
+    margin: 0 0 0.65rem;
+    padding-left: 0.5rem;
+  }
+
+  .nc-toc-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .nc-toc-links a {
+    display: block;
+    font-size: 0.85rem;
+    padding: 0.42rem 0.65rem;
+    border-radius: 0.5rem;
+    color: var(--nc-color-charcoal);
+    text-decoration: none !important;
+  }
+
+  .nc-toc-links a:hover {
+    background-color: var(--nc-color-light-gray);
+  }
+
+  .nc-toc-links a.is-active {
+    background-color: var(--nc-color-sun);
+    font-weight: 450;
+  }
+
+  .nc-div-main {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  .nc-sec-header {
+    margin-bottom: 1.25rem;
+  }
+
+  .nc-sec-header h2 {
+    margin: 0;
+  }
+
+  .nc-sun-pill {
+    display: inline-block;
+    font-size: 0.74rem;
+    font-weight: 500;
+    background-color: var(--nc-color-sun);
+    color: var(--nc-color-charcoal);
+    padding: 0.18rem 0.6rem;
+    border-radius: 999px;
+  }
+
+  .nc-div-articles-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .nc-div-article-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    background-color: var(--nc-color-gray);
+    border-radius: var(--nc-radius-md);
+    padding: 1.25rem 1.5rem;
+    color: var(--nc-color-charcoal);
+    text-decoration: none !important;
+    transition: background-color 0.2s ease;
+  }
+
+  .nc-div-article-item:hover {
+    background-color: var(--nc-color-sun);
+  }
+
+  .nc-div-article-item h3 {
+    font-size: 1.15rem;
+    font-weight: 450;
+    margin: 0.4rem 0 0.3rem;
+  }
+
+  .nc-div-article-item p {
+    font-size: 0.88rem;
+    opacity: 0.84;
+    margin: 0;
+  }
+
+  .nc-arrow-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    background-color: var(--nc-color-charcoal);
+    color: var(--nc-color-white);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .nc-gray-panel {
+    background-color: var(--nc-color-gray);
+    border-radius: var(--nc-radius-md);
+    padding: 1.75rem;
+  }
+
+  .nc-mission-quote {
+    border-left: 0.25rem solid var(--nc-color-orange);
+    background-color: var(--nc-color-white);
+    padding: 1rem 1.25rem;
+    border-radius: 0 0.75rem 0.75rem 0;
+    font-weight: 450;
+    margin: 1rem 0;
+  }
+
+  .nc-tech-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .nc-tech-pill {
+    font-size: 0.78rem;
+    background-color: var(--nc-color-white);
+    padding: 0.25rem 0.7rem;
+    border-radius: 999px;
+  }
+
+  .nc-features-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .nc-features-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .nc-feat-card {
+    background-color: var(--nc-color-gray);
+    border-radius: var(--nc-radius-md);
+    padding: 1.35rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .nc-feat-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .nc-feat-status {
+    font-family: var(--nc-font-serif);
+    font-size: 0.78rem;
+    color: var(--nc-color-taupe);
+  }
+
+  .nc-feat-card h3 {
+    font-size: 1.1rem;
+    margin: 0;
+  }
+
+  .nc-feat-card p {
+    font-size: 0.86rem;
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  .nc-local-badge {
+    font-size: 0.76rem;
+    color: var(--nc-color-taupe);
+    background-color: var(--nc-color-white);
+    padding: 0.4rem 0.65rem;
+    border-radius: 0.5rem;
+    margin-top: auto;
+  }
+
+  /* Motor Workbench Nabu Casa Styling */
+  .nc-wb-section {
+    background-color: var(--nc-color-gray);
+    border-radius: var(--nc-radius-md);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .nc-wb-briefing {
+    background-color: var(--nc-color-white);
+    border-radius: 0.75rem;
+    padding: 1rem 1.25rem;
+  }
+
+  .nc-wb-briefing-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.82rem;
+    color: var(--nc-color-taupe);
+    margin-bottom: 0.75rem;
+  }
+
+  .nc-wb-highlights {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+  }
+
+  @media (min-width: 768px) {
+    .nc-wb-highlights {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .nc-wb-highlight-card {
+    background-color: var(--nc-color-light-gray);
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .nc-wb-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .nc-wb-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+
+  .nc-wb-pills .btn {
+    background-color: var(--nc-color-white);
+    font-size: 0.8rem;
+    padding: 0.4rem 0.85rem;
+  }
+
+  .nc-wb-pills .btn.btn-dark {
+    background-color: var(--nc-color-charcoal);
+    color: var(--nc-color-white);
+  }
+
+  .nc-wb-columns {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  @media (min-width: 960px) {
+    .nc-wb-columns {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .nc-wb-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-height: 540px;
+    overflow-y: auto;
+    padding-right: 0.25rem;
+  }
+
+  .nc-wb-card {
+    background-color: var(--nc-color-white);
+    border-radius: 0.75rem;
+    padding: 1rem 1.15rem;
+  }
+
+  .nc-wb-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.76rem;
+    color: var(--nc-color-taupe);
+    margin-bottom: 0.4rem;
+  }
+
+  .nc-wb-card h4 {
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin: 0 0 0.25rem;
+  }
+
+  .nc-wb-en {
+    font-size: 0.78rem;
+    color: var(--nc-color-taupe);
+    margin: 0 0 0.45rem;
+  }
+
+  .nc-wb-reason {
+    font-size: 0.8rem;
+    background-color: var(--nc-color-light-gray);
+    padding: 0.55rem 0.75rem;
+    border-radius: 0.5rem;
+    margin: 0 0 0.5rem;
+  }
+</style>

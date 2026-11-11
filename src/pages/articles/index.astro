@@ -1,0 +1,455 @@
+---
+export const prerender = false;
+import BaseLayout from '../../layouts/SmartAIBaseLayout.astro';
+import { ARTICLES, type Article } from '../../data/articles';
+import { HATENA_BLOG_URL } from '../../data/projects';
+import AdBanner from '../../components/AdBanner.astro';
+import { env } from 'cloudflare:workers';
+import { INTERNAL_SITE_IDS, isInternalSiteId, isInternalSlug, isPublicArticle, internalQuotedList } from '../../data/public_scope';
+
+const categories = [
+  { id: 'all', label: 'すべての記事' },
+  { id: 'energy', label: '⚡ エネルギー・HEMS' },
+  { id: 'education', label: '🎓 高校受験・100歳家計' },
+  { id: 'automation', label: '🏡 住まい・書類・難病医療' },
+  { id: 'decision', label: '🤖 AI・業務自動化' },
+  { id: 'cloud', label: '☁️ 自作PC・ローカルLLM' },
+  { id: 'office', label: '📊 Office・資料自動化' },
+];
+
+const SITE_CAT_MAP: Record<string, { category: Article['category']; label: string }> = {
+  'aichi-high': { category: 'education', label: '🎓 愛知高校受験ナビ' },
+  'wakwak-money': { category: 'education', label: '💰 ワクワク家計・100歳CF' },
+  'toyotahome': { category: 'automation', label: '🏠 トヨタホーム建築実録' },
+  'nanbyo': { category: 'automation', label: '🩺 難病・医療データ記録' },
+  'ai-hems': { category: 'energy', label: '⚡ AI Home HEMS' },
+  'hobby-labs': { category: 'automation', label: '🎨 ホビー・特撮ラボ' },
+};
+
+// 静的配列に内部専用サイト（モータ学術論文など）の記事が混ざっている場合も公開一覧から落とす
+const allArticles: Article[] = ARTICLES.filter((a) => isPublicArticle(a));
+const seenSlugs = new Set(allArticles.map((a) => a.slug));
+
+const requestedCat = (Astro.url.searchParams.get('cat') || 'all').trim();
+const activeCat = categories.some((c) => c.id === requestedCat) ? requestedCat : 'all';
+const initialQuery = (Astro.url.searchParams.get('q') || '').trim();
+// テーマ（ラボ）単位の絞り込み。テーマページからの導線は /articles?site=<id> を使う
+const requestedSite = (Astro.url.searchParams.get('site') || '').trim();
+const activeSite = Object.keys(SITE_CAT_MAP).includes(requestedSite) ? requestedSite : '';
+
+try {
+  const db = (env as any)?.DB || (Astro.locals as any)?.runtime?.env?.DB;
+  if (db) {
+    // D1 は 1 回の .all() で返せる行数に上限があるため、LIMIT/OFFSET で全件取り切る
+    // （LIMIT 200 固定だと 200 件超の記事が一覧から永遠に辿れなくなる）
+    const CHUNK = 100;
+    const MAX_ROWS = 1500;
+    for (let offset = 0; offset < MAX_ROWS; offset += CHUNK) {
+      const res: any = await db
+        .prepare(`SELECT id, slug, title, excerpt, published_at, created_at, site_id FROM ec_posts WHERE status = 'published' AND (deleted_at IS NULL) AND site_id NOT IN (${internalQuotedList()}) ORDER BY published_at DESC LIMIT ${CHUNK} OFFSET ${offset}`)
+        .all();
+      const rows = res?.results || [];
+      for (const p of rows) {
+        if (!p.slug || seenSlugs.has(p.slug)) continue;
+        seenSlugs.add(p.slug);
+        const mapped = SITE_CAT_MAP[p.site_id || ''] || { category: 'automation', label: '実践ハック' };
+        allArticles.push({
+          slug: p.slug,
+          title: p.title || '無題',
+          excerpt: p.excerpt || p.title || '',
+          category: mapped.category,
+          categoryLabel: mapped.label,
+          tags: [p.site_id || 'SmartAILife', 'EmDash'],
+          date: (p.published_at || p.created_at || '2026-10-21').slice(0, 10),
+          readTime: '6分',
+          draftFile: '',
+          siteId: p.site_id || 'smartailife',
+        });
+      }
+      if (rows.length < CHUNK) break;
+    }
+  }
+} catch {}
+
+// サーバー側ページ送り（1ページ 48 本）。カテゴリ絞り込みはページング前に適用する
+const PAGE_SIZE = 48;
+const filteredArticles = allArticles.filter((a) => {
+  const catOk = activeCat === 'all' || a.category === activeCat;
+  const siteOk = !activeSite || (a.siteId || '') === activeSite;
+  return catOk && siteOk;
+});
+const totalArticles = filteredArticles.length;
+const pageCount = Math.max(1, Math.ceil(totalArticles / PAGE_SIZE));
+const rawPage = Number.parseInt(Astro.url.searchParams.get('page') || '1', 10);
+const currentPage = Math.min(Math.max(1, Number.isFinite(rawPage) ? rawPage : 1), pageCount);
+const pageStart = totalArticles === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1;
+const pageEnd = Math.min(currentPage * PAGE_SIZE, totalArticles);
+const pageArticles = filteredArticles.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+const pageHref = (p: number): string => {
+  const params = new URLSearchParams();
+  if (activeCat !== 'all') params.set('cat', activeCat);
+  if (activeSite) params.set('site', activeSite);
+  if (initialQuery) params.set('q', initialQuery);
+  if (p > 1) params.set('page', String(p));
+  const qs = params.toString();
+  return `/articles${qs ? `?${qs}` : ''}`;
+};
+---
+
+<BaseLayout
+  title="実践ハック記事一覧 ｜ Smart AI Life Knowledge Base"
+  description="生成AI、自作HEMS、未整理書類のOCR自動仕分け、100歳家計シミュレーション、ローカルLLM構築などの実践記録アーカイブ。"
+>
+  <!-- 1. Nabu Casa Rounded Hero Banner -->
+  <section class="nc-hero hero-tin">
+    <div class="nc-hero-inner">
+      <p class="eyebrow" style="color: var(--nc-color-charcoal); opacity: 0.78;">Documentation & Articles Archive</p>
+      <h1 class="nc-hero-title">実践ハック＆技術解説アーカイブ</h1>
+      <p class="nc-hero-lead">
+        日常の生活課題を生成AI・自作ハードウェア・コードで解決した全 {allArticles.length} 本の検証記事。システム構成、導入手順、実測データを公開しています。
+      </p>
+    </div>
+  </section>
+
+  <!-- 2. Nabu Casa Sub-Hero Row: Breadcrumbs + Live Search Bar -->
+  <section class="nc-sub-hero">
+    <div class="nc-sub-hero-row">
+      <ol class="nc-breadcrumbs" aria-label="パンくずリスト">
+        <li><a href="/">Smart AI Life</a></li>
+        <li><span>実践記事一覧 {activeSite ? `（${SITE_CAT_MAP[activeSite]?.label || activeSite}: ${totalArticles}本）` : `(${allArticles.length}本)`}</span></li>
+      </ol>
+
+      <form class="nc-search-wrapper small" id="articles-search-form" action="/articles" method="get" role="search">
+        <div class="nc-search-field">
+          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M13.5 13.5L17.5 17.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <input
+            type="search"
+            id="articles-search-input"
+            name="q"
+            value={initialQuery}
+            class="nc-search-input"
+            placeholder="記事タイトル・タグで絞り込み..."
+            aria-label="記事を検索"
+          />
+        </div>
+        <button type="submit" class="btn btn-dark">検索</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- 3. Main Content Container -->
+  <div class="nc-container" style="padding-bottom: 3rem;">
+    {activeSite && (
+      <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin:0 0 1rem;">
+        <span class="btn btn-dark" style="pointer-events:none;">テーマ絞り込み: {SITE_CAT_MAP[activeSite]?.label || activeSite}</span>
+        <span style="font-variant-numeric:tabular-nums;font-size:.9rem;opacity:.8;">{totalArticles} 本</span>
+        <a href={activeCat !== 'all' ? `/articles?cat=${activeCat}` : '/articles'} class="btn btn-light">テーマ絞り込みを解除</a>
+      </div>
+    )}
+    <!-- Category Filter Pills (Nabu Casa Pill Buttons) -->
+    <div class="nc-filter-bar" role="tablist" aria-label="記事カテゴリ絞り込み">
+      {categories.map((cat) => (
+        <button
+          type="button"
+          class={`btn cat-filter-btn ${cat.id === activeCat ? 'btn-dark active' : ''}`}
+          data-filter={cat.id}
+          role="tab"
+          aria-selected={cat.id === activeCat ? 'true' : 'false'}
+        >
+          {cat.label}
+        </button>
+      ))}
+    </div>
+
+    <div class="nc-home-layout">
+      <!-- Left Main Column: Article Cards Grid -->
+      <div>
+        <div class="nc-articles-grid" id="articles-grid">
+          {pageArticles.map((article) => (
+            <article
+              class="nc-doc-card article-magazine-card"
+              data-category={article.category}
+              data-search={`${article.title} ${article.excerpt} ${article.categoryLabel} ${article.tags.join(' ')}`.toLowerCase()}
+              style={activeCat !== 'all' && article.category !== activeCat ? 'display:none;' : undefined}
+            >
+              <div class="nc-doc-card-inner">
+                <div class="nc-doc-meta">
+                  <span class="nc-doc-cat">{article.categoryLabel}</span>
+                  <time datetime={article.date}>{article.date}</time>
+                  <span>· {article.readTime}</span>
+                </div>
+
+                <h2 class="nc-doc-title">
+                  <a href={`/articles/${article.slug}`}>{article.title}</a>
+                </h2>
+
+                <p class="nc-doc-excerpt">{article.excerpt}</p>
+
+                <div class="nc-doc-footer">
+                  <div class="nc-doc-tags">
+                    {article.tags.slice(0, 4).map((tag) => (
+                      <span class="nc-doc-tag">#{tag}</span>
+                    ))}
+                  </div>
+                  <a href={`/articles/${article.slug}`} class="nc-doc-cta" aria-label={`${article.title} を読む`}>
+                    <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                      <path d="M3.5 8H12.5M12.5 8L8.5 4M12.5 8L8.5 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        {pageCount > 1 && (
+          <nav
+            class="nc-pager"
+            aria-label="記事一覧のページ送り"
+            style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;margin:1.25rem 0 .5rem;"
+          >
+            {currentPage > 1 ? (
+              <a href={pageHref(currentPage - 1)} class="btn btn-light" rel="prev">← 前の {Math.min(PAGE_SIZE, pageStart - 1)} 本</a>
+            ) : (
+              <span class="btn btn-light" style="opacity:.45;" aria-hidden="true">← 前へ</span>
+            )}
+            <span style="font-variant-numeric:tabular-nums;font-size:.92rem;opacity:.85;">
+              {pageStart}–{pageEnd} / {totalArticles} 本（{currentPage} / {pageCount} ページ）
+            </span>
+            {currentPage < pageCount ? (
+              <a href={pageHref(currentPage + 1)} class="btn btn-dark" rel="next">次の {Math.min(PAGE_SIZE, totalArticles - pageEnd)} 本 →</a>
+            ) : (
+              <span class="btn btn-light" style="opacity:.45;" aria-hidden="true">次へ →</span>
+            )}
+          </nav>
+        )}
+        {pageCount > 1 && (
+          <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin:0 0 1rem;">
+            {Array.from({ length: pageCount }, (_, i) => i + 1)
+              .slice(Math.max(0, currentPage - 4), currentPage + 3)
+              .map((p) => (
+                <a
+                  href={pageHref(p)}
+                  class={`btn ${p === currentPage ? 'btn-dark active' : 'btn-light'}`}
+                  style="min-width:2.4rem;text-align:center;"
+                  aria-current={p === currentPage ? 'page' : undefined}
+                >
+                  {p}
+                </a>
+              ))}
+          </div>
+        )}
+
+        <AdBanner siteId="smartailife" />
+      </div>
+
+      <!-- Right Sidebar Column: Nabu Casa Item Cards -->
+      <aside class="nc-item-cards" aria-label="ラボ案内">
+        <div class="nc-item-card primary">
+          <h3>テーマ別ラボから探す</h3>
+          <p>7つのラボごとに、関連する自作ツールと実践記事を体系化しています。</p>
+          <div style="margin-top: 0.5rem;">
+            <a href="/divisions" class="btn btn-dark">7つのラボ一覧 →</a>
+          </div>
+        </div>
+
+        <div class="nc-item-card product">
+          <p class="eyebrow">Featured Lab</p>
+          <h3>総合AIハック・自律エージェント</h3>
+          <p>自作 GPU クラスタ・ローカルLLM・日本語OCR書類仕分け・スマートホーム自動化の実践記録。</p>
+          <div style="margin-top: 0.5rem;">
+            <a href="/divisions/smartailife" class="btn btn-light">総合AIハックラボへ →</a>
+          </div>
+        </div>
+
+        <a href={HATENA_BLOG_URL} target="_blank" rel="noopener noreferrer" class="nc-item-card">
+          <h3>公式はてなブログ連載 ↗</h3>
+          <p>日々の細かい実験ログや住宅ローンの返済記録は「はてなブログ」でもリアルタイム更新中。</p>
+        </a>
+      </aside>
+    </div>
+  </div>
+
+  <script is:inline>
+    (function () {
+      var buttons = document.querySelectorAll('.cat-filter-btn');
+      var cards = document.querySelectorAll('.article-magazine-card');
+      var searchInput = document.getElementById('articles-search-input');
+      var searchForm = document.getElementById('articles-search-form');
+      var currentFilter = document.querySelector('.cat-filter-btn.active')?.getAttribute('data-filter') || 'all';
+
+      function applyFilters() {
+        var q = (searchInput ? searchInput.value : '').toLowerCase().trim();
+        cards.forEach(function (card) {
+          var cat = card.getAttribute('data-category');
+          var hay = card.getAttribute('data-search') || '';
+          var catMatch = currentFilter === 'all' || cat === currentFilter;
+          var qMatch = !q || hay.indexOf(q) !== -1;
+          card.style.display = catMatch && qMatch ? '' : 'none';
+        });
+      }
+
+      buttons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          currentFilter = btn.getAttribute('data-filter') || 'all';
+          buttons.forEach(function (b) {
+            var isAct = b === btn;
+            b.classList.toggle('active', isAct);
+            b.classList.toggle('btn-dark', isAct);
+            b.setAttribute('aria-selected', isAct ? 'true' : 'false');
+          });
+          applyFilters();
+        });
+      });
+
+      if (searchInput) {
+        searchInput.addEventListener('input', applyFilters);
+      }
+      if (searchForm) {
+        searchForm.addEventListener('submit', function (e) {
+          e.preventDefault();
+          applyFilters();
+        });
+      }
+      if (searchInput && searchInput.value) {
+        applyFilters();
+      }
+    })();
+  </script>
+</BaseLayout>
+
+<style>
+  .nc-filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .nc-articles-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .nc-articles-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .nc-doc-card {
+    background-color: var(--nc-color-gray);
+    border-radius: var(--nc-radius-md);
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.2s ease, background-color 0.2s ease;
+  }
+
+  .nc-doc-card:hover {
+    background-color: var(--nc-color-sun);
+    box-shadow: var(--nc-ring);
+  }
+
+  .nc-doc-card-inner {
+    background-color: var(--nc-color-white);
+    border-radius: calc(var(--nc-radius-md) - 0.25rem);
+    padding: 1.35rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex: 1;
+  }
+
+  .nc-doc-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem;
+    font-family: var(--nc-font-serif);
+    font-size: 0.82rem;
+    color: var(--nc-color-taupe);
+  }
+
+  .nc-doc-cat {
+    font-family: var(--nc-font-sans);
+    font-size: 0.75rem;
+    font-weight: 500;
+    background-color: var(--nc-color-gray);
+    color: var(--nc-color-charcoal);
+    padding: 0.18rem 0.6rem;
+    border-radius: 999px;
+  }
+
+  .nc-doc-title {
+    font-size: 1.15rem;
+    font-weight: 450;
+    line-height: 1.32;
+    margin: 0;
+  }
+
+  .nc-doc-title a {
+    color: var(--nc-color-charcoal);
+    text-decoration: none;
+  }
+
+  .nc-doc-title a:hover {
+    text-decoration: underline;
+    text-decoration-color: var(--nc-color-orange);
+  }
+
+  .nc-doc-excerpt {
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: var(--nc-color-charcoal);
+    opacity: 0.84;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .nc-doc-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding-top: 0.65rem;
+    border-top: 1px solid var(--nc-color-gray);
+    margin-top: auto;
+  }
+
+  .nc-doc-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .nc-doc-tag {
+    font-size: 0.74rem;
+    color: var(--nc-color-taupe);
+    background-color: var(--nc-color-light-gray);
+    padding: 0.12rem 0.45rem;
+    border-radius: 0.35rem;
+  }
+
+  .nc-doc-cta {
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    background-color: var(--nc-color-charcoal);
+    color: var(--nc-color-white);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    text-decoration: none !important;
+  }
+</style>

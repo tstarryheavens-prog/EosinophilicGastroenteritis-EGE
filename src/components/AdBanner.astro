@@ -1,0 +1,233 @@
+---
+interface Props {
+  slotType?: 'auto' | 'infeed' | 'banner' | 'sidebar';
+  siteId?: 'aichi-high' | 'smartailife' | 'money' | 'home';
+  adSenseSlotId?: string;
+  className?: string;
+}
+
+const {
+  slotType = 'auto',
+  siteId = 'smartailife',
+  adSenseSlotId,
+  className = '',
+} = Astro.props;
+
+// 有効なAdSense広告ユニットIDが指定されているか（ダミーID除外）
+const hasValidAdSenseSlot = Boolean(
+  adSenseSlotId && 
+  adSenseSlotId !== '9876543210' && 
+  /^\d{5,}$/.test(adSenseSlotId)
+);
+
+const fallbackAds = {
+  'aichi-high': {
+    badge: '🎓 おすすめ進学・学習支援',
+    title: '高校受験・内申点アップ＆合格戦略サポート',
+    desc: '愛知・尾張の志望校合格に向けた効率的な学習法・定期テスト対策・最新入試情報。',
+    linkUrl: 'https://px.a8.net/svt/ejp?a8mat=4BE70L+662RQI+36T2+TYQVL',
+    imgUrl: 'https://www29.a8.net/svt/bgt?aid=261002757373&wid=004&eno=01&mid=s00000014879005033000&mc=1',
+    trackUrl: 'https://www12.a8.net/0.gif?a8mat=4BE70L+662RQI+36T2+TYQVL',
+    ctaText: '公式プログラム・無料体験を見る ↗',
+    width: 300,
+    height: 250,
+  },
+  'smartailife': {
+    badge: '🚀 生成AI×リスキリング',
+    title: 'AIを暮らしと仕事の相棒に。最新AI学習＆活用サポート',
+    desc: 'プログラミング未経験でもOK。ChatGPT/Claude/Geminiを自在に操るAI思考法と実践ハック。',
+    linkUrl: 'https://px.a8.net/svt/ejp?a8mat=4BE70L+662RQI+36T2+TYQVL',
+    imgUrl: 'https://www29.a8.net/svt/bgt?aid=261002757373&wid=004&eno=01&mid=s00000014879005033000&mc=1',
+    trackUrl: 'https://www12.a8.net/0.gif?a8mat=4BE70L+662RQI+36T2+TYQVL',
+    ctaText: 'おすすめAI講座・支援を見る ↗',
+    width: 300,
+    height: 250,
+  },
+  'money': {
+    badge: '💰 教育費・家計防衛',
+    title: '高校・大学進学に向けた家計見直し＆教育資金形成',
+    desc: '教育費ダブルピーク期に備える！固定費削減とNISA・住宅ローン返済最適化。',
+    linkUrl: 'https://px.a8.net/svt/ejp?a8mat=4BE70L+662RQI+36T2+TYQVL',
+    imgUrl: 'https://www29.a8.net/svt/bgt?aid=261002757373&wid=004&eno=01&mid=s00000014879005033000&mc=1',
+    trackUrl: 'https://www12.a8.net/0.gif?a8mat=4BE70L+662RQI+36T2+TYQVL',
+    ctaText: '家計無料相談・プランニングを見る ↗',
+    width: 300,
+    height: 250,
+  },
+  'home': {
+    badge: '🏠 住宅ローン・住まい再生',
+    title: '新築10年目のメンテナンス・外壁塗装＆蓄電池見積もり比較',
+    desc: 'ハウスメーカーの定期点検と適正相場を把握し、住まいのランニングコストを大幅カット。',
+    linkUrl: 'https://px.a8.net/svt/ejp?a8mat=4BE70L+662RQI+36T2+TYQVL',
+    imgUrl: 'https://www29.a8.net/svt/bgt?aid=261002757373&wid=004&eno=01&mid=s00000014879005033000&mc=1',
+    trackUrl: 'https://www12.a8.net/0.gif?a8mat=4BE70L+662RQI+36T2+TYQVL',
+    ctaText: '一括無料見積もり・点検比較を見る ↗',
+    width: 300,
+    height: 250,
+  },
+};
+
+const currentAd = fallbackAds[siteId] || fallbackAds.smartailife;
+---
+
+<div class={`nc-ad-container ${className}`}>
+  <div class="ad-banner-wrapper nc-ad-card">
+    <div class="nc-ad-header">
+      <span class="nc-ad-badge">{currentAd.badge}</span>
+      <span class="nc-ad-label">Sponsored / PR</span>
+    </div>
+
+    {hasValidAdSenseSlot ? (
+      <>
+        <div class="adsense-slot nc-adsense-slot">
+          <ins class="adsbygoogle"
+               style="display:block; text-align:center;"
+               data-ad-layout="in-article"
+               data-ad-format="fluid"
+               data-ad-client="ca-pub-1988464307898443"
+               data-ad-slot={adSenseSlotId}></ins>
+        </div>
+
+        <div class="ad-fallback-card nc-ad-fallback hidden">
+          <div class="nc-ad-title">{currentAd.title}</div>
+          <p class="nc-ad-desc">{currentAd.desc}</p>
+          
+          <div class="nc-ad-media">
+            <a href={currentAd.linkUrl} target="_blank" rel="nofollow noopener">
+              <img src={currentAd.imgUrl} width={currentAd.width} height={currentAd.height} alt={currentAd.title} class="nc-ad-img" />
+            </a>
+            <img src={currentAd.trackUrl} width="1" height="1" alt="" style="display:none;" />
+          </div>
+
+          <div class="nc-ad-cta-wrap">
+            <a href={currentAd.linkUrl} target="_blank" rel="nofollow noopener" class="btn btn-dark">
+              {currentAd.ctaText}
+            </a>
+          </div>
+        </div>
+      </>
+    ) : (
+      <div class="ad-fallback-card nc-ad-fallback">
+        <div class="nc-ad-title">{currentAd.title}</div>
+        <p class="nc-ad-desc">{currentAd.desc}</p>
+        
+        <div class="nc-ad-media">
+          <a href={currentAd.linkUrl} target="_blank" rel="nofollow noopener">
+            <img src={currentAd.imgUrl} width={currentAd.width} height={currentAd.height} alt={currentAd.title} class="nc-ad-img" />
+          </a>
+          <img src={currentAd.trackUrl} width="1" height="1" alt="" style="display:none;" />
+        </div>
+
+        <div class="nc-ad-cta-wrap">
+          <a href={currentAd.linkUrl} target="_blank" rel="nofollow noopener" class="btn btn-dark">
+            {currentAd.ctaText}
+          </a>
+        </div>
+      </div>
+    )}
+  </div>
+</div>
+
+<script is:inline>
+  (function() {
+    var hasAdSlot = document.querySelector('.ad-banner-wrapper .adsense-slot');
+    if (!hasAdSlot) return;
+
+    try {
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+    } catch (e) {}
+
+    setTimeout(function() {
+      document.querySelectorAll('.ad-banner-wrapper').forEach(function(wrapper) {
+        var adsenseSlot = wrapper.querySelector('.adsense-slot');
+        var fallback = wrapper.querySelector('.ad-fallback-card');
+        var ins = wrapper.querySelector('ins.adsbygoogle');
+        
+        if (ins && (!ins.innerHTML || ins.getAttribute('data-ad-status') === 'unfilled' || ins.offsetHeight < 20)) {
+          if (adsenseSlot) adsenseSlot.style.display = 'none';
+          if (fallback) fallback.classList.remove('hidden');
+        }
+      });
+    }, 1500);
+  })();
+</script>
+
+<style>
+  .nc-ad-container {
+    margin: 2rem 0;
+  }
+
+  .nc-ad-card {
+    background-color: var(--nc-color-gray);
+    border-radius: var(--nc-radius-md);
+    padding: 1.25rem 1.5rem;
+    color: var(--nc-color-charcoal);
+  }
+
+  .nc-ad-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    font-size: 0.78rem;
+  }
+
+  .nc-ad-badge {
+    background-color: var(--nc-color-sun);
+    color: var(--nc-color-charcoal);
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    font-weight: 500;
+  }
+
+  .nc-ad-label {
+    font-family: var(--nc-font-serif);
+    color: var(--nc-color-taupe);
+    font-size: 0.78rem;
+  }
+
+  .nc-adsense-slot {
+    min-height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nc-ad-fallback.hidden {
+    display: none;
+  }
+
+  .nc-ad-fallback {
+    text-align: center;
+    padding-top: 0.25rem;
+  }
+
+  .nc-ad-title {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--nc-color-charcoal);
+    margin-bottom: 0.35rem;
+  }
+
+  .nc-ad-desc {
+    font-size: 0.85rem;
+    color: var(--nc-color-taupe);
+    max-width: 540px;
+    margin: 0 auto 0.85rem;
+  }
+
+  .nc-ad-media {
+    display: flex;
+    justify-content: center;
+    margin: 0.75rem 0;
+  }
+
+  .nc-ad-img {
+    border-radius: 0.75rem;
+    margin: 0 auto;
+  }
+
+  .nc-ad-cta-wrap {
+    margin-top: 0.85rem;
+  }
+</style>

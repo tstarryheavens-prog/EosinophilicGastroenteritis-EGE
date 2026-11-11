@@ -1,0 +1,195 @@
+---
+import BaseLayout from '../../layouts/SmartAIBaseLayout.astro';
+---
+
+<BaseLayout 
+  title="Microsoft 365 (OneDrive & OneNote) クラウドネイティブAI連携完全ガイド ｜ Smart AI Life"
+  description="MacのFiles-On-Demand（オンデマンド同期）を突破。未ダウンロードのOneDriveファイルやOneNote全ノートブックをMicrosoft Graph API経由でAIエージェントへ直結する詳細再現ガイド。"
+>
+  <section class="nc-hero hero-tin">
+    <div class="nc-hero-inner">
+      <p class="eyebrow" style="color: var(--nc-color-charcoal); opacity: 0.8;">Cloud-Native Knowledge Architecture</p>
+      <h1 class="nc-hero-title">Microsoft 365 (OneDrive & OneNote) AI連携完全ガイド</h1>
+      <p class="nc-hero-lead">
+        macOSのFiles-On-Demand（オンデマンド同期）による「ローカル未DLファイルがAIから読めない」問題をMicrosoft Graph APIで解決し、OneDrive全文検索とOneNote全階層読込を常時解放する手順です。
+      </p>
+    </div>
+  </section>
+
+  <section class="nc-sub-hero">
+    <div class="nc-sub-hero-row">
+      <ol class="nc-breadcrumbs" aria-label="Breadcrumb">
+        <li><a href="/">Smart AI Life</a></li>
+        <li><a href="/articles">記事一覧</a></li>
+        <li><span>Microsoft 365 AI連携ガイド</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <div class="nc-container" style="padding-bottom: 3rem;">
+    <div class="nc-article-layout has-toc">
+      <aside class="nc-m365-toc" aria-label="On this page">
+        <p style="font-family: var(--nc-font-serif); font-size: 1.05rem; margin-bottom: 0.75rem; padding-left: 0.5rem;">On this page</p>
+        <ul class="nc-m365-toc-list">
+          <li><a href="#sec-01" class="is-active">01. オンデマンド同期の課題</a></li>
+          <li><a href="#sec-02">02. MCPプリセット最適化</a></li>
+          <li><a href="#sec-03">03. 完全再現3ステップ</a></li>
+          <li><a href="#sec-04">04. ナレッジ統合マップ</a></li>
+        </ul>
+      </aside>
+
+      <div class="nc-m365-body">
+        <section id="sec-01">
+          <p class="eyebrow">01. Problem Statement</p>
+          <h2>なぜローカル同期フォルダでは駄目なのか？</h2>
+          <p>
+            macOSのOneDrive同期フォルダは、SSD容量を温存するため<strong>APFS Dataless File（オンデマンド同期）</strong>を採用しています。
+          </p>
+          <blockquote>
+            <strong>技術的課題:</strong> クラウド上のみに存在する未ダウンロードファイルは、ローカルCLI（<code>grep</code>や<code>find</code>）から見ると0バイトのプレースホルダーとして扱われ、本文の全文検索ができません。この制約を解消するため、Microsoft Graph API経由でクラウドインデックスを直接クエリします。
+          </blockquote>
+        </section>
+
+        <section id="sec-02">
+          <p class="eyebrow">02. Preset Optimization</p>
+          <h2>アーキテクチャ設計とMCPプリセット最適化</h2>
+          <p>
+            <code>@softeria/ms-365-mcp-server</code> に <code>--preset files,onenote</code> を適用し、300以上のツールから必要な34個のツールのみに絞り込んでトークン経済性と高速応答を両立しています。
+          </p>
+        </section>
+
+        <section id="sec-03">
+          <p class="eyebrow">03. Step-by-Step Setup</p>
+          <h2>完全再現手順（3ステップ）</h2>
+          <h3>ステップ1: Microsoft Entra IDでのアプリ登録</h3>
+          <p>Microsoft Entra管理センターでパブリッククライアントフローを有効化し、<code>Files.ReadWrite</code>, <code>Notes.ReadWrite</code> 権限を付与します。</p>
+
+          <h3>ステップ2: mcp_config.json の記述</h3>
+          <pre><code>{`"ms-365": {
+  "command": "/opt/homebrew/bin/npx",
+  "args": [
+    "-y",
+    "@softeria/ms-365-mcp-server",
+    "--preset",
+    "files,onenote"
+  ],
+  "env": {
+    "MS365_MCP_CLIENT_ID": "<発行されたクライアントID>",
+    "MS365_MCP_TENANT_ID": "consumers"
+  }
+}`}</code></pre>
+
+          <h3>ステップ3: Device Code フローによる初回サインイン</h3>
+          <pre><code>MS365_MCP_CLIENT_ID="&lt;クライアントID&gt;" MS365_MCP_TENANT_ID="consumers" npx -y @softeria/ms-365-mcp-server --preset files,onenote --login</code></pre>
+        </section>
+
+        <section id="sec-04">
+          <p class="eyebrow">04. Knowledge Map</p>
+          <h2>三位一体のAIナレッジ統合マップ</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>領域</th>
+                <th>MCPサーバー</th>
+                <th>主な機能</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Google Cloud</strong></td>
+                <td><code>google-multi</code></td>
+                <td>Gmail横断検索、Google Drive書類検索、Google Calendar連携</td>
+              </tr>
+              <tr>
+                <td><strong>Microsoft Cloud</strong></td>
+                <td><code>ms-365</code></td>
+                <td>OneDrive未DLファイル全文検索、OneNote全ノートブック読込・追記</td>
+              </tr>
+              <tr>
+                <td><strong>Mac Local Office</strong></td>
+                <td><code>excel-live / ppt-mcp</code></td>
+                <td>起動中のExcelセル集計・数式投入、PowerPointスライド自動生成</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      </div>
+
+      <aside class="nc-item-cards">
+        <div class="nc-item-card primary">
+          <h3>詳細解説記事</h3>
+          <p>スクリーンショット付きの手順解説は公式はてなブログでも公開しています。</p>
+          <div style="margin-top: 0.5rem;">
+            <a href="https://kurashi-ai.hatenadiary.com/entry/2026/10/04/021338" target="_blank" rel="noopener noreferrer" class="btn btn-dark">はてなブログ記事を読む ↗</a>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .nc-m365-toc {
+    border-left: 1px solid var(--nc-color-gray);
+    padding-left: 1rem;
+  }
+  @media (min-width: 1024px) {
+    .nc-m365-toc {
+      position: sticky;
+      top: 1.5rem;
+    }
+  }
+  .nc-m365-toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .nc-m365-toc-list a {
+    display: block;
+    font-size: 0.85rem;
+    padding: 0.42rem 0.65rem;
+    border-radius: 0.5rem;
+    text-decoration: none !important;
+  }
+  .nc-m365-toc-list a.is-active {
+    background-color: var(--nc-color-sun);
+    font-weight: 450;
+  }
+  .nc-m365-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    min-width: 0;
+  }
+  .nc-m365-body p {
+    line-height: 1.75;
+    margin-bottom: 1rem;
+  }
+  .nc-m365-body blockquote {
+    border-left: 0.25rem solid var(--nc-color-orange);
+    background-color: var(--nc-color-light-gray);
+    padding: 1rem 1.25rem;
+    border-radius: 0 0.75rem 0.75rem 0;
+    margin: 1rem 0;
+  }
+  .nc-m365-body table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--nc-color-light-gray);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    font-size: 0.9rem;
+  }
+  .nc-m365-body th {
+    background-color: var(--nc-color-gray);
+    text-align: left;
+    padding: 0.75rem 1rem;
+  }
+  .nc-m365-body td {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid rgba(31, 31, 28, 0.08);
+  }
+</style>

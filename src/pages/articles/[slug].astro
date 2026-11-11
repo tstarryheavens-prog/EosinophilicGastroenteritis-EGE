@@ -1,0 +1,950 @@
+---
+export const prerender = false;
+import BaseLayout from '../../layouts/SmartAIBaseLayout.astro';
+import AdSense from '../../components/AdSense.astro';
+import { ARTICLES, type Article } from '../../data/articles';
+import AdBanner from '../../components/AdBanner.astro';
+import { HATENA_BLOG_URL } from '../../data/projects';
+import { isInternalSlug, isInternalSiteId } from '../../data/public_scope';
+import { env } from 'cloudflare:workers';
+
+const rawDrafts = import.meta.glob('../../../blog_drafts/*.html', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+
+const rawSlug = (Astro.params.slug || '').replace(/\/+$/, '');
+const cleanSlug = rawSlug.replace(/^post_/, '');
+
+// モータ学術論文など内部専用サイトの記事は公開面では出さない（運営面 NAS 側でだけ閲覧可）
+if (isInternalSlug(rawSlug) || isInternalSlug(cleanSlug)) {
+  return new Response('Not Found', {
+    status: 404,
+    headers: {
+      'content-type': 'text/plain; charset=utf-8',
+      'cache-control': 'private, no-store, max-age=0',
+      'x-robots-tag': 'noindex, nofollow',
+    },
+  });
+}
+
+let article: Article | undefined = ARTICLES.find(
+  (a) => a.slug === rawSlug || a.slug === cleanSlug
+);
+
+let contentHtml = '';
+
+function parseMarkdownTables(text: string): string {
+  const lines = text.split('\n');
+  const result: string[] = [];
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    if (line.trim().startsWith('|') && line.trim().endsWith('|') && i + 1 < lines.length && /^\s*\|[-:\s|]+\|\s*$/.test(lines[i + 1])) {
+      const headerCells = line.split('|').slice(1, -1).map((c) => c.trim());
+      i += 2;
+      const rowList: string[][] = [];
+      while (i < lines.length && lines[i].trim().startsWith('|') && lines[i].trim().endsWith('|')) {
+        const rowCells = lines[i].split('|').slice(1, -1).map((c) => c.trim());
+        rowList.push(rowCells);
+        i++;
+      }
+      let tblHtml = '<div class="nc-table-wrap"><table><thead><tr>';
+      headerCells.forEach((h) => {
+        tblHtml += `<th>${h}</th>`;
+      });
+      tblHtml += '</tr></thead><tbody>';
+      rowList.forEach((r) => {
+        tblHtml += '<tr>';
+        r.forEach((c) => {
+          tblHtml += `<td>${c}</td>`;
+        });
+        tblHtml += '</tr>';
+      });
+      tblHtml += '</tbody></table></div>';
+      result.push(tblHtml);
+    } else {
+      result.push(line);
+      i++;
+    }
+  }
+  return result.join('\n');
+}
+
+function renderBodyContent(raw: string, fallbackExcerpt: string): string {
+  if (!raw || !raw.trim()) {
+    return `<p>${fallbackExcerpt || ''}</p>`;
+  }
+  let text = raw.replace(/<!--[\s\S]*?-->/g, '').trim();
+  const bodyMatch = text.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+  if (bodyMatch) {
+    text = bodyMatch[1].trim();
+  }
+  const fmRegex = /^---\r?\n[\s\S]*?\r?\n---\r?\n*/;
+  text = text.replace(fmRegex, '');
+
+  const hasMarkdownElements =
+    /^#{1,4}\s+/m.test(text) ||
+    /```/.test(text) ||
+    /\|[-:\s|]{3,}\|/.test(text) ||
+    /\*\*[^\*\n]+\*\*/.test(text) ||
+    /^>\s+/m.test(text);
+
+  if (hasMarkdownElements) {
+    // 1. コードブロック退避（内部の改行やコードが<p>や<br>に変換されるのを完全に防止）
+    const codeBlocks: string[] = [];
+    text = text.replace(/```([a-zA-Z0-9_-]*)\r?\n([\s\S]*?)```/g, (_, lang, code) => {
+      const idx = codeBlocks.length;
+      const escaped = code
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+      const codeHtml = `<pre data-language="${lang || 'text'}"><code class="lang-${lang || 'text'}">${escaped.trim()}</code></pre>`;
+      codeBlocks.push(codeHtml);
+      return `\n\n__NC_CODE_BLOCK_${idx}__\n\n`;
+    });
+
+    // 2. 表の退避
+    const tableBlocks: string[] = [];
+    text = parseMarkdownTables(text);
+    text = text.replace(/<div class="nc-table-wrap">[\s\S]*?<\/div>/g, (tbl) => {
+      const idx = tableBlocks.length;
+      tableBlocks.push(tbl);
+      return `\n\n__NC_TABLE_BLOCK_${idx}__\n\n`;
+    });
+
+    // 3. コールアウト
+    text = text.replace(/^>\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*\n((?:>.*\n?)*)/gim, (_, type, body) => {
+      const alertType = type.toUpperCase();
+      const labels: Record<string, string> = {
+        NOTE: 'Note / 補足',
+        TIP: 'Tip / ヒント',
+        IMPORTANT: 'Important / 重要',
+        WARNING: 'Warning / 注意',
+        CAUTION: 'Caution / 警告',
+      };
+      const label = labels[alertType] || alertType;
+      const cleanBody = body.replace(/^>\s?/gm, '').trim();
+      return `<blockquote class="nc-callout"><strong>${label}</strong><div>${cleanBody}</div></blockquote>`;
+    });
+
+    // 4. 見出し
+    text = text
+      .replace(/^#### (.*$)/gm, '<h4>$1</h4>')
+      .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+      .replace(/^## (.*$)/gm, '<h2>$1</h2>')
+      .replace(/^# (.*$)/gm, '<h2>$1</h2>');
+
+    // 5. 太字・引用
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    text = text.replace(/^>\s+(.*$)/gm, '<blockquote>$1</blockquote>');
+
+    // 6. リスト
+    text = text.replace(/^- (.*$)/gm, '<li>$1</li>');
+    text = text.replace(/(?:<li>.*?<\/li>\s*)+/gs, (match) => `<ul>${match.trim()}</ul>`);
+
+    // 7. 段落化（空行で分割）
+    const blocks = text.split(/\n{2,}/);
+    text = blocks
+      .map((blk) => {
+        const b = blk.trim();
+        if (!b) return '';
+        if (/^<(h2|h3|h4|ul|ol|blockquote|div)/i.test(b) || b.startsWith('__NC_CODE_BLOCK_') || b.startsWith('__NC_TABLE_BLOCK_')) {
+          return b;
+        }
+        return `<p>${b.replace(/\n/g, '<br/>')}</p>`;
+      })
+      .join('\n\n');
+
+    // 8. プレースホルダー復元
+    codeBlocks.forEach((html, i) => {
+      text = text.replace(new RegExp(`__NC_CODE_BLOCK_${i}__`, 'g'), html);
+    });
+    tableBlocks.forEach((html, i) => {
+      text = text.replace(new RegExp(`__NC_TABLE_BLOCK_${i}__`, 'g'), html);
+    });
+  }
+  return text;
+}
+
+const SITE_LABELS: Record<string, { cat: Article['category']; label: string; heroTone: string; desc: string }> = {
+  'aichi-high': {
+    cat: 'education',
+    label: '愛知高校受験ナビ',
+    heroTone: 'hero-sun',
+    desc: '愛知県公立高校入試（2校複合選抜・マークシート方式）と私立併願戦略、内申点データを体系化した進学ドキュメント。',
+  },
+  'toyotahome': {
+    cat: 'automation',
+    label: 'トヨタホーム住まい研究',
+    heroTone: 'hero-tin',
+    desc: '鉄骨ユニット工法・5,200万円フルローン・10年目点検・太陽光＆蓄電池ROIなど注文住宅10年間の実測アーカイブ。',
+  },
+  'wakwak-money': {
+    cat: 'education',
+    label: '100歳家計・資産形成ラボ',
+    heroTone: 'hero-green',
+    desc: '教育費ダブルピーク（夫47〜53歳）と住宅ローン完済、老後100歳までのキャッシュフローをPythonで定量検証。',
+  },
+  'nanbyo': {
+    cat: 'automation',
+    label: '難病・医療情報ポータル',
+    heroTone: 'hero-orange',
+    desc: '指定難病（好酸球性胃腸炎・群発頭痛）の医療費助成制度、服薬・血圧テレメトリ、日常の体調管理ノウハウ。',
+  },
+  'ai-hems': {
+    cat: 'energy',
+    label: 'AI Home HEMS',
+    heroTone: 'hero-tin',
+    desc: 'ニチコン14.9kWhトライブリッド蓄電池（T5）とECHONET Lite・太陽光発電を連携させたJIT深夜充電制御ドキュメント。',
+  },
+  'hobby-labs': {
+    cat: 'automation',
+    label: 'ウルトラマン総合研究',
+    heroTone: 'hero-sun',
+    desc: 'ウルトラマンシリーズのソフビ造形解析・ウルトラマンカードゲーム（UCG）デッキ戦略アーカイブ。',
+  },
+  'smartailife': {
+    cat: 'automation',
+    label: 'Smart AI Life 実践ガイド',
+    heroTone: 'hero-tin',
+    desc: '生成AI、ローカルLLM、スマートホーム自動化で日々の暮らしをゆたかに整える実践ドキュメント。',
+  },
+};
+
+if (article && article.draftFile) {
+  const key = `../../../blog_drafts/${article.draftFile}`;
+  const matchedKey = Object.keys(rawDrafts).find((k) => k.endsWith('/' + article!.draftFile));
+  if (matchedKey && rawDrafts[matchedKey]) {
+    contentHtml = renderBodyContent(rawDrafts[matchedKey], article.excerpt);
+  }
+}
+
+try {
+  const db = (env as any)?.DB || (Astro.locals as any)?.emdash?.db || (Astro.locals as any)?.runtime?.env?.DB;
+  if (db) {
+    const post: any = await db
+      .prepare('SELECT * FROM ec_posts WHERE slug = ? OR slug = ? OR id = ? OR id = ?')
+      .bind(rawSlug, cleanSlug, rawSlug, `post_${cleanSlug}`)
+      .first();
+    if (post) {
+      const siteInfo = SITE_LABELS[post.site_id || ''] || SITE_LABELS['smartailife'];
+      if (!article) {
+        article = {
+          slug: post.slug || cleanSlug,
+          title: post.title || '記事詳細',
+          excerpt: post.excerpt || '',
+          category: siteInfo.cat,
+          categoryLabel: siteInfo.label,
+          tags: [post.site_id || 'SmartAILife', 'AI活用', 'EmDash'],
+          date: (post.published_at || post.created_at || '2026-10-21').slice(0, 10),
+          readTime: '6分',
+          draftFile: '',
+          siteId: post.site_id || 'smartailife',
+        };
+      }
+      // D1に本文が存在する場合はD1の完全なコンテンツ（1万〜2万字）を最優先で描画する
+      if (post.content && post.content.trim().length > 100) {
+        contentHtml = renderBodyContent(post.content, post.excerpt || article.excerpt);
+      } else if (!contentHtml) {
+        contentHtml = renderBodyContent(post.content || '', post.excerpt || article.excerpt);
+      }
+    }
+  }
+} catch {}
+
+if (!article) {
+  return Astro.redirect('/articles', 302);
+}
+
+const siteKey = article.siteId || 'smartailife';
+const heroInfo = SITE_LABELS[siteKey] || SITE_LABELS['smartailife'];
+
+// Related articles (same category or siteId, up to 5)
+const relatedArticles = ARTICLES.filter(
+  (a) => a.slug !== article!.slug && (a.category === article!.category || a.siteId === article!.siteId)
+).slice(0, 5);
+
+const currentUrl = `https://ai-living-lab.pages.dev/articles/${article.slug}`;
+const shareText = `${article.title} | Smart AI Life`;
+---
+
+<BaseLayout
+  title={`${article.title} ｜ Smart AI Life`}
+  description={article.excerpt}
+>
+  <!-- 1. Nabu Casa Rounded Category Hero Banner -->
+  <section class={`nc-hero ${heroInfo.heroTone}`}>
+    <div class="nc-hero-inner">
+      <p class="nc-hero-eyebrow">Smart AI Life Knowledge Base</p>
+      <h2 class="nc-hero-title">{article.categoryLabel}</h2>
+      <p class="nc-hero-lead">{heroInfo.desc}</p>
+    </div>
+  </section>
+
+  <!-- 2. Nabu Casa Sub-Hero Row: Breadcrumbs (Left) + Pill Search (Right) -->
+  <section class="nc-sub-hero">
+    <div class="nc-sub-hero-row">
+      <ol class="nc-breadcrumbs" aria-label="パンくずリスト">
+        <li><a href="/">Smart AI Life</a></li>
+        <li><a href="/articles">記事一覧</a></li>
+        {article.siteId ? (
+          <li><a href={`/divisions/${article.siteId}`}>{article.categoryLabel}</a></li>
+        ) : (
+          <li><span>{article.categoryLabel}</span></li>
+        )}
+      </ol>
+
+      <form class="nc-search-wrapper small" action="/articles" method="get" role="search">
+        <div class="nc-search-field">
+          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M13.5 13.5L17.5 17.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <input
+            type="search"
+            name="q"
+            class="nc-search-input"
+            placeholder="記事を検索..."
+            aria-label="記事を検索"
+          />
+        </div>
+        <button type="submit" class="btn btn-dark">検索</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- 3. Nabu Casa Article Container: Header + 3-Column Grid (Sticky TOC | Article Body | Right Sidebar Cards) -->
+  <div class="nc-container nc-article-page">
+    <header class="nc-article-header">
+      <h1 class="nc-article-h1">{article.title}</h1>
+      <div class="nc-article-meta-row">
+        <p class="nc-article-meta">
+          最終更新: <time datetime={article.date}>{article.date}</time>
+          <span class="nc-meta-dot">·</span>
+          読了目安: {article.readTime}
+          <span class="nc-meta-dot">·</span>
+          執筆・検証: ぽトル (Pottle)
+        </p>
+        <div class="nc-article-tags">
+          {article.tags.map((tag) => (
+            <a href={`/articles?q=${encodeURIComponent(tag)}`} class="nc-tag-pill">#{tag}</a>
+          ))}
+        </div>
+      </div>
+    </header>
+
+    <div class="nc-article-layout has-toc">
+      <!-- Left Column: Sticky "On this page" TOC -->
+      <aside class="nc-article-toc" aria-label="目次 (On this page)">
+        <p class="nc-toc-title">On this page</p>
+        <ul class="nc-toc-list" id="nc-toc-list">
+          <li class="nc-toc-item"><a href="#article-content" class="nc-toc-link is-active">記事の概要</a></li>
+        </ul>
+        <a href="#main-content" class="nc-toc-top">↑ Back to top</a>
+      </aside>
+
+      <!-- Center Column: Article Body + Related Articles -->
+      <div class="nc-article-main">
+        {article.excerpt && (
+          <p class="nc-article-lead-summary">{article.excerpt}</p>
+        )}
+
+        <AdBanner siteId={article.siteId as any || 'smartailife'} />
+
+        <article class="nc-article-body" id="article-content">
+          <div class="nc-prose" set:html={contentHtml} />
+        </article>
+
+        <AdBanner siteId={article.siteId as any || 'smartailife'} />
+
+        <!-- Bottom Related Articles & Share Section (Nabu Casa .article-relatives) -->
+        <section class="nc-article-relatives">
+          {relatedArticles.length > 0 && (
+            <div class="nc-relatives-block">
+              <h3>関連記事 (Related articles)</h3>
+              <ul class="nc-relatives-list">
+                {relatedArticles.map((rel) => (
+                  <li>
+                    <a href={`/articles/${rel.slug}`}>{rel.title}</a>
+                    <span class="nc-rel-meta">{rel.date} · {rel.categoryLabel}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <!-- Share & Author Box -->
+          <div class="nc-share-author-panel">
+            <div class="nc-share-row">
+              <span class="nc-share-title">この記事を共有する:</span>
+              <div class="nc-share-btns">
+                <a
+                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(currentUrl)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-dark"
+                >
+                  𝕏 ポストする
+                </a>
+                <a
+                  href={`https://b.hatena.ne.jp/entry/${encodeURIComponent(currentUrl)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-light"
+                >
+                  B! はてなブックマーク
+                </a>
+                <a
+                  href={`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(currentUrl)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn btn-light"
+                >
+                  LINEで送る
+                </a>
+              </div>
+            </div>
+
+            <div class="nc-author-bio">
+              <img
+                src="https://cdn-ak.f.st-hatena.com/images/fotolife/M/MyToyotaHomeBottle/20261003/20261003213941.jpg"
+                alt="ぽトル (Pottle)"
+                class="nc-author-bio-img"
+              />
+              <div>
+                <h4>執筆・検証：ぽトル（Pottle）</h4>
+                <p>
+                  愛知県在住の生活実験家。トヨタホーム注文住宅（5,200万円フルローン）、14.9kWhニチコン蓄電池のECHONET Lite HEMS制御、100歳家計キャッシュフロー検証、指定難病（好酸球性胃腸炎）の医療記録など、AIと自作コードで暮らしの課題を解決する実測データを公開中。
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Right Column: Nabu Casa Sidebar Item Cards -->
+      <aside class="nc-article-sidebar" aria-label="関連リソース">
+        <div class="nc-item-cards">
+          <!-- 1. Product / Lab Card (Charcoal #1f1f1c) -->
+          <div class="nc-item-card product">
+            <p class="eyebrow">Specialized Lab</p>
+            <h3>{article.categoryLabel}</h3>
+            <p>{heroInfo.desc}</p>
+            <div style="margin-top: 0.5rem;">
+              <a href={article.siteId ? `/divisions/${article.siteId}` : '/divisions'} class="btn btn-light">
+                このラボの記事を見る →
+              </a>
+            </div>
+          </div>
+
+          <!-- 2. Primary Sun Card (#ffde77) -->
+          <div class="nc-item-card primary">
+            <h3>お探しの情報が見つかりませんか？</h3>
+            <p>
+              Smart AI Lifeの全記事検索や、7つのラボ別アーカイブ、運営者への直接のお問い合わせをご利用いただけます。
+            </p>
+            <div style="margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem;">
+              <a href="/articles" class="btn btn-dark">全記事一覧</a>
+              <a href="/contact" class="btn btn-light">お問い合わせ</a>
+            </div>
+          </div>
+
+          <!-- 3. Gray Hoverable Item Cards (#ecebe7 -> #ffde77 on hover) -->
+          <a href="/divisions" class="nc-item-card">
+            <h3>7つのラボ</h3>
+            <p>HEMS・100歳家計・トヨタホーム・難病医療・愛知高校受験など分野別インデックスへ移動します。</p>
+          </a>
+
+          <a href={HATENA_BLOG_URL} target="_blank" rel="noopener noreferrer" class="nc-item-card">
+            <h3>公式はてなブログ連載 ↗</h3>
+            <p>最新の検証ログや日々のスマートホーム実験ノートをはてなブログでも配信しています。</p>
+          </a>
+        </div>
+      </aside>
+    </div>
+  </div>
+</BaseLayout>
+
+<script is:inline>
+  // Auto-build Nabu Casa "On this page" TOC from article headings & highlight active section
+  (function() {
+    var container = document.getElementById('article-content');
+    var tocList = document.getElementById('nc-toc-list');
+    if (!container || !tocList) return;
+
+    var headings = Array.from(container.querySelectorAll('h2, h3'));
+    if (headings.length === 0) return;
+
+    tocList.innerHTML = '';
+    var tocLinks = [];
+
+    headings.forEach(function(h, idx) {
+      var text = (h.textContent || '').trim();
+      if (!text) return;
+      if (!h.id) {
+        h.id = 'section-' + (idx + 1);
+      }
+      var li = document.createElement('li');
+      li.className = 'nc-toc-item' + (h.tagName.toLowerCase() === 'h3' ? ' is-sub' : '');
+      var a = document.createElement('a');
+      a.href = '#' + h.id;
+      a.className = 'nc-toc-link' + (idx === 0 ? ' is-active' : '');
+      a.textContent = text;
+      li.appendChild(a);
+      tocList.appendChild(li);
+      tocLinks.push({ id: h.id, el: h, link: a });
+    });
+
+    if ('IntersectionObserver' in window && tocLinks.length > 0) {
+      var observer = new IntersectionObserver(
+        function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              var activeId = entry.target.id;
+              tocLinks.forEach(function(item) {
+                if (item.id === activeId) {
+                  item.link.classList.add('is-active');
+                } else {
+                  item.link.classList.remove('is-active');
+                }
+              });
+            }
+          });
+        },
+        { rootMargin: '-80px 0px -70% 0px', threshold: 0 }
+      );
+
+      tocLinks.forEach(function(item) {
+        observer.observe(item.el);
+      });
+    }
+  })();
+</script>
+
+<style>
+  .nc-hero-eyebrow {
+    font-family: var(--nc-font-serif);
+    font-size: 0.95rem;
+    font-weight: 300;
+    margin: 0 0 0.4rem;
+    opacity: 0.8;
+  }
+
+  .nc-article-page {
+    padding-bottom: 3rem;
+  }
+
+  /* Nabu Casa Article Header */
+  .nc-article-header {
+    margin-bottom: 2.5rem;
+    max-width: 980px;
+  }
+
+  .nc-article-h1 {
+    font-family: var(--nc-font-sans);
+    font-size: clamp(2rem, 1.65rem + 2vw, 3.25rem);
+    font-weight: 450;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    color: var(--nc-color-charcoal);
+    margin: 0 0 1rem;
+  }
+
+  .nc-article-meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.85rem;
+  }
+
+  .nc-article-meta {
+    font-family: var(--nc-font-serif);
+    font-size: 1rem;
+    font-weight: 300;
+    color: var(--nc-color-taupe);
+    margin: 0;
+  }
+
+  .nc-meta-dot {
+    margin: 0 0.35rem;
+  }
+
+  .nc-article-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .nc-tag-pill {
+    font-size: 0.78rem;
+    font-weight: 450;
+    background-color: var(--nc-color-gray);
+    color: var(--nc-color-charcoal);
+    padding: 0.22rem 0.65rem;
+    border-radius: 999px;
+    text-decoration: none !important;
+  }
+
+  .nc-tag-pill:hover {
+    background-color: var(--nc-color-sun);
+  }
+
+  /* Left Sticky Table of Contents (.nc-article-toc) */
+  .nc-article-toc {
+    border-left: 1px solid var(--nc-color-gray);
+    padding-left: 1rem;
+  }
+
+  @media (min-width: 1024px) {
+    .nc-article-toc {
+      position: sticky;
+      top: 1.5rem;
+      max-height: calc(100vh - 3rem);
+      overflow-y: auto;
+    }
+  }
+
+  .nc-toc-title {
+    font-family: var(--nc-font-serif);
+    font-size: 1.125rem;
+    font-weight: 300;
+    color: var(--nc-color-charcoal);
+    margin: 0 0 0.75rem;
+    padding-left: 0.5rem;
+  }
+
+  .nc-toc-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  :global(.nc-toc-item) {
+    margin: 0;
+  }
+
+  :global(.nc-toc-item.is-sub) {
+    padding-left: 0.65rem;
+  }
+
+  :global(.nc-toc-link) {
+    position: relative;
+    display: block;
+    font-size: 0.86rem;
+    font-weight: 400;
+    line-height: 1.38;
+    color: var(--nc-color-charcoal);
+    padding: 0.42rem 0.65rem 0.42rem 1.25rem;
+    border-radius: 0.5rem;
+    text-decoration: none !important;
+    transition: background-color 0.15s ease;
+  }
+
+  :global(.nc-toc-link:hover) {
+    background-color: var(--nc-color-light-gray);
+    text-decoration: none !important;
+  }
+
+  :global(.nc-toc-link.is-active) {
+    background-color: var(--nc-color-sun);
+    font-weight: 450;
+  }
+
+  :global(.nc-toc-link.is-active::before) {
+    content: "";
+    position: absolute;
+    left: 0.5rem;
+    top: 0.78rem;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background-color: var(--nc-color-charcoal);
+  }
+
+  .nc-toc-top {
+    display: inline-block;
+    margin-top: 1rem;
+    padding-left: 0.5rem;
+    font-size: 0.82rem;
+    color: var(--nc-color-taupe);
+    text-decoration: none;
+  }
+
+  .nc-toc-top:hover {
+    color: var(--nc-color-charcoal);
+    text-decoration: underline;
+    text-decoration-color: var(--nc-color-orange);
+  }
+
+  /* Center Column: Article Body (.nc-article-body / .nc-prose) */
+  .nc-article-main {
+    min-width: 0;
+  }
+
+  .nc-article-lead-summary {
+    font-family: var(--nc-font-serif);
+    font-size: 1.125rem;
+    font-weight: 350;
+    line-height: 1.65;
+    color: var(--nc-color-charcoal);
+    background-color: var(--nc-color-light-gray);
+    padding: 1.25rem 1.5rem;
+    border-radius: 0.75rem;
+    margin: 0 0 1.75rem;
+  }
+
+  .nc-article-body {
+    font-family: var(--nc-font-sans);
+    font-size: 1.0625rem;
+    font-weight: 350;
+    line-height: 1.75;
+    color: var(--nc-color-charcoal);
+  }
+
+  .nc-prose :global(h1),
+  .nc-prose :global(h2) {
+    font-family: var(--nc-font-sans) !important;
+    font-size: clamp(1.55rem, 1.35rem + 0.9vw, 2.05rem) !important;
+    font-weight: 450 !important;
+    line-height: 1.22 !important;
+    color: var(--nc-color-charcoal) !important;
+    border: 0 !important;
+    border-bottom: 1px solid var(--nc-color-gray) !important;
+    padding: 0 0 0.5rem 0 !important;
+    margin: 2.75rem 0 1.15rem !important;
+    background: transparent !important;
+  }
+
+  .nc-prose :global(h3) {
+    font-family: var(--nc-font-sans) !important;
+    font-size: clamp(1.25rem, 1.15rem + 0.5vw, 1.55rem) !important;
+    font-weight: 450 !important;
+    line-height: 1.3 !important;
+    color: var(--nc-color-charcoal) !important;
+    border: 0 !important;
+    padding: 0 !important;
+    margin: 2rem 0 0.85rem !important;
+    background: transparent !important;
+  }
+
+  .nc-prose :global(h4) {
+    font-family: var(--nc-font-sans) !important;
+    font-size: 1.125rem !important;
+    font-weight: 500 !important;
+    color: var(--nc-color-charcoal) !important;
+    margin: 1.5rem 0 0.65rem !important;
+  }
+
+  .nc-prose :global(p) {
+    margin: 0 0 1.25rem;
+    line-height: 1.78;
+    color: var(--nc-color-charcoal);
+  }
+
+  .nc-prose :global(ul),
+  .nc-prose :global(ol) {
+    margin: 0 0 1.35rem;
+    padding-left: 1.5rem;
+  }
+
+  .nc-prose :global(li) {
+    margin-bottom: 0.45rem;
+    line-height: 1.7;
+  }
+
+  .nc-prose :global(a) {
+    color: var(--nc-color-charcoal);
+    text-decoration: underline;
+    text-decoration-color: var(--nc-color-tin);
+    text-underline-offset: 0.25em;
+  }
+
+  .nc-prose :global(a:hover) {
+    text-decoration-color: var(--nc-color-orange);
+  }
+
+  /* Nabu Casa Orange-Bordered Blockquotes & Callouts */
+  .nc-prose :global(blockquote),
+  .nc-prose :global(.callout-box),
+  .nc-prose :global(.nc-callout) {
+    border: 0 !important;
+    border-left: 0.25rem solid var(--nc-color-orange) !important;
+    background-color: var(--nc-color-light-gray) !important;
+    border-radius: 0 0.75rem 0.75rem 0 !important;
+    padding: 1.1rem 1.35rem !important;
+    margin: 1.5rem 0 !important;
+    color: var(--nc-color-charcoal) !important;
+    font-style: normal;
+  }
+
+  /* Nabu Casa Tables (#f0f1f1) */
+  .nc-prose :global(.nc-table-wrap) {
+    overflow-x: auto;
+    margin: 1.75rem 0;
+  }
+
+  .nc-prose :global(table) {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    background-color: var(--nc-color-light-gray) !important;
+    border-radius: 0.75rem !important;
+    overflow: hidden;
+    margin: 1.5rem 0 !important;
+    font-size: 0.92rem !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .nc-prose :global(th) {
+    background-color: var(--nc-color-gray) !important;
+    color: var(--nc-color-charcoal) !important;
+    font-weight: 500 !important;
+    text-align: left;
+    padding: 0.85rem 1rem !important;
+    border-bottom: 1px solid rgba(31, 31, 28, 0.12) !important;
+  }
+
+  .nc-prose :global(td) {
+    padding: 0.8rem 1rem !important;
+    color: var(--nc-color-charcoal) !important;
+    border-bottom: 1px solid rgba(31, 31, 28, 0.08) !important;
+    line-height: 1.55;
+  }
+
+  .nc-prose :global(img) {
+    border-radius: 0.75rem;
+    margin: 1.5rem 0;
+  }
+
+  .nc-prose :global(:not(pre) > code) {
+    background-color: var(--nc-color-light-gray);
+    color: var(--nc-color-charcoal);
+    padding: 0.15rem 0.4rem;
+    border-radius: 0.35rem;
+    font-size: 0.9em;
+  }
+
+  /* Bottom Related Articles & Author Panel */
+  .nc-article-relatives {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--nc-color-gray);
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .nc-relatives-block h3 {
+    font-size: 1.35rem;
+    font-weight: 450;
+    margin-bottom: 1rem;
+  }
+
+  .nc-relatives-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .nc-relatives-list li {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.85rem 1.1rem;
+    background-color: var(--nc-color-light-gray);
+    border-radius: 0.75rem;
+  }
+
+  .nc-relatives-list a {
+    font-weight: 450;
+    color: var(--nc-color-charcoal);
+    text-decoration: underline;
+    text-decoration-color: var(--nc-color-tin);
+  }
+
+  .nc-relatives-list a:hover {
+    text-decoration-color: var(--nc-color-orange);
+  }
+
+  .nc-rel-meta {
+    font-family: var(--nc-font-serif);
+    font-size: 0.82rem;
+    color: var(--nc-color-taupe);
+  }
+
+  .nc-share-author-panel {
+    background-color: var(--nc-color-gray);
+    border-radius: var(--nc-radius-md);
+    padding: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .nc-share-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid rgba(31, 31, 28, 0.1);
+  }
+
+  .nc-share-title {
+    font-family: var(--nc-font-serif);
+    font-size: 0.95rem;
+    color: var(--nc-color-charcoal);
+  }
+
+  .nc-share-btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .nc-author-bio {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  @media (min-width: 640px) {
+    .nc-author-bio {
+      flex-direction: row;
+      align-items: center;
+    }
+  }
+
+  .nc-author-bio-img {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .nc-author-bio h4 {
+    font-size: 1.05rem;
+    font-weight: 500;
+    margin: 0 0 0.35rem;
+  }
+
+  .nc-author-bio p {
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: var(--nc-color-charcoal);
+    opacity: 0.88;
+    margin: 0;
+  }
+</style>

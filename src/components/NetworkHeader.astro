@@ -1,0 +1,525 @@
+---
+import { HATENA_BLOG_URL } from '../data/projects';
+
+const currentPath = Astro.url.pathname;
+const isEn = currentPath.startsWith('/en');
+---
+
+<header class="nc-header" id="site-header">
+  <div class="nc-container nc-header-inner">
+    <!-- Left: Nabu Casa Geometric Cube + Brand Logo -->
+    <a href={isEn ? '/en/' : '/'} class="nc-header-logo" aria-label="Smart AI Life Home">
+      <svg class="nc-cube-mark" width="32" height="32" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M18 3L32 11V25L18 33L4 25V11L18 3Z" stroke="#1f1f1c" stroke-width="2.2" stroke-linejoin="round" fill="#ffde77"/>
+        <path d="M18 3L32 11L18 19L4 11L18 3Z" fill="#ffffff" stroke="#1f1f1c" stroke-width="2.2" stroke-linejoin="round"/>
+        <path d="M18 19V33" stroke="#1f1f1c" stroke-width="2.2" stroke-linecap="round"/>
+        <circle cx="18" cy="11" r="2.2" fill="#ec7523"/>
+      </svg>
+      <div class="nc-brand-text">
+        <span class="nc-brand-name">Smart AI Life</span>
+        <span class="nc-brand-sub">{isEn ? 'Living Lab & Docs' : '暮らしとAIの実験室'}</span>
+      </div>
+    </a>
+
+    <!-- Right: Desktop Navigation (Nabu Casa Style) -->
+    <nav class="nc-nav-desktop" aria-label="Primary Navigation">
+      <ul class="nc-nav-list">
+        <li>
+          <a href={isEn ? '/en/' : '/'} class="nc-nav-link">{isEn ? 'Home' : 'ホーム'}</a>
+        </li>
+
+        <!-- Divisions Dropdown -->
+        <li class="nc-dropdown-wrap" id="divisionsDropdown">
+          <button type="button" class="nc-nav-link nc-dropdown-btn" id="divisionsDropdownBtn" aria-expanded="false" aria-haspopup="true">
+            <span>{isEn ? 'Labs' : 'ラボ'}</span>
+            <svg class="nc-dropdown-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+              <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+
+          <div class="nc-dropdown-panel" id="divisionsPanel" role="menu">
+            <div class="nc-dropdown-top">
+              <span class="nc-dropdown-eyebrow">{isEn ? '8 Labs' : 'ラボ（テーマ別ナレッジベース）'}</span>
+              <a href="/divisions" class="nc-dropdown-all">{isEn ? 'All Labs →' : 'すべてのラボを見る →'}</a>
+            </div>
+
+            <div class="nc-dropdown-grid">
+              <a href="/divisions/ai-hems" class="nc-drop-card" role="menuitem">
+                <span class="nc-drop-dot sun">⚡</span>
+                <div>
+                  <strong>AI Home HEMS</strong>
+                  <span>ニチコン14.9kWh・JIT深夜充電</span>
+                </div>
+              </a>
+              <a href="/divisions/wakwak-money" class="nc-drop-card" role="menuitem">
+                <span class="nc-drop-dot green">💰</span>
+                <div>
+                  <strong>100歳家計・資産形成</strong>
+                  <span>教育費ピーク・口座分離・老後CF</span>
+                </div>
+              </a>
+              <a href="/divisions/toyotahome" class="nc-drop-card" role="menuitem">
+                <span class="nc-drop-dot tin">🏡</span>
+                <div>
+                  <strong>トヨタホーム住まい研究</strong>
+                  <span>5,200万ローン・鉄骨ユニット・維持費</span>
+                </div>
+              </a>
+              <a href="/divisions/nanbyo" class="nc-drop-card" role="menuitem">
+                <span class="nc-drop-dot orange">🩺</span>
+                <div>
+                  <strong>難病・医療情報ポータル</strong>
+                  <span>好酸球性胃腸炎・医療費助成・血圧</span>
+                </div>
+              </a>
+              <a href="/divisions/aichi-high" class="nc-drop-card" role="menuitem">
+                <span class="nc-drop-dot sun">🎓</span>
+                <div>
+                  <strong>愛知高校受験ナビ</strong>
+                  <span>公立2校複合選抜・内申点データ</span>
+                </div>
+              </a>
+              <a href="/divisions/hobby-labs" class="nc-drop-card" role="menuitem">
+                <span class="nc-drop-dot orange">👾</span>
+                <div>
+                  <strong>ウルトラマン総合研究</strong>
+                  <span>ソフビ造形解析・カードゲーム(UCG)</span>
+                </div>
+              </a>
+              <a href="/divisions/smartailife" class="nc-drop-card" role="menuitem">
+                <span class="nc-drop-dot green">🐼</span>
+                <div>
+                  <strong>くらしAIラボ</strong>
+                  <span>ローカルLLM・自律エージェント</span>
+                </div>
+              </a>
+            </div>
+          </div>
+        </li>
+
+        <li>
+          <a href="/craft" class="nc-nav-link">UI/UX Craft</a>
+        </li>
+
+        <li>
+          <a href={HATENA_BLOG_URL} target="_blank" rel="noopener noreferrer" class="nc-nav-link">
+            <span>{isEn ? 'Hatena Blog' : '公式ブログ'}</span>
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden="true" style="margin-left: 2px;">
+              <path d="M3.5 2.5H9.5V8.5M9.5 2.5L2.5 9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+        </li>
+
+        <li>
+          <a href={isEn ? '/' : '/en/'} class="nc-nav-link nc-lang-switch">
+            {isEn ? 'JP 日本語' : 'EN English'}
+          </a>
+        </li>
+
+        <li>
+          <a href={isEn ? '/en/' : '/articles'} class="btn btn-dark nc-header-cta">
+            {isEn ? 'All Articles' : '記事一覧'}
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Mobile Menu Button -->
+    <button type="button" class="nc-mobile-btn" id="mobileToggleBtn" aria-label="メニューを開く" aria-expanded="false">
+      <svg class="icon-menu" width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M3 7H21M3 12H21M3 17H21" stroke="#1f1f1c" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Nabu Casa Sun-Yellow Mobile Drawer -->
+  <div class="nc-mobile-drawer" id="mobileDrawer">
+    <div class="nc-container nc-mobile-drawer-inner">
+      <div class="nc-mobile-links">
+        <a href="/" class="nc-mobile-link">ホーム</a>
+        <a href="/articles" class="nc-mobile-link">実践記事一覧</a>
+        <a href="/divisions" class="nc-mobile-link">ラボ一覧</a>
+        <a href="/craft" class="nc-mobile-link">UI/UX Craft Showcase</a>
+        <a href="/en/" class="nc-mobile-link">English Global Edition (/en/)</a>
+      </div>
+
+      <div class="nc-mobile-labs">
+        <p class="nc-mobile-eyebrow">テーマ別ラボ</p>
+        <div class="nc-mobile-labs-grid">
+          <a href="/divisions/ai-hems">⚡ AI Home HEMS</a>
+          <a href="/divisions/wakwak-money">💰 100歳家計・資産形成</a>
+          <a href="/divisions/toyotahome">🏡 トヨタホーム住まい研究</a>
+          <a href="/divisions/nanbyo">🩺 難病・医療情報ポータル</a>
+          <a href="/divisions/aichi-high">🎓 愛知高校受験ナビ</a>
+          <a href="/divisions/hobby-labs">👾 ウルトラマン総合研究</a>
+          <a href="/divisions/smartailife">🐼 くらしAIラボ</a>
+        </div>
+      </div>
+
+      <div class="nc-mobile-actions">
+        <a href="/articles" class="btn btn-dark" style="width: 100%;">すべての記事を検索・閲覧する</a>
+        <a href={HATENA_BLOG_URL} target="_blank" rel="noopener" class="btn btn-light" style="width: 100%;">公式はてなブログ ↗</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<script is:inline>
+  (function() {
+    var dropdownWrap = document.getElementById('divisionsDropdown');
+    var dropdownBtn = document.getElementById('divisionsDropdownBtn');
+    var dropdownPanel = document.getElementById('divisionsPanel');
+
+    if (dropdownBtn && dropdownPanel) {
+      dropdownBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var isOpen = dropdownPanel.classList.contains('show');
+        dropdownPanel.classList.toggle('show', !isOpen);
+        dropdownBtn.setAttribute('aria-expanded', !isOpen ? 'true' : 'false');
+      });
+
+      document.addEventListener('click', function(e) {
+        if (dropdownWrap && !dropdownWrap.contains(e.target)) {
+          dropdownPanel.classList.remove('show');
+          dropdownBtn.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+
+    var mobileBtn = document.getElementById('mobileToggleBtn');
+    var mobileDrawer = document.getElementById('mobileDrawer');
+
+    if (mobileBtn && mobileDrawer) {
+      mobileBtn.addEventListener('click', function() {
+        var isOpen = mobileDrawer.classList.contains('open');
+        mobileDrawer.classList.toggle('open', !isOpen);
+        mobileBtn.setAttribute('aria-expanded', !isOpen ? 'true' : 'false');
+      });
+
+      mobileDrawer.addEventListener('click', function(e) {
+        if (e.target.closest('a')) {
+          mobileDrawer.classList.remove('open');
+          mobileBtn.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+  })();
+</script>
+
+<style>
+  /* Nabu Casa Top Header Bar (#ecebe7, height 74px, square edges) */
+  .nc-header {
+    background-color: var(--nc-color-gray);
+    position: relative;
+    z-index: 500;
+    width: 100%;
+  }
+
+  .nc-header-inner {
+    height: 74px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+
+  .nc-header-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none !important;
+    color: var(--nc-color-charcoal);
+  }
+
+  .nc-cube-mark {
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+  }
+
+  .nc-header-logo:hover .nc-cube-mark {
+    transform: translateY(-1px);
+  }
+
+  .nc-brand-text {
+    display: flex;
+    align-items: baseline;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+  }
+
+  .nc-brand-name {
+    font-family: var(--nc-font-sans);
+    font-size: 1.25rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--nc-color-charcoal);
+    line-height: 1;
+  }
+
+  .nc-brand-sub {
+    font-family: var(--nc-font-serif);
+    font-size: 0.85rem;
+    font-weight: 300;
+    color: var(--nc-color-taupe);
+    display: none;
+  }
+
+  @media (min-width: 640px) {
+    .nc-brand-sub {
+      display: inline;
+    }
+  }
+
+  /* Desktop Navigation */
+  .nc-nav-desktop {
+    display: none;
+  }
+
+  @media (min-width: 960px) {
+    .nc-nav-desktop {
+      display: block;
+    }
+  }
+
+  .nc-nav-list {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .nc-nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-family: var(--nc-font-sans);
+    font-size: 0.9375rem;
+    font-weight: 400;
+    color: var(--nc-color-charcoal);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    padding: 0.25rem 0;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .nc-nav-link:hover {
+    color: var(--nc-color-charcoal);
+    text-decoration: underline;
+    text-decoration-color: var(--nc-color-orange);
+    text-underline-offset: 0.3em;
+  }
+
+  .nc-lang-switch {
+    font-size: 0.85rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 100px;
+    background-color: var(--nc-color-white);
+    text-decoration: none !important;
+  }
+
+  .nc-lang-switch:hover {
+    background-color: var(--nc-color-sun);
+    text-decoration: none !important;
+  }
+
+  .nc-header-cta {
+    padding: 0.55rem 1.25rem;
+    font-size: 0.9rem;
+  }
+
+  /* Dropdown */
+  .nc-dropdown-wrap {
+    position: relative;
+  }
+
+  .nc-dropdown-chevron {
+    transition: transform 0.2s ease;
+  }
+
+  .nc-dropdown-wrap:hover .nc-dropdown-chevron {
+    transform: rotate(180deg);
+  }
+
+  .nc-dropdown-panel {
+    display: none;
+    position: absolute;
+    top: calc(100% + 10px);
+    right: -120px;
+    width: 580px;
+    background-color: var(--nc-color-gray);
+    border: 1px solid var(--nc-color-charcoal);
+    border-radius: var(--nc-radius-md);
+    padding: 1.25rem;
+    box-shadow: 0 18px 40px rgba(31, 31, 28, 0.14);
+    z-index: 600;
+  }
+
+  .nc-dropdown-wrap:hover .nc-dropdown-panel,
+  .nc-dropdown-panel.show {
+    display: block;
+  }
+
+  .nc-dropdown-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.85rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid rgba(31, 31, 28, 0.12);
+  }
+
+  .nc-dropdown-eyebrow {
+    font-family: var(--nc-font-serif);
+    font-size: 0.88rem;
+    color: var(--nc-color-taupe);
+  }
+
+  .nc-dropdown-all {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--nc-color-charcoal);
+  }
+
+  .nc-dropdown-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+  }
+
+  .nc-drop-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    padding: 0.7rem 0.8rem;
+    background-color: var(--nc-color-white);
+    border-radius: 0.75rem;
+    text-decoration: none !important;
+    color: var(--nc-color-charcoal);
+    transition: background-color 0.15s ease, transform 0.15s ease;
+  }
+
+  .nc-drop-card:hover {
+    background-color: var(--nc-color-sun);
+    text-decoration: none !important;
+  }
+
+  .nc-drop-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+    background-color: var(--nc-color-gray);
+  }
+
+  .nc-drop-dot.sun { background-color: var(--nc-color-sun); }
+  .nc-drop-dot.tin { background-color: var(--nc-color-tin); }
+  .nc-drop-dot.green { background-color: var(--nc-color-green); color: #fff; }
+  .nc-drop-dot.orange { background-color: var(--nc-color-orange); color: #fff; }
+
+  .nc-drop-card strong {
+    display: block;
+    font-size: 0.86rem;
+    font-weight: 500;
+    line-height: 1.25;
+    color: var(--nc-color-charcoal);
+  }
+
+  .nc-drop-card span {
+    display: block;
+    font-size: 0.74rem;
+    color: var(--nc-color-taupe);
+    margin-top: 0.15rem;
+    line-height: 1.3;
+  }
+
+  /* Mobile Toggle & Sun Drawer */
+  .nc-mobile-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 999px;
+    border: 0;
+    background-color: var(--nc-color-white);
+    cursor: pointer;
+  }
+
+  @media (min-width: 960px) {
+    .nc-mobile-btn {
+      display: none;
+    }
+  }
+
+  .nc-mobile-drawer {
+    display: none;
+    background-color: var(--nc-color-sun);
+    color: var(--nc-color-charcoal);
+    border-bottom: 2px solid var(--nc-color-charcoal);
+  }
+
+  .nc-mobile-drawer.open {
+    display: block;
+  }
+
+  .nc-mobile-drawer-inner {
+    padding-top: 1.5rem;
+    padding-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .nc-mobile-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .nc-mobile-link {
+    font-size: 1.35rem;
+    font-weight: 450;
+    color: var(--nc-color-charcoal);
+    padding: 0.35rem 0;
+    border-bottom: 1px solid rgba(31, 31, 28, 0.12);
+    text-decoration: none !important;
+  }
+
+  .nc-mobile-eyebrow {
+    font-family: var(--nc-font-serif);
+    font-size: 0.9rem;
+    color: var(--nc-color-charcoal);
+    opacity: 0.75;
+    margin-bottom: 0.6rem;
+  }
+
+  .nc-mobile-labs-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  .nc-mobile-labs-grid a {
+    background-color: var(--nc-color-white);
+    padding: 0.6rem 0.75rem;
+    border-radius: 0.65rem;
+    font-size: 0.82rem;
+    font-weight: 450;
+    color: var(--nc-color-charcoal);
+    text-decoration: none !important;
+  }
+
+  .nc-mobile-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+</style>

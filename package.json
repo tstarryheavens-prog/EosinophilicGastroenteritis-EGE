@@ -2,19 +2,31 @@
   "name": "eosinophilic-gastroenteritis-blog",
   "type": "module",
   "version": "1.0.0",
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
+    "dev": "node ./node_modules/astro/bin/astro.mjs dev",
+    "start": "node ./node_modules/astro/bin/astro.mjs dev",
+    "build": "node ./node_modules/astro/bin/astro.mjs build && cp -r dist/client/* dist/ 2>/dev/null || true && cp -r dist/server/* dist/ 2>/dev/null || true && (mv dist/entry.mjs dist/_worker.js 2>/dev/null || true) && cp public/.assetsignore dist/.assetsignore 2>/dev/null || true && rm -rf dist/server/wrangler.json dist/wrangler.json .wrangler",
+    "preview": "node ./node_modules/astro/bin/astro.mjs preview",
+    "astro": "node ./node_modules/astro/bin/astro.mjs"
   },
   "dependencies": {
+    "@astrojs/cloudflare": "^14.4.0",
+    "@astrojs/react": "^5.0.0",
     "@astrojs/rss": "^4.0.11",
     "@astrojs/sitemap": "^3.2.1",
+    "@emdash-cms/cloudflare": "^1.3.1",
     "@tailwindcss/typography": "^0.5.16",
     "@tailwindcss/vite": "^4.0.12",
-    "astro": "^5.4.2",
+    "astro": "^7.3.5",
+    "emdash": "^1.3.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "tailwindcss": "^4.0.12"
+  },
+  "allowScripts": {
+    "esbuild": true
   }
 }

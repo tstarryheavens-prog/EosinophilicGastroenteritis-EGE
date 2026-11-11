@@ -1,0 +1,209 @@
+---
+import BaseLayout from '../../layouts/SmartAIBaseLayout.astro';
+---
+
+<BaseLayout 
+  title="Antigravity × Hermes Agent (ACP) 自立型AIエージェント統合アーキテクチャ ｜ Smart AI Life"
+  description="Google AntigravityをメインUIに、Nous Researchの自律型エージェントHermes AgentをACP経由で直結。全プロジェクトの記憶とLaya非自己回帰型意思決定ゲートを搭載した自立型AI開発基盤の解説。"
+>
+  <section class="nc-hero hero-charcoal">
+    <div class="nc-hero-inner">
+      <p class="eyebrow" style="color: #fff; opacity: 0.8;">Autonomous AI Architecture</p>
+      <h1 class="nc-hero-title">Antigravity × Hermes Agent (ACP) 統合アーキテクチャ</h1>
+      <p class="nc-hero-lead">
+        Google Antigravityを統括コントロールプレーンとし、Nous Researchの自律思考ループ（Hermes SOUL）をACP直結。10年分の開発ナレッジと33msのLaya意思決定ゲートを融合したAI基盤の設計書です。
+      </p>
+    </div>
+  </section>
+
+  <section class="nc-sub-hero">
+    <div class="nc-sub-hero-row">
+      <ol class="nc-breadcrumbs" aria-label="Breadcrumb">
+        <li><a href="/">Smart AI Life</a></li>
+        <li><a href="/articles">記事一覧</a></li>
+        <li><span>Autonomous Agent Architecture</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <div class="nc-container" style="padding-bottom: 3rem;">
+    <div class="nc-article-layout has-toc">
+      <aside class="nc-ag-toc" aria-label="On this page">
+        <p style="font-family: var(--nc-font-serif); font-size: 1.05rem; margin-bottom: 0.75rem; padding-left: 0.5rem;">On this page</p>
+        <ul class="nc-ag-toc-list">
+          <li><a href="#sec-01" class="is-active">01. Hermes統合の背景</a></li>
+          <li><a href="#sec-02">02. ACP × MCACP直結</a></li>
+          <li><a href="#sec-03">03. 4階層モデル選定</a></li>
+          <li><a href="#sec-04">04. Laya意思決定ゲート</a></li>
+          <li><a href="#sec-05">05. 10年分の永続記憶</a></li>
+        </ul>
+      </aside>
+
+      <div class="nc-ag-body">
+        <section id="sec-01" class="nc-ag-sec">
+          <p class="eyebrow">01. Core Motivation</p>
+          <h2>なぜ「Antigravity」に「Hermes」の頭脳を統合したのか？</h2>
+          <p>
+            一般的なAIアシスタントは「計画だけ提示して止まる」「TODOスタブを出して終了する」ことが多く、人間が最後まで手直しする必要がありました。そこでNous Researchが提唱する「Finishing the Job（検証とテストまで完遂する）」の原則をAntigravityに組み込みました。
+          </p>
+          <blockquote>
+            <strong>設計目標:</strong> ゴールを与えたら、AIがコードを書き、ビルド・テストを実行し、エラーを自律修復して動作確認済みの成果物を届ける自立型ワークフロー。
+          </blockquote>
+        </section>
+
+        <section id="sec-02" class="nc-ag-sec">
+          <p class="eyebrow">02. Protocol Bridge</p>
+          <h2>ACP × MCACP によるプロトコル直結</h2>
+          <p>Antigravity（MCPクライアント）とHermes Agent（ACPサーバー）をMCACPブリッジで直結しています。</p>
+          <pre><code>Antigravity (Main Control Plane)
+  └── MCP Protocol (stdio)
+        └── MCACP Bridge Server (`mcacp`)
+              └── Agent Client Protocol (ACP)
+                    └── Hermes Agent (`hermes acp`)</code></pre>
+        </section>
+
+        <section id="sec-03" class="nc-ag-sec">
+          <p class="eyebrow">03. Usage Economics</p>
+          <h2>4階層モデル選定＆Usage最適化プロトコル</h2>
+          <p>タスクの難易度に応じてローカルGPUクラスタ（Strata / BC-250）とクラウドモデルを動的に使い分けます。</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Tier</th>
+                <th>タスク分類</th>
+                <th>選定モデル</th>
+                <th>Usage効果</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Tier 0</strong></td>
+                <td>大量ドラフト・一次要約・論理検証</td>
+                <td><code>Strata / BC-250</code></td>
+                <td>完全ローカル・クォータ消費ゼロ</td>
+              </tr>
+              <tr>
+                <td><strong>Tier 1</strong></td>
+                <td>構文チェック・ログ調査・整形</td>
+                <td><code>flash_lite</code></td>
+                <td>最速・最小トークン消費</td>
+              </tr>
+              <tr>
+                <td><strong>Tier 2</strong></td>
+                <td>標準調査・単体テスト・小規模修正</td>
+                <td><code>flash</code></td>
+                <td>高コスパ標準モデル</td>
+              </tr>
+              <tr>
+                <td><strong>Tier 3</strong></td>
+                <td>複合アーキテクチャ設計・最終検証</td>
+                <td><code>pro</code></td>
+                <td>重要設計フェーズに集中投下</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="sec-04" class="nc-ag-sec">
+          <p class="eyebrow">04. Non-Autoregressive Decision Engine</p>
+          <h2>Laya (Parallel Constrained Decoding) の統合</h2>
+          <p>
+            Metal GPU上の単一フォワードパス（約33ms）で動作するLayaエンジンにより、モデル選定（<code>laya_decide</code>）とビルド障害トリアージ（<code>classify_incident</code>）を校正済み確信度付きで即座に判定します。
+          </p>
+        </section>
+
+        <section id="sec-05" class="nc-ag-sec">
+          <p class="eyebrow">05. Persistent Memory</p>
+          <h2>10年分の開発ナレッジを永続記憶</h2>
+          <ul>
+            <li><strong>AI Home HEMS:</strong> ECHONET Lite, ニチコン14.9kWh蓄電池, JIT深夜充電 (16.3円/kWh)</li>
+            <li><strong>トヨタホーム10年:</strong> 5,200万フルローン, 鉄骨ラーメン構造, 10年目点検データ</li>
+            <li><strong>100歳家計シミュレーション:</strong> 教育費ダブルピーク（夫47〜53歳）と口座分離</li>
+            <li><strong>難病医療ポータル & 愛知高校受験ナビ & EVモータ論文アーカイブ</strong></li>
+          </ul>
+        </section>
+      </div>
+
+      <aside class="nc-item-cards">
+        <div class="nc-item-card primary">
+          <h3>詳細解説記事</h3>
+          <p>はてなブログおよびGitHubリポジトリにて設定ファイル一式を公開しています。</p>
+          <div style="margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+            <a href="https://kurashi-ai.hatenadiary.com/entry/2026/10/04/010848" target="_blank" rel="noopener noreferrer" class="btn btn-dark">はてなブログ解説 ↗</a>
+            <a href="https://github.com/tstarryheavens-prog/ai-living-lab" target="_blank" rel="noopener noreferrer" class="btn btn-light">GitHubリポジトリ ↗</a>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .nc-ag-toc {
+    border-left: 1px solid var(--nc-color-gray);
+    padding-left: 1rem;
+  }
+  @media (min-width: 1024px) {
+    .nc-ag-toc {
+      position: sticky;
+      top: 1.5rem;
+    }
+  }
+  .nc-ag-toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .nc-ag-toc-list a {
+    display: block;
+    font-size: 0.85rem;
+    padding: 0.42rem 0.65rem;
+    border-radius: 0.5rem;
+    text-decoration: none !important;
+  }
+  .nc-ag-toc-list a.is-active {
+    background-color: var(--nc-color-sun);
+    font-weight: 450;
+  }
+  .nc-ag-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    min-width: 0;
+  }
+  .nc-ag-sec h2 {
+    margin-bottom: 0.75rem;
+  }
+  .nc-ag-sec p,
+  .nc-ag-sec li {
+    line-height: 1.75;
+  }
+  .nc-ag-sec blockquote {
+    border-left: 0.25rem solid var(--nc-color-orange);
+    background-color: var(--nc-color-light-gray);
+    padding: 1rem 1.25rem;
+    border-radius: 0 0.75rem 0.75rem 0;
+    margin: 1rem 0;
+  }
+  .nc-ag-sec table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--nc-color-light-gray);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+  }
+  .nc-ag-sec th {
+    background-color: var(--nc-color-gray);
+    text-align: left;
+    padding: 0.75rem 1rem;
+  }
+  .nc-ag-sec td {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid rgba(31, 31, 28, 0.08);
+  }
+</style>

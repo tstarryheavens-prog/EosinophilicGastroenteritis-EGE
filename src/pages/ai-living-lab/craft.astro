@@ -1,0 +1,394 @@
+---
+import BaseLayout from '../../layouts/SmartAIBaseLayout.astro';
+import craftData from '../../data/craft-knowledge.json';
+
+const author = craftData.featured_author;
+const passes = craftData.nine_passes;
+const articles = craftData.articles;
+---
+
+<BaseLayout
+  title="UI/UX Craft Lab ｜ Nabu Casa Design System & 脱AIスロップのプロダクト工芸"
+  description="AIツールが生成する紫グラデーション・発光カード・絵文字ラベルを脱却し、Nabu Casa Supportのような静謐なインダストリアルデザインと9段階のUnsloppingプロトコルを体系化。"
+>
+  <!-- 1. Nabu Casa Rounded Hero Banner -->
+  <section class="nc-hero hero-sun">
+    <div class="nc-hero-inner">
+      <p class="eyebrow" style="color: var(--nc-color-charcoal); opacity: 0.8;">Design Craft & Nabu Casa Design System</p>
+      <h1 class="nc-hero-title">AIっぽさを消し去り、本物のプロダクトデザインへ。</h1>
+      <p class="nc-hero-lead">
+        AIコード生成ツールが出力しがちな「紫ネオン・発光カード・過剰な装飾」を排し、Nabu Casa Supportの温かみあるストーン・チャコール・サンイエロー配色と、Damir Sokolovsky (@heydamir) の9段階「Unslopping」工芸プロトコルを統合したデザインリファレンスです。
+      </p>
+    </div>
+  </section>
+
+  <!-- 2. Sub-Hero Row: Breadcrumbs + Pill Links -->
+  <section class="nc-sub-hero">
+    <div class="nc-sub-hero-row">
+      <ol class="nc-breadcrumbs" aria-label="Breadcrumb">
+        <li><a href="/">Smart AI Life</a></li>
+        <li><span>UI/UX Craft Lab</span></li>
+      </ol>
+
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <a href={author.series_url} target="_blank" rel="noopener noreferrer" class="btn">X Unslopping Series ↗</a>
+        <a href={author.repo_url} target="_blank" rel="noopener noreferrer" class="btn btn-dark">GitHub: heydamir/unslop ↗</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Nabu Casa 3-Column Documentation Layout -->
+  <div class="nc-container" style="padding-bottom: 3rem;">
+    <div class="nc-article-layout has-toc">
+      <!-- Left Sticky TOC -->
+      <aside class="nc-craft-toc" aria-label="On this page">
+        <p class="nc-craft-toc-title">On this page</p>
+        <ul class="nc-craft-toc-list">
+          <li><a href="#sec-frames" class="is-active">01. フレーム別の改善変遷</a></li>
+          <li><a href="#sec-compare">02. AI Slop vs Craft 対比</a></li>
+          <li><a href="#sec-direction">03. 5行の芯決め</a></li>
+          <li><a href="#sec-passes">04. 9つの改善パス</a></li>
+          <li><a href="#sec-curated">05. デザイン知見アーカイブ</a></li>
+        </ul>
+        <a href="#main-content" style="display: inline-block; margin-top: 1rem; padding-left: 0.5rem; font-size: 0.82rem; color: var(--nc-color-taupe);">↑ Back to top</a>
+      </aside>
+
+      <!-- Center Content -->
+      <div class="nc-craft-main">
+        <!-- 01. Frame Breakdown -->
+        <section id="sec-frames" class="nc-craft-sec">
+          <p class="eyebrow">01. Video Breakdown</p>
+          <h2>AIスロップが1工程ずつ剥がれ落ちる変遷</h2>
+          <p>
+            安易なAI生成UIが、余白の再設計（Spacing）、紫ネオンの除去（Color）、絵文字の整理（Icons）、文字組み（Type）、実物比率の復元（Layout）を経て、静かで誠実なプロダクト画面へ生まれ変わる工程です。
+          </p>
+          <div class="nc-craft-card">
+            <img
+              src="/images/craft/story-dashboard-frames.webp"
+              alt="A vibecoded dashboard unslopping itself frame by frame"
+              style="border-radius: 0.75rem; width: 100%; margin-bottom: 1rem;"
+              loading="lazy"
+            />
+            <p style="font-size: 0.88rem; color: var(--nc-color-charcoal); opacity: 0.85; margin: 0;">
+              <strong>Redline Process:</strong> 左端の「Vibecoded（AI生成直後）」から右端の「Unslopped（完成形）」へ、9つの厳密な順序で修正を重ねます。
+            </p>
+          </div>
+        </section>
+
+        <!-- 02. Before vs After -->
+        <section id="sec-compare" class="nc-craft-sec">
+          <p class="eyebrow">02. Before & After</p>
+          <h2>対比で理解する「AI Slop」と「Craft」の差異</h2>
+          <div class="nc-comp-grid">
+            <div class="nc-comp-panel">
+              <span class="nc-pill-tag orange">BEFORE: AI Slop (Vibecoded)</span>
+              <img src="/images/craft/ai-slop-blob.webp" alt="AI Slop Blob" style="max-height: 120px; margin: 1rem auto; border-radius: 0.5rem;" />
+              <ul>
+                <li><strong>紫〜青グラデーションの乱用:</strong> 背景もボタンも枠線もすべて紫色</li>
+                <li><strong>発光エフェクト (Glows):</strong> すべてのカードが過剰に自己主張</li>
+                <li><strong>不揃いな余白:</strong> リズムのない場当たり的なマージン</li>
+                <li><strong>空虚な誇張コピー:</strong> 「Supercharge your workflow with AI!!」</li>
+              </ul>
+            </div>
+
+            <div class="nc-comp-panel sun-border">
+              <span class="nc-pill-tag sun">AFTER: Unslopped Craft (Nabu Casa Style)</span>
+              <img src="/images/craft/unslop-dashboard-after.webp" alt="Unslopped Dashboard After" style="width: 100%; margin: 1rem 0; border-radius: 0.5rem;" />
+              <ul>
+                <li><strong>Quiet Chrome（静かな枠組み）:</strong> ストーン・ホワイト・チャコールの落ち着いた階層</li>
+                <li><strong>意図のあるアクセント色:</strong> 選択状態や重要導線のみにサンイエロー (`#ffde77`) やオレンジ (`#ec7523`) を配分</li>
+                <li><strong>Outfit × Source Serif 4:</strong> 幾何学サンセリフと知的なセリフ体のコントラスト</li>
+                <li><strong>事実を語る平易な言葉:</strong> 実測値（14.9kWh、16.3円/kWh）と再現手順を明記</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- 03. Direction Setting -->
+        <section id="sec-direction" class="nc-craft-sec">
+          <p class="eyebrow">03. Direction Setting</p>
+          <h2>コードを直す前に：5行でプロダクトの芯を決める</h2>
+          <div class="nc-dir-grid">
+            <div class="nc-dir-item">
+              <strong>01. Product</strong>
+              <p>何をする製品で、誰のためのものかを平易な1文で述べる。</p>
+            </div>
+            <div class="nc-dir-item">
+              <strong>02. Character</strong>
+              <p>具体的で手触りのある2〜3語（例: calm, exact, warm）。</p>
+            </div>
+            <div class="nc-dir-item">
+              <strong>03. World</strong>
+              <p>製品が自然に属する場所・素材（紙とインク、温かみのある住宅計器）。</p>
+            </div>
+            <div class="nc-dir-item">
+              <strong>04. Moments</strong>
+              <p>画面の中で唯一豊かな色と素材が許される1〜2箇所の見せ場。</p>
+            </div>
+            <div class="nc-dir-item">
+              <strong>05. Signature</strong>
+              <p>この製品だけが持つ、一貫して使われる唯一の細部。</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 04. The 9 Passes -->
+        <section id="sec-passes" class="nc-craft-sec">
+          <p class="eyebrow">04. The 9 Passes</p>
+          <h2>デザイナーのレッドライン：厳密な9つの改善パス</h2>
+          <div class="nc-passes-list">
+            {passes.map((p) => (
+              <div class="nc-pass-box" id={`pass-${p.id}`}>
+                <div class="nc-pass-head">
+                  <span class="nc-pill-tag sun">PASS {String(p.step).padStart(2, '0')}</span>
+                  <h3>{p.name}</h3>
+                </div>
+                <p class="nc-pass-why"><strong>順序の理由:</strong> {p.order_reason}</p>
+                <ul class="nc-pass-ul">
+                  {p.principles.map((pr) => (
+                    <li>{pr}</li>
+                  ))}
+                </ul>
+                <div class="nc-diff-pair">
+                  <div class="nc-diff-item">
+                    <span>BEFORE:</span> <code>{p.before_slop}</code>
+                  </div>
+                  <div class="nc-diff-item">
+                    <span>AFTER:</span> <code>{p.after_craft}</code>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <!-- 05. Curated Articles -->
+        <section id="sec-curated" class="nc-craft-sec">
+          <p class="eyebrow">05. Curated Design Knowledge</p>
+          <h2>デザインノウハウ・アーカイブ</h2>
+          <div class="nc-category-cards">
+            {articles.map((art, i) => (
+              <a href={art.source_url} target="_blank" rel="noopener noreferrer" class={`nc-category-card ${i % 2 === 0 ? 'tin' : 'sun'}`}>
+                <div class="nc-category-card-content">
+                  <div class="nc-category-card-title">
+                    <span style="font-size: 0.78rem;">{art.author} · {art.date}</span>
+                    <h3>{art.title}</h3>
+                  </div>
+                  <div class="nc-category-card-description">
+                    <p>{art.summary}</p>
+                    <span class="nc-category-card-cta" aria-hidden="true">↗</span>
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      <!-- Right Sidebar Cards -->
+      <aside class="nc-item-cards">
+        <div class="nc-item-card product">
+          <p class="eyebrow">Active Design System</p>
+          <h3>Nabu Casa Support Aesthetic</h3>
+          <p>
+            Smart AI Life全体で採用しているデザインシステム：`#ecebe7` ストーングレー、`#1f1f1c` チャコール、`#ffde77` サンイエロー、`#a8b7cd` ティンブルー、そして `Outfit` × `Source Serif 4` タイポグラフィ。
+          </p>
+        </div>
+
+        <div class="nc-item-card primary">
+          <h3>Primary Source</h3>
+          <p>Damir Sokolovsky (@heydamir) によるオープンソーススキル（MIT License）をベースに体系化しています。</p>
+          <div style="margin-top: 0.5rem;">
+            <a href={author.repo_url} target="_blank" rel="noopener noreferrer" class="btn btn-dark">GitHub Repository ↗</a>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .nc-craft-toc {
+    border-left: 1px solid var(--nc-color-gray);
+    padding-left: 1rem;
+  }
+  @media (min-width: 1024px) {
+    .nc-craft-toc {
+      position: sticky;
+      top: 1.5rem;
+    }
+  }
+  .nc-craft-toc-title {
+    font-family: var(--nc-font-serif);
+    font-size: 1.125rem;
+    font-weight: 300;
+    margin: 0 0 0.75rem;
+    padding-left: 0.5rem;
+  }
+  .nc-craft-toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .nc-craft-toc-list a {
+    display: block;
+    font-size: 0.86rem;
+    padding: 0.42rem 0.65rem;
+    border-radius: 0.5rem;
+    text-decoration: none !important;
+  }
+  .nc-craft-toc-list a.is-active {
+    background-color: var(--nc-color-sun);
+    font-weight: 450;
+  }
+
+  .nc-craft-main {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+  }
+
+  .nc-craft-sec h2 {
+    margin-bottom: 0.75rem;
+  }
+
+  .nc-craft-sec > p {
+    line-height: 1.7;
+    margin-bottom: 1.25rem;
+  }
+
+  .nc-craft-card {
+    background-color: var(--nc-color-gray);
+    border-radius: var(--nc-radius-md);
+    padding: 1.25rem;
+  }
+
+  .nc-comp-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  @media (min-width: 768px) {
+    .nc-comp-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .nc-comp-panel {
+    background-color: var(--nc-color-gray);
+    border-radius: var(--nc-radius-md);
+    padding: 1.5rem;
+  }
+
+  .nc-comp-panel.sun-border {
+    background-color: var(--nc-color-light-gray);
+    border: 2px solid var(--nc-color-charcoal);
+  }
+
+  .nc-comp-panel ul {
+    padding-left: 1.25rem;
+    font-size: 0.9rem;
+    line-height: 1.65;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .nc-pill-tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+  }
+  .nc-pill-tag.sun {
+    background-color: var(--nc-color-sun);
+    color: var(--nc-color-charcoal);
+  }
+  .nc-pill-tag.orange {
+    background-color: var(--nc-color-orange);
+    color: var(--nc-color-white);
+  }
+
+  .nc-dir-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.85rem;
+  }
+
+  .nc-dir-item {
+    background-color: var(--nc-color-gray);
+    border-radius: var(--nc-radius-md);
+    padding: 1.25rem;
+  }
+
+  .nc-dir-item strong {
+    display: block;
+    font-size: 1rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .nc-dir-item p {
+    font-size: 0.86rem;
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  .nc-passes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .nc-pass-box {
+    background-color: var(--nc-color-gray);
+    border-radius: var(--nc-radius-md);
+    padding: 1.5rem;
+  }
+
+  .nc-pass-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .nc-pass-head h3 {
+    font-size: 1.25rem;
+    margin: 0;
+  }
+
+  .nc-pass-why {
+    font-size: 0.9rem;
+    background-color: var(--nc-color-white);
+    padding: 0.65rem 0.95rem;
+    border-radius: 0.5rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .nc-pass-ul {
+    padding-left: 1.35rem;
+    font-size: 0.9rem;
+    line-height: 1.65;
+    margin-bottom: 1rem;
+  }
+
+  .nc-diff-pair {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    background-color: var(--nc-color-white);
+    padding: 0.95rem;
+    border-radius: 0.65rem;
+    font-size: 0.82rem;
+  }
+
+  .nc-diff-item span {
+    font-weight: 600;
+    margin-right: 0.4rem;
+  }
+</style>

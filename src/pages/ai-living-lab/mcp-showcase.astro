@@ -1,0 +1,253 @@
+---
+import BaseLayout from '../../layouts/SmartAIBaseLayout.astro';
+import { HATENA_BLOG_URL } from '../../data/projects';
+
+const mcpList = [
+  {
+    id: 'excel-live',
+    name: 'excel-live (macOS Excel)',
+    badge: 'GUI直接制御',
+    tone: 'green',
+    icon: '📊',
+    summary: '裏でxlsxを作るのではなく、開いているMacのExcelをApple Eventsで直接リアルタイム操作。',
+    configSnippet: `"excel-live": {
+  "command": "python",
+  "args": ["/path/to/macos-excel-mcp/server.py"]
+}`,
+    generalUse: '月次売上データの自動集計、散らかったCSVの整形・数式・カラーリングを施したダッシュボード瞬時描画。',
+    personalUse: '1,413行のウルトラマンCGカード台帳を開いたまま、公式API 1,339枚と照合して未保有カードを自動抽出・数式挿入。',
+    blogUrl: 'https://kurashi-ai.hatenadiary.com/entry/2026/10/13/004808',
+  },
+  {
+    id: 'ms-365',
+    name: 'ms-365 (OneDrive & OneNote)',
+    badge: 'クラウド直結',
+    tone: 'tin',
+    icon: '☁️',
+    summary: 'Macのオンデマンド同期（0バイト問題）をGraph APIで突破。未ダウンロードファイルもクラウド全文走査。',
+    configSnippet: `"ms-365": {
+  "command": "npx",
+  "args": ["-y", "@softeria/ms-365-mcp-server", "--preset", "files,onenote"]
+}`,
+    generalUse: 'クラウドOneDrive内の提案書・契約書の全文横断検索、OneNote議事録からのタスク自動抽出。',
+    personalUse: '10年前のトヨタホーム建築見積書（値引き527万明細書やつなぎ融資）をMac未同期のまま即座にサルベージ・検証。',
+    blogUrl: 'https://kurashi-ai.hatenadiary.com/entry/2026/10/13/004820',
+  },
+  {
+    id: 'yomitoku',
+    name: 'yomitoku (日本語Document AI)',
+    badge: '国内特化OCR',
+    tone: 'sun',
+    icon: '📑',
+    summary: '日本の研究チームが開発した高精度OCR。複雑な結合セルや傾いた領収書も構造を崩さずCSV/Markdown化。',
+    configSnippet: `"yomitoku": {
+  "command": "python",
+  "args": ["/path/to/yomitoku-mcp/server.py"]
+}`,
+    generalUse: '紙の領収書や確定申告書類のデータ化、手書き混じりアンケートのCSV変換、カタログスペック表の抽出。',
+    personalUse: '好酸球性胃腸炎・群発頭痛の血液検査結果用紙や薬局の処方箋明細を写真から正確にCSV表抽出し医療DBへ登録。',
+    blogUrl: 'https://kurashi-ai.hatenadiary.com/entry/2026/10/13/004823',
+  },
+  {
+    id: 'laya',
+    name: 'laya (超高速意思決定)',
+    badge: '約33ms推論',
+    tone: 'orange',
+    icon: '⚡',
+    summary: 'Metal GPU上の単一パスで動作する非自己回帰型エンジン。校正済み確信度（Confidence）付きで瞬時にジャッジ。',
+    configSnippet: `"laya": {
+  "command": "/path/to/laya-mcp/.venv/bin/laya-mcp-server"
+}`,
+    generalUse: 'カスタマーサポートの問い合わせ自動振り分け、サーバーログの障害深刻度トリアージ（P0〜P3判定）。',
+    personalUse: '自作HEMSで蓄電池のECHONET Lite UDP通信途絶時、生ログから異常度を0.03秒判定し自動再接続ソケットを復旧。',
+    blogUrl: 'https://kurashi-ai.hatenadiary.com/entry/2026/10/13/004827',
+  },
+  {
+    id: 'paper2agent',
+    name: 'paper2agent (論文・コードMCP化)',
+    badge: '最新学術基盤',
+    tone: 'charcoal',
+    icon: '🔬',
+    summary: 'arXiv論文PDFやGitHubリポジトリから、アルゴリズムを解析して動作可能なMCPサーバーを全自動生成。',
+    configSnippet: `"paper2agent": {
+  "command": "python",
+  "args": ["/path/to/Paper2Agent/server.py"]
+}`,
+    generalUse: '最新の機械学習・バイオ論文の追試、オープンソースリポジトリをチームのAIツールへ即座に昇格。',
+    personalUse: '好酸球性胃腸炎・CGRP関連（群発頭痛）の海外最新抗体薬・治験論文PDFから解析関数を抽出して備えに活用。',
+    blogUrl: 'https://kurashi-ai.hatenadiary.com/entry/2026/10/13/004830',
+  },
+  {
+    id: 'gemini-notebook-mcp',
+    name: 'gemini-notebook-mcp (NotebookLM)',
+    badge: 'Googleリサーチ',
+    tone: 'tin',
+    icon: '📓',
+    summary: 'Google NotebookLMのノートブック・参考資料群をチャットから直接クエリ＆クロス横断検索。',
+    configSnippet: `"gemini-notebook-mcp": {
+  "command": "/path/to/notebooklm-mcp",
+  "env": { "NOTEBOOKLM_HL": "ja" }
+}`,
+    generalUse: '業界レポートや社内マニュアルを投入した特化型FAQボット、ポッドキャスト風オーディオ要約の生成。',
+    personalUse: '愛知県公立高校入試の過去問解説、推薦基準、学校群ごとの当日点比率（Ⅰ型〜Ⅴ型）PDF群の瞬時横断検索。',
+    blogUrl: 'https://kurashi-ai.hatenadiary.com/entry/2026/10/13/004834',
+  },
+];
+---
+
+<BaseLayout 
+  title="新導入MCP完全ガイド＆リアル活用事例 ｜ Smart AI Life" 
+  description="excel-live, ms-365, yomitoku, laya, paper2agent, gemini-notebook-mcpの導入設定と、世間一般的な活用例・我が家のリアル実践事例を徹底解説。"
+>
+  <section class="nc-hero hero-tin">
+    <div class="nc-hero-inner">
+      <p class="eyebrow" style="color: var(--nc-color-charcoal); opacity: 0.8;">Model Context Protocol (MCP) Guide</p>
+      <h1 class="nc-hero-title">新導入MCP 6選の導入手順とリアル活用事例</h1>
+      <p class="nc-hero-lead">
+        PC画面上のExcelを直接操作し、クラウド上のOneDrive/OneNote書類を横断走査し、領収書をYomiToku OCRで表化する設定ファイルと実践事例を公開しています。
+      </p>
+    </div>
+  </section>
+
+  <section class="nc-sub-hero">
+    <div class="nc-sub-hero-row">
+      <ol class="nc-breadcrumbs" aria-label="Breadcrumb">
+        <li><a href="/">Smart AI Life</a></li>
+        <li><a href="/articles">記事一覧</a></li>
+        <li><span>MCP完全ガイド</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <div class="nc-container" style="padding-bottom: 3rem;">
+    <div class="nc-article-layout has-toc">
+      <aside class="nc-mcp-toc" aria-label="On this page">
+        <p style="font-family: var(--nc-font-serif); font-size: 1.05rem; margin-bottom: 0.75rem; padding-left: 0.5rem;">On this page</p>
+        <ul class="nc-mcp-toc-list">
+          {mcpList.map((m, i) => (
+            <li><a href={`#${m.id}`} class={i === 0 ? 'is-active' : ''}>{m.icon} {m.name}</a></li>
+          ))}
+        </ul>
+      </aside>
+
+      <div style="display: flex; flex-direction: column; gap: 1.5rem; min-width: 0;">
+        {mcpList.map((mcp) => (
+          <article class="nc-mcp-card" id={mcp.id}>
+            <div class="nc-mcp-top">
+              <span class="nc-mcp-badge">{mcp.icon} {mcp.badge}</span>
+              <h2>{mcp.name}</h2>
+            </div>
+            <p style="line-height: 1.65; margin-bottom: 1rem;">{mcp.summary}</p>
+
+            <pre><code>{mcp.configSnippet}</code></pre>
+
+            <div class="nc-mcp-usecases">
+              <div class="nc-mcp-box">
+                <strong>🏢 一般的な活用事例</strong>
+                <p>{mcp.generalUse}</p>
+              </div>
+              <div class="nc-mcp-box sun">
+                <strong>🐼 我が家のリアル実践事例</strong>
+                <p>{mcp.personalUse}</p>
+              </div>
+            </div>
+
+            <div style="margin-top: 1rem;">
+              <a href={mcp.blogUrl} target="_blank" rel="noopener noreferrer" class="btn btn-dark">
+                📝 解説記事（はてなブログ）を読む ↗
+              </a>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <aside class="nc-item-cards">
+        <div class="nc-item-card primary">
+          <h3>公式はてなブログで詳細連載中</h3>
+          <p>各MCPのプロンプト設計やPython仮想環境の構築手順を発信しています。</p>
+          <div style="margin-top: 0.5rem;">
+            <a href={HATENA_BLOG_URL} target="_blank" rel="noopener noreferrer" class="btn btn-dark">公式ブログを見る ↗</a>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .nc-mcp-toc {
+    border-left: 1px solid var(--nc-color-gray);
+    padding-left: 1rem;
+  }
+  @media (min-width: 1024px) {
+    .nc-mcp-toc {
+      position: sticky;
+      top: 1.5rem;
+    }
+  }
+  .nc-mcp-toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .nc-mcp-toc-list a {
+    display: block;
+    font-size: 0.85rem;
+    padding: 0.42rem 0.65rem;
+    border-radius: 0.5rem;
+    text-decoration: none !important;
+  }
+  .nc-mcp-toc-list a.is-active {
+    background-color: var(--nc-color-sun);
+    font-weight: 450;
+  }
+  .nc-mcp-card {
+    background-color: var(--nc-color-gray);
+    border-radius: var(--nc-radius-md);
+    padding: 1.75rem;
+  }
+  .nc-mcp-badge {
+    display: inline-block;
+    font-size: 0.76rem;
+    font-weight: 500;
+    background-color: var(--nc-color-sun);
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    margin-bottom: 0.5rem;
+  }
+  .nc-mcp-top h2 {
+    font-size: 1.4rem;
+    margin: 0 0 0.5rem;
+  }
+  .nc-mcp-usecases {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+    margin-top: 1rem;
+  }
+  @media (min-width: 640px) {
+    .nc-mcp-usecases {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .nc-mcp-box {
+    background-color: var(--nc-color-white);
+    border-radius: 0.75rem;
+    padding: 1.1rem;
+    font-size: 0.88rem;
+    line-height: 1.55;
+  }
+  .nc-mcp-box.sun {
+    background-color: var(--nc-color-sun);
+  }
+  .nc-mcp-box strong {
+    display: block;
+    margin-bottom: 0.35rem;
+  }
+  .nc-mcp-box p {
+    margin: 0;
+  }
+</style>

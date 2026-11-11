@@ -1,0 +1,12 @@
+# Cloudflare Pages: 運営側の実装ファイルを「静的アセット」として公開しないための除外
+_worker.js
+assetsignore
+server
+server/*
+client
+client/*
+chunks
+chunks/*
+*.map
+functions
+functions/*

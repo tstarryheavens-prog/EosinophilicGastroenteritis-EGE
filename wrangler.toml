@@ -1,0 +1,13 @@
+name = "eosinophilicgastroenteritis-ege"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-10-19"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "emdash-db"
+database_id = "35bfccaf-e935-4859-aaa0-69f73454e871"
+
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "emdash-media"

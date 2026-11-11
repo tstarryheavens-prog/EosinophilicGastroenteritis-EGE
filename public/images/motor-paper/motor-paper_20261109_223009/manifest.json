@@ -1,0 +1,51 @@
+{
+  "uid": "motor-paper:motor-paper_20261109_223009",
+  "site_id": "motor-paper",
+  "slug": "motor-paper_20261109_223009",
+  "title": "【希土類フリーモータの進化】重希土類完全不使用の同期リラクタンスモータ（SynRM）の高トルク密度化",
+  "headline": "重希土類完全不使用の同期リラクタンスモータ（SynRM）の高トルク密度化",
+  "division": "モータ研究ラボ",
+  "prompt": "precision electric motor stator with copper windings on a dark engineering bench, machined aluminium parts, macro detail of laminated steel rotor, technical workshop atmosphere, electric motor, wide 16:9 composition, a sculptural cutaway rotor-and-coil form machined from brushed aluminium, abstract and non-functional, standing on a matte graphite plinth, placed in the lower-right third of the frame and lit by a soft rim light, casting a gentle contact shadow, occupying about one third of the width, the left two thirds kept as calm empty gradient backdrop for headline text, original abstract design, generic form, no branding, no logos, no trademarks, no mascots, no recognisable characters, no faces, premium editorial tech-blog cover art, cinematic lighting, shallow depth of field, subtle film grain, clean minimal composition, generous empty negative space on the left third for text, ultra detailed, no text, no letters, no watermark, no logo",
+  "prompt_hash": "bd77521ece84a9d1b564b1dde78a83a741bfa013bf84c7cc42ecf1b45afbc1c0",
+  "seed": 752593189,
+  "gen_key": "d6457f379edab040bc02f47ae64d32cdaae71127bc731d9270b84fb01f69200d",
+  "backend": "comfy",
+  "model": "flux1-schnell-fp8.safetensors",
+  "style_version": "s1",
+  "files": {
+    "cover": "/Users/kazukitonogi/.hermes/scripts/thumbgen/out/motor-paper/motor-paper_20261109_223009/cover_1600x900.jpg",
+    "ytbg": "/Users/kazukitonogi/.hermes/scripts/thumbgen/out/motor-paper/motor-paper_20261109_223009/ytbg_1280x720.jpg"
+  },
+  "qc": {
+    "formats": {
+      "cover": {
+        "scrim_alpha": 0.38,
+        "contrast": 6.99,
+        "bytes": 171802,
+        "luma_std": 41.4,
+        "checks": {
+          "dims": true,
+          "bytes": true,
+          "luma_std": true,
+          "contrast": true
+        },
+        "ok": true
+      },
+      "ytbg": {
+        "scrim_alpha": 0.0,
+        "contrast": null,
+        "text": false,
+        "bytes": 88733,
+        "luma_std": 45.1,
+        "checks": {
+          "dims": true,
+          "bytes": true,
+          "luma_std": true
+        },
+        "ok": true
+      }
+    },
+    "ok": true
+  },
+  "generated_at": "2026-11-10T21:10:20+09:00"
+}

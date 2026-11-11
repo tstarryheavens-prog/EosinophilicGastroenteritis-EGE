@@ -179,22 +179,22 @@ const totalCount = researchEntries.length;
           data-publish-date={entry.publishDate}
           data-search-text={`${entry.title} ${entry.originalTitle} ${entry.molecules.join(' ')} ${entry.targetDiseases.join(' ')} ${entry.source.journalOrRegistry} ${entry.source.authorsOrSponsor} ${entry.summary} ${entry.commentary}`.toLowerCase()}
         >
-          <!-- カードヘッダー（常に表示） -->
+          {/* カードヘッダー（常に表示） */}
           <div class="p-6 sm:p-7 border-b border-slate-100 bg-gradient-to-r from-slate-50/50 via-white to-white">
             <div class="flex flex-wrap items-center justify-between gap-2.5 mb-3">
               <div class="flex flex-wrap items-center gap-2">
-                <!-- 分類バッジ -->
+                {/* 分類バッジ */}
                 <span class="text-xs font-bold px-2.5 py-1 rounded-md bg-teal-50 text-teal-800 border border-teal-200">
                   {entry.categoryLabel}
                 </span>
 
-                <!-- ステータスバッジ -->
+                {/* ステータスバッジ */}
                 <span class={`text-xs font-bold px-2.5 py-1 rounded-md border ${entry.statusBadgeColor}`}>
                   {entry.status}
                 </span>
               </div>
 
-              <!-- 時系列インフォ -->
+              {/* 時系列インフォ */}
               <div class="flex items-center gap-3 text-xs text-slate-500 font-medium">
                 <span title="論文発表・治験公式発表日">
                   📅 原著発表: <strong class="text-slate-700">{entry.publishDate}</strong>
@@ -206,17 +206,17 @@ const totalCount = researchEntries.length;
               </div>
             </div>
 
-            <!-- タイトル -->
+            {/* タイトル */}
             <h2 class="text-lg sm:text-2xl font-bold text-slate-900 tracking-tight leading-snug mb-1.5">
               {entry.title}
             </h2>
 
-            <!-- 原題 -->
+            {/* 原題 */}
             <p class="text-xs sm:text-sm text-slate-500 font-mono italic mb-3">
               {entry.originalTitle}
             </p>
 
-            <!-- 出典・DOI・リンク情報 -->
+            {/* 出典・DOI・リンク情報 */}
             <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-200/80 mb-4">
               <div class="flex items-center gap-1.5">
                 <span class="font-bold text-slate-700">掲載誌/機関:</span>
@@ -245,7 +245,7 @@ const totalCount = researchEntries.length;
               </div>
             </div>
 
-            <!-- 対象疾患＆標的分子タグ -->
+            {/* 対象疾患＆標的分子タグ */}
             <div class="flex flex-wrap items-center gap-1.5 mb-4">
               <span class="text-xs font-bold text-slate-400 mr-1">対象・標的:</span>
               {entry.targetDiseases.map(d => (
@@ -260,7 +260,7 @@ const totalCount = researchEntries.length;
               ))}
             </div>
 
-            <!-- キーテイクアウェイ（主要ハイライト3点） -->
+            {/* キーテイクアウェイ（主要ハイライト3点） */}
             <div class="bg-teal-50/50 border border-teal-200/80 rounded-xl p-3.5 sm:p-4 text-xs sm:text-sm text-slate-800">
               <div class="font-bold text-teal-900 mb-2 flex items-center gap-1.5">
                 <span class="w-2 h-2 rounded-full bg-teal-600"></span>
@@ -273,7 +273,7 @@ const totalCount = researchEntries.length;
               </ul>
             </div>
 
-            <!-- 開閉トグルボタン -->
+            {/* 開閉トグルボタン */}
             <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
               <button
                 type="button"
@@ -291,9 +291,9 @@ const totalCount = researchEntries.length;
             </div>
           </div>
 
-          <!-- アコーディオン詳細本文（クリックで展開） -->
+          {/* アコーディオン詳細本文（クリックで展開） */}
           <div class="entry-detail-body hidden bg-white p-6 sm:p-8 space-y-8 border-t border-slate-100 text-slate-800 leading-relaxed text-sm sm:text-base">
-            <!-- セクション1: 内容の学術要約（約1,000字） -->
+            {/* セクション1: 内容の学術要約（約1,000字） */}
             <div class="space-y-3">
               <div class="flex items-center gap-2 border-b border-teal-200 pb-2">
                 <span class="text-lg">📑</span>
@@ -306,7 +306,7 @@ const totalCount = researchEntries.length;
               </div>
             </div>
 
-            <!-- セクション2: 当事者としての臨床所感・考察（約1,000字） -->
+            {/* セクション2: 当事者としての臨床所感・考察（約1,000字） */}
             <div class="space-y-3">
               <div class="flex items-center gap-2 border-b border-amber-300 pb-2">
                 <span class="text-lg">💭</span>
@@ -319,7 +319,7 @@ const totalCount = researchEntries.length;
               </div>
             </div>
 
-            <!-- エントリーフッター情報 -->
+            {/* エントリーフッター情報 */}
             <div class="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between text-xs text-slate-500 gap-2">
               <div>
                 引用元ID: <span class="font-mono font-semibold text-slate-700">{entry.source.identifier}</span>

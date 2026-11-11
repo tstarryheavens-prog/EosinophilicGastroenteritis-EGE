@@ -1,0 +1,187 @@
+{
+  "curator": "Smart AI Life Craft Lab",
+  "last_updated": "2026-10-31",
+  "description": "AIコード生成ツール（Cursor, Claude Code, v0等）が陥りがちな『AIスロップ（安っぽいAIデザイン）』を排除し、独自の品格と道具感を宿すプロフェッショナルUIへ昇華させるデザイン工芸（Craft）ノウハウの蓄積・キュレーションアーカイブ。",
+  "featured_author": {
+    "name": "Damir Sokolovsky",
+    "handle": "@heydamir",
+    "x_url": "https://x.com/heydamir",
+    "project_name": "unslop",
+    "repo_url": "https://github.com/heydamir/unslop",
+    "website": "https://heydamir.design/unslop",
+    "series_url": "https://x.com/heydamir/status/2115063463063998736",
+    "license": "CC BY 4.0"
+  },
+  "nine_passes": [
+    {
+      "step": 1,
+      "id": "spacing",
+      "name": "Spacing（余白・リズム）",
+      "order_reason": "余白とリズムが整って初めて、要素のバランスと階層を正しく評価できるため最優先で実行する。",
+      "principles": [
+        "すべてを4pxグリッド（8, 12, 16, 20, 24, 32, 40...）に揃える。",
+        "同種の要素は同一のサイズ・余白を保つ（リストの全行で同じ高さ・同じギャップ、カード間の同じパディング）。",
+        "余白でグルーピングを表現する（グループ内部の余白は狭く、グループ間の余白は広く）。",
+        "アイコン、ラベル、数値の縦横のラインを厳密に整列させる。不要なマージンやtranslateで列を乱さない。",
+        "情報密度に応じたパディング設計（サイドバーやパネルは16px、カードは20〜24px、ページ端は24〜32px）。",
+        "mt-[13px] や py-[11px] などの場当たり的な数値を排除し、スケール値に置き換える。"
+      ],
+      "before_slop": "mt-[13px], pl-[11px] pr-[7px], 行ごとに高さやマージンがバラバラ",
+      "after_craft": "4pxスケールに完全準拠、リスト行高さ32px/ギャップ4pxで統一"
+    },
+    {
+      "step": 2,
+      "id": "color",
+      "name": "Color（色彩・サーフェス）",
+      "order_reason": "Chrome（枠組み）の色彩を鎮静化させ、コンテンツそのものに視線を集中させる。",
+      "principles": [
+        "背景・カード面・境界線・文字は、単一のニュートラル階調（グラファイト、ウォーム、インク等）で統一する。",
+        "ダッシュボードや業務UIの背景・枠は無彩色（ニュートラル）に保つ。何時間も見続ける画面で背景が青や紫に色づくのは悪手。",
+        "テキストは3役（Primary, Secondary, Muted）のみ。10種類もの異なるラベンダー色を使わない。",
+        "Chrome（ナビゲーションやボタン）には1色のみのアクセントを極めて控えめに使う。主要CTAや現在選択項目のみ。",
+        "暗色テーマでは、過剰なシャドウではなく『面の段差（Surface Steps）』と『不透明度6〜10%の極細ヘアラインボーダー』で奥行きを表現する。",
+        "虹色・紫〜青グラデーション、発光シャドウ（glow）、コンテンツ背後のぼやけたブロブ（blob）を完全撤廃する。"
+      ],
+      "before_slop": "紫〜青のグラデ背景、ネオンに光る影（shadow-[0_0_20px_#8b5cf6]）、グラデーション文字",
+      "after_craft": "静かなグラファイト階調、6%のヘアライン枠、光らない1色のアクセント"
+    },
+    {
+      "step": 3,
+      "id": "icons",
+      "name": "Icons（アイコン・記号）",
+      "order_reason": "感情的な絵文字を排除し、情報伝達のための統一ラインアイコンへ再定義する。",
+      "principles": [
+        "ナビゲーションやラベル装飾に使われている絵文字（🏠, 📥, 🚀, 💰, ⚠️, 📈, 🔥）を全廃し、単一セットのラインアイコン（Lucide等）へ統一する。",
+        "アイコンサイズは16pxまたは18px、線幅1.5pxで画面全体を一貫させる。",
+        "アイコンに独自の色をつけず、テキストの色（SecondaryまたはMuted）を継承させる。",
+        "すべてのアイコンボックスの幅を揃え、ラベルとの間隔（8pxまたは10px）を固定して文字の開始位置を一直線に揃える。",
+        "情報価値のない装飾アイコン（全カードタイトル前の絵文字等）は削除する。AI機能を示す『✨（キラキラ）』も不要な場所では全廃する。"
+      ],
+      "before_slop": "🏠 Overview, 🚀 Projects, New ✨, カラフルな絵文字の羅列",
+      "after_craft": "16px/1.5pxストロークの統一ラインアイコン、文字と完全整列"
+    },
+    {
+      "step": 4,
+      "id": "copy",
+      "name": "Copy（言葉・テキスト表現）",
+      "order_reason": "見出しや文言の長さを確定させて初めて、タイポグラフィのサイズと配置が決まる。",
+      "principles": [
+        "見出しは『何をする製品で、誰のためのものか』を平易な事実の言葉で語る。どの製品にも当てはまる美辞麗句を使わない。",
+        "UIテキストに感嘆符（!）や二重感嘆符（!!）を使わない。",
+        "『Welcome back, Damir! 👋』のような挨拶見出しを廃止し、ページ名や対象期間（例: 『2026年10月』）などの文脈をタイトルにする。",
+        "プレースホルダーは簡潔に。『何でも検索してください...』ではなく『検索』。",
+        "変化値には必ず比較対象を明記する（『+12%!!』ではなく『先月比 +12%』）。",
+        "誇張表現（supercharge, seamless, unlock, magic, revolutionize, 究極のAI 等）を完全排除する。",
+        "根拠のない実績値（『10,000チームが愛用』等）は事実でない限り削除する。",
+        "モックデータは現実味のある数字と名前にする（123,456 や [X] は不可）。"
+      ],
+      "before_slop": "Welcome back, User! 👋 Supercharge your workflow with AI!! 🚀",
+      "after_craft": "2026年10月 パフォーマンス概要（先月比 +12%）"
+    },
+    {
+      "step": 5,
+      "id": "type",
+      "name": "Type（タイポグラフィ）",
+      "order_reason": "文言が定まったら、文字階層を構築して可読性を最高レベルまで引き上げる。",
+      "principles": [
+        "ウェイトは基本的に400（Regular）と500（Medium）の2種類のみ。見出しを700〜900の極太にしない。",
+        "文字の階層は『太さ』ではなく『サイズと色（コントラスト）』で表現する。",
+        "すべてSentence case（語頭のみ大文字）にする。NAVIGATION や PAID THIS MONTH のような大文字＋過剰トラッキングは廃止する。",
+        "小さな文字に負の字間（負のletter-spacing）を当てない。小さな文字はわずかに字間を広げるか標準にする。",
+        "数値には必ず等幅数字（tabular-nums）を適用し、桁数や小数点以下のフォーマットを画面内で統一する。",
+        "強調目的のイタリック（斜体）は使用しない。"
+      ],
+      "before_slop": "font-black (900), tracking-[0.14em] NAVIGATION, グラデ文字, バラバラの数値表記",
+      "after_craft": "font-medium (500), font-normal (400), tabular-nums, 落ち着いた文字色"
+    },
+    {
+      "step": 6,
+      "id": "layout",
+      "name": "Layout（構図・レイアウト）",
+      "order_reason": "構造と配置を実用的なプロポーションへ整える。",
+      "principles": [
+        "ダッシュボードやアプリは本物の業務ツールの比率（幅240〜280pxのサイドバー＋流動コンテンツ幅1440〜1600px）を維持する。狭い中央寄せボックスに閉じ込めない。",
+        "LPヒーローは、すべてを中央揃えにして縦積み（見出し→説明→ボタン→謎の画像）にする安易なテンプレート配置を避ける。",
+        "非対称スプリット（テキストと実物ビジュアルの左右分割）、または上部にテキストを置き下部に実プロダクト画面を大きく見せる構図を採用する。",
+        "主要アクション（Primary）は1つ、副次アクション（Secondary）は最大1つに限定。ボタンを3つも並べない。",
+        "ヘッダー・ナビゲーションは控えめに。ログインは目立たないテキストリンクにする。"
+      ],
+      "before_slop": "中央寄せ縦積みテンプレート、画面中央に浮いた小ウィンドウ",
+      "after_craft": "実用比率のフルデスクトップシェル、左右非対称スプリット、静かなナビ"
+    },
+    {
+      "step": 7,
+      "id": "details",
+      "name": "Details（細部・角丸・チャート）",
+      "order_reason": "角丸の数学的整合性やチャートの品格を調整する。",
+      "principles": [
+        "入れ子角丸の計算ルール（Nested Radius Math: 内側の角丸 = 外側の角丸 - その間のパディング）。すべての要素を丸薬型（pill）にしない。",
+        "件数やメタ情報は、発光するピル型バッジではなく、落ち着いた等幅テキスト（mono）やキーキャップ（kbd）にする。",
+        "チャートの虹色バーや発光バーを廃止する。グリッドは静かな無彩色、ラベルは等幅文字で統一する。",
+        "チャート内の強調は1色のみ。追跡している系列や今月の棒だけにアクセント色を配し、その他はニュートラル階調に抑える。",
+        "統計カードに意味のないスパークラインやミニ棒グラフを飾りとして詰め込まない。数字・ラベル・比較増減の3つを誠実に表示する。"
+      ],
+      "before_slop": "すべて角丸フル（rounded-full）、虹色バーチャート、飾りスパークライン",
+      "after_craft": "数学的入れ子角丸、静かな単一アクセントチャート、本物の統計カード"
+    },
+    {
+      "step": 8,
+      "id": "visuals",
+      "name": "Visuals（視覚要素・実物素材）",
+      "order_reason": "無意味な発光球体（Blob）を捨て、製品そのものや道具の世界観を宿す素材を配置する。",
+      "principles": [
+        "AI製品だからといって、光る紫色の3D球体（Blob）、サイバー空間の脳、光る回路、液体金属などの抽象グラフィックを置かない。",
+        "ビジュアルは『実際のプロダクト画面』か、その製品の世界観（紙とインク、計測計器、道具の彫刻等）を反映した本物のオブジェクトにする。",
+        "画像の中にテキストや偽ボタンを焼き込まない。文字はWeb標準のテキストで組む。",
+        "画面のすべてのセクションに絵を入れない。視線を引きつけるビジュアルはヒーローの1箇所に集中させる。"
+      ],
+      "before_slop": "光る紫の3Dブロブ（blob.webp）、サイバーチックな抽象球体",
+      "after_craft": "実プロダクトの精緻な画面プレビュー、世界観を持つ本物の道具オブジェクト"
+    },
+    {
+      "step": 9,
+      "id": "motion",
+      "name": "Motion（動き・インタラクション）",
+      "order_reason": "静的な画面が完璧に機能した上で、必然性のある控えめな動きだけを添える。",
+      "principles": [
+        "リアルタイム通信でもない静的要素に animate-pulse や animate-ping、呼吸するような発光を付与しない。",
+        "カードやボタンに安易な hover:scale-[1.02] やバウンスアニメーションを付けない。ホバーは微かな面階調の変化やヘアラインの明度変化にとどめる。",
+        "画面読み込み時に要素が四方八方から飛び出してくる過剰演出をやめ、短く静かなフェード（かつ微小なせり上がり）で統一する。",
+        "幅・高さ・top・leftを直接アニメーションさせず、transformとopacityを使う。"
+      ],
+      "before_slop": "常時ピカピカ点滅（pulse）、ボタンの拡大バウンス、画面全体の飛び跳ね",
+      "after_craft": "静止が標準、触れた瞬間の極小サーフェス変化のみ"
+    }
+  ],
+  "articles": [
+    {
+      "id": "heydamir-unslopping-core",
+      "title": "Damir Sokolovskyに学ぶ『脱AIスロップ（Unslopping）』9段階デザインプロトコル",
+      "author": "Damir Sokolovsky (@heydamir)",
+      "curated_by": "Smart AI Life Craft Lab",
+      "date": "2026-10-31",
+      "source_url": "https://x.com/heydamir/status/2115063463063998736",
+      "github_url": "https://github.com/heydamir/unslop",
+      "tags": ["AI Slop", "UI/UX", "Tailwind", "Claude Code", "Redline Review"],
+      "summary": "AIが生成するUIはなぜどれも同じ安っぽさ（紫グラデ、発光、絵文字、不揃いな余白）に見えるのか？デザイナーDamir Sokolovskyが公開した、プロダクトに本物の個性と工芸美を取り戻す9つの改善パスを動画フレーム画像とともに徹底解説。",
+      "video_frames_image": "/images/craft/story-dashboard-frames.webp",
+      "after_dashboard_image": "/images/craft/unslop-dashboard-after.webp",
+      "after_hero_image": "/images/craft/unslop-hero-after.webp",
+      "slop_blob_image": "/images/craft/ai-slop-blob.webp"
+    },
+    {
+      "id": "quiet-chrome-rich-moments",
+      "title": "『Quiet Chrome & Rich Moments』— 枠組みを鎮め、コンテンツに工芸美を宿す鉄則",
+      "author": "Smart AI Life Craft Lab",
+      "curated_by": "Smart AI Life Craft Lab",
+      "date": "2026-10-31",
+      "source_url": "https://github.com/heydamir/unslop",
+      "tags": ["Design System", "Color Theory", "Micro-Interactions"],
+      "summary": "スロップとクラフトの最大の違いは『豊かさをどこに注ぐか』。AIスロップは枠組み（Chrome）全体を派手に光らせ、クラフトは枠組みを極限まで静かに保って記憶に残る1つのコンテンツに光を当てる。",
+      "video_frames_image": "/images/craft/beacon-engraving.webp",
+      "after_dashboard_image": "/images/craft/meadow-3d.webp",
+      "after_hero_image": "/images/craft/unslop-hero-after.webp",
+      "slop_blob_image": "/images/craft/ai-slop-blob.webp"
+    }
+  ]
+}

@@ -1,0 +1,631 @@
+---
+export const prerender = false;
+import BaseLayout from '../../layouts/SmartAIBaseLayout.astro';
+import { HATENA_BLOG_URL } from '../../data/projects';
+import { ARTICLES } from '../../data/articles';
+import { env as cfWorkersEnv } from 'cloudflare:workers';
+import { isInternalSiteId, isPublicArticle, internalQuotedList } from '../../data/public_scope';
+
+const TOPIC_LABS = [
+  {
+    id: 'ai-hems',
+    icon: '⚡',
+    badge: 'Energy OS',
+    title: 'AI Home HEMS',
+    desc: 'ニチコン14.9kWh蓄電池（T5）× ECHONET Lite。翌日の日射量予測と深夜電力（16.3円）を組み合わせたJIT充電制御。',
+    href: '/divisions/ai-hems',
+    tone: 'sun',
+  },
+  {
+    id: 'wakwak-money',
+    icon: '💰',
+    badge: 'Finance & CF',
+    title: '100歳家計・資産形成ラボ',
+    desc: '5,200万円フルローン返済と教育費ダブルピーク（夫47〜53歳）、老後100歳までのキャッシュフローを定量検証。',
+    href: '/divisions/wakwak-money',
+    tone: 'green',
+  },
+  {
+    id: 'toyotahome',
+    icon: '🏡',
+    badge: 'Housing Archive',
+    title: 'トヨタホーム住まい研究',
+    desc: '鉄骨ユニット工法の住み心地、10年目点検・外壁メンテナンス、太陽光・蓄電池の実測ROIアーカイブ。',
+    href: '/divisions/toyotahome',
+    tone: 'tin',
+  },
+  {
+    id: 'nanbyo',
+    icon: '🩺',
+    badge: 'Medical Portal',
+    title: '難病・医療情報ポータル',
+    desc: '好酸球性胃腸炎・群発頭痛の医療費助成手続き、生物学的製剤・服薬記録、日常バイタルの体系化。',
+    href: '/divisions/nanbyo',
+    tone: 'orange',
+  },
+  {
+    id: 'aichi-high',
+    icon: '🎓',
+    badge: 'Education DB',
+    title: '愛知高校受験ナビ',
+    desc: '愛知県公立高校の2校複合選抜（A・Bグループ）組み合わせ判定、内申点目安、AI家庭教師プロンプト。',
+    href: '/divisions/aichi-high',
+    tone: 'sun',
+  },
+  {
+    id: 'hobby-labs',
+    icon: '👾',
+    badge: 'Tokusatsu & UCG',
+    title: 'ウルトラマン総合研究',
+    desc: 'ウルトラマンソフビの造形・塗装変遷データベースとウルトラマンカードゲーム（UCG）環境考察。',
+    href: '/divisions/hobby-labs',
+    tone: 'tin',
+  },
+  {
+    id: 'smartailife',
+    icon: '🐼',
+    badge: 'Local LLM & Automation',
+    title: '総合AIハック・自律エージェント',
+    desc: 'ローカルGPUクラスタ、YomiToku日本語OCR書類仕分け、スマートホーム統合の実践ドキュメント。',
+    href: '/divisions/smartailife',
+    tone: 'green',
+  },
+];
+
+const CONCERNS = [
+  {
+    id: 'energy-section',
+    emoji: '⚡',
+    badge: '電気代・太陽光・蓄電池',
+    question: '電気代が高すぎる／太陽光や蓄電池を使いこなせていない',
+    answerTitle: '自作AI HEMSで深夜電力を自動最適化',
+    answerDesc: '翌日の日射量予報を解析し、晴れなら深夜充電をセーブ、雨なら16.3円の深夜電力を自動充電。卒FIT後の買電を最小化しています。',
+    link: '/divisions/ai-hems',
+    articleLink: '/articles/echonet-lite-nichicon-hems-jit-charging',
+    buttonText: 'HEMSラボを見る',
+    tone: 'sun',
+  },
+  {
+    id: 'money-section',
+    emoji: '💰',
+    badge: '住宅ローン・100歳家計',
+    question: '5,200万ローンや教育費ピーク、老後資金が漠然と不安',
+    answerTitle: '100歳キャッシュフローで生涯収支を可視化',
+    answerDesc: '三菱UFJメイン口座と三井住友予備口座の役割分離、夫47〜53歳の教育費ダブルピーク、100歳までの資産推移を自作ツールで検証。',
+    link: '/divisions/wakwak-money',
+    articleLink: '/articles/100-year-cashflow-simulation-double-education-peak',
+    buttonText: '家計ラボを見る',
+    tone: 'green',
+  },
+  {
+    id: 'sorting-section',
+    emoji: '📑',
+    badge: '書類整理・確定申告',
+    question: '領収書・医療費明細・学校プリントの整理に追われている',
+    answerTitle: 'YomiToku OCR × ドライブ自動仕分け',
+    answerDesc: '未整理フォルダにPDFやスマホ写真を入れるだけで日本語特化OCRが解析し、日付・取引先・書類名へ自動リネーム＆フォルダ振り分け。',
+    link: '/articles/yomitoku-automations-drive-sorting',
+    articleLink: '/articles/yomitoku-automations-drive-sorting',
+    buttonText: '自動仕分け手順を読む',
+    tone: 'tin',
+  },
+  {
+    id: 'health-section',
+    emoji: '🩺',
+    badge: '難病・医療・健康記録',
+    question: '持病の通院記録・処方薬・検査数値が散らかって把握しづらい',
+    answerTitle: '難病・医療データポータルで診察室をスムーズに',
+    answerDesc: '指定難病の医療費助成手続きから、好酸球数・血圧推移・抗体薬の記録まで構造化し、主治医への共有を効率化。',
+    link: '/divisions/nanbyo',
+    articleLink: 'https://eosinophilicgastroenteritis-ege.pages.dev',
+    buttonText: '医療ラボを見る',
+    tone: 'orange',
+  },
+  {
+    id: 'education-section',
+    emoji: '🎓',
+    badge: '高校受験・内申点',
+    question: '愛知県公立高校のA・Bグループ出願や内申点目安を知りたい',
+    answerTitle: '愛知高校受験ナビで志望校・併願戦略を整理',
+    answerDesc: '尾張・名古屋地区の公立高校複合選抜シミュレータ、当日点×内申点の配点方式（Ⅰ〜Ⅴ型）、AI家庭教師プロンプトを公開。',
+    link: '/divisions/aichi-high',
+    articleLink: '/articles/aichi-highschool-w-application-strategy-and-costs',
+    buttonText: '高校受験ラボを見る',
+    tone: 'sun',
+  },
+  {
+    id: 'recipes-section',
+    emoji: '🛠️',
+    badge: 'ローカルLLM・PC自動化',
+    question: 'クラウドAPI代を抑えて自宅GPUで高速なAI環境を作りたい',
+    answerTitle: 'RTX GPUクラスタ & 格安BC-250ローカル推論基盤',
+    answerDesc: 'GeForce FP16/BF16検証やAMD BC-250サーバー、Windows 11 26H2の10GbE復旧などハードウェア実機検証を収録。',
+    link: '/articles/geforce-gpu-unlock-fp16-bf16-deep-dive',
+    articleLink: '/articles/amd-bc250-tailscale-llm-server',
+    buttonText: 'ハード検証記事を読む',
+    tone: 'charcoal',
+  },
+];
+
+type FeaturedArticle = {
+  slug: string;
+  title: string;
+  excerpt: string;
+  categoryLabel: string;
+  date: string;
+  readTime: string;
+};
+
+const SITE_LABEL: Record<string, string> = {
+  smartailife: '📄 Smart AI Life',
+  'aichi-high': '🎓 愛知高校受験ナビ',
+  'wakwak-money': '💰 ワクワク家計・100歳CF',
+  toyotahome: '🏠 トヨタホーム建築実録',
+  nanbyo: '🩺 難病・医療データ記録',
+  'ai-hems': '⚡ AI Home HEMS',
+  'hobby-labs': '🎨 ホビー・特撮ラボ',
+  'eosinophilic-gastroenteritis': '🩺 好酸球性胃腸炎',
+};
+
+// 公開中の最新記事（D1）を優先表示し、D1 が読めないときだけ静的配列へ退避する
+let featuredArticles: FeaturedArticle[] = ARTICLES.slice(0, 8).map((a) => ({
+  slug: a.slug,
+  title: a.title,
+  excerpt: a.excerpt,
+  categoryLabel: a.categoryLabel,
+  date: a.date,
+  readTime: a.readTime,
+}));
+
+// 「全 N 本」は静的配列の数ではなく、実際に公開中の記事数（D1）を表示する
+// （静的配列は一部の記事しか持たないため、表示本数が実態より少なくなる）
+let publishedTotal = ARTICLES.length;
+try {
+  const db: any = (cfWorkersEnv as any)?.DB || (Astro.locals as any)?.runtime?.env?.DB;
+  if (db) {
+    // 件数は .all() で読む（.get() だとこの構成では cnt が取れず 0 扱いになった実測あり）
+    const countRes: any = await db.prepare(`SELECT COUNT(*) AS cnt FROM ec_posts WHERE status = 'published' AND (deleted_at IS NULL) AND site_id NOT IN (${internalQuotedList()})`).all();
+    const cnt = Number(countRes?.results?.[0]?.cnt ?? 0);
+    if (Number.isFinite(cnt) && cnt > 0) publishedTotal = cnt;
+
+    const latest: any = await db
+      .prepare(`SELECT slug, title, excerpt, published_at, site_id FROM ec_posts WHERE status = ? AND (deleted_at IS NULL) AND site_id NOT IN (${internalQuotedList()}) ORDER BY published_at DESC LIMIT 8`)
+      .bind('published')
+      .all();
+    const rows = latest?.results || [];
+    if (rows.length >= 4) {
+      featuredArticles = rows.map((p: any) => ({
+        slug: p.slug,
+        title: p.title || '無題',
+        excerpt: p.excerpt || p.title || '',
+        categoryLabel: SITE_LABEL[p.site_id || ''] || '📄 Smart AI Life',
+        date: (p.published_at || '2026-01-01').slice(0, 10),
+        readTime: '6分',
+      }));
+    }
+  }
+} catch {}
+---
+
+<BaseLayout
+  title="Smart AI Life ｜ 暮らしとAIの実験室（Support & Documentation Hub）"
+  description="電気代削減・自作AI HEMS・100歳家計シミュレーション・未整理書類の自動OCR仕分け・難病と健康管理まで。家庭の課題をテクノロジーと自作コードで解決した実践ドキュメント。"
+>
+  <!-- 1. Nabu Casa Rounded Home Hero Banner (.nc-hero.hero-home.hero-tin) -->
+  <section class="nc-hero hero-home hero-tin">
+    <div class="nc-hero-inner">
+      <p class="nc-home-eyebrow">Smart AI Life Documentation & Living Lab</p>
+      <h1 class="nc-hero-title">日々の暮らしを、自作ツールとAIで合理化する。</h1>
+      <p class="nc-hero-lead">
+        14.9kWh蓄電池のECHONET Lite自動制御、5,200万円ローンの100歳家計シミュレーション、日本語OCRによる書類仕分け、指定難病の医療記録まで。実測データと再現手順を検索できます。
+      </p>
+
+      <!-- Nabu Casa Pill Search Bar inside Hero -->
+      <form class="nc-search-wrapper nc-hero-search" action="/articles" method="get" role="search">
+        <div class="nc-search-field">
+          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M13.5 13.5L17.5 17.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <input
+            type="search"
+            name="q"
+            class="nc-search-input"
+            placeholder="キーワードで記事を検索（例: HEMS, 蓄電池, 100歳家計, YomiToku, 高校受験, RTX）..."
+            aria-label="キーワードで記事を検索"
+          />
+        </div>
+        <button type="submit" class="btn btn-dark" style="height: 52px; padding: 0 1.65rem;">検索する</button>
+      </form>
+
+      <!-- Quick Category Filter Pills -->
+      <div class="nc-hero-pills">
+        <a href="/articles?cat=energy" class="btn btn-light">⚡ エネルギー・HEMS</a>
+        <a href="/articles?cat=education" class="btn btn-light">🎓 高校受験・100歳家計</a>
+        <a href="/articles?cat=automation" class="btn btn-light">🏡 住まい・書類・難病医療</a>
+        <a href="/articles?cat=decision" class="btn btn-light">🤖 AI・EVモータ論文</a>
+        <a href="/articles?cat=cloud" class="btn btn-light">🖥️ 自作PC・GPU検証</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Nabu Casa 2-Column Home Layout (Main Content + Right Sidebar Item Cards) -->
+  <div class="nc-container nc-home-container">
+    <div class="nc-home-layout">
+      <!-- Left Main Column -->
+      <div class="nc-home-main">
+        <!-- Section A: 8 Labs (Nabu Casa Split Category Cards) -->
+        <section class="nc-section" id="topic-labs">
+          <div class="nc-section-head">
+            <div>
+              <p class="eyebrow">Browse by Topic Lab</p>
+              <h2>7つのラボ（テーマ別ナレッジベース）</h2>
+            </div>
+            <a href="/divisions" class="btn">すべてのラボ一覧 →</a>
+          </div>
+
+          <div class="nc-category-cards">
+            {TOPIC_LABS.map((lab) => (
+              <a href={lab.href} class={`nc-category-card ${lab.tone}`}>
+                <div class="nc-category-card-content">
+                  <div class="nc-category-card-title">
+                    <span class="nc-cat-badge">{lab.icon} {lab.badge}</span>
+                    <h3>{lab.title}</h3>
+                  </div>
+                  <div class="nc-category-card-description">
+                    <p>{lab.desc}</p>
+                    <span class="nc-category-card-cta" aria-hidden="true">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M3.5 8H12.5M12.5 8L8.5 4M12.5 8L8.5 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </section>
+
+        <!-- Section B: Promoted / Latest Articles (Nabu Casa Knowledge List) -->
+        <section class="nc-section" id="articles-section">
+          <div class="nc-section-head">
+            <div>
+              <p class="eyebrow">Promoted & Latest Articles</p>
+              <h2>注目の実践レポート・最新記事</h2>
+            </div>
+            <a href="/articles" class="btn btn-dark">全 {publishedTotal} 本の記事を見る →</a>
+          </div>
+
+          <div class="nc-articles-list">
+            {featuredArticles.map((article) => (
+              <a href={`/articles/${article.slug}`} class="nc-article-row">
+                <div class="nc-article-row-main">
+                  <div class="nc-article-row-meta">
+                    <span class="nc-row-cat">{article.categoryLabel}</span>
+                    <time datetime={article.date}>{article.date}</time>
+                    <span>· 読了目安 {article.readTime}</span>
+                  </div>
+                  <h3>{article.title}</h3>
+                  <p>{article.excerpt}</p>
+                </div>
+                <span class="nc-article-row-arrow" aria-hidden="true">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M3.5 8H12.5M12.5 8L8.5 4M12.5 8L8.5 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </a>
+            ))}
+          </div>
+        </section>
+
+        <!-- Section C: Lifestyle Concerns & Living Lab Solutions -->
+        <section class="nc-section" id="concerns-navigator">
+          <div class="nc-section-head">
+            <div>
+              <p class="eyebrow">Problem-First Guide</p>
+              <h2>暮らしの課題から解決策を探す</h2>
+            </div>
+          </div>
+
+          <div class="nc-concerns-grid" id="works-section">
+            {CONCERNS.map((c) => (
+              <div class="nc-concern-card" id={c.id}>
+                <div class="nc-concern-top">
+                  <span class="nc-concern-badge">{c.emoji} {c.badge}</span>
+                  <p class="nc-concern-q">「{c.question}」</p>
+                </div>
+                <div class="nc-concern-body">
+                  <h3>{c.answerTitle}</h3>
+                  <p>{c.answerDesc}</p>
+                  <div class="nc-concern-actions">
+                    <a href={c.link} class="btn btn-dark">{c.buttonText}</a>
+                    <a href={c.articleLink} class="btn">解説記事を読む →</a>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      <!-- Right Sidebar Column (Nabu Casa .nc-item-cards) -->
+      <aside class="nc-home-sidebar" aria-label="Living Lab Quick Cards">
+        <div class="nc-item-cards">
+          <!-- 1. Primary Sun Card (#ffde77) -->
+          <div class="nc-item-card primary">
+            <p class="eyebrow" style="color: var(--nc-color-charcoal);">Living Lab Telemetry</p>
+            <h3>24時間稼働中の実測ナレッジベース</h3>
+            <p>
+              机上の空論ではなく、2016年建築のトヨタホーム・14.9kWh蓄電池・5,200万円ローン家庭で毎日動いている実測データとソースコードを公開しています。
+            </p>
+            <div style="margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem;">
+              <a href="/articles" class="btn btn-dark">実践記事一覧 ({publishedTotal}本)</a>
+              <a href="/divisions" class="btn btn-light">7つのラボ</a>
+            </div>
+          </div>
+
+          <!-- 2. Charcoal Product Card (#1f1f1c) -->
+          <div class="nc-item-card product">
+            <p class="eyebrow">UI/UX & Engineering Craft</p>
+            <h3>UI/UX Craft Showcase</h3>
+            <p>
+              Nabu Casaのミニマル・インダストリアル設計をはじめ、高視認性タイポグラフィと構造化意思決定（Laya）の設計ショーケース。
+            </p>
+            <div style="margin-top: 0.5rem;">
+              <a href="/craft" class="btn btn-light">UI/UX Craftを見る →</a>
+            </div>
+          </div>
+
+          <!-- 3. Gray Hover Cards (#ecebe7 -> #ffde77 on hover) -->
+          <a href="/en/" class="nc-item-card">
+            <p class="eyebrow">Global Edition</p>
+            <h3>English Documentation (/en/)</h3>
+            <p>Read our technical reports on local LLM inference, ECHONET Lite battery optimization, and 100-year life-plan modeling in English.</p>
+          </a>
+
+          <a href={HATENA_BLOG_URL} target="_blank" rel="noopener noreferrer" class="nc-item-card">
+            <p class="eyebrow">Hatena Blog</p>
+            <h3>公式はてなブログ連載 ↗</h3>
+            <p>日々のスマートホーム実験ノートや最新のガジェット・住宅メンテ記録をはてなブログでも更新中。</p>
+          </a>
+
+          <div class="nc-item-card">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <img src="/pottle_profile.jpg" alt="ぽトル (Pottle)" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;" />
+              <div>
+                <h3 style="font-size: 1.05rem;">ぽトル (Pottle)</h3>
+                <p style="font-size: 0.8rem; color: var(--nc-color-taupe);">省エネ脱力パンダ / 暮らしの実験家</p>
+              </div>
+            </div>
+            <p style="font-size: 0.86rem;">
+              愛知県在住。AIと自作コードでエネルギー・家計・書類整理・持病管理を自動化する実験を継続中。
+            </p>
+            <div style="margin-top: 0.25rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <a href="/contact" class="btn btn-light" style="font-size: 0.82rem; padding: 0.45rem 0.9rem;">お問い合わせ</a>
+              <a href="https://x.com/PotoRuthege" target="_blank" rel="noopener noreferrer" class="btn btn-light" style="font-size: 0.82rem; padding: 0.45rem 0.9rem;">𝕏 @PotoRuthege ↗</a>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .nc-home-eyebrow {
+    font-family: var(--nc-font-serif);
+    font-size: 1rem;
+    font-weight: 300;
+    margin: 0 0 0.5rem;
+    opacity: 0.85;
+  }
+
+  .nc-hero-search {
+    margin-top: 1.75rem;
+  }
+
+  .nc-hero-pills {
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .nc-hero-pills .btn {
+    font-size: 0.84rem;
+    padding: 0.45rem 1rem;
+  }
+
+  .nc-home-container {
+    padding-bottom: 2rem;
+  }
+
+  .nc-section-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .nc-section-head h2 {
+    margin: 0;
+  }
+
+  .nc-cat-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: var(--nc-font-serif);
+    font-size: 0.82rem;
+    font-weight: 400;
+    opacity: 0.88;
+  }
+
+  /* Nabu Casa Article Rows */
+  .nc-articles-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .nc-article-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    background-color: var(--nc-color-gray);
+    border-radius: var(--nc-radius-md);
+    padding: 1.25rem 1.5rem;
+    color: var(--nc-color-charcoal);
+    text-decoration: none !important;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .nc-article-row:hover {
+    background-color: var(--nc-color-sun);
+    text-decoration: none !important;
+  }
+
+  .nc-article-row-main {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .nc-article-row-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--nc-font-serif);
+    font-size: 0.84rem;
+    color: var(--nc-color-taupe);
+    margin-bottom: 0.35rem;
+  }
+
+  .nc-row-cat {
+    font-family: var(--nc-font-sans);
+    font-size: 0.76rem;
+    font-weight: 500;
+    background-color: var(--nc-color-white);
+    color: var(--nc-color-charcoal);
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+  }
+
+  .nc-article-row h3 {
+    font-size: 1.15rem;
+    font-weight: 450;
+    line-height: 1.32;
+    margin: 0 0 0.35rem;
+  }
+
+  .nc-article-row p {
+    font-size: 0.88rem;
+    color: var(--nc-color-charcoal);
+    opacity: 0.82;
+    line-height: 1.5;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .nc-article-row-arrow {
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    background-color: var(--nc-color-charcoal);
+    color: var(--nc-color-white);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* Concerns Problem-Solution Cards */
+  .nc-concerns-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--nc-stack-gap);
+  }
+
+  @media (min-width: 768px) {
+    .nc-concerns-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .nc-concern-card {
+    background-color: var(--nc-color-gray);
+    border-radius: var(--nc-radius-md);
+    padding: 0.875rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .nc-concern-top {
+    background-color: var(--nc-color-light-gray);
+    border-radius: calc(var(--nc-radius-md) - 0.25rem);
+    padding: 1rem 1.25rem;
+  }
+
+  .nc-concern-badge {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 500;
+    background-color: var(--nc-color-sun);
+    color: var(--nc-color-charcoal);
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    margin-bottom: 0.45rem;
+  }
+
+  .nc-concern-q {
+    font-family: var(--nc-font-serif);
+    font-size: 0.95rem;
+    font-weight: 400;
+    color: var(--nc-color-charcoal);
+    margin: 0;
+  }
+
+  .nc-concern-body {
+    background-color: var(--nc-color-white);
+    border-radius: calc(var(--nc-radius-md) - 0.25rem);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    flex: 1;
+  }
+
+  .nc-concern-body h3 {
+    font-size: 1.15rem;
+    font-weight: 450;
+    margin: 0;
+  }
+
+  .nc-concern-body p {
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: var(--nc-color-charcoal);
+    opacity: 0.86;
+    margin: 0;
+    flex: 1;
+  }
+
+  .nc-concern-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.35rem;
+  }
+
+  .nc-concern-actions .btn {
+    font-size: 0.82rem;
+    padding: 0.48rem 0.95rem;
+  }
+</style>

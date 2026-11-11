@@ -18,3 +18,7 @@ scripts/output/
 
 # 長文ゲート未達の非公開ドラフト
 scripts/output/shortfall/
+
+# Cloudflare & EmDash local state
+.emdash/
+.wrangler/
