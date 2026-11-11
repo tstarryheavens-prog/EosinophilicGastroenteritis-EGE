@@ -14,9 +14,78 @@ interface Props {
 }
 
 const { title, description, pubDate, category, tags, eyecatch, slug } = Astro.props;
+
+const siteOrigin = Astro.site?.toString().replace(/\/$/, '') || 'https://eosinophilicgastroenteritis-ege.pages.dev';
+const postUrl = `${siteOrigin}/blog/${slug}`;
+const categoryUrl = `${siteOrigin}/category/${encodeURIComponent(category)}`;
+const homeUrl = `${siteOrigin}/`;
+const ogImageUrl = eyecatch
+  ? (eyecatch.startsWith('http') ? eyecatch : `${siteOrigin}${eyecatch.startsWith('/') ? '' : '/'}${eyecatch}`)
+  : `${siteOrigin}/icon-512.png`;
+
+// JSON-LD 構造化データ（Google検索リッチスニペット・E-E-A-T対応）
+const blogPostingSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: title,
+  description: description,
+  image: [ogImageUrl],
+  datePublished: pubDate,
+  dateModified: pubDate,
+  inLanguage: 'ja',
+  mainEntityOfPage: {
+    '@type': 'WebPage',
+    '@id': postUrl,
+  },
+  author: {
+    '@type': 'Person',
+    name: '好酸球性胃腸炎当事者（筆者）',
+    url: `${siteOrigin}/about`,
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: '好酸球性胃腸炎と複合難病の闘病・服薬ノート',
+    url: homeUrl,
+    logo: {
+      '@type': 'ImageObject',
+      url: `${siteOrigin}/icon-512.png`,
+    },
+  },
+  articleSection: category,
+  keywords: tags && tags.length > 0 ? tags.join(', ') : category,
+};
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'ホーム',
+      item: homeUrl,
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: category,
+      item: categoryUrl,
+    },
+    {
+      '@type': 'ListItem',
+      position: 3,
+      name: title,
+      item: postUrl,
+    },
+  ],
+};
 ---
 
 <BaseLayout title={title} description={description} image={eyecatch} article={true}>
+  <!-- Schema.org JSON-LD 構造化データ -->
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(blogPostingSchema)} />
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+
   <article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
     <!-- パンくずリスト -->
     <nav class="flex text-sm text-slate-600 mb-6 space-x-2 overflow-x-auto whitespace-nowrap py-1">

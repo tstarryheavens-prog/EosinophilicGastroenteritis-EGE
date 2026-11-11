@@ -67,6 +67,18 @@ if (lang === "en") {
     enUrl = new URL("/en/clinical-analytics", Astro.site).toString();
   }
 }
+
+// サイト全体の WebSite 構造化データ（Google検索のサイト名表示・エンティティ認識対応）
+const siteOrigin = Astro.site?.toString().replace(/\/$/, '') || 'https://eosinophilicgastroenteritis-ege.pages.dev';
+const webSiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: siteName,
+  alternateName: lang === 'en' ? 'EGE & Intractable Disease Portal' : '好酸球性胃腸炎ノート',
+  url: siteOrigin,
+  inLanguage: lang,
+  description: description,
+};
 ---
 
 <!DOCTYPE html>
@@ -77,6 +89,9 @@ if (lang === "en") {
     <link rel="canonical" href={canonicalURL} />
     <title>{siteTitle}</title>
     <meta name="description" content={description} />
+
+    <!-- Schema.org WebSite 構造化データ -->
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(webSiteSchema)} />
 
     <!-- Multi-Language SEO (Hreflang Tags) -->
     {jaUrl && <link rel="alternate" hreflang="ja" href={jaUrl} />}
