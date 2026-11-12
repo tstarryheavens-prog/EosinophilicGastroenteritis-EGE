@@ -79,8 +79,8 @@ const currentAd = fallbackAds[siteId] || fallbackAds.smartailife;
 <div class={`nc-ad-container ${className}`}>
   <div class="ad-banner-wrapper nc-ad-card">
     <div class="nc-ad-header">
-      <span class="nc-ad-badge">{isAIArticle ? '📢 スポンサーリンク' : currentAd.badge}</span>
-      <span class="nc-ad-label">{isAIArticle ? 'Google 広告' : 'Sponsored / PR'}</span>
+      <span class="nc-ad-label-official">{isAIArticle ? 'スポンサーリンク' : currentAd.badge}</span>
+      {!isAIArticle && <span class="nc-ad-label">Sponsored / PR</span>}
     </div>
 
     {isAIArticle ? (
@@ -88,7 +88,6 @@ const currentAd = fallbackAds[siteId] || fallbackAds.smartailife;
       <div class="adsense-slot nc-adsense-slot">
         <ins class="adsbygoogle"
              style="display:block; text-align:center;"
-             data-ad-layout={slotType === 'infeed' ? 'in-article' : undefined}
              data-ad-format="auto"
              data-full-width-responsive="true"
              data-ad-client="ca-pub-1988464307898443"
@@ -196,6 +195,11 @@ const currentAd = fallbackAds[siteId] || fallbackAds.smartailife;
     font-size: 0.78rem;
   }
 
+  .nc-ad-label-official {
+    font-size: 0.75rem;
+    color: var(--nc-color-taupe, #718096);
+    letter-spacing: 0.05em;
+  }
   .nc-ad-badge {
     background-color: var(--nc-color-sun);
     color: var(--nc-color-charcoal);

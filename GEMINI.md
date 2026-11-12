@@ -29,10 +29,10 @@ When tasked with building, debugging, refactoring, or optimizing:
 ## 3. 📚 Persistent Memory & Project Knowhow
 
 Antigravity retains permanent access to the user's complete engineering knowledge base across all major projects:
-- **Master Knowledge Base**: Located at [`~/.gemini/antigravity/knowledge/user_projects_master_knowhow.md`](file://~/.gemini/antigravity/knowledge/user_projects_master_knowhow.md).
+- **Master Knowledge Base**: Located at [`~/.gemini/antigravity/knowledge/user_projects_master_knowhow.md`](file:///Users/kazukitonogi/.gemini/antigravity/knowledge/user_projects_master_knowhow.md).
 - **Core Domain Knowledge**:
-  - **HEMS / Energy OS**: ECHONET Lite (UDP/TCP 3610), Nichicon 14.9kWh T5, Panasonic HEMS CenteHTTPd, Wi-SUN B-route, JIT Charging, Day/Night electricity tariffs (16.3円深夜 / 36.0円昼間 / 31.0円卒FIT売電).
-  - **HomeAgent / Smart Home**: Zigbee2MQTT (SLZB-06), Tuya Local (<20ms), Apple HomeKit (HAP-python), Google Cast TTS, LLM Function Calling.
+  - **HEMS / Energy OS**: ECHONET Lite (UDP/TCP 3610), Nichicon 14.9kWh T5, DENSO HEMS CenteHTTPd, 高効率ガス給湯器エコジョーズ併用（給湯はガス、空調は個別ルームエアコン・全館空調なし、パッシブ自然吸気口＋階段上換気扇・局所排気）, Wi-SUN B-route, JIT Charging, Day/Night electricity tariffs (16.3円深夜 / 36.0円昼間 / 31.0円卒FIT売電).
+  - **HomeAgent / Smart Home**: Zigbee2MQTT (SLZB-06), Tuya Local (<20ms), Apple HomeKit (HAP-python), Sesameスマートロック歴代運用（Sesami→3→5→6Pro・玄関ドア一体型電子錠なし）, Google Cast TTS, LLM Function Calling.
   - **Toyotahome Archive**: 52M full-loan structure, Unit assembly steel frame, water facility comparisons, 10-year maintenance & PV/battery ROI.
   - **WakwakMoney / Finance**: Mitsubishi UFJ main vs SMBC reserve, 100-year cash flow simulation, double educational expense peaks (husband ages 47-53).
   - **Nanbyo Portal**: Note API scraping, Markdown pipeline, Astro medical portal.
@@ -53,31 +53,33 @@ Antigravity operates as the central control plane with direct ACP (Agent Client 
 
 ---
 
-## 5. 🎯 Usage主導型・Strata & BC-250 ローカル優先＆Google AI Pro トークン極小化絶対ルール (Usage Economics & Local-First Multi-Model Routing)
+## 5. 🎯 自律型モデル選定・Usage最適化ルーティングプロトコル (Autonomous Model Routing & Usage Economics)
 
-Antigravityはタスクの実行難易度、レイテンシ要件、多言語、および残りUsage（クォータ・APIトークン消費・コスト）をリアルタイムに評価し、**自宅GPUクラスタ（Strata & BC-250）を最優先**に自律活用し、Google AI Pro のトークン消費を極小化します。
+Antigravityはタスクの実行難易度、レイテンシ要件、および残りUsage（クォータ・APIトークン消費）の最適化を自律的に判断し、メインタスクとサブタスクで最適なモデルを動的に使い分けます。
 
-### 1. タスク難易度・特性とモデル選定マトリクス
+### 1. タスク難易度とモデル選定マトリクス
 
-| タスク分類 | 該当作業例 | 最適モデル | コスト・Usage効果 |
+| タスク分類 | 該当作業例 | 選定モデル | 理由・Usage効果 |
 | :--- | :--- | :--- | :--- |
-| **Tier 0-A: ローカル最優先（高速・スループット）** | 大量記事ドラフト、タイトル候補出し、ブレスト、ログ・長文テキストの一次要約・スクリーニング、多言語翻訳（日英中等） | **Strata (z790-al Dual GPU: RTX 4070TiS + 3060)**<br>Qwen 3.8 Flash Next IQ2_XS (45〜80 tok/s) | **完全無料・クォータ消費ゼロ**。最大32k文脈でクラウドUsageを最大限保護。 |
-| **Tier 0-B: ローカル最優先（高推論・論理パズル）** | 難関論理推論、数学・物理・科学計算、コード正当性検証、Strataと直交する独立セカンドオピニオン | **AMD BC-250 (40CU 2560SP + 8C/16T, 16GB)**<br>Microsoft Phi-4 14B Q4_K_M (9.3 tok/s) | **完全無料・クォータ消費ゼロ**。14B最高峰の知能で難解タスクをローカル完結。 |
-| **Tier 0.5: クラウド最新無料枠 (Zero-Quota)** | 10万〜100万トークン超長文要約、巨大ドラフト、外部モデル比較、多角アイデア創出 | **OpenRouter Dynamic Free**<br>現在: **MiniMax M3.1 Flash (1M context / free)**<br>NVIDIA Nemotron 3 Ultra 550B 等 | **完全無料・クラウドクォータ消費ゼロ**。最新プロモーション無料モデルを動的検知して積極投入。 |
-| **Tier 1: 超軽量 / 機械的処理** | 構文チェック、特定ログ・ファイルの一括調査、フォーマット整形、grep結果整理、クイックなリスト生成 | `flash_lite` (Subagent) | 最速・最小トークン消費。 |
-| **Tier 2: 標準実装 / 高速対応** | ドキュメント・Webリサーチ、単一関数のテスト作成、小規模バグ修正、標準コンポーネント開発 | `flash` / **Gemini 3.8 Flash** | 高速・高コスパ。一般的な日常タスクの標準選択肢。 |
-| **Tier 3: 深層推論 / 最終意思決定のみ** | 複数ファイルを跨ぐ大規模リファクタ、最重要アーキテクチャ設計、システム全体の最終意思決定 | `pro` / **Gemini 4.0 Argon** (Main / Subagent) | **日常実装では決して浪費せず**、最高精度の意思決定ゲートのみに厳選集中投下。 |
-| **Tier 4: 長時間自律探索 / 無制限試行** | 長時間のWeb/ログ大量クローリング、数百ステップの試行錯誤、バックグラウンドでの自律探索ループ | **ローカル Hermes Agent** (`hermes_runner.py`) | ローカルLLMを活用し、クラウドUsage消費ゼロで完遂。 |
+| **Tier 1: 超軽量 / 機械的処理** | 構文チェック、特定ログ・ファイルの一括調査、フォーマット整形、grep結果整理、クイックなリスト生成 | `flash_lite` (Subagent) | 最速・最小トークン消費。メインクォータを極限まで温存。 |
+| **Tier 2: 標準探索 / 単一実装** | ドキュメント・Webリサーチ、単一関数のテスト作成、小規模バグ修正、単体コンポーネント開発 | `flash` (Subagent / Research) | 高速かつ高コスパ。一般的なサブタスクの標準選択肢。 |
+| **Tier 3: 深層推論 / 複合設計** | 複数ファイルを跨ぐ大規模リファクタ、複雑な数学/金融/物理アルゴリズム (HEMS JIT充電最適化、100歳ライフプラン等)、難解なバグの根本原因分析 | `pro` / `inherit` (Main / Subagent) | 最高精度の推論。難度の高い設計・計画フェーズのみに集中投下。 |
+| **Tier 4: 大規模探索 / 無制限試行** | 長時間のWeb/ログ大量クローリング、数百ステップの試行錯誤、バックグラウンドでの自律探索ループ | **ローカル Hermes Agent** (`hermes_runner.py`) | ローカルLLM (LM Studio / Ollama) を活用し、**クラウドUsage消費ゼロ**で完遂。 |
 
 ### 2. 自律ルーティングの行動原則
-1. **Strata (z790-al) と BC-250 (40CU) の最優先自律活用**:
-   - ブレスト、大量ドラフト、長文テキスト一次要約、多言語翻訳には迷わず **Strata** を先行実行する。
-   - 論理推論、数学・科学、パズル、コードの独立検証には迷わず **BC-250 (Phi-4 14B)** を先行実行する。
-   - 実行インターフェース: `python3 ~/.gemini/antigravity/scripts/model_router.py query "<prompt>" [--prefer strata|bc250|openrouter]`。
-2. **Google AI Pro (Gemini 4.0 Argon) のトークン極小化**:
-   - クラウドの Gemini 4.0 Argon は「最重要アーキテクチャ設計・全体統括・最終意思決定」にのみ厳選投下し、日常の推論や調査でのトークン消費を極小化する。
-3. **サブエージェント呼び出し時のモデル明示**:
+1. **サブエージェント呼び出し時のモデル明示**:
    - `invoke_subagent` を呼び出す際は、タスクの難易度を吟味し、単なる調査なら `Model: "flash"` または `"flash_lite"` を明示的に指定して無駄な Pro クォータ消費を防ぐ。
+2. **メインウィンドウの役割分担**:
+   - メインタスクは「統括指揮・最終検証・成果物統合」に集中し、重たい探索や定型作業は軽量モデルのサブエージェントへ自律オフロードする。
+3. **ローカルLLMへの適応的オフロード**:
+   - 残りクォータが逼迫している場合や、長時間の試行錯誤が予想される場合は、ローカル Hermes Agent (`--mode oneshot` または ACP) にタスクを委譲し、クォータを保護しながら自律実行する。
+
+### 3. Strata (z790-al RTX 4070TiS + RTX 3060) 自律協調プロトコル (Autonomous Strata Integration)
+Antigravityはユーザーの明示的な指示がなくても、Tailscale上のStrata (`http://100.86.91.70:47832/v1/models`) が稼働状態であることを検知した場合、用途に応じて自律的にStrata（RTX 4070 Ti SUPERメイン＋RTX 3060 12GBサブ協調、Qwen 3.8 Flash Next IQ3_XXS/IQ2_XS, 45〜80+ tok/s）を活用します：
+- **大量ドラフト・多角案の事前生成**: 記事タイトル、コード設計の代替案、テストパターンなど、網羅的候補出しをStrataで超高速・ゼロコスト生成してからメインで統合する。
+- **大容量テキスト・ログの一次要約**: 最大32kコンテキストを活かし、調査ログやドキュメントの事前スクリーニング・情報抽出をStrataに自律オフロードしてクラウドUsageを極限まで保護する。
+- **思考プロセスのセカンドオピニオン**: 複雑な設計や不具合調査時にStrataのディープ・リーズニング（`reasoning_content`）に一次分析させ、クロス検証に活用する。
+- **実行インターフェース**: `python3 ~/.gemini/antigravity/scripts/model_router.py query "<prompt>"` または API直叩き (`http://100.86.91.70:47832/v1/chat/completions`)。
 
 ---
 
@@ -110,18 +112,17 @@ Antigravityは新規セッションや別チャットウィンドウで追加・
   python3 ~/.hermes/kanban/kanban_manager.py add --id "<task_id>" --title "<title>" --status "todo" --priority "high|medium|low" --desc "<desc>"
   python3 ~/.hermes/kanban/kanban_manager.py update --id "<task_id>" --status "in_progress|done"
   ```
-- **GUIの再描画**: タスク変更時、またはユーザーからカンバン表示を求められた際は `python3 ~/.hermes/kanban/render_gui.py` を呼び出し、共通HTML ([`~/.gemini/antigravity/brain/kanban/kanban_board.html`](file://~/.gemini/antigravity/brain/kanban/kanban_board.html)) を更新します。
+- **GUIの再描画**: タスク変更時、またはユーザーからカンバン表示を求められた際は `python3 ~/.hermes/kanban/render_gui.py` を呼び出し、共通HTML ([`~/.gemini/antigravity/brain/kanban/kanban_board.html`](file:///Users/kazukitonogi/.gemini/antigravity/brain/kanban/kanban_board.html)) を更新します。
 
 ---
 
-## 8. ✍️ 自然な日本語文章生成プロトコル (`yomiyasu` v3.0.1 推敲・キャラクター維持)
+## 8. ✍️ 自然な日本語文章生成プロトコル (`yomiyasu` 推敲・キャラクター維持)
 
-Antigravityが執筆・生成するすべての記事、ブログ、Webサイトコンテンツ、ドキュメント（技術解説、note、PR説明文、社内資料等）は、Agent Skill [`yomiyasu`](file:///Users/kazukitonogi/.gemini/antigravity/skills/yomiyasu/SKILL.md) v3.0.1 の推敲原則に則って生成します。
+Antigravityが執筆・生成するすべての記事、ブログ、Webサイトコンテンツ、ドキュメント（技術解説、note、PR説明文、社内資料等）は、Agent Skill [`yomiyasu`](file:///Users/kazukitonogi/.gemini/antigravity/skills/yomiyasu/SKILL.md) の推敲原則に則って生成します。
 
-### 1. yomiyasu v3.0.1 コア原則の適用
+### 1. yomiyasu 7原則の適用
 - **意味・立場・強さの保持**: 原文の主張・比重・言い切りの強さ・文の働きを変えず、勝手な情報の増補（ハルシネーションや不必要な動詞・原因の追加）を行わない。
-- **AI頻出語・不自然な比喩の排除**: 「手触り」「解像度」「泥臭い」「意思決定OS」「静かに壊れる（silently fail）」「時間を溶かす」「伴走する」などの比喩を平文化し、客観的で自然な日常語・技術用語に整える。
-- **漢語・専門用語の原文維持 (v3.0.1新指針)**: 意味をぼかす無理な平仮名化や言い換えを行わず、的確な漢語（進捗・精緻化・網羅的等）や専門用語は原文のまま尊重・保持する（形式名詞・補助動詞「事」「為」のみ平仮名化）。
+- **AI頻出語・不自然な比喩の排除**: 「手触り」「解像度」「泥臭い」「意思決定OS」「静かに壊れる（silently fail）」「時間を溶かす」などの比喩を平文化し、客観的で自然な日常語・技術用語に整える。
 - **主述・構文の健全化**: 主語と述語のねじれ、非生物主語の擬人化（ツールが意志や感情を持つような表現）、不要な否定対比（「AではなくB」）を整理する。
 - **装飾・リズムの適正化**: 過剰な太字の多用、箇条書きの乱用、不自然な前置フィラー（「重要なのは〜」）を排除し、平均文長30〜45文字を目安に読みやすいリズムを保つ。
 - **必要時の自動Lint検証**: 大規模な記事や公開用原稿の作成時は、`python3 ~/.gemini/antigravity/skills/yomiyasu/scripts/yomiyasu_lint.py` を活用してAI臭さスコアと警告を自主検査する。
@@ -132,48 +133,7 @@ Antigravityが執筆・生成するすべての記事、ブログ、Webサイト
 
 ---
 
-## 9. 🚀 EmDash CMS 自律入稿・コンテンツライフサイクル管理 (`emdash` MCP)
-
-Antigravityは Smart AI Life / EmDash CMS に対して、ブラウザUIを手動操作することなく、直接 `emdash` MCP サーバー（`ServerName: "emdash"`）を呼び出して記事の自律的な入稿・管理を実行します：
-- **`emdash_list_posts`**: 既存記事のステータス、スラッグ、更新日時の一括取得。
-- **`emdash_get_post`**: 特定記事の全文（HTML/Markdown）、抜粋、メタデータの取得。
-- **`emdash_create_post`**: 生成した新規記事（`yomiyasu` 推敲済み原稿）の直接登録・即時公開。
-- **`emdash_update_post`**: 既存記事のタイトル・本文・抜粋・ステータスの部分更新。
-- **`emdash_get_dashboard_summary`**: サイト全体の公開記事数、更新状況、ヘルス状態の確認。
-
----
-
-## 10. 🎵 Audio Studio MCP (Stable Audio 3 完全ローカル音声制作スタジオ)
-
-Antigravityは BGM、効果音、楽器ループの生成・編集・加工において、`audio-studio` MCP サーバー（`ServerName: "audio-studio"`）を自律活用します：
-- **`generate_audio`**: 自然言語からBGM・効果音（SFX）・楽器トラックの生成（BPM指定、シード指定、複数バリエーション生成対応）。
-- **`edit_audio`**: 既存トラックのスタイル変更（`variation`）、指定区間の差し替え・再生成（`inpaint`）、トラックの延長（`continue`）。
-- **`process_audio`**: シームレスループ化、無音カット、ラウドネス正規化（LUFS調整）、フェード、ピーク制御、WAV/OGG/FLAC書き出し。
-- **`unload_models`**: 使用後のメモリ（ユニファイドメモリ）即時解放。
-- Apple Silicon（MLX）による完全ローカル動作のため、APIクォータ消費ゼロ・完全無料で何度でも生成・加工可能。
-
----
-
-## 11. 💻 テックブログ型コードコピーボックス標準化プロトコル (Tech-Blog Code Box Standard)
-
-Smart AI Life（Astro 5.x / Cloudflare Pages）、はてなブログ、EmDash CMSで公開・入稿するすべての技術記事内のコードブロックは、以下の**テックブログ標準コードボックス（Mac風3色ドット＋大文字言語ラベル＋自己完結型コピーボタン）**を採用します：
-
-1. **デザイン要素**:
-   - 背景: `#0d1117`、枠線: `1px solid #30363d`、角丸: `12px`、シャドウ付き
-   - ヘッダーバー: 左にMac風3色ドット（赤 `#ff5f56`, 黄 `#ffbd2e`, 緑 `#27c93f`）＋等幅大文字言語ラベル（`BASH`, `POWERSHELL`, `PYTHON`, `SQL`, `JSON`, `HTML` 等）
-   - コピーボタン: 右上にSVGクリップボードアイコン＋「コピー」ラベル。クリック時に「コピー完了！」（`#10b981` / `#34d399`）へ変化し2秒後自動復帰
-2. **完全自己完結型（Zero-Dependency）**:
-   - 外部JS/CSSに依存せず、はてなブログでもインライン `onclick="navigator.clipboard.writeText(...)"` により単体で確実にクリップボードコピーが動作する構造を担保する
-   - セマンティックな `<pre><code>` を内包し、SEO・スクリーンリーダー・RSSに配慮
-3. **自動生成ツール**:
-   - `python3 /Volumes/Docker/SmartAILife/tools/format_code_blocks.py` を活用してスニペットを生成・変換する
-
-
-
-
----
-
-## 12. 🌐 Webサイト・UI制作時の Inspo MCP 必須参照プロトコル (Inspo MCP Protocol)
+## 9. 🌐 Webサイト・UI制作時の Inspo MCP 必須参照プロトコル (Inspo MCP Protocol)
 
 AntigravityおよびHermes Agentは、新規Webサイト、ランディングページ、UIコンポーネント、または既存ページの再設計を行う際、必ず **Inspo MCP サーバー** (`inspo`) を参照して実稼働サイトの構造、パレット、フォント、レイアウト、参考JSXを取得してから実装を開始します。
 
@@ -190,7 +150,7 @@ AntigravityおよびHermes Agentは、新規Webサイト、ランディングペ
 
 ---
 
-## 13. 🎨 UI/UX Pro Max & 21st.dev デザインインテリジェンス・コンポーネント協調プロトコル
+## 10. 🎨 UI/UX Pro Max & 21st.dev デザインインテリジェンス・コンポーネント協調プロトコル
 
 AntigravityおよびHermes Agentは、Webサイト・UI制作・コンポーネント実装において、Inspo MCPに加え、**UI/UX Pro Max (`ui-ux-pro-max`)** および **21st.dev (`21st` MCP / `@21st-dev/cli`)** を自律的に連携活用します。
 
@@ -208,40 +168,22 @@ AntigravityおよびHermes Agentは、Webサイト・UI制作・コンポーネ�
 
 ---
 
-## 14. 🧬 Anthropic公式 MCPコード実行パターン（大容量データ前処理・トークン99%削減プロトコル）
+## 11. 📋 AIリビングラボ「記事一式」作成の定義と標準テンプレート規約（URL・広告・X文字数厳格準拠）
 
-Antigravity（Gemini）およびHermes Agentは、大容量時系列データ（難病実測生体ログ、Apple HealthKit、HEMS年間30分値スマートメーターログ、100歳家計キャッシュフロー）を扱う際、**生データ（JSON/CSV）をLLMコンテキストに直接戻すことを厳格に禁止**します。
+ユーザーから「記事一式作って」「記事一式生成して」と指示された場合、それは単なるテキスト生成ではなく、以下の**3大メディア・全自動デプロイメントのパッケージ**を指します：
 
-1. **実行プロトコル**:
-   - 大容量データ分析時は、必ず **`mcp_code_executor.py`**（または `code-executor` MCP）を呼び出し、Pythonサンドボックス内でPandas/NumPyにより集計・フィルタリング・相関分析を実行する。
-   - LLMコンテキストには、最終的に算出された統計サマリー（数十〜数百トークン）のみを標準出力経由で返却し、**トークン消費を98〜99.9%削減**する。
-2. **実行インターフェース**:
-   - `python3 ~/.gemini/antigravity/scripts/mcp_code_executor.py --code "<python_code>" [--dataset health|custom]`
-   - MCP Tool: `call_mcp_tool` (`ServerName: "code-executor"`, `ToolName: "execute_code"`)
-   - Hermes Skill: `mcp-code-execution` (`~/.hermes/skills/mcp-code-execution/SKILL.md`)
-
----
-
-## 15. 📋 AIリビングラボ記事一式作成の標準テンプレート規約（URL・広告・X文字数厳格準拠）
-
-今後のすべてのAI記事作成・メディア一式展開（記事執筆、YouTube Shorts、X投稿日英）において、以下の規約を厳格に順守します：
-
-1. **正式URLと配備先（移転先ポータル）**:
-   - 公開先ポータル: `https://eosinophilicgastroenteritis-ege.pages.dev/ai-living-lab`（リポジトリ: `/Volumes/Docker/nanbyo`）
-   - 記事URL: `https://eosinophilicgastroenteritis-ege.pages.dev/articles/<slug>`（旧 `smartailife.pages.dev` や `ai-living-lab.pages.dev` は使用禁止）
-   - 配備4点セット:
-     - ① D1（`emdash-db`）へ記事登録・公開（`emdash_create_post` / API）
-     - ② `nanbyo/src/data/articles.ts` の `ARTICLES` 配列先頭へメタデータを追加
-     - ③ `nanbyo/blog_drafts/<slug>.html` に完全なHTML原稿を配備
-     - ④ `nanbyo` および `SmartAILife` の両リポジトリを Git commit & push して Cloudflare Pages に自動デプロイ
-2. **広告枠の仕様（スタディサプリ完全排除・Google AdSense常時表示）**:
-   - AI関連記事（`siteId: 'smartailife'`、カテゴリ `decision` / `cloud` 等）では、スタディサプリ等の教育系アフィリエイト（A8.net）は**絶対に出さない**。
-   - 広告コンポーネント（`<AdBanner>`）には「📢 スポンサーリンク ｜ Google 広告」を表示し、**Google AdSense（`ca-pub-1988464307898443`）のレスポンシブ広告ユニット（`adsbygoogle`）を常時表示**する。
-   - AdSense未ロード時でもスタディサプリへのフォールバックは行わない。
-3. **X（Twitter）投稿メッセージの文字数制限（厳格準拠）**:
+1. **① Web技術記事の執筆＆本番公開（4点完全同期）**:
+   - Cloudflare D1（`emdash-db`）へ登録・公開（`emdash_create_post` / API）
+   - `nanbyo/src/data/articles.ts` の `ARTICLES` 配列先頭へメタデータを追加
+   - `nanbyo/blog_drafts/<slug>.html` に完全なHTML原稿を配備
+   - `nanbyo` および `SmartAILife` の両リポジトリを Git commit & push して Cloudflare Pages に自動デプロイ
+   - 広告は Google AdSense（`ca-pub-1988464307898443`）常時表示（スタディサプリ等A8広告は完全排除）
+   - 公開先ポータル: `https://eosinophilicgastroenteritis-ege.pages.dev/ai-living-lab`
+   - 正式記事URL: `https://eosinophilicgastroenteritis-ege.pages.dev/articles/<slug>`（旧ドメイン使用禁止）
+2. **② YouTube Shorts 動画の自動生成＆自動公開**:
+   - 共通Tech背景（Veo生成動画）を使用し、`tech_pro`ボイス、テーマBGM、Noto Sans JP Blackテロップで動画生成＆`publish_to_youtube.py` で即座にYouTube自動公開
+3. **③ X（Twitter）投稿用メッセージの作成（日英2言語）**:
    - **日本語版**: 本文約100〜110文字 ＋ URL（23文字換算）＝ **全角140文字（280ウェイト）以内**。生テキストでも280文字以内に収める。
    - **英語版（English）**: **URLを含めた生の文字列全体で280文字以下**（X公式280ウェイト以内）に厳格に収める。本文は160〜190文字程度にコンパクトに凝縮する。
-4. **YouTube Shorts**:
-   - 共通Tech背景（Veo生成動画）を使用し、`tech_pro`ボイス、テーマBGM、Noto Sans JP Blackテロップで動画生成＆YouTube自動公開（`publish_to_youtube.py`）。
 
 

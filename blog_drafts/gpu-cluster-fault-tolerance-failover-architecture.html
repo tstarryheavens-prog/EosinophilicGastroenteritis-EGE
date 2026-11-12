@@ -10,40 +10,40 @@
 
 <p>推論要求が発生した際、ルーターエンジン（<code>model_router.py</code> / <code>llmroute.py</code>）は以下の優先順位に従って自律的にノードを選定・迂回します。</p>
 
-<div style=\"overflow-x: auto; margin: 20px 0;\">
-<table style=\"width: 100%; border-collapse: collapse; font-size: 14px; text-align: left;\">
+<div style="overflow-x: auto; margin: 20px 0;">
+<table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: left;">
   <thead>
-    <tr style=\"background: #161b22; border-bottom: 2px solid #30363d;\">
-      <th style=\"padding: 10px 14px; color: #58a6ff;\">階層（Tier）</th>
-      <th style=\"padding: 10px 14px; color: #58a6ff;\">ノード / モデル</th>
-      <th style=\"padding: 10px 14px; color: #58a6ff;\">役割と特徴</th>
-      <th style=\"padding: 10px 14px; color: #58a6ff;\">APIコスト</th>
+    <tr style="background: #161b22; border-bottom: 2px solid #30363d;">
+      <th style="padding: 10px 14px; color: #58a6ff;">階層（Tier）</th>
+      <th style="padding: 10px 14px; color: #58a6ff;">ノード / モデル</th>
+      <th style="padding: 10px 14px; color: #58a6ff;">役割と特徴</th>
+      <th style="padding: 10px 14px; color: #58a6ff;">APIコスト</th>
     </tr>
   </thead>
   <tbody>
-    <tr style=\"border-bottom: 1px solid #21262d;\">
-      <td style=\"padding: 10px 14px; font-weight: 600;\">Tier 0-A（第一候補）</td>
-      <td style=\"padding: 10px 14px; font-weight: 600; color: #3fb950;\">Strata (z790-al)</td>
-      <td style=\"padding: 10px 14px;\">RTX 4070TiS + 3060。秒速45〜80トークンの超高速推論。</td>
-      <td style=\"padding: 10px 14px; color: #3fb950; font-weight: 600;\">完全 $0.00</td>
+    <tr style="border-bottom: 1px solid #21262d;">
+      <td style="padding: 10px 14px; font-weight: 600;">Tier 0-A（第一候補）</td>
+      <td style="padding: 10px 14px; font-weight: 600; color: #3fb950;">Strata (z790-al)</td>
+      <td style="padding: 10px 14px;">RTX 4070TiS + 3060。秒速45〜80トークンの超高速推論。</td>
+      <td style="padding: 10px 14px; color: #3fb950; font-weight: 600;">完全 $0.00</td>
     </tr>
-    <tr style=\"border-bottom: 1px solid #21262d;\">
-      <td style=\"padding: 10px 14px; font-weight: 600;\">Tier 0-B（第二候補）</td>
-      <td style=\"padding: 10px 14px; font-weight: 600; color: #3fb950;\">AMD BC-250</td>
-      <td style=\"padding: 10px 14px;\">40CU APU。Colibri（35B MoE）/ Mistral-Nemo（ポート8080）。</td>
-      <td style=\"padding: 10px 14px; color: #3fb950; font-weight: 600;\">完全 $0.00</td>
+    <tr style="border-bottom: 1px solid #21262d;">
+      <td style="padding: 10px 14px; font-weight: 600;">Tier 0-B（第二候補）</td>
+      <td style="padding: 10px 14px; font-weight: 600; color: #3fb950;">AMD BC-250</td>
+      <td style="padding: 10px 14px;">40CU APU。Colibri（35B MoE）/ Mistral-Nemo（ポート8080）。</td>
+      <td style="padding: 10px 14px; color: #3fb950; font-weight: 600;">完全 $0.00</td>
     </tr>
-    <tr style=\"border-bottom: 1px solid #21262d;\">
-      <td style=\"padding: 10px 14px; font-weight: 600;\">Tier 0.5（第三候補）</td>
-      <td style=\"padding: 10px 14px; color: #58a6ff;\">OpenRouter Free</td>
-      <td style=\"padding: 10px 14px;\">MiniMax M3.1 Flash（1Mコンテキスト）、Nemotron等の動的無料枠。</td>
-      <td style=\"padding: 10px 14px; color: #3fb950; font-weight: 600;\">完全 $0.00</td>
+    <tr style="border-bottom: 1px solid #21262d;">
+      <td style="padding: 10px 14px; font-weight: 600;">Tier 0.5（第三候補）</td>
+      <td style="padding: 10px 14px; color: #58a6ff;">OpenRouter Free</td>
+      <td style="padding: 10px 14px;">MiniMax M3.1 Flash（1Mコンテキスト）、Nemotron等の動的無料枠。</td>
+      <td style="padding: 10px 14px; color: #3fb950; font-weight: 600;">完全 $0.00</td>
     </tr>
     <tr>
-      <td style=\"padding: 10px 14px; font-weight: 600;\">Tier 1〜2（最終防衛線）</td>
-      <td style=\"padding: 10px 14px; color: #ff7b72;\">Gemini 3.8 Flash</td>
-      <td style=\"padding: 10px 14px;\">超軽量・安全なクラウド推論。重要意思決定・対話セッションを保護。</td>
-      <td style=\"padding: 10px 14px;\">極小従量課金</td>
+      <td style="padding: 10px 14px; font-weight: 600;">Tier 1〜2（最終防衛線）</td>
+      <td style="padding: 10px 14px; color: #ff7b72;">Gemini 3.8 Flash</td>
+      <td style="padding: 10px 14px;">超軽量・安全なクラウド推論。重要意思決定・対話セッションを保護。</td>
+      <td style="padding: 10px 14px;">極小従量課金</td>
     </tr>
   </tbody>
 </table>
@@ -64,23 +64,7 @@
 <h3>② BC-250がダウンまたはビジーの場合</h3>
 <p>小規模基板であるBC-250では、長大なプロンプトや極端な負荷によってプロセスやTailscale接続が一時的に途切れるリスクがあります。ここで威力を発揮するのが<strong>「死活キャッシュ（Alive Cache）」</strong>です。</p>
 
-<div class=\"code-block-container\" style=\"position: relative; margin: 24px 0; background: #0d1117; border: 1px solid #30363d; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;\">
-  <div class=\"code-block-header\" style=\"display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; background: #161b22; border-bottom: 1px solid #30363d; user-select: none;\">
-    <div style=\"display: flex; align-items: center; gap: 6px;\">
-      <span style=\"width: 10px; height: 10px; border-radius: 50%; background: #ff5f56; display: inline-block;\"></span>
-      <span style=\"width: 10px; height: 10px; border-radius: 50%; background: #ffbd2e; display: inline-block;\"></span>
-      <span style=\"width: 10px; height: 10px; border-radius: 50%; background: #27c93f; display: inline-block;\"></span>
-      <span style=\"font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #8b949e; text-transform: uppercase; margin-left: 10px;\">PYTHON</span>
-    </div>
-    <button type=\"button\" onclick=\"const c=this.closest('.code-block-container').querySelector('code, pre').innerText.trim(); navigator.clipboard.writeText(c).then(()=>{const t=this.querySelector('.btn-label'); t.innerText='コピー完了！'; this.style.borderColor='#10b981'; this.style.color='#34d399'; setTimeout(()=>{t.innerText='コピー'; this.style.borderColor='rgba(255,255,255,0.15)'; this.style.color='#cbd5e1';}, 2000);});\" style=\"display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;\" onmouseover=\"this.style.background='rgba(255,255,255,0.15)'; this.style.color='#fff';\" onmouseout=\"this.style.background='rgba(255,255,255,0.06)'; this.style.color='#cbd5e1';\">
-      <svg viewBox=\"0 0 24 24\" width=\"13\" height=\"13\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">
-        <rect x=\"9\" y=\"9\" width=\"13\" height=\"13\" rx=\"2\" ry=\"2\"></rect>
-        <path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\"></path>
-      </svg>
-      <span class=\"btn-label\">コピー</span>
-    </button>
-  </div>
-  <pre style=\"margin: 0; padding: 16px 20px; overflow-x: auto; background: transparent; color: #e6edf3; font-size: 13.5px; line-height: 1.65; white-space: pre; font-family: inherit;\"><code style=\"background: transparent; padding: 0; border: none; color: inherit; font-size: inherit;\"># 死んでいるノードへの無駄な10秒タイムアウトを防止する死活キャッシュ
+<pre data-language="python"><code class="lang-python"># 死んでいるノードへの無駄な10秒タイムアウトを防止する死活キャッシュ
 def bc250_alive(ttl=300):
     global _bc250_last_check, _bc250_cached_alive
     now = time.time()
@@ -88,14 +72,13 @@ def bc250_alive(ttl=300):
         return _bc250_cached_alive
     try:
         # 2秒タイムアウトでポート疎通確認
-        s = socket.create_connection((\"100.79.26.62\", 8080), timeout=2)
+        s = socket.create_connection(("100.79.26.62", 8080), timeout=2)
         s.close()
         _bc250_cached_alive = True
     except (socket.timeout, ConnectionRefusedError, OSError):
         _bc250_cached_alive = False
     _bc250_last_check = now
     return _bc250_cached_alive</code></pre>
-</div>
 
 <p>もしBC-250の応答が切れた場合、<strong>5分間はBC-250への接続試行を自動スキップ</strong>し、毎リクエストで発生する10秒間のタイムアウト待ち時間を完全にゼロ化します。即座にStrataやOpenRouterへフォールバックされるため、切り替えオーバーヘッドは実測わずか5.9秒です。</p>
 
@@ -105,27 +88,10 @@ def bc250_alive(ttl=300):
 
 <p>プロセスが予期せぬエラーやOOMでクラッシュした場合、手動でSSHログインして再起動するのは非効率です。BC-250上のColibri推論サーバーは、LinuxカーネルのSystemdサービスとして常駐化されており、クラッシュを検知すると<strong>5秒以内に自動復旧</strong>します。</p>
 
-<div class=\"code-block-container\" style=\"position: relative; margin: 24px 0; background: #0d1117; border: 1px solid #30363d; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;\">
-  <div class=\"code-block-header\" style=\"display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; background: #161b22; border-bottom: 1px solid #30363d; user-select: none;\">
-    <div style=\"display: flex; align-items: center; gap: 6px;\">
-      <span style=\"width: 10px; height: 10px; border-radius: 50%; background: #ff5f56; display: inline-block;\"></span>
-      <span style=\"width: 10px; height: 10px; border-radius: 50%; background: #ffbd2e; display: inline-block;\"></span>
-      <span style=\"width: 10px; height: 10px; border-radius: 50%; background: #27c93f; display: inline-block;\"></span>
-      <span style=\"font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #8b949e; text-transform: uppercase; margin-left: 10px;\">SYSTEMD</span>
-    </div>
-    <button type=\"button\" onclick=\"const c=this.closest('.code-block-container').querySelector('code, pre').innerText.trim(); navigator.clipboard.writeText(c).then(()=>{const t=this.querySelector('.btn-label'); t.innerText='コピー完了！'; this.style.borderColor='#10b981'; this.style.color='#34d399'; setTimeout(()=>{t.innerText='コピー'; this.style.borderColor='rgba(255,255,255,0.15)'; this.style.color='#cbd5e1';}, 2000);});\" style=\"display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;\" onmouseover=\"this.style.background='rgba(255,255,255,0.15)'; this.style.color='#fff';\" onmouseout=\"this.style.background='rgba(255,255,255,0.06)'; this.style.color='#cbd5e1';\">
-      <svg viewBox=\"0 0 24 24\" width=\"13\" height=\"13\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">
-        <rect x=\"9\" y=\"9\" width=\"13\" height=\"13\" rx=\"2\" ry=\"2\"></rect>
-        <path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\"></path>
-      </svg>
-      <span class=\"btn-label\">コピー</span>
-    </button>
-  </div>
-  <pre style=\"margin: 0; padding: 16px 20px; overflow-x: auto; background: transparent; color: #e6edf3; font-size: 13.5px; line-height: 1.65; white-space: pre; font-family: inherit;\"><code style=\"background: transparent; padding: 0; border: none; color: inherit; font-size: inherit;\"># /etc/systemd/system/colibri.service の自動復帰ディレクティブ
+<pre data-language="systemd"><code class="lang-systemd"># /etc/systemd/system/colibri.service の自動復帰ディレクティブ
 Restart=on-failure
 RestartSec=5
 LimitNOFILE=65536</code></pre>
-</div>
 
 <p>これにより、万が一プロセスが終了しても、5秒の待機を経て自動的に再起動され、クリーンなメモリ空間でポート8008が復旧します。</p>
 
