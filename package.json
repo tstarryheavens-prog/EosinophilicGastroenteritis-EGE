@@ -6,11 +6,11 @@
     "node": ">=22.12.0"
   },
   "scripts": {
-    "dev": "node ./node_modules/astro/bin/astro.mjs dev",
-    "start": "node ./node_modules/astro/bin/astro.mjs dev",
-    "build": "node ./node_modules/astro/bin/astro.mjs build && cp -r dist/client/* dist/ 2>/dev/null || true && cp -r dist/server/* dist/ 2>/dev/null || true && (mv dist/entry.mjs dist/_worker.js 2>/dev/null || true) && cp public/.assetsignore dist/.assetsignore 2>/dev/null || true && rm -rf dist/server/wrangler.json dist/wrangler.json .wrangler",
-    "preview": "node ./node_modules/astro/bin/astro.mjs preview",
-    "astro": "node ./node_modules/astro/bin/astro.mjs"
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build && cp -r dist/client/* dist/ 2>/dev/null || true && cp -r dist/server/* dist/ 2>/dev/null || true && (mv dist/entry.mjs dist/_worker.js 2>/dev/null || true) && cp public/.assetsignore dist/.assetsignore 2>/dev/null || true && rm -rf dist/server/wrangler.json dist/wrangler.json .wrangler",
+    "preview": "astro preview",
+    "astro": "astro"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^14.4.0",
