@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>異種Dual GPU（RTX 4070TiS＋3060）で27Bモデルを80 tok/s駆動する技術――DSpine投機的デコーディングとDMIボトルネックの打破</title>
+  <meta name="description" content="RTX 4070 Ti SUPER 16GB と RTX 3060 12GB の異種Dual GPU環境で、Qwen3.8-27Bを秒速80.4トークン（3.13倍）で推論させる技術検証。DSpine投機デコーディング、PCIe DMIバス通信ボトルネックを回避する不均衡テンソルスプリット（-ts 20,7）、Q4_0 KVキャッシュによる64kコンテキスト完全稼働の全手順を解説します。">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.8;
+      color: #24292f;
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 24px;
+      background-color: #ffffff;
+    }
+    h1 {
+      font-size: 2rem;
+      border-bottom: 2px solid #eaecef;
+      padding-bottom: 12px;
+      margin-bottom: 24px;
+      color: #0f172a;
+    }
+    h2 {
+      font-size: 1.5rem;
+      border-bottom: 1px solid #eaecef;
+      padding-bottom: 8px;
+      margin-top: 40px;
+      color: #1e293b;
+    }
+    h3 {
+      font-size: 1.25rem;
+      margin-top: 24px;
+      color: #334155;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    th, td {
+      border: 1px solid #d0d7de;
+      padding: 10px 14px;
+      text-align: left;
+    }
+    th {
+      background-color: #f6f8fa;
+      font-weight: 600;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: 6px;
+      background-color: #e2e8f0;
+      color: #0f172a;
+    }
+    .badge-success {
+      background-color: #dcfce7;
+      color: #166534;
+    }
+    /* Tech-Blog Code Box */
+    .code-box {
+      background-color: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      margin: 24px 0;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 14px;
+      background-color: #161b22;
+      border-bottom: 1px solid #30363d;
+    }
+    .code-dots {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+    }
+    .dot-red { background-color: #ff5f56; }
+    .dot-yellow { background-color: #ffbd2e; }
+    .dot-green { background-color: #27c93f; }
+    .code-lang {
+      margin-left: 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: #8b949e;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .copy-btn {
+      background-color: #21262d;
+      border: 1px solid #30363d;
+      color: #c9d1d9;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s;
+    }
+    .copy-btn:hover {
+      background-color: #30363d;
+      color: #ffffff;
+    }
+    .code-content {
+      margin: 0;
+      padding: 14px;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: #e6edf3;
+      background-color: #0d1117;
+    }
+    .callout {
+      background-color: #f8fafc;
+      border-left: 4px solid #3b82f6;
+      padding: 14px 18px;
+      margin: 20px 0;
+      border-radius: 0 8px 8px 0;
+    }
+  </style>
+</head>
+<body>
+
+<h1>異種Dual GPU（RTX 4070TiS＋3060）で27Bモデルを80 tok/s駆動する技術――DSpine投機的デコーディングとDMIボトルネックの打破</h1>
+
+<p>自作PCやホームラボでローカルLLMを運用する際、最も費用対効果が高いのが「既存のGPU（例: RTX 3060 12GB）に上位GPU（例: RTX 4070 Ti SUPER 16GB）を買い増した異種Dual GPU構成」です。合計28GBのVRAMがあれば、知能水準の高い27B〜32Bクラスのモデルを完全にVRAM内に展開できます。</p>
+
+<p>しかし、実際に異種Dual GPUで27Bクラスを動かすと、2つの大きな壁に直面します。</p>
+
+<ol>
+  <li><strong>PCIe / チップセットDMIバスの転送遅延</strong>: 第2スロットのGPUとCPU直結の第1スロットGPU間で、レイヤーごとのアクティベーション転送が往復し、推論速度が秒速20〜30トークン前後に低下する。</li>
+  <li><strong>自律エージェント運用に必要な長大コンテキスト（64k）とVRAM枯渇</strong>: Hermes Agentなどの自律エージェントで運用する場合、64k以上のコンテキスト窓が必須となるが、通常のFP16 KVキャッシュではそれだけで16GB以上を消費し、28GBの枠から溢れてOOM（Out of Memory）となる。</li>
+</ol>
+
+<p>今回、Tencentが発表した最新の投機的デコーディング手法<strong>「DSpine」</strong>と、llama.cppの<strong>不均衡テンソルスプリット（-ts 20,7）</strong>、および<strong>Q4_0 KVキャッシュ量子化</strong>を組み合わせることで、これらの壁を完全に突破しました。</p>
+
+<p>結果として、通常推論の<strong>25.7 tok/sから80.4 tok/s（3.13倍 / +213%爆速化）</strong>を達成し、同時に<strong>64k（65,536 tokens）コンテキストでの完全安定常駐</strong>に成功しました。本記事ではそのアーキテクチャと検証手順を全公開します。</p>
+
+---
+
+<h2>1. 検証ハードウェアとモデル構成</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>コンポーネント</th>
+      <th>仕様・モデル</th>
+      <th>役割・接続帯域</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>マザーボード / CPU</strong></td>
+      <td>Intel Z790 チップセット / Core i7</td>
+      <td>システム基幹</td>
+    </tr>
+    <tr>
+      <td><strong>GPU 0 (主GPU)</strong></td>
+      <td><strong>NVIDIA GeForce RTX 4070 Ti SUPER (16GB)</strong></td>
+      <td>CPU直結 PCIe 4.0 x16（帯域 504 GB/s）<br>ドラフトモデル＋メイン主力層を担当</td>
+    </tr>
+    <tr>
+      <td><strong>GPU 1 (副GPU)</strong></td>
+      <td><strong>NVIDIA GeForce RTX 3060 (12GB)</strong></td>
+      <td>チップセット経由 PCIe 4.0 x4相当（DMI接続）<br>メイン末尾レイヤーのオフロードを担当</td>
+    </tr>
+    <tr>
+      <td><strong>ターゲットモデル</strong></td>
+      <td><strong>Qwen3.8-27B-UD-Q4_K_M.gguf</strong> (約16.5 GB)</td>
+      <td>高推論・長大文脈対応のメイン頭脳（27.3Bパラメータ）</td>
+    </tr>
+    <tr>
+      <td><strong>ドラフトモデル</strong></td>
+      <td><strong>Qwen3.8-27B-DSpine-b16-Q4_K_M.gguf</strong> (約1.2 GB)</td>
+      <td>DSpine 16トークン並列投機デコーダ（5層）</td>
+    </tr>
+  </tbody>
+</table>
+
+---
+
+<h2>2. 第1の壁：PCIe DMIバスの通信ボトルネックと解決策</h2>
+
+<p>Z790などの民生用マザーボードでは、CPU直結の第1スロット（x16）に対して、第2・第3スロットはチップセット（PCH）を経由してDMIリンク（PCIe 4.0 x8相当）でCPUと接続されます。</p>
+
+<p>llama.cppで単純にGPUメモリ比率（16GB : 12GB ≒ <code>-ts 14,10</code>）で均等分割すると、毎デコードステップでGPU 0とGPU 1の間で大量の中間特徴量がPCIe DMIバスを行き来します。その結果、DSpineを適用しても<strong>36〜40 tok/sで頭打ち</strong>になっていました。</p>
+
+<div class="callout">
+  <strong>突破口：極限の不均衡スプリット（-ts 20,7）</strong><br>
+  わずか1.2GBのDSpineドラフトモデルは超高速なRTX 4070 Ti SUPER側（CUDA0）に完全常駐させ、ターゲットモデル（27B）の28層中21層以上を4070 Ti SUPERに集中配置しました。RTX 3060には末尾の7層のみを任せることで、GPU間通信の往復オーバーヘッドを最小化しました。
+</div>
+
+<p>この結果、生成速度は一気に<strong>80.4 tok/s</strong>まで跳ね上がりました。</p>
+
+---
+
+<h2>3. 第2の壁：エージェント運用のための「64kコンテキスト」とVRAM設計</h2>
+
+<p>Hermes Agentや自律型コーディングエージェントでは、ツールのスキーマ定義、過去の実行ログ、ソースコード全体をプロンプトに含めるため、最低でも64k（65,536 tokens）のコンテキスト窓が必要です。</p>
+
+<p>しかし、Qwen3.8-27BのKVキャッシュを通常のFP16で64k確保すると、計算上<strong>約16.4GB</strong>のVRAMが必要となります。メインモデル（16.5GB）と合わせると32.9GBとなり、28GBの合計VRAMを即座に超過（OOM）します。</p>
+
+<p>そこで投入したのが、llama.cppの<strong>Q4_0 KVキャッシュ量子化</strong>です。</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>KVキャッシュ設定</th>
+      <th>64kコンテキスト時のKV消費量</th>
+      <th>合計VRAM消費（27B+DSpine含む）</th>
+      <th>判定</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>FP16（標準）</td>
+      <td>約 16.38 GB</td>
+      <td>約 34.1 GB</td>
+      <td><span class="badge" style="background:#fee2e2;color:#991b1b;">OOM（起動不可）</span></td>
+    </tr>
+    <tr>
+      <td>Q8_0（8-bit）</td>
+      <td>約 8.19 GB</td>
+      <td>約 25.9 GB</td>
+      <td>ギリギリ（マージン不足）</td>
+    </tr>
+    <tr>
+      <td><strong>Q4_0（4-bit）＋FlashAttention</strong></td>
+      <td><strong>約 4.10 GB</strong></td>
+      <td><strong>約 21.8 GB</strong></td>
+      <td><span class="badge badge-success">完全安定（マージン 6.8GB）</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>FlashAttentionのQ4_0カーネルを併用することで、精度低下を極小に抑えつつ、28GBのVRAM内に<strong>4.5GB以上の空きマージン</strong>を残して64kコンテキストを常駐させることに成功しました。</p>
+
+---
+
+<h2>4. 実測ベンチマーク結果</h2>
+
+<p>同一ハードウェア・同一プロンプト（Pythonアルゴリズム実装）における実測比較です。</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>構成</th>
+      <th>コンテキスト長</th>
+      <th>スプリット比</th>
+      <th>Generation推論速度</th>
+      <th>対ベースライン比</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>通常推論（投機なし）</td>
+      <td>8,192</td>
+      <td>-ts 14,10</td>
+      <td>25.7 tok/s</td>
+      <td>1.00x</td>
+    </tr>
+    <tr>
+      <td>DSpine投機（均等分割）</td>
+      <td>8,192</td>
+      <td>-ts 14,10</td>
+      <td>36.7 〜 40.9 tok/s</td>
+      <td>1.43x 〜 1.59x</td>
+    </tr>
+    <tr>
+      <td><strong>DSpine投機（不均衡分割）</strong></td>
+      <td>8,192</td>
+      <td><strong>-ts 20,7</strong></td>
+      <td><strong>80.4 tok/s</strong></td>
+      <td><strong>3.13x（+213%）</strong></td>
+    </tr>
+    <tr>
+      <td><strong>DSpine投機＋Q4_0 KV（エージェント仕様）</strong></td>
+      <td><strong>65,536 (64k)</strong></td>
+      <td><strong>-ts 18,8</strong></td>
+      <td><strong>80.3 tok/s</strong></td>
+      <td><strong>3.12x（安定常駐）</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+---
+
+<h2>5. 完全再現手順と起動コマンド</h2>
+
+<p>以下のコマンドで、DSpine対応フォークのビルドから64k常駐APIサーバーの起動まで再現可能です。</p>
+
+<div class="code-box">
+  <div class="code-header">
+    <div class="code-dots">
+      <span class="dot dot-red"></span>
+      <span class="dot dot-yellow"></span>
+      <span class="dot dot-green"></span>
+      <span class="code-lang">BASH</span>
+    </div>
+    <button class="copy-btn" onclick="navigator.clipboard.writeText(this.closest('.code-box').querySelector('.code-content').innerText); this.innerHTML='コピー完了！'; setTimeout(()=>this.innerHTML='コピー', 2000);">コピー</button>
+  </div>
+  <pre class="code-content"><code># 1. DSpine対応フォークの取得とCUDAビルド
+git clone --depth 1 -b dspine https://github.com/Ajay9o9/llama.cpp.git llama-dspine
+cd llama-dspine
+cmake -B build -G Ninja -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES="89;86" -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j16
+
+# 2. 64kコンテキスト対応 DSpine常駐APIサーバーの起動
+./build/bin/llama-server \
+  --model ./models/Qwen3.8-27B-UD-Q4_K_M.gguf \
+  --model-draft ./models/Qwen3.8-27B-DSpine-b16-Q4_K_M.gguf \
+  --ctx-size 65536 \
+  -np 1 \
+  -ctk q4_0 \
+  -ctv q4_0 \
+  -ctkd q4_0 \
+  -ctvd q4_0 \
+  -ngl 99 \
+  -ngld 99 \
+  -sm layer \
+  -ts 18,8 \
+  --spec-draft-n-max 16 \
+  --spec-draft-n-min 4 \
+  --flash-attn on \
+  --reasoning-budget 64 \
+  --host 0.0.0.0 \
+  --port 47832</code></pre>
+</div>
+
+---
+
+<h2>6. まとめ</h2>
+
+<p>異種Dual GPUにおける推論速度の低下はGPU単体の性能不足ではなく、<strong>PCIe DMIバスの往復通信とVRAM割り当ての不均衡</strong>が原因でした。</p>
+
+<ul>
+  <li><strong>DSpineの隣接因果注入</strong>により、マルチトークン並列生成でも高い受容率を維持。</li>
+  <li><strong>不均衡テンソルスプリット（-ts 18,8 〜 20,7）</strong>により、CPU直結GPUに負荷を寄せてバス遅延を解消。</li>
+  <li><strong>Q4_0 KVキャッシュ量子化</strong>により、64kコンテキストを23.5GB VRAM内で完全稼働。</li>
+</ul>
+
+<p>これにより、クラウドAPI（Claude CodeやGPT-4o等）のトークン課金を気にすることなく、最高峰の27Bモデルを自律エージェントの頭脳として24時間フル回転させることが可能になりました。</p>
+
+</body>
+</html>

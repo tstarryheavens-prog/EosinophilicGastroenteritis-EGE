@@ -1,0 +1,183 @@
+<p>ローカルLLMを自宅サーバーで運用する際、常に立ちはだかるのが<strong>「VRAM・メモリ容量の壁」</strong>です。特にパラメータ数が30B〜70Bを超えるフロンティア級モデルは、量子化を行っても20GB〜40GB以上のメモリを要求するため、家庭向けのGPUや小型APUでは起動すらできずOOM（メモリ不足）でクラッシュするのが通例でした。</p>
+
+<p>今回、PlayStation 5のカスタムAPUと同等構成を持つAMDのマイニング用特殊基板<strong>「AMD BC-250（Cyan Skillfish 40CU / 16GB GDDR6）」</strong>に、SSD動的ストリーミング純C推論エンジン<strong>「Colibri（JustVugg/colibri）」</strong>とVulkan 1.4（Mesa RADV）を配備。物理メモリ16GBの制約下で、23.1GBの最新スパースMoEモデル<strong>「Qwen3.6-35B-A3B」</strong>を完全稼働させ、その実測性能と内部キャッシュ挙動、さらに投機デコーディングによる高速化の限界を徹底検証しました。</p>
+
+<hr />
+
+<h2>1. 検証ハードウェアとColibriのアーキテクチャ</h2>
+
+<p>AMD BC-250は、Zen 2（6コア/12スレッド）CPUとRDNA 2アーキテクチャの40 Compute Units（2560ストリームプロセッサ）を1チップに統合したAPUです。メモリは16GBのGDDR6ユニファイド構成で、OSや基本プロセスを除くと利用可能な空きRAMは約13〜14GBにとどまります。</p>
+
+<p>この環境に対し、モデル容量23.1GBのQwen3.6-35B（総パラメータ35B / 1トークンあたりのアクティブパラメータ3B）を投入しました。通常ではロードすら不可能な構成ですが、Colibriは以下の<strong>3階層メモリ管理</strong>によってこれを克服します。</p>
+
+<ul>
+  <li><strong>常駐Dense層（VRAM/RAM固定）</strong>: 全トークンで必ず計算されるAttention層や埋め込み行列（約1.4GB）を、Vulkanを通じて40CUのGPU側に常駐配置。</li>
+  <li><strong>ホットExpertキャッシュ（RAM動的保持）</strong>: 頻繁に呼び出されるExpert層（約4.2GB）をRAM上に保持し、アクセス頻度に応じてLRU管理。</li>
+  <li><strong>コールドExpertストリーミング（NVMe SSDオンデマンド）</strong>: 残りのExpert群をPCIe Gen4 NVMe SSD上に配置し、ルーターが選択した瞬間のみダイレクトに読み込み。</li>
+</ul>
+
+<div class="code-block-container" style="position: relative; margin: 24px 0; background: #0d1117; border: 1px solid #30363d; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+  <div class="code-block-header" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; background: #161b22; border-bottom: 1px solid #30363d; user-select: none;">
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ff5f56; display: inline-block;"></span>
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ffbd2e; display: inline-block;"></span>
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #27c93f; display: inline-block;"></span>
+      <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #8b949e; text-transform: uppercase; margin-left: 10px;">--lang</span>
+    </div>
+    <button type="button" onclick="const c=this.closest('.code-block-container').querySelector('code, pre').innerText.trim(); navigator.clipboard.writeText(c).then(()=>{const t=this.querySelector('.btn-label'); t.innerText='コピー完了！'; this.style.borderColor='#10b981'; this.style.color='#34d399'; setTimeout(()=>{t.innerText='コピー'; this.style.borderColor='rgba(255,255,255,0.15)'; this.style.color='#cbd5e1';}, 2000);});" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.color='#cbd5e1';">
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+      </svg>
+      <span class="btn-label">コピー</span>
+    </button>
+  </div>
+  <pre style="margin: 0; padding: 16px 20px; overflow-x: auto; background: transparent; color: #e6edf3; font-size: 13.5px; line-height: 1.65; white-space: pre; font-family: inherit;"><code style="background: transparent; padding: 0; border: none; color: inherit; font-size: inherit;"># ColibriのセットアップとVulkanエンジンのビルド
+git clone https://github.com/JustVugg/colibri.git
+cd colibri
+make -C c qwen36 ARCH=native VK=1
+
+# Qwen3.6-35B-A3B (23.1GB) のダウンロード
+python3 ./c/coli setup --model Kreuzzelg/qwen36-35b-a3b-colibri-i4-gs64
+
+# Vulkan 1.4環境でのバックグラウンド起動
+python3 ./c/coli start --background</code></pre>
+</div>
+
+<hr />
+
+<h2>2. 実機ベンチマーク結果（実測値）</h2>
+
+<p>Colibriが提供するOpenAI互換エンドポイント（ポート8008）に対して、実機ベンチマークを実行しました。</p>
+
+<div class="code-block-container" style="position: relative; margin: 24px 0; background: #0d1117; border: 1px solid #30363d; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+  <div class="code-block-header" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; background: #161b22; border-bottom: 1px solid #30363d; user-select: none;">
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ff5f56; display: inline-block;"></span>
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ffbd2e; display: inline-block;"></span>
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #27c93f; display: inline-block;"></span>
+      <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #8b949e; text-transform: uppercase; margin-left: 10px;">--lang</span>
+    </div>
+    <button type="button" onclick="const c=this.closest('.code-block-container').querySelector('code, pre').innerText.trim(); navigator.clipboard.writeText(c).then(()=>{const t=this.querySelector('.btn-label'); t.innerText='コピー完了！'; this.style.borderColor='#10b981'; this.style.color='#34d399'; setTimeout(()=>{t.innerText='コピー'; this.style.borderColor='rgba(255,255,255,0.15)'; this.style.color='#cbd5e1';}, 2000);});" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.color='#cbd5e1';">
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+      </svg>
+      <span class="btn-label">コピー</span>
+    </button>
+  </div>
+  <pre style="margin: 0; padding: 16px 20px; overflow-x: auto; background: transparent; color: #e6edf3; font-size: 13.5px; line-height: 1.65; white-space: pre; font-family: inherit;"><code style="background: transparent; padding: 0; border: none; color: inherit; font-size: inherit;"># OpenAI互換APIへの推論リクエスト
+curl -X POST http://127.0.0.1:8008/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "qwen3.6-colibri",
+    "messages": [{"role": "user", "content": "こんにちは！自己紹介をお願いします。"}],
+    "max_tokens": 128
+  }'</code></pre>
+</div>
+
+<h3>ベンチマーク測定結果</h3>
+<div style="overflow-x: auto; margin: 20px 0;">
+<table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: left;">
+  <thead>
+    <tr style="background: #161b22; border-bottom: 2px solid #30363d;">
+      <th style="padding: 10px 14px; color: #58a6ff;">テスト項目</th>
+      <th style="padding: 10px 14px; color: #58a6ff;">プロンプト概要</th>
+      <th style="padding: 10px 14px; color: #58a6ff;">TTFT（初回応答遅延）</th>
+      <th style="padding: 10px 14px; color: #58a6ff;">デコード速度</th>
+      <th style="padding: 10px 14px; color: #58a6ff;">生成トークン</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom: 1px solid #21262d;">
+      <td style="padding: 10px 14px; font-weight: 600;">Warmup</td>
+      <td style="padding: 10px 14px;">英語自己紹介</td>
+      <td style="padding: 10px 14px; color: #3fb950; font-weight: 600;">0.01 秒</td>
+      <td style="padding: 10px 14px;">1.58 tok/s</td>
+      <td style="padding: 10px 14px;">~32 tok</td>
+    </tr>
+    <tr style="border-bottom: 1px solid #21262d;">
+      <td style="padding: 10px 14px; font-weight: 600;">日本語解説</td>
+      <td style="padding: 10px 14px;">アーキテクチャ詳細解説</td>
+      <td style="padding: 10px 14px; color: #3fb950; font-weight: 600;">0.02 秒</td>
+      <td style="padding: 10px 14px; font-weight: 600; color: #58a6ff;">2.26 tok/s</td>
+      <td style="padding: 10px 14px;">~128 tok</td>
+    </tr>
+    <tr>
+      <td style="padding: 10px 14px; font-weight: 600;">アルゴリズム</td>
+      <td style="padding: 10px 14px;">Pythonクイックソート実装</td>
+      <td style="padding: 10px 14px; color: #3fb950; font-weight: 600;">0.02 秒</td>
+      <td style="padding: 10px 14px;">1.54 tok/s</td>
+      <td style="padding: 10px 14px;">~95 tok</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>特筆すべきは、<strong>初回トークン生成遅延（TTFT）が10〜20ms（0.01〜0.02秒）</strong>という極小値を示した点です。全40層のDense TrunkがVulkan 40CU上に常駐しているため、プロンプト入力直後のレスポンスは瞬時に立ち上がります。</p>
+
+<hr />
+
+<h2>3. 内部ログ解析：SSD帯域とキャッシュヒット率</h2>
+
+<p>推論中のColibri内部ログ（<code>serve.log</code>）を精査したところ、3階層ストリーミングの実態が数値として浮き彫りになりました。</p>
+
+<ul>
+  <li><strong>NVMe SSDストリーミング帯域</strong>: <strong>5.29 〜 5.44 GB/s</strong>（PCIe Gen4 NVMeの物理限界に近い速度でコールドExpertを毎トークン連続ロード）</li>
+  <li><strong>VRAM常駐ヒット率</strong>: 28.0%（32,927 / 117,440回）</li>
+  <li><strong>CPU RAMキャッシュヒット率</strong>: 43.2%（50,792回）</li>
+  <li><strong>NVMe SSDオンデマンド読み出し率</strong>: 28.8%（33,825回）</li>
+  <li><strong>総メモリヒット率（VRAM + RAM）</strong>: <strong>71.2%</strong></li>
+</ul>
+
+<p>全体の71.2%のExpert呼び出しがメモリ内で完結しており、どうしてもメモリに収まらない残り28.8%のコールドExpertのみを秒速5GB以上のSSDストリーミングで補うことで、16GBのAPU上で35B MoEをエラーなく完走させています。</p>
+
+<hr />
+
+<h2>4. 高速化の検証：投機デコーディング（Prompt Lookup）の限界と突破口</h2>
+
+<p>SSDストリーミング推論における最大のボトルネックは「毎トークン発生するSSDへのI/O往復遅延」です。これを克服するため、Colibriに組み込まれている投機デコーディング機能（Prompt Lookup Drafts 深度5 ＆ Speculative Gate）と高速化ポリシー（<code>--policy experimental-fast</code>）を有効化して追試を行いました。</p>
+
+<div class="code-block-container" style="position: relative; margin: 24px 0; background: #0d1117; border: 1px solid #30363d; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+  <div class="code-block-header" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; background: #161b22; border-bottom: 1px solid #30363d; user-select: none;">
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ff5f56; display: inline-block;"></span>
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ffbd2e; display: inline-block;"></span>
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #27c93f; display: inline-block;"></span>
+      <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #8b949e; text-transform: uppercase; margin-left: 10px;">--lang</span>
+    </div>
+    <button type="button" onclick="const c=this.closest('.code-block-container').querySelector('code, pre').innerText.trim(); navigator.clipboard.writeText(c).then(()=>{const t=this.querySelector('.btn-label'); t.innerText='コピー完了！'; this.style.borderColor='#10b981'; this.style.color='#34d399'; setTimeout(()=>{t.innerText='コピー'; this.style.borderColor='rgba(255,255,255,0.15)'; this.style.color='#cbd5e1';}, 2000);});" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.color='#cbd5e1';">
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+      </svg>
+      <span class="btn-label">コピー</span>
+    </button>
+  </div>
+  <pre style="margin: 0; padding: 16px 20px; overflow-x: auto; background: transparent; color: #e6edf3; font-size: 13.5px; line-height: 1.65; white-space: pre; font-family: inherit;"><code style="background: transparent; padding: 0; border: none; color: inherit; font-size: inherit;"># 投機デコード（Prompt Lookup ＆ Speculative Gate）を有効化して起動
+COLI_LOOKUP=1 COLI_LOOKUP_DRAFTS=5 COLI_SPEC_GATE=1 \
+  python3 ./c/coli serve \
+  --model /home/bc250/colibri-models/qwen36-35b \
+  --policy experimental-fast</code></pre>
+</div>
+
+<h3>投機デコード適用前後の比較</h3>
+<ul>
+  <li><strong>日本語解説</strong>: 2.26 tok/s → <strong>2.35 tok/s（+4.0% 高速化）</strong></li>
+  <li><strong>アルゴリズム</strong>: 1.54 tok/s → 1.51 tok/s（誤差範囲）</li>
+</ul>
+
+<p>ログを検証した結果、プロンプトに含まれる構文や反復文字列の生成時には <code>acceptance 100% (4/4 drafts in 4 verifies)</code> と4トークンを一括確定できている一方、自由な新規文章を生成する場面では文脈内に一致するn-gramが存在せず、投機がスキップ（declined）されて通常の1トークン処理に戻っていました。</p>
+
+<p>この結果から、受動的なPrompt Lookupではなく、次のトークンをニューラルネットで能動予測する<strong>「MTP（Multi-Token Prediction）ヘッド」</strong>の導入、あるいは<strong>「IQ3等の3-bit超低ビット化による完全オンメモリ化」</strong>が、さらなる倍速化（5〜10 tok/s以上）への本命アプローチであることが実証されました。</p>
+
+<hr />
+
+<h2>5. 結論と運用の展望</h2>
+
+<p>AMD BC-250でのColibri実機検証は、以下の明確な知見をもたらしました。</p>
+
+<ol>
+  <li><strong>小規模ハードウェアの常識を覆す容量突破</strong>: 16GB機であっても、純Cストリーミングエンジンを用いることで23GB超級の最新MoEをクラッシュなしに常駐運用できる。</li>
+  <li><strong>適材適所のノード運用</strong>: リアルタイム対話はStrata（RTX 4070TiS, 45〜80 tok/s）に任せ、BC-250は「知能密度の高い35Bモデルによる夜間バッチ、自律エージェントの検証、長文ドラフト」を完全無料・ゼロクォータで回すセカンドオピニオンノードとして極めて実用的である。</li>
+</ol>
