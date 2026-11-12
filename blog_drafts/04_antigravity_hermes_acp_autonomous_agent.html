@@ -1,0 +1,369 @@
+<!-- ============================================================== -->
+<!-- 【はてなブログ用 HTML原稿 - Antigravity × Hermes ACP 自立型AI完全解説】 -->
+<!-- 編集モード: 「HTML編集」に切り替えてそのまま貼り付けてください  -->
+<!-- ============================================================== -->
+
+<div class="pottle-article-wrapper" style="font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif; color: #2d3748; line-height: 1.85; max-width: 840px; margin: 0 auto; font-size: 16px;">
+
+  <!-- 1. メインヘッダーバナー画像 -->
+  <div style="text-align: center; margin-bottom: 30px;">
+    <img src="https://cdn-ak.f.st-hatena.com/images/fotolife/M/MyToyotaHomeBottle/20261003/20261003222748.jpg" 
+         alt="生成AIで日々の暮らしをアップデートしよう 省エネ脱力パンダ ぽトルの生活自動化ラボ" 
+         style="max-width: 100%; height: auto; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.2);">
+  </div>
+
+  <!-- 2. キャラクター紹介ボックス -->
+  <div style="background: linear-gradient(135deg, #f8fafc 0%, #f0fdf4 100%); border: 2px solid #86efac; border-radius: 18px; padding: 22px; margin-bottom: 35px; display: flex; gap: 20px; align-items: center; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.08);">
+    <div style="flex-shrink: 0; text-align: center;">
+      <img src="https://cdn-ak.f.st-hatena.com/images/fotolife/M/MyToyotaHomeBottle/20261003/20261003213941.jpg" 
+           alt="ぽトル (Pottle) アイコン" 
+           style="width: 88px; height: 88px; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border: 3px solid #ffffff; object-fit: cover;">
+      <div style="font-size: 11px; font-weight: 700; color: #16a34a; margin-top: 4px;">POTTLE</div>
+    </div>
+    <div style="font-size: 14.5px;">
+      <div style="font-weight: 800; color: #15803d; font-size: 16px; margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+        <span>筆者：ぽトル（Pottle）</span>
+        <span style="background: #dcfce7; color: #16a34a; font-size: 11px; padding: 2px 8px; border-radius: 9999px; font-weight: 700;">省エネ脱力パンダ</span>
+      </div>
+      <div style="color: #475569; line-height: 1.6;">
+        「AIが勝手に全部やってくれるなら、人間はずっとクッションに埋もれていればいいじゃない」が信条のおうち自動化パンダ。今日は我が家の開発環境が特異点を超えたお話です。
+      </div>
+    </div>
+  </div>
+
+  <!-- 導入文 -->
+  <p>どうも、ぽトル（Pottle）です。</p>
+
+  <p>
+    エンジニアのみなさん、そして日常をAIで自動化したいみなさん。<br>
+    普段AIエージェントを使っていて、こんな<strong>もどかしさ</strong>を感じたことはありませんか？
+  </p>
+
+  <ul style="background: #fff1f2; border-left: 5px solid #f43f5e; padding: 16px 20px 16px 35px; border-radius: 0 12px 12px 0; margin: 20px 0; color: #9f1239;">
+    <li>「コードの修正案を出してくれたけど、テストもビルドも実行してくれないから結局自分が動くハメになる…」</li>
+    <li>「エラーが出た瞬間に『どうしますか？』と聞いてきて作業がストップする…」</li>
+    <li>「別のチャットを開くたびに、うちの家のHEMS仕様やローン返済日を一から説明し直すのが面倒すぎる…」</li>
+    <li>「ちょっとしたファイル検索なのに、高級モデル（Pro）のクォータを無駄に消費して制限にかかってしまう…」</li>
+  </ul>
+
+  <p>
+    <strong>「もう人間が手取り足取り指示しなくても、AIが勝手に考え、勝手に試行錯誤し、最後まで仕事を完遂して報告だけ上げてくれないかな…？」</strong>
+  </p>
+
+  <p>
+    ……はい、その夢が<strong>今日、ついに完全に実現しました。</strong>
+  </p>
+
+  <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #f8fafc; padding: 25px; border-radius: 16px; margin: 30px 0; box-shadow: 0 10px 25px rgba(0,0,0,0.25);">
+    <div style="font-size: 20px; font-weight: 800; color: #38bdf8; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+      <span>⚡ 今回ラボで完成した「自立型AI開発基盤」の全貌</span>
+    </div>
+    <p style="margin: 0; line-height: 1.8; color: #cbd5e1; font-size: 15px;">
+      Googleが開発した最新開発環境<strong>「Antigravity 2.0」</strong>をメインウィンドウ（UI・統括司令塔）に据え、Nous Researchが誇る世界屈指の自律型エージェント<strong>「Hermes Agent」</strong>の頭脳を<strong>ACP（Agent Client Protocol）</strong>で直結。<br>
+      さらに、我が家で10年間積み上げてきた<strong>全プロジェクトのノウハウ（HEMS・家計・注文住宅等）</strong>を永久記憶させ、導入済みの<strong>Parallel Constrained Decoding（0.05秒高速決定エンジン）</strong>を組み込むことで、<br>
+      <strong style="color: #4ade80;">「仕事を最後まで絶対にやり切る」「トークン消費を自律節約する」「どのチャットウィンドウからでも全自動で動く」</strong>真の自立型AIエージェントが誕生しました！
+    </p>
+  </div>
+
+  <hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;">
+
+  <!-- 目次 -->
+  <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 22px; margin-bottom: 40px;">
+    <div style="font-weight: 800; color: #334155; font-size: 17px; margin-bottom: 12px;">📑 この記事の目次</div>
+    <ol style="margin: 0; padding-left: 22px; color: #475569; line-height: 1.8;">
+      <li><strong>なぜ「Antigravity」に「Hermes Agent」の頭脳が必要だったのか？</strong></li>
+      <li><strong>ACP (Agent Client Protocol) × MCACP で繋ぐ次世代アーキテクチャ</strong></li>
+      <li><strong>魂の移植：Hermes SOUL と「Finishing the Job（完遂原則）」</strong></li>
+      <li><strong>Usage（APIトークン）を自律節約する「4階層モデルルーティング（Tier 1〜4）」</strong></li>
+      <li><strong>0.05秒の電脳ゲート：Parallel Constrained Decoding (PCD) の完全統合</strong></li>
+      <li><strong>10年分の家づくり・HEMS・家計管理ノウハウを脳内に永久記憶させた方法</strong></li>
+      <li><strong>まとめ：どのチャットを開いても全自動で動く未来の暮らしへ</strong></li>
+    </ol>
+  </div>
+
+  <!-- 第1章 -->
+  <h2 style="border-left: 6px solid #0284c7; padding-left: 14px; color: #0f172a; font-size: 22px; margin-top: 45px; margin-bottom: 20px;">
+    1. なぜ「Antigravity」に「Hermes Agent」の頭脳が必要だったのか？
+  </h2>
+
+  <p>
+    <strong>Google Antigravity</strong>は、VS Codeをベースにした次世代のAI-first IDE／デスクトップ環境です。洗練されたUI、軽快な動作、強力なマルチエージェントやMCP連携機能を持ち、まさに「日常のメイン作業ウィンドウ」として最高のポテンシャルを持っています。
+  </p>
+
+  <p>
+    しかし、一般的なAIアシスタントにはどうしても共通の弱点がありました：
+  </p>
+
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 25px 0;">
+    <div style="background: #fff7ed; border: 1px solid #fed7aa; padding: 16px; border-radius: 12px;">
+      <div style="font-weight: 700; color: #c2410c; margin-bottom: 6px;">❌ 従来のAIアシスタント</div>
+      <div style="font-size: 14px; color: #7c2d12;">「〜のように実装すれば動きますよ」と計画やコード片（スタブ）を提示して満足してしまう。実行やエラー調査は人間に丸投げ。</div>
+    </div>
+    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 16px; border-radius: 12px;">
+      <div style="font-weight: 700; color: #15803d; margin-bottom: 6px;">⭕ 求める自律エージェント</div>
+      <div style="font-size: 14px; color: #14532d;">コードを書き、テストを走らせ、ビルドを確認し、エラーが出たら勝手に直して「動く成果物」として完了報告してくれる。</div>
+    </div>
+  </div>
+
+  <p>
+    そこで目をつけたのが、オープンソースコミュニティ（Nous Research）が開発する最強の自律型エージェント<strong>「Hermes Agent」</strong>でした。<br>
+    Hermes Agentには、「<strong>Finishing the Job（仕事を最後までやり切る）</strong>」「<strong>No Filler（無駄口やお世辞を言わない）</strong>」「<strong>自己反復・自己修復</strong>」という、職人のような鋼の哲学が根付いています。
+  </p>
+  <p>
+    <strong>「Antigravityの最高のメインウィンドウに、Hermes Agentの妥協なき頭脳を合体させれば、最強の自立型AIエージェントができるのではないか？」</strong><br>
+    これが今回の挑戦の始まりでした。
+  </p>
+
+  <hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;">
+
+  <!-- 第2章 -->
+  <h2 style="border-left: 6px solid #0284c7; padding-left: 14px; color: #0f172a; font-size: 22px; margin-top: 45px; margin-bottom: 20px;">
+    2. ACP (Agent Client Protocol) × MCACP で繋ぐ次世代アーキテクチャ
+  </h2>
+
+  <p>
+    異なるAIエージェント同士を繋ぐとき、これまでは専用プラグインを書くのが大変でした。しかし、AI業界にはいま2つの重要標準プロトコルがあります：
+  </p>
+
+  <ul style="line-height: 1.8;">
+    <li><strong>MCP (Model Context Protocol)</strong>：Anthropicが提唱した、AIと「外部ツール・データ」を繋ぐUSB-Cのような規格。</li>
+    <li><strong>ACP (Agent Client Protocol)</strong>：エディタ（IDE）と「自律AIエージェント（Hermes等）」を繋ぐ、エージェント版LSP（Language Server Protocol）規格。</li>
+  </ul>
+
+  <p>
+    AntigravityはネイティブでMCPをサポートしています。そこで今回は、MCPとACPを相互変換する公式ブリッジ<strong>`mcacp`</strong>を導入しました！
+  </p>
+
+  <div style="background: #f8fafc; border: 2px solid #cbd5e1; border-radius: 14px; padding: 20px; margin: 25px 0; font-family: monospace; font-size: 13.5px; overflow-x: auto;">
++---------------------------------------------------------------+
+|           Antigravity 2.0 (メインウィンドウ / Chat UI)        |
++---------------------------------------------------------------+
+                                |
+                       MCP Protocol (stdio)
+                                v
++---------------------------------------------------------------+
+|                   MCACP Bridge (`mcacp`)                      |
++---------------------------------------------------------------+
+                                |
+                 Agent Client Protocol (ACP over stdio)
+                                v
++---------------------------------------------------------------+
+|         Hermes Agent (`hermes acp` / Nous Research)           |
+|  - 自律的思考ループ (Autonomous Reasoning Loop)                |
+|  - 永続メモリ・ツール実行・自己反復・ローカル実行             |
++---------------------------------------------------------------+
+  </div>
+
+  <p>
+    Antigravityのグローバル設定（`~/.gemini/config/mcp_config.json`）に`mcacp`を登録したことで、Antigravityのメイン画面から直接、Hermes Agentのセッション初期化、プロンプト送信、ストリーミング思考の受信、ツール実行イベントの監視がシームレスに行えるようになりました。
+  </p>
+
+  <hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;">
+
+  <!-- 第3章 -->
+  <h2 style="border-left: 6px solid #0284c7; padding-left: 14px; color: #0f172a; font-size: 22px; margin-top: 45px; margin-bottom: 20px;">
+    3. 魂の移植：Hermes SOUL と「Finishing the Job（完遂原則）」
+  </h2>
+
+  <p>
+    単に外部ツールとしてHermesを呼べるだけでは不十分です。<br>
+    <strong>「Antigravity自身が、Hermesのような自立型思考を持つこと」</strong>こそが本丸です。
+  </p>
+
+  <p>
+    そこで、Antigravityのマシン最上位ルールである<code>~/.gemini/config/GEMINI.md</code>を新設し、Hermes Agentの「魂（SOUL）」と「行動プロトコル」を直接注入しました：
+  </p>
+
+  <div style="background: #1e293b; color: #e2e8f0; border-radius: 12px; padding: 20px; margin: 20px 0; font-size: 14px;">
+    <div style="color: #38bdf8; font-weight: 700; margin-bottom: 8px;">📜 Antigravity 自律行動規範（GEMINI.mdより抜粋）</div>
+    <ul style="margin: 0; padding-left: 20px; line-height: 1.7;">
+      <li><strong>Direct & Proactive</strong>: 「ご質問ありがとうございます！」などの無駄な相槌をゼロにし、質問の重みに応じた率直で本質的な回答をする。</li>
+      <li><strong>Finishing the Job</strong>: 成果物は「本物のツール実行ログに裏付けられた動く成果物」でなければならない。スタブ（TODO）や計画だけで停止することを禁止。</li>
+      <li><strong>Autonomous Self-Healing</strong>: コマンドやビルドが失敗しても手を挙げず、エラーログを自律分析して別アプローチを自ら試行・自己修復する。</li>
+      <li><strong>Strict Truthfulness</strong>: 架空のデータや捏造結果を絶対に作らず、実測ログと客観的事実のみを報告する。</li>
+    </ul>
+  </div>
+
+  <p>
+    これにより、Antigravityは「指示されたら計画を立てて人間に確認するアシスタント」から、<strong>「ゴールを与えられたら最後まで自分で走り切る頼れる自立型パートナー」</strong>へと完全に覚醒しました。
+  </p>
+
+  <hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;">
+
+  <!-- 第4章 -->
+  <h2 style="border-left: 6px solid #0284c7; padding-left: 14px; color: #0f172a; font-size: 22px; margin-top: 45px; margin-bottom: 20px;">
+    4. Usage（APIトークン）を自律節約する「4階層モデルルーティング（Tier 1〜4）」
+  </h2>
+
+  <p>
+    自律型エージェントを本気で運用すると、あっという間に直面するのが<strong>「APIトークン・クォータ枯渇問題」</strong>です。<br>
+    何十ステップも自律思考させたり、大きなモデル（Pro）で単純なgrep検索をさせたりすると、あっという間に利用制限に達してしまいます。
+  </p>
+
+  <p>
+    そこで設計したのが、難易度とトークン経済性を両立させる<strong>「自律型4階層モデルルーティング（Tier 1〜4）」</strong>です！
+  </p>
+
+  <div style="overflow-x: auto; margin: 25px 0;">
+    <table style="width: 100%; border-collapse: collapse; font-size: 14px; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+      <thead>
+        <tr style="background: #0284c7; color: #ffffff; text-align: left;">
+          <th style="padding: 12px 16px;">Tier</th>
+          <th style="padding: 12px 16px;">タスク分類</th>
+          <th style="padding: 12px 16px;">担当モデル</th>
+          <th style="padding: 12px 16px;">Usage・コスト最適化効果</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom: 1px solid #e2e8f0;">
+          <td style="padding: 12px 16px; font-weight: 700; color: #0284c7;">Tier 1</td>
+          <td style="padding: 12px 16px;"><strong>超軽量・機械的処理</strong><br><small style="color: #64748b;">構文チェック、ログgrep、フォーマット変換</small></td>
+          <td style="padding: 12px 16px;"><code>flash_lite</code> (Subagent)</td>
+          <td style="padding: 12px 16px; color: #16a34a; font-weight: 700;">最速・最小トークン消費。メインクォータを極限まで温存</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
+          <td style="padding: 12px 16px; font-weight: 700; color: #0284c7;">Tier 2</td>
+          <td style="padding: 12px 16px;"><strong>標準探索・単一実装</strong><br><small style="color: #64748b;">Webリサーチ、単一関数のテスト作成、小規模バグ修正</small></td>
+          <td style="padding: 12px 16px;"><code>flash</code> (Subagent)</td>
+          <td style="padding: 12px 16px; color: #16a34a; font-weight: 700;">高コスパ・低消費。一般的なサブタスクの標準</td>
+        </tr>
+        <tr style="border-bottom: 1px solid #e2e8f0;">
+          <td style="padding: 12px 16px; font-weight: 700; color: #0284c7;">Tier 3</td>
+          <td style="padding: 12px 16px;"><strong>深層推論・複合設計</strong><br><small style="color: #64748b;">大規模リファクタ、HEMS最適化、100歳ライフプラン</small></td>
+          <td style="padding: 12px 16px;"><code>pro</code> / <code>inherit</code> (Main)</td>
+          <td style="padding: 12px 16px; color: #0369a1; font-weight: 700;">最高推論精度。重要設計・最終統合のみに集中投下</td>
+        </tr>
+        <tr style="background: #f0fdf4;">
+          <td style="padding: 12px 16px; font-weight: 700; color: #16a34a;">Tier 4</td>
+          <td style="padding: 12px 16px;"><strong>長大探索・大量試行</strong><br><small style="color: #64748b;">数十〜数百ステップの試行錯誤、大量スクレイピング</small></td>
+          <td style="padding: 12px 16px;"><strong>ローカル Hermes Agent</strong></td>
+          <td style="padding: 12px 16px; color: #15803d; font-weight: 800; background: #dcfce7;">ローカルLLM (LM Studio) でクラウドUsage完全ゼロ消費！</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    メインウィンドウは高品質なモデルで全体を指揮し、調査や定型処理は安価なサブエージェント（<code>flash_lite</code>）に自律的に振り分けます。<br>
+    そして何百回も試行錯誤が必要なタスクは、<strong>ローカルPCのGPU（LM Studio / Ollama）で動くHermes Agentにオフロードすることで、クラウドAPI費用を1円も消費せずにやり切る</strong>という究極の布陣が完成しました。
+  </p>
+
+  <hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;">
+
+  <!-- 第5章 -->
+  <h2 style="border-left: 6px solid #0284c7; padding-left: 14px; color: #0f172a; font-size: 22px; margin-top: 45px; margin-bottom: 20px;">
+    5. 0.05秒の電脳ゲート：Parallel Constrained Decoding (PCD) の完全統合
+  </h2>
+
+  <p>
+    「でも、AI自身が『このタスクはTier 1かTier 3か』をどうやって正確に判断するの？」<br>
+    ここで大活躍するのが、先日我が家の環境に導入した<strong>「Parallel Constrained Decoding（PCD）」</strong>です！
+  </p>
+
+  <p>
+    通常、LLMに分類を頼むと「うーん、これはやや複雑なタスクですね…」と長文を返してきて遅く、判断がブレます。<br>
+    PCDは、ブロードキャストKVキャッシュ技術を用い、<strong>指定したEnum（選択肢）やBoolean（真偽値）だけを並列拘束デコードし、0.05秒・100%スキーマ準拠・確率スコア（Confidence Score）付きで出力</strong>します。
+  </p>
+
+  <div style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 12px; padding: 18px; margin: 20px 0; font-size: 14px;">
+    <div style="font-weight: 700; color: #334155; margin-bottom: 6px;">⚡ PCDの2大役割</div>
+    <ol style="margin: 0; padding-left: 20px; line-height: 1.7; color: #475569;">
+      <li><strong>モデル選定ゲート (`extract_structured_decision`)</strong>:
+        タスクを受けた瞬間、難易度（`TIER1`〜`TIER4`）と委譲フラグを瞬時に判定。
+      </li>
+      <li><strong>自己修復・エラー分類ゲート (`classify_incident`)</strong>:
+        ビルドやテストがコケた瞬間、深刻度（P0〜P3）と原因コンポーネント（COMPILER / CONFIG / RUNTIME等）を即座に分類し、最適な修復行動を一瞬で決定。
+      </li>
+    </ol>
+  </div>
+
+  <p>
+    PCDが「電脳の反射神経」として組み込まれたことで、Antigravityは一切迷うことなく、最適なモデル選定とエラー自己修復を実行できるようになりました。
+  </p>
+
+  <hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;">
+
+  <!-- 第6章 -->
+  <h2 style="border-left: 6px solid #0284c7; padding-left: 14px; color: #0f172a; font-size: 22px; margin-top: 45px; margin-bottom: 20px;">
+    6. 10年分の家づくり・HEMS・家計管理ノウハウを脳内に永久記憶させた方法
+  </h2>
+
+  <p>
+    どんなに優秀な頭脳でも、「我が家の前提知識」を知らなければ頓珍漢な提案をしてしまいます。<br>
+    そこで、私がこれまで作ってきた<strong>全プロジェクトの設計思想・実証データを網羅したマスターナレッジベース</strong>を作成し、Antigravityの恒久記憶として配置しました！
+  </p>
+
+  <div style="background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 14px; padding: 20px; margin: 25px 0;">
+    <div style="font-weight: 800; color: #0f172a; font-size: 16px; margin-bottom: 12px;">🧠 Antigravityが永久記憶した我が家の主要プロジェクト</div>
+    <ul style="margin: 0; padding-left: 20px; line-height: 1.8; color: #334155; font-size: 14.5px;">
+      <li><strong>AI Home HEMS</strong>: ニチコン14.9kWh蓄電池のTCP直接制御、JIT充電、中部電力深夜単価16.3円/昼間36円/売電31円の最適化計算ロジック。</li>
+      <li><strong>HomeAgent</strong>: Zigbee2MQTT (SLZB-06)、Tuya Local (<20ms)、Apple HomeKit、Google Cast TTSによる全自動アナウンス。</li>
+      <li><strong>トヨタホーム建築10年記念アーカイブ</strong>: 5,200万フルローン、鉄骨ラーメン1日建方、水回り5社比較、10年維持費実績。</li>
+      <li><strong>ワクワク家計管理 (wakwakmoney)</strong>: 三菱UFJメイン口座、クレカ引落日、100歳ライフプランシミュレーション（夫47〜53歳教育費ダブルピーク）。</li>
+      <li><strong>難病医療情報ポータル (nanbyo)</strong>: note APIスクレイピング、Markdown変換、Astro配信。</li>
+      <li><strong>高校進学ガイド & ウルトラマンCGビューア & Smart AI Life旗艦サイト</strong></li>
+    </ul>
+  </div>
+
+  <p>
+    Antigravityは起動するたびにこのナレッジベースを自動参照するため、どのプロジェクトを触っているときでも、<strong>「我が家の蓄電池の容量は？」「電気代単価は？」「家計の引き落とし日は？」といった文脈を完全に理解した上で、整合性の取れたコードを自律生成</strong>してくれます。
+  </p>
+
+  <hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;">
+
+  <!-- 第7章 -->
+  <h2 style="border-left: 6px solid #0284c7; padding-left: 14px; color: #0f172a; font-size: 22px; margin-top: 45px; margin-bottom: 20px;">
+    7. まとめ：どのチャットを開いても全自動で動く未来の暮らしへ
+  </h2>
+
+  <p>
+    しかも、この仕組みの素晴らしいところは、<strong>「どのチャットウィンドウを開いても、勝手に全自動で機能する」</strong>という点です。
+  </p>
+
+  <p>
+    マシン全体の最上位スコープ（<code>~/.gemini/config/GEMINI.md</code>）にルールを配置したため、特別なコマンドを打つ必要も、毎回プロンプトをコピペする必要もありません。<br>
+    新しくチャットを開いて、
+  </p>
+
+  <div style="background: #e0f2fe; border-left: 5px solid #0284c7; padding: 14px 18px; border-radius: 0 10px 10px 0; margin: 20px 0; font-weight: 700; color: #0369a1;">
+    「この機能を追加して、テストとビルドまで終わらせておいて」
+  </div>
+
+  <p>
+    と一言つぶやくだけで、Antigravityが：
+  </p>
+
+  <ol style="line-height: 1.8; color: #334155;">
+    <li>PCDで難易度を0.05秒判定し、適切なモデルを選択（クォータ節約）</li>
+    <li>10年分のナレッジを参照しながらコードを自律実装</li>
+    <li>テストとビルドを実行し、エラーが出れば自律自己修復</li>
+    <li>完成したらGitHubに自動コミット＆プッシュして完了報告</li>
+  </ol>
+
+  <p>
+    ……という一連のフローを、すべて自立してやり切ってくれます。
+  </p>
+
+  <div style="text-align: center; margin: 40px 0 20px 0;">
+    <p style="font-size: 18px; font-weight: 800; color: #16a34a;">
+      「AIに任せられる仕事は、すべてAIが自立して最後まで完遂する。」
+    </p>
+    <p style="color: #64748b; font-size: 14.5px;">
+      人間はビーズクッションに寝転がりながら、暮らしのアイデアを思い描くだけ。<br>
+      そんな未来の開発ライフが、今日から始まります。
+    </p>
+  </div>
+
+  <hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;">
+
+  <!-- フッター -->
+  <div style="background: #f8fafc; border-radius: 12px; padding: 18px; text-align: center; font-size: 13.5px; color: #64748b;">
+    <p style="margin: 0 0 6px 0;">
+      🌐 <strong>Smart AI Life 旗艦ポータル</strong>: <a href="https://smart-ai-life.pages.dev" target="_blank" style="color: #0284c7; text-decoration: underline;">https://smart-ai-life.pages.dev</a>
+    </p>
+    <p style="margin: 0;">
+      💻 <strong>GitHubリポジトリ</strong>: <a href="https://github.com/tstarryheavens-prog/ai-living-lab" target="_blank" style="color: #0284c7; text-decoration: underline;">tstarryheavens-prog/ai-living-lab</a>
+    </p>
+  </div>
+
+</div>

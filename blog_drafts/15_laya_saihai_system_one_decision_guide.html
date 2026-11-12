@@ -1,0 +1,318 @@
+<!-- ============================================================== -->
+<!-- 【はてなブログ用 HTML原稿】                                       -->
+<!-- タイトル: 【0.03秒判定】Layaとsaihai（采配）を組み合わせたら、LLMエージェントの「ダラダラ待つ意思決定」が消滅した話〜完全ステップバイステップ導入〜 -->
+<!-- 編集モード: 「HTML編集」に切り替えてそのまま貼り付けてください   -->
+<!-- ============================================================== -->
+<div class="pottle-article-wrapper" style="font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif; color: #1e293b; line-height: 1.85; max-width: 840px; margin: 0 auto; font-size: 16px;">
+<!-- ヘッダーバナー -->
+<div style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #4338ca 100%); color: #ffffff; padding: 40px 24px; border-radius: 20px; margin-bottom: 32px; box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.35); text-align: center;">
+<div style="display: inline-block; background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.35); color: #e0e7ff; font-size: 13px; font-weight: 700; padding: 5px 16px; border-radius: 9999px; margin-bottom: 16px; letter-spacing: 0.05em;">
+      ⚡ 次世代System 1意思決定アーキテクチャ
+    </div>
+<h1 style="font-size: 26px; font-weight: 800; line-height: 1.45; margin: 0 0 16px 0; color: #ffffff;">
+      【0.03秒判定】Laya と saihai（采配）を組み合わせたら、<br/>
+<span style="color: #a5b4fc;">エージェントの「ダラダラ待つ意思決定」が消滅した話</span>
+</h1>
+<p style="font-size: 15px; color: #c7d2fe; margin: 0; line-height: 1.6;">
+      〜Laya公式MCP拡張からsaihai-310m Metal GPU推論までの完全ステップバイステップ〜
+    </p>
+</div>
+<!-- キャラクター紹介 -->
+<div style="background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%); border: 2px solid #c7d2fe; border-radius: 18px; padding: 22px; margin-bottom: 35px; display: flex; gap: 20px; align-items: center; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.08);">
+<div style="flex-shrink: 0; text-align: center;">
+<img alt="ぽトル アイコン" src="https://cdn-ak.f.st-hatena.com/images/fotolife/M/MyToyotaHomeBottle/20261003/20261003213941.jpg" style="width: 82px; height: 82px; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border: 3px solid #ffffff; object-fit: cover;"/>
+<div style="font-size: 11px; font-weight: 700; color: #4338ca; margin-top: 4px;">POTTLE</div>
+</div>
+<div style="font-size: 14.5px;">
+<div style="font-weight: 800; color: #312e81; font-size: 16px; margin-bottom: 4px;">
+        筆者：ぽトル（Pottle）｜ 省エネ脱力パンダ
+      </div>
+<div style="color: #475569; line-height: 1.6;">
+        「0.1秒でも待たされるのが嫌。APIトークンを無駄に溶かすのも絶対に嫌」というせっかちパンダ。自律エージェントの思考速度をミリ秒単位まで削ぎ落とすことに命を燃やしています🐼⚡
+      </div>
+</div>
+</div>
+<p>どうも、ぽトル（Pottle）です。</p>
+<p>
+    自律型AIエージェント（Claude Code、Hermes Agent、LangGraphなど）を開発・運用していて、次のような課題を感じたことはないでしょうか。
+  </p>
+<div style="background: #f1f5f9; border-left: 5px solid #64748b; padding: 16px 20px; border-radius: 0 12px 12px 0; margin: 25px 0;">
+<p style="margin: 0 0 8px 0; font-weight: 700; color: #334155;">エージェントの思考ループで頻発する待機時間：</p>
+<ul style="margin: 0; padding-left: 20px; color: #475569; font-size: 14.5px;">
+<li>「このタスクは軽量モデルでいいか、Proモデルを使うべきか？」を決めるためだけにClaude 3.7に訊いて2秒待つ。</li>
+<li>「ツールを呼ぶか、そのまま答えるか」の二択判定なのに、長々と前置きテキストを読まされる。</li>
+<li>「JSONだけ出力して」と指示したのに、たまに余計なMarkdown思考ログが混ざって <code>JSONDecodeError</code> で停止する。</li>
+</ul>
+</div>
+<p>
+    はっきり言いますが、<strong>この待ち時間とトークン消費は、アーキテクチャの変更によって削減できます。</strong>
+</p>
+<p>
+    人間は「信号が赤か青か」を判断する際、長く熟考しません。目に入った瞬間の<strong>「直感（System 1）」で0.1秒以内に判断</strong>しています。<br/>
+    それなのに、なぜAIエージェントの条件分岐だけは、毎回超大型LLMに何千トークンも読ませて待たなければならないのでしょうか？
+  </p>
+<p>
+    本記事では、非自己回帰型で<strong>約33ms</strong>の判定速度を持つ「<strong>Laya</strong>」と、hotchpotch（館野祐一）氏が開発した日本語型付き意思決定モデル「<strong>saihai（采配）</strong>」を組み合わせ、公式MCPサーバーを拡張して透過的にルーティングするハイブリッドアーキテクチャを、セットアップ手順とともに徹底解説します！
+  </p>
+<hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;"/>
+<!-- セクション1 -->
+<h2 style="font-size: 22px; color: #1e1b4b; border-left: 6px solid #4f46e5; padding-left: 14px; margin-bottom: 20px;">
+    1. なぜ従来のLLMで「条件分岐」をやってはいけないのか？
+  </h2>
+<p>
+    巨大な自己回帰型LLM（Autoregressive LLM）をエージェントの条件分岐やルーティングに用いる場合、次の構造的課題が生じます。
+  </p>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 25px 0;">
+<div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 18px;">
+<div style="font-weight: 800; color: #991b1b; font-size: 15px; margin-bottom: 6px;">❌ 1. レイテンシの蓄積</div>
+<div style="font-size: 13.5px; color: #7f1d1d; line-height: 1.6;">
+        出力が「A」か「B」の1文字であっても、プロンプト読み込みと自己回帰生成で1〜3秒消費。ループ全体が鈍重に。
+      </div>
+</div>
+<div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 18px;">
+<div style="font-weight: 800; color: #991b1b; font-size: 15px; margin-bottom: 6px;">❌ 2. トークンと費用の消費</div>
+<div style="font-size: 13.5px; color: #7f1d1d; line-height: 1.6;">
+        分岐判定を1日に数百回〜数千回回すだけで、API料金が膨れ上がりRate Limitにも抵触。
+      </div>
+</div>
+<div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 18px;">
+<div style="font-weight: 800; color: #991b1b; font-size: 15px; margin-bottom: 6px;">❌ 3. 構文破綻（パース失敗）</div>
+<div style="font-size: 13.5px; color: #7f1d1d; line-height: 1.6;">
+        引用符の閉じ忘れや不要なマークダウンの混入により、1%前後の確率でパース例外が発生。
+      </div>
+</div>
+<div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 18px;">
+<div style="font-weight: 800; color: #991b1b; font-size: 15px; margin-bottom: 6px;">❌ 4. 信頼できない「自信度」</div>
+<div style="font-size: 13.5px; color: #7f1d1d; line-height: 1.6;">
+        通常のLLMの出力する確率は数学的に校正（キャリブレーション）されておらず、安全基準値として使えない。
+      </div>
+</div>
+</div>
+<p>
+    この壁を打ち破るのが、<strong>「文章を一切生成せず、型定義された選択肢やスコアと、数学的に校正された確率だけを一発で返す」System 1 Decisionモデル</strong>です。
+  </p>
+<hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;"/>
+<!-- セクション2 -->
+<h2 style="font-size: 22px; color: #1e1b4b; border-left: 6px solid #4f46e5; padding-left: 14px; margin-bottom: 20px;">
+    2. 世界標準「Laya」× 日本語最強「saihai-310m」の役割分担
+  </h2>
+<div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 22px; margin: 25px 0;">
+<h3 style="font-size: 17px; margin: 0 0 12px 0; color: #0f172a;">
+      🌐 Laya（convaiinnovations/laya）の強み
+    </h3>
+<ul style="margin: 0; padding-left: 20px; color: #334155; font-size: 14.5px; line-height: 1.8;">
+<li><strong>非自己回帰型アーキテクチャ：</strong> 入力状態と型定義から、Metal GPU / MPS上でわずか<strong>33ミリ秒（0.033秒）</strong>で単一フォワードパス推論。</li>
+<li><strong>RLCD（校正済み強化学習）：</strong> 確率スコアが数学的に校正されており、「確信度90%」は真に90%当たる。</li>
+<li><strong>高度なエコシステム：</strong> Python SDK、言語自動検出Router、MCPサーバーが公式で提供。</li>
+</ul>
+</div>
+<div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 22px; margin: 25px 0;">
+<h3 style="font-size: 17px; margin: 0 0 12px 0; color: #0f172a;">
+      🗾 saihai-310m（采配 / hotchpotch氏作）の強み
+    </h3>
+<ul style="margin: 0; padding-left: 20px; color: #334155; font-size: 14.5px; line-height: 1.8;">
+<li><strong>日本語特化の型付きDecisionモデル：</strong> 日本語リランカー <code>ruri-v3-reranker-310m</code> を基盤に、Bekko System One shared-prefix architecture を採用。</li>
+<li><strong>ローカルMPSで20〜30ms：</strong> Apple Silicon上で極めて高速に動作し、同サイズ帯の既存モデルを凌駕する日本語Choice精度。</li>
+<li><strong>3つの型判定：</strong> 二者択一（Noul）、多肢選択（Choice）、段階スコア（Score）を正確に出力。</li>
+</ul>
+</div>
+<div style="background: #ecfdf5; border-left: 4px solid #10b981; padding: 18px 20px; border-radius: 0 12px 12px 0; margin: 25px 0;">
+<div style="font-weight: 800; color: #065f46; font-size: 15px; margin-bottom: 6px;">💡 組み合わせの狙い</div>
+<div style="font-size: 14.5px; color: #047857; line-height: 1.7;">
+<strong>公式Laya MCPサーバーを拡張し、日本語テキストを自動検知してsaihai-310mへ透過ルーティング</strong>。クライアント（エージェント側）は何も設定を変えずに、日本語はsaihai、英語はLayaという最強のハイブリッド推論の恩恵を受けられます！
+    </div>
+</div>
+<hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;"/>
+<!-- セクション3 -->
+<h2 style="font-size: 22px; color: #1e1b4b; border-left: 6px solid #4f46e5; padding-left: 14px; margin-bottom: 20px;">
+    3. ステップバイステップ：インストール＆MCPサーバー実装
+  </h2>
+<h3 style="font-size: 18px; color: #312e81; margin: 25px 0 12px 0;">
+    Step 1: 仮想環境の作成とライブラリ導入
+  </h3>
+<pre data-language="bash"><code class="lang-bash">mkdir -p ~/my-mcp-server/laya-mcp
+cd ~/my-mcp-server/laya-mcp
+
+python3 -m venv .venv
+source .venv/bin/activate
+
+pip install --upgrade pip
+pip install "laya[serve,mcp]" transformers torch</code></pre>
+<h3 style="font-size: 18px; color: #312e81; margin: 25px 0 12px 0;">
+    Step 2: saihai-310m 推論エンジンの作成 (saihai_engine.py)
+  </h3>
+<p>
+    JSON Schemaをsaihaiの形式へマッピングし、MPS上で推論するモジュールです。
+  </p>
+<pre data-language="python"><code class="lang-python">import re, sys, time, torch
+from typing import Any, Dict, Optional
+
+_SAIHAI_MODEL = None
+_SAIHAI_DEVICE = None
+
+def is_japanese_text(text: str) -&gt; bool:
+    return bool(re.search(r"[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]", text)) if text else False
+
+def get_saihai_model():
+    global _SAIHAI_MODEL, _SAIHAI_DEVICE
+    if _SAIHAI_MODEL is None:
+        from transformers import AutoModel
+        _SAIHAI_DEVICE = "mps" if torch.backends.mps.is_available() else "cpu"
+        _SAIHAI_MODEL = AutoModel.from_pretrained(
+            "hotchpotch/saihai-v1-310m",
+            trust_remote_code=True,
+            device=_SAIHAI_DEVICE,
+            attn_implementation="sdpa",
+        )
+    return _SAIHAI_MODEL, _SAIHAI_DEVICE
+
+def schema_to_saihai_questions(schema_dict: Dict[str, Any]) -&gt; Dict[str, Any]:
+    properties = schema_dict.get("properties", schema_dict)
+    questions = {}
+    for name, spec in properties.items():
+        t = spec.get("type", "string")
+        desc = spec.get("description", name)
+        if t == "boolean":
+            questions[name] = {"type": "noul", "instructions": f"{desc}の該当有無を判定する。"}
+        elif t in ("enum", "string") and ("enum" in spec or "choices" in spec):
+            choices = spec.get("enum", spec.get("choices", []))
+            questions[name] = {"type": "choice", "instructions": f"{desc}を選択する。", "criteria": {str(c): f"{c}: 候補" for c in choices}}
+        elif t == "integer" and "minimum" in spec and "maximum" in spec:
+            questions[name] = {"type": "score", "instructions": f"{desc}のスコア評価。", "criteria": [f"レベル{i}" for i in range(spec["minimum"], spec["maximum"] + 1)]}
+    return questions
+
+def decide_with_saihai(context_str: str, schema_dict: Dict[str, Any]) -&gt; Optional[Dict[str, Any]]:
+    model, device = get_saihai_model()
+    if not model: return None
+    try:
+        t0 = time.perf_counter()
+        res = model.systemone({"state": context_str, "questions": schema_to_saihai_questions(schema_dict)}, show_progress_bar=False)
+        dur = (time.perf_counter() - t0) * 1000
+        values = {k: v.get("choice") or v.get("noul") or v.get("score") for k, v in res.get("answers", {}).items()}
+        return {"status": "success", "engine": "saihai-310m", "parallel_result": values, "parallel_latency": f"{dur:.1f}ms"}
+    except Exception as e:
+        return None</code></pre>
+<h3 style="font-size: 18px; color: #312e81; margin: 25px 0 12px 0;">
+    Step 3: ハイブリッド Laya MCP サーバーの実装 (server.py)
+  </h3>
+<p>
+    公式LayaのMCPサーバーを継承し、<code>laya_decide</code> をオーバーライドします。
+  </p>
+<pre data-language="python"><code class="lang-python">#!/usr/bin/env python3
+import json, os, sys
+from laya.mcp.server import server, _ensure_router, _wrap, _GUARDRAILS, _router_or_error
+from laya.mcp.tools import laya_decide as official_laya_decide
+from saihai_engine import decide_with_saihai, is_japanese_text
+
+@server.tool(
+    name="laya_decide",
+    description="Plan A Hybrid Engine: routes Japanese to saihai-310m and English to Laya. " + _GUARDRAILS
+)
+def hybrid_laya_decide_tool(state: dict, schema: dict, model: str = "auto", min_confidence: float | None = None) -&gt; str:
+    text = " ".join(str(v) for v in state.values() if isinstance(v, str)) if isinstance(state, dict) else str(state)
+    if is_japanese_text(text):
+        res = decide_with_saihai(text, schema)
+        if res is not None:
+            return json.dumps(res, ensure_ascii=False)
+    router = _router_or_error()
+    return _wrap(official_laya_decide, state=state, schema=schema, model=model, min_confidence=min_confidence, router=router)
+
+def main():
+    _ensure_router()
+    server.run()
+
+if __name__ == "__main__":
+    main()</code></pre>
+<h3 style="font-size: 18px; color: #312e81; margin: 25px 0 12px 0;">
+    Step 4: エージェント（Claude / Antigravity）への登録
+  </h3>
+<pre data-language="python"><code class="lang-python">"laya": {
+  "command": "/Users//my-mcp-server/laya-mcp/.venv/bin/python",
+  "args": ["/Users//my-mcp-server/laya-mcp/server.py"]
+}</code></pre>
+<hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;"/>
+<!-- セクション4 -->
+<h2 style="font-size: 22px; color: #1e1b4b; border-left: 6px solid #4f46e5; padding-left: 14px; margin-bottom: 20px;">
+    4. 従来型LLMとの圧倒的な性能比較
+  </h2>
+<div style="overflow-x: auto; margin: 25px 0;">
+<table style="width: 100%; border-collapse: collapse; font-size: 14.5px; text-align: left;">
+<thead>
+<tr style="background: #1e1b4b; color: #ffffff;">
+<th style="padding: 12px 16px; border-radius: 8px 0 0 0;">比較項目</th>
+<th style="padding: 12px 16px;">従来のLLM（Claude / GPT-4o）</th>
+<th style="padding: 12px 16px; background: #4338ca; border-radius: 0 8px 0 0;">Laya × saihai ハイブリッド</th>
+</tr>
+</thead>
+<tbody>
+<tr style="border-bottom: 1px solid #e2e8f0; background: #ffffff;">
+<td style="padding: 12px 16px; font-weight: 700;">判定レイテンシ</td>
+<td style="padding: 12px 16px; color: #dc2626;">1,500ms 〜 3,500ms</td>
+<td style="padding: 12px 16px; color: #16a34a; font-weight: 700; background: #f5f3ff;">25ms 〜 35ms（約100倍高速）</td>
+</tr>
+<tr style="border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
+<td style="padding: 12px 16px; font-weight: 700;">消費トークン / 料金</td>
+<td style="padding: 12px 16px; color: #dc2626;">500〜1,500 トークン/回</td>
+<td style="padding: 12px 16px; color: #16a34a; font-weight: 700; background: #f5f3ff;">0 トークン（完全ローカル実行）</td>
+</tr>
+<tr style="border-bottom: 1px solid #e2e8f0; background: #ffffff;">
+<td style="padding: 12px 16px; font-weight: 700;">JSON構文エラー率</td>
+<td style="padding: 12px 16px; color: #dc2626;">1〜3%（パース例外あり）</td>
+<td style="padding: 12px 16px; color: #16a34a; font-weight: 700; background: #f5f3ff;">0%（原理的に構文破綻しない）</td>
+</tr>
+<tr style="border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
+<td style="padding: 12px 16px; font-weight: 700;">確信度の信頼性</td>
+<td style="padding: 12px 16px;">主観的な文章</td>
+<td style="padding: 12px 16px; color: #16a34a; font-weight: 700; background: #f5f3ff;">RLCD校正済み確率（厳密な実数値）</td>
+</tr>
+<tr style="background: #ffffff;">
+<td style="padding: 12px 16px; font-weight: 700;">日本語文脈理解</td>
+<td style="padding: 12px 16px;">優秀（ただし遅くて高価）</td>
+<td style="padding: 12px 16px; color: #16a34a; font-weight: 700; background: #f5f3ff;">ruri-v3基盤の専用学習により超高精度</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div style="background: #eff6ff; border-left: 4px solid #3b82f6; padding: 18px 20px; border-radius: 0 12px 12px 0; margin: 30px 0;">
+<h3 style="margin: 0 0 8px 0; color: #1d4ed8; font-size: 16px;">🛡️ 鉄壁の「ゲートキーパー設計」</h3>
+<p style="margin: 0; color: #1e3a8a; font-size: 14.5px; line-height: 1.7;">
+      確信度が <strong>0.85以上なら即座に自動実行</strong>、もし <strong>0.85未満なら「曖昧な状況」と判断して大型LLMに熟考させる</strong> という二層構えにすることで、安全性を1ミリも落とさずに平均処理時間を極限まで圧縮できます。
+    </p>
+</div>
+<hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;"/>
+<!-- まとめ -->
+<h2 style="font-size: 22px; color: #1e1b4b; border-left: 6px solid #4f46e5; padding-left: 14px; margin-bottom: 20px;">
+    5. まとめ：エージェントの意思決定を「直感」に委ねよう
+  </h2>
+<p>
+    これまでのLLMエージェントは、すべての判断を「超大型で重厚な言語モデル」に丸投げしていました。その結果、エージェントは1歩進むごとに立ち止まり、長いJSONを読み書きしては貴重なAPI料金と時間を消費していました。
+  </p>
+<ul style="color: #334155; line-height: 1.9; font-size: 15px;">
+<li><strong>Laya</strong> が切り拓いた「33msの非自己回帰推論とRLCD校正済み確信度」</li>
+<li><strong>saihai（采配）</strong> が実現した「日本語特化の型付き判定力（ruri-v3ベース）」</li>
+<li><strong>公式MCPサーバーのオーバーライド</strong> による「透過的なハイブリッド統合」</li>
+</ul>
+<p>
+    この3点が揃ったことで、AIエージェントの自律ループは全く新しい次元へと突入しました。<br/>
+    重厚な熟考（System 2）は真に創造的なコード作成や複雑な設計だけに温存し、日常の何千回もの分岐判定は、Layaとsaihaiの「直感（System 1）」に任せるべきです。
+  </p>
+<p>
+    わずか25〜35msで判定が返ってくる圧倒的な軽快さを、ぜひ手元の環境で体感してください🐼⚡
+  </p>
+<!-- GitHub リポジトリリンクカード -->
+<div style="background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 14px; padding: 20px; margin: 30px 0; display: flex; align-items: center; justify-content: space-between;">
+<div>
+<div style="font-weight: 800; color: #0f172a; font-size: 15.5px; margin-bottom: 4px;">📦 GitHubで全コード公開中</div>
+<div style="font-size: 13.5px; color: #64748b;">本記事で解説したsaihai-310m統合ハイブリッドMCPサーバーの完全な実装コードはGitHubリポジトリで公開しています。</div>
+</div>
+<a href="https://github.com/tstarryheavens-prog/ai-living-lab/tree/main/tools/local_jev" rel="noopener" style="background: #4f46e5; color: #ffffff; padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 13.5px; text-decoration: none; flex-shrink: 0; margin-left: 16px;" target="_blank">
+      GitHubを見る →
+    </a>
+</div>
+<!-- フッター署名 -->
+<div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 18px; margin-top: 40px; text-align: center; font-size: 13.5px; color: #64748b;">
+    Smart AI Life Blog ｜ Written by ぽトル（Pottle） 🐼🎋<br/>
+    ソースコードリポジトリ: <a href="https://github.com/tstarryheavens-prog/ai-living-lab" rel="noopener" target="_blank">https://github.com/tstarryheavens-prog/ai-living-lab</a><br/>
+    © 2026 Smart AI Life. All rights reserved.
+  </div>
+</div>

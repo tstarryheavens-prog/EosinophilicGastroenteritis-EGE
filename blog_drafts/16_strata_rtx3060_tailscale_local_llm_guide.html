@@ -1,0 +1,207 @@
+<!-- ============================================================== -->
+<!-- 【はてなブログ & Smart AI Life 兼用 HTML原稿】                    -->
+<!-- タイトル: 【Strata自律協調】自宅のGPUマシン（RTX 3060）をTailscaleでどこからでも爆速呼び出し！クラウドUsageをゼロにする極小ローカルLLM運用法 -->
+<!-- ============================================================== -->
+<div class="pottle-article-wrapper" style="font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif; color: #1e293b; line-height: 1.85; max-width: 840px; margin: 0 auto; font-size: 16px;">
+<!-- メインヘッダーバナー -->
+<div style="background: linear-gradient(135deg, #09203f 0%, #1e3c72 50%, #2a5298 100%); color: #ffffff; padding: 40px 24px; border-radius: 20px; margin-bottom: 32px; box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.35); text-align: center;">
+<div style="display: inline-block; background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.35); color: #e0f2fe; font-size: 13px; font-weight: 700; padding: 5px 16px; border-radius: 9999px; margin-bottom: 16px; letter-spacing: 0.05em;">
+      ⚡ 自宅インフラ × ハイブリッドLLM連携
+    </div>
+<h1 style="font-size: 26px; font-weight: 800; line-height: 1.45; margin: 0 0 16px 0; color: #ffffff;">
+      自宅のGeForce RTX 3060をTailscaleで直結！<br/>
+<span style="color: #7dd3fc;">クラウドAPI料金をゼロにする「Strata」自律協調プロトコル</span>
+</h1>
+<p style="font-size: 15px; color: #bae6fd; margin: 0; line-height: 1.6;">
+      〜Qwen 3.8 Flash Nextを毎秒80トークンで駆動。外出先MacからAPI代を気にせず回す日常〜
+    </p>
+</div>
+<!-- キャラクター紹介 -->
+<div style="background: linear-gradient(135deg, #f8fafc 0%, #f0f9ff 100%); border: 2px solid #bae6fd; border-radius: 18px; padding: 22px; margin-bottom: 35px; display: flex; gap: 20px; align-items: center; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.08);">
+<div style="flex-shrink: 0; text-align: center;">
+<img alt="ぽトル アイコン" src="https://cdn-ak.f.st-hatena.com/images/fotolife/M/MyToyotaHomeBottle/20261003/20261003213941.jpg" style="width: 80px; height: 80px; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border: 3px solid #ffffff; object-fit: cover;"/>
+<div style="font-size: 11px; font-weight: 700; color: #0284c7; margin-top: 4px;">POTTLE</div>
+</div>
+<div style="font-size: 14.5px;">
+<div style="font-weight: 800; color: #0369a1; font-size: 16px; margin-bottom: 4px;">
+        筆者：ぽトル（Pottle）｜ 省エネ脱力パンダ
+      </div>
+<div style="color: #475569; line-height: 1.6;">
+        「ClaudeやGeminiの有料枠やAPI利用制限を気にしてプロンプトを短く削るのが嫌になった」脱力パンダ。自宅の自作PC（RTX 3060）を常時立ち上げ、VPN経由で下請け作業を全部押し付けています🐼💤
+      </div>
+</div>
+</div>
+<!-- 第1部: 実現した機能と嬉しさ -->
+<h2 style="font-size: 22px; color: #0c4a6e; border-left: 6px solid #0284c7; padding-left: 14px; margin-bottom: 20px;">
+    1. 実現した機能と、使ってみて実感した嬉しさ
+  </h2>
+<p>どうも、ぽトル（Pottle）です。</p>
+<p>
+    日頃からAIコーディングや文章作成をしていると、誰もが直面する悩みがあります。<br/>
+    それが<strong>「クラウドAPIの利用枠（クォータ）の枯渇」と「毎月の課金請求」</strong>です。
+  </p>
+<p>
+    「ちょっと大量のログからエラーの原因を探してほしい」「記事のタイトル案を50個ブレストしてほしい」。<br/>
+    こうした作業に高級な有料クラウドモデルを投じていると、あっという間に利用制限に達してしまいます。
+  </p>
+<p>
+    そこで構築したのが、自宅に置いている自作PC（GeForce RTX 3060 12GB搭載機）を、メッシュVPN「Tailscale」で接続し、外出先やMacBookから完全に透過的に利用できる仕組み<strong>「Strata（ストラータ）」</strong>です。
+  </p>
+<div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 14px; padding: 20px; margin: 25px 0;">
+<div style="font-weight: 800; color: #166534; font-size: 16px; margin-bottom: 10px;">🎉 実現して何が嬉しかったか？</div>
+<ul style="margin: 0; padding-left: 20px; color: #15803d; line-height: 1.8; font-size: 14.5px;">
+<li><strong>API料金の心配が完全に消えた</strong>：ローカルGPUで動くため、1日に何万トークン生成させても電気代（数十円）以外は一切無料です。</li>
+<li><strong>毎秒80トークン超の爆速レスポンス</strong>：Qwen 3.8 Flash Next（IQ2_XS量子化）により、待ち時間を感じさせない高速な応答が返ってきます。</li>
+<li><strong>自宅のルーターにポート開放が不要</strong>：Tailscaleの安全な暗号化トンネルを経由するため、外出先のカフェや実家からでも安全に自宅PCを呼び出せます。</li>
+<li><strong>思考プロセスのセカンドオピニオン</strong>：メインのAI（ClaudeやGemini）が複雑なコードを書く前に、Strataに一次分析や下書きをさせて比較できます。</li>
+</ul>
+</div>
+<p>
+    下請けとなる探索やドラフト作成を自宅のローカルGPUに任せ、最終的な組み立てだけを上位モデルで行う。この分担が完成したことで、快適に開発が進むようになりました。
+  </p>
+<hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;"/>
+<!-- 第2部: アーキテクチャ構成 -->
+<h2 style="font-size: 22px; color: #0c4a6e; border-left: 6px solid #0284c7; padding-left: 14px; margin-bottom: 20px;">
+    2. システム構成と全体の流れ
+  </h2>
+<p>
+    全体の仕組みはとてもシンプルです。複雑な設定は省き、軽量で安定した構成にしています。
+  </p>
+<pre data-language="architecture"><code class="lang-architecture">[外出先のMacBook / 作業PC]
+   │
+   │ (Tailscale暗号化メッシュVPN)
+   ▼
+[自宅 Windows/Linux PC (z690)]
+   ├─ GeForce RTX 3060 (VRAM 12GB)
+   ├─ llama.cpp server または vLLM (ポート 18080)
+   └─ モデル: Qwen 3.8 Flash Next (80+ tokens/sec)
+  </code></pre>
+<hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;"/>
+<!-- 第3部: ステップバイステップ実装解説 -->
+<h2 style="font-size: 22px; color: #0c4a6e; border-left: 6px solid #0284c7; padding-left: 14px; margin-bottom: 20px;">
+    3. ステップバイステップ導入手順
+  </h2>
+<h3 style="font-size: 18px; color: #1e293b; margin-top: 25px;">
+    ステップ1: 自宅PCと作業用MacにTailscaleを導入する
+  </h3>
+<p>
+    まず、ルーターのポート開放を行わずに安全なプライベートネットワークを作るため、両方のマシンにTailscaleをインストールします。
+  </p>
+<ol style="margin-left: 20px; line-height: 1.8; color: #334155;">
+<li>Tailscaleの公式サイト（<a href="https://tailscale.com" rel="noopener" target="_blank">tailscale.com</a>）でアカウントを作成します（個人利用は無料）。</li>
+<li>自宅のGPUマシンと手元のMacの両方にクライアントアプリを入れ、同一アカウントでログインします。</li>
+<li>自宅PCの端末で <code>tailscale ip -4</code> を実行して割り当てられたIP（例: <code>100.x.y.z</code>）を確認し、手元のMacから <code>ping &lt;自宅PCのTailscale-IP&gt;</code> が通ることを確認します。</li>
+</ol>
+<h3 style="font-size: 18px; color: #1e293b; margin-top: 25px;">
+    ステップ2: 自宅GPUマシンで軽量推論サーバーを起動する
+  </h3>
+<p>
+    VRAM 12GBのRTX 3060で高速に動作させるため、llama.cppのサーバー機能を使用します。公式リポジトリのリリースからビルド済みバイナリを取得するか、以下のようにワンライナーで取得・起動します。
+  </p>
+<pre data-language="bash"><code class="lang-bash"># 1. llama.cpp リリースまたはDockerを取得
+# https://github.com/ggerganov/llama.cpp/releases からお使いのOS/CUDA対応版をダウンロード
+
+# 2. モデルの配置（Hugging FaceからQwen等のGGUFモデルを取得）
+# 例: Qwen 2.5 3B / Qwen 3.8B 等の量子化GGUF
+mkdir -p models &amp;&amp; cd models
+curl -L -O https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF/resolve/main/qwen2.5-3b-instruct-q4_k_m.gguf
+cd ..
+
+# 3. 自宅PCで推論サーバーを起動（全ネットワーク0.0.0.0で待受、GPU全層オフロード）
+./llama-server \
+  -m models/qwen2.5-3b-instruct-q4_k_m.gguf \
+  --host 0.0.0.0 \
+  --port 18080 \
+  -ngl 99 \
+  -c 32768
+  </code></pre>
+<p>
+    これで、Tailscaleの安全なメッシュVPNを経由して、外出先のMacから <code>http://&lt;自宅PCのTailscale-IP&gt;:18080/v1</code> 宛てにOpenAI互換のAPIが呼び出せるようになります。
+  </p>
+<h3 style="font-size: 18px; color: #1e293b; margin-top: 25px;">
+    ステップ3: Mac側から一瞬で呼び出す完全なPythonブリッジコード
+  </h3>
+<p>
+    ターミナルやAIエージェントから手軽にStrataを呼べるよう、完全なPythonスクリプト（<code>strata_client.py</code>）を用意します。必要な依存パッケージは <code>requests</code> のみです。
+  </p>
+<pre data-language="bash"><code class="lang-bash"># 必要なライブラリのインストール
+pip3 install requests
+  </code></pre>
+<p>以下のコードを <code>strata_client.py</code> として保存します（固定IPをハードコードせず環境変数対応にしているため、個人情報が漏洩する心配がありません）：</p>
+<pre data-language="python"><code class="lang-python">#!/usr/bin/env python3
+"""
+strata_client.py - 自宅GPUへTailscale経由で問い合わせる軽量クライアント
+GitHub: https://github.com/tstarryheavens-prog/ai-living-lab
+"""
+
+import os
+import sys
+import requests
+
+# 環境変数 STRATA_HOST から接続先を取得（デフォルト: localhost）
+# 例: export STRATA_HOST="http://100.x.y.z:18080"
+STRATA_HOST = os.getenv("STRATA_HOST", "http://localhost:18080")
+MODEL_NAME = os.getenv("STRATA_MODEL", "qwen-3.8-flash-next")
+
+def ask_strata(prompt: str, temperature: float = 0.3, max_tokens: int = 2048) -&gt; str:
+    url = f"{STRATA_HOST}/v1/chat/completions"
+    headers = {"Content-Type": "application/json"}
+    payload = {
+        "model": MODEL_NAME,
+        "messages": [
+            {"role": "system", "content": "あなたは簡潔で的確に回答する優秀なローカルAIアシスタントです。"},
+            {"role": "user", "content": prompt}
+        ],
+        "temperature": temperature,
+        "max_tokens": max_tokens
+    }
+
+    try:
+        res = requests.post(url, json=payload, timeout=90)
+        res.raise_for_status()
+        data = res.json()
+        return data["choices"][0]["message"]["content"].strip()
+    except requests.exceptions.ConnectionError:
+        return f"❌ 接続エラー: {STRATA_HOST} に接続できませんでした。Tailscaleまたはllama-serverを確認してください。"
+    except Exception as e:
+        return f"❌ エラー: {e}"
+
+if __name__ == "__main__":
+    if len(sys.argv) &lt; 2:
+        print("使用法: python3 strata_client.py "質問や依頼内容"")
+        sys.exit(1)
+
+    prompt = " ".join(sys.argv[1:])
+    print(ask_strata(prompt))
+  </code></pre>
+<p>実行方法：</p>
+<pre data-language="bash"><code class="lang-bash"># 自宅PCのTailscale IPを指定して実行
+export STRATA_HOST="http://100.x.y.z:18080"
+python3 strata_client.py "このエラーログの要点を3行でまとめて"
+  </code></pre>
+<!-- GitHub リポジトリリンクカード -->
+<div style="background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 14px; padding: 20px; margin: 30px 0; display: flex; align-items: center; justify-content: space-between;">
+<div>
+<div style="font-weight: 800; color: #0f172a; font-size: 15.5px; margin-bottom: 4px;">📦 GitHubで全コード公開中</div>
+<div style="font-size: 13.5px; color: #64748b;">本記事で解説したクライアントコードや設定スクリプトはGitHubリポジトリからクローンして利用可能です。</div>
+</div>
+<a href="https://github.com/tstarryheavens-prog/ai-living-lab/tree/main/tools/strata" rel="noopener" style="background: #0f172a; color: #ffffff; padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 13.5px; text-decoration: none; flex-shrink: 0; margin-left: 16px;" target="_blank">
+      GitHubを見る →
+    </a>
+</div>
+<hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;"/>
+<!-- まとめ -->
+<h2 style="font-size: 22px; color: #0c4a6e; border-left: 6px solid #0284c7; padding-left: 14px; margin-bottom: 20px;">
+    4. まとめ：眠っている自宅ハードウェアをAI資産に変える
+  </h2>
+<p>
+    普段は置物になっていたRTX 3060が、Tailscaleとllama.cppを組み合わせることで「外出先から安全に呼べる、常時稼働の無料推論サーバー」へと生まれ変わりました。
+  </p>
+<p>
+    クラウドAI全盛期だからこそ、手元のローカルGPUとうまく役割分担させることで、月額コストを抑えながら高速で快適な開発環境を手に入れることができます。余っているGPUをお持ちの方は、ぜひ試してみてください🐼✨
+  </p>
+<p style="font-size: 13.5px; color: #64748b; margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 15px;">
+    著者: ぽトル (@PotoRuthege) ｜ Smart AI Life<br/>
+    ソースコードリポジトリ: <a href="https://github.com/tstarryheavens-prog/ai-living-lab" rel="noopener" target="_blank">https://github.com/tstarryheavens-prog/ai-living-lab</a>
+</p>
+</div>

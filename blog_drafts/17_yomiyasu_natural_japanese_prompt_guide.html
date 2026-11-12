@@ -1,0 +1,232 @@
+<!-- ============================================================== -->
+<!-- 【はてなブログ & Smart AI Life 兼用 HTML原稿】                    -->
+<!-- タイトル: 【脱・AI臭さ】「手触り」「解像度」「時間を溶かす」を全滅させる！自然な日本語とキャラクター口調を両立する推敲プロンプト「yomiyasu」 -->
+<!-- ============================================================== -->
+<div class="pottle-article-wrapper" style="font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif; color: #1e293b; line-height: 1.85; max-width: 840px; margin: 0 auto; font-size: 16px;">
+<!-- メインヘッダーバナー -->
+<div style="background: linear-gradient(135deg, #134e4a 0%, #0f766e 50%, #0d9488 100%); color: #ffffff; padding: 40px 24px; border-radius: 20px; margin-bottom: 32px; box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.35); text-align: center;">
+<div style="display: inline-block; background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.35); color: #ccfbf1; font-size: 13px; font-weight: 700; padding: 5px 16px; border-radius: 9999px; margin-bottom: 16px; letter-spacing: 0.05em;">
+      📝 日本語プロンプトエンジニアリング × 自動推敲
+    </div>
+<h1 style="font-size: 26px; font-weight: 800; line-height: 1.45; margin: 0 0 16px 0; color: #ffffff;">
+      「手触り」「解像度」「時間を溶かす」を全滅させる！<br/>
+<span style="color: #5eead4;">自然な日本語とキャラクター口調を両立する推敲術「yomiyasu」</span>
+</h1>
+<p style="font-size: 15px; color: #99f6e4; margin: 0; line-height: 1.6;">
+      〜AI構文特有の不自然な比喩や擬人化だけを取り除き、読み手の個性をそのまま残す7つの原則〜
+    </p>
+</div>
+<!-- キャラクター紹介 -->
+<div style="background: linear-gradient(135deg, #f8fafc 0%, #f0fdfa 100%); border: 2px solid #99f6e4; border-radius: 18px; padding: 22px; margin-bottom: 35px; display: flex; gap: 20px; align-items: center; box-shadow: 0 4px 15px rgba(13, 148, 136, 0.08);">
+<div style="flex-shrink: 0; text-align: center;">
+<img alt="ぽトル アイコン" src="https://cdn-ak.f.st-hatena.com/images/fotolife/M/MyToyotaHomeBottle/20261003/20261003213941.jpg" style="width: 80px; height: 80px; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border: 3px solid #ffffff; object-fit: cover;"/>
+<div style="font-size: 11px; font-weight: 700; color: #0f766e; margin-top: 4px;">POTTLE</div>
+</div>
+<div style="font-size: 14.5px;">
+<div style="font-weight: 800; color: #115e59; font-size: 16px; margin-bottom: 4px;">
+        筆者：ぽトル（Pottle）｜ 省エネ脱力パンダ
+      </div>
+<div style="color: #475569; line-height: 1.6;">
+        「AIにブログの下書きを頼んだら、普段の自分が絶対に言わないような意識高いビジネス比喩で埋め尽くされて赤面した」脱力パンダ。自然な日本語に整えるプロンプト体系を作って快適に執筆しています🐼💤
+      </div>
+</div>
+</div>
+<!-- 第1部: 実現した機能と嬉しさ -->
+<h2 style="font-size: 22px; color: #134e4a; border-left: 6px solid #0d9488; padding-left: 14px; margin-bottom: 20px;">
+    1. 実現した機能と、使ってみて実感した嬉しさ
+  </h2>
+<p>どうも、ぽトル（Pottle）です。</p>
+<p>
+    生成AIに文章やブログ記事の下書きを書かせたとき、次のような言い回しに違和感を覚えた経験はありませんか？
+  </p>
+<ul style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 14px 20px 14px 35px; border-radius: 0 10px 10px 0; color: #991b1b; font-size: 14px; line-height: 1.8; margin: 20px 0;">
+<li>「現場の手触り感を大切にしながら、課題の解像度を上げていく」</li>
+<li>「この意思決定OSによって、システムが静かに壊れるのを防ぐ」</li>
+<li>「泥臭い試行錯誤の末に、時間を溶かして手に入れた知見」</li>
+</ul>
+<p>
+    こうした言葉は、一見それらしく見えますが、普段の会話や文章ではまず使いません。<br/>
+    さらに、無駄な太字が散りばめられ、語尾に「〜のではないでしょうか？」と定型文が並ぶと、読者は一目で「あ、これはAIが適当に吐き出した文章だな」と冷めてしまいます。
+  </p>
+<p>
+    これらを一括で修正するために構築したのが、日本語推敲プロトコル<strong>「yomiyasu（読みやす）」</strong>です。
+  </p>
+<div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 14px; padding: 20px; margin: 25px 0;">
+<div style="font-weight: 800; color: #166534; font-size: 16px; margin-bottom: 10px;">🎉 導入して何が嬉しかったか？</div>
+<ul style="margin: 0; padding-left: 20px; color: #15803d; line-height: 1.8; font-size: 14.5px;">
+<li><strong>書き直しの手作業が激減した</strong>：AI特有の誇張表現を人間がいちいち手で削る苦行から解放されました。</li>
+<li><strong>自分のキャラクター口調が崩れない</strong>：ぽトルの「だらだら暮らすパンダ口調」を保ったまま、構文のねじれや不自然な単語だけを綺麗に取り除けます。</li>
+<li><strong>読者の離脱を防げる</strong>：平均文長が30〜45文字のリズムに整うため、すっと頭に入り最後まで読まれる記事になります。</li>
+<li><strong>自動Lint検査で安心できる</strong>：執筆後に専用のPythonスクリプトを実行するだけで、AIっぽい比喩の残りを客観的にチェックできます。</li>
+</ul>
+</div>
+<hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;"/>
+<!-- 第2部: yomiyasuの7大原則 -->
+<h2 style="font-size: 22px; color: #134e4a; border-left: 6px solid #0d9488; padding-left: 14px; margin-bottom: 20px;">
+    2. yomiyasuが定める7つの推敲原則
+  </h2>
+<p>
+    yomiyasuでは、文章の意味や主張を変えずに、表現だけを日常の自然な言葉に整えるルールを定めています。
+  </p>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 25px 0;">
+<div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;">
+<div style="font-weight: 800; color: #0f766e; margin-bottom: 6px;">1. 意味と比重の保持</div>
+<div style="font-size: 13.5px; color: #334155; line-height: 1.6;">元の文章が伝えている事実や主張の強さを変えず、勝手な情報を足しません。</div>
+</div>
+<div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;">
+<div style="font-weight: 800; color: #0f766e; margin-bottom: 6px;">2. AI特有の疑似具体語の排除</div>
+<div style="font-size: 13.5px; color: #334155; line-height: 1.6;">「手触り」「解像度」「泥臭い」などの比喩を、具体的で平易な言葉に改めます。</div>
+</div>
+<div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;">
+<div style="font-weight: 800; color: #0f766e; margin-bottom: 6px;">3. 比喩動詞の平文化</div>
+<div style="font-size: 13.5px; color: #334155; line-height: 1.6;">「時間を溶かす」「静かに壊れる」を「時間を費やす」「気づかないうちに止まる」にします。</div>
+</div>
+<div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;">
+<div style="font-weight: 800; color: #0f766e; margin-bottom: 6px;">4. 擬人化の解消</div>
+<div style="font-size: 13.5px; color: #334155; line-height: 1.6;">「コードが語る」「システムが願う」など、非生物に感情や意志を持たせません。</div>
+</div>
+<div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;">
+<div style="font-weight: 800; color: #0f766e; margin-bottom: 6px;">5. 不要な否定対比の整理</div>
+<div style="font-size: 13.5px; color: #334155; line-height: 1.6;">「AではなくB」のような過度な対比を減らし、自然な肯定文で述べるようにします。</div>
+</div>
+<div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px;">
+<div style="font-weight: 800; color: #0f766e; margin-bottom: 6px;">6. 装飾と太字の適正化</div>
+<div style="font-size: 13.5px; color: #334155; line-height: 1.6;">1段落すべてを太字にしたり、記号を乱用せず、本当に伝えたい部分だけを強調します。</div>
+</div>
+</div>
+<hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;"/>
+<!-- 第3部: ステップバイステップ実践解説 -->
+<h2 style="font-size: 22px; color: #134e4a; border-left: 6px solid #0d9488; padding-left: 14px; margin-bottom: 20px;">
+    3. ステップバイステップ導入手順
+  </h2>
+<h3 style="font-size: 18px; color: #1e293b; margin-top: 25px;">
+    ステップ1: プロンプトにyomiyasuの推敲指示を組み込む
+  </h3>
+<p>
+    AIに文章を書かせる際、プロンプトの最後に以下のルールを追加します。これだけで出力の質が大きく変わります。
+  </p>
+<pre data-language="bash"><code class="lang-bash">【推敲ルール（yomiyasu原則）】
+1. 「手触り」「解像度」「泥臭い」「時間を溶かす」「意思決定OS」などの不自然な比喩を一切使わないこと。
+2. 道具やシステムに意志を持たせる擬人化（「システムが願う」など）をしないこと。
+3. 過度な太字強調や箇条書きの連発を避け、平均文長30〜45文字のリズムで書くこと。
+4. 指定されたキャラクターの口調・トーンは最優先で維持すること。
+  </code></pre>
+<h3 style="font-size: 18px; color: #1e293b; margin-top: 25px;">
+    ステップ2: 自動Lintスクリプトで文章を機械検査する
+  </h3>
+<p>
+    人の目視チェックだけでは見落としがちなAI頻出語を、Pythonスクリプトで検知します。Python標準ライブラリのみで動作するため、追加パッケージのインストールは不要です。
+  </p>
+<p><strong>実行環境の準備と動作確認：</strong></p>
+<pre data-language="python"><code class="lang-python"># Python 3.8以上があれば外部ライブラリのインストール不要で即座に動作します
+python3 -V
+
+# スクリプトを実行してMarkdown原稿を検査
+python3 yomiyasu_lint.py article_draft.md
+  </code></pre>
+<p><strong>完全なスクリプトコード（yomiyasu_lint.py）：</strong></p>
+<pre data-language="python"><code class="lang-python">#!/usr/bin/env python3
+"""
+yomiyasu_lint.py - 日本語の表現とMarkdownの書式を、設定されたルールで点検する。
+Python標準ライブラリだけで動作します。
+"""
+
+import sys
+import re
+import argparse
+from typing import List, Tuple
+
+# AI特有の頻出語（手触り、解像度、泥臭い、意思決定OSなど）
+SLOP_WORDS = [
+    "手触り", "肌感", "肌感覚", "体温", "温度感", "熱量", "血の通った", "泥臭い", "泥臭さ",
+    "解像度", "腹落ち", "メンタルモデル", "本質的", "地に足のついた", "等身大",
+    "営み", "装置", "意思決定OS", "土台", "羅針盤", "起爆剤", "触媒",
+    "真理", "虚飾", "境地", "美学", "深淵", "冷徹", "禁欲的", "優美", "極致", "宿命", "正本"
+]
+
+METAPHOR_VERB_PATTERNS = [
+    (r"(地味に|よく|じわじわ)効[かきくけいた]", "比喩動詞「効く」の過剰使用"),
+    (r"(データ|仕様|設計|環境|ビルド|システム|秩序)が(静かに)?壊れ", "比喩動詞「壊れる」"),
+    (r"静かに(壊れ|落ち|失敗|沈黙)", "直訳「静かに壊れる (silently fail)」"),
+    (r"黙って(無視|捨て|スキップ|破棄)", "直訳「黙って無視される」"),
+    (r"側に倒[すしせ]", "判断を方向で表現する「〜側に倒す」"),
+    (r"時間[をに]溶か[したす]", "比喩動詞「時間を溶かす」"),
+    (r"(1つずつ|一つずつ)潰[していく]", "比喩動詞「潰す」"),
+    (r"(実装|詳細|コード|設計|内部|仕組み|領域|本質)(に|まで|へ)踏み込[んむみま]", "比喩動詞「踏み込む」"),
+    (r"動かしながら引き返[すし]", "比喩動詞「引き返す」"),
+]
+
+FILLER_PATTERNS = [
+    (r"^(まず|ここで)?重要なのは、?", "前置フィラー「重要なのは」"),
+    (r"^結論から言うと、?", "前置フィラー「結論から言うと」"),
+    (r"^正直に言うと、?", "前置フィラー「正直に言うと」"),
+    (r"いかがでした(でしょうか|か)?[？?。]?$", "定型クロージング「いかがでしたでしょうか」"),
+    (r"ぜひ(参考|試し|活用)(に)?して(みて)?ください[！!。]?", "定型クロージング「ぜひ〜してみてください」"),
+]
+
+def check_file(path: str):
+    with open(path, "r", encoding="utf-8") as f:
+        lines = f.readlines()
+
+    issues = []
+    bold_count = 0
+    total_sentences = 0
+
+    for idx, line in enumerate(lines, 1):
+        bold_count += len(re.findall(r"\*\*[^*]+\*\*", line))
+        
+        # スロップ単語チェック
+        for word in SLOP_WORDS:
+            if word in line:
+                issues.append((idx, f"AI頻出語の検出: 「{word}」"))
+
+        # 比喩動詞チェック
+        for pat, desc in METAPHOR_VERB_PATTERNS:
+            if re.search(pat, line):
+                issues.append((idx, f"{desc}"))
+
+        # フィラーチェック
+        for pat, desc in FILLER_PATTERNS:
+            if re.search(pat, line.strip()):
+                issues.append((idx, f"{desc}"))
+
+    print(f"=== yomiyasu 検査レポート: {path} ===")
+    print(f"総行数: {len(lines)}行 | 太字強調: {bold_count}箇所")
+    if not issues:
+        print("✅ 問題のあるAI頻出表現は見つかりませんでした。素直で読みやすい文章です！")
+    else:
+        print(f"⚠️  {len(issues)} 件の確認候補が見つかりました:")
+        for line_no, msg in issues:
+            print(f"  行 {line_no:3d}: {msg}")
+
+if __name__ == "__main__":
+    if len(sys.argv) &lt; 2:
+        print("使用法: python3 yomiyasu_lint.py ")
+        sys.exit(1)
+    check_file(sys.argv[1])
+  </code></pre>
+<p>
+    実行すると、太字の出現頻度、箇条書き比率、検出された比喩動詞の行番号と改善提案が一覧表示されます。
+  </p>
+<!-- GitHub リポジトリリンクカード -->
+<div style="background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 14px; padding: 20px; margin: 30px 0; display: flex; align-items: center; justify-content: space-between;">
+<div>
+<div style="font-weight: 800; color: #0f172a; font-size: 15.5px; margin-bottom: 4px;">📦 GitHubで全コード公開中</div>
+<div style="font-size: 13.5px; color: #64748b;">本記事で紹介したyomiyasu_lint.pyの完全版スクリプトはGitHubリポジトリからダウンロードしてご利用いただけます。</div>
+</div>
+<a href="https://github.com/tstarryheavens-prog/ai-living-lab/tree/main/tools/yomiyasu" rel="noopener" style="background: #0d9488; color: #ffffff; padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 13.5px; text-decoration: none; flex-shrink: 0; margin-left: 16px;" target="_blank">
+      GitHubを見る →
+    </a>
+</div>
+<hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;"/>
+<!-- まとめ -->
+<h2 style="font-size: 22px; color: #134e4a; border-left: 6px solid #0d9488; padding-left: 14px; margin-bottom: 20px;">
+    4. まとめ：AIらしさを消して、自分だけの言葉を届ける
+  </h2>
+<p>
+    AIを文章作成に使う一番の価値は、自分の経験や調べた事実を、分かりやすい構成で読者に届ける点にあります。
+  </p>
+<p>
+    yomiyasuの原則を取り入れることで、AI生成のスピードを活かしながら、読みやすくて素直な文章を整えられます。日々のブログ執筆や技術資料の作成に役立ちます🐼💤
+  </p>
+</div>

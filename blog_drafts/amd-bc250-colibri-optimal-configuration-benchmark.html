@@ -63,23 +63,7 @@
 <p>ColibriにおけるコールドExpertの1ファイル（1ブロック）あたりのサイズは<strong>約1.7MB</strong>です。しかし、LinuxのNVMeデフォルト先読みサイズ（<code>read_ahead_kb</code>）は128KBに設定されており、1個のExpertを読み出すのにカーネルが細切れにI/Oを発行してオーバーヘッドを生んでいました。</p>
 <p>これを<strong>2048KB（2MB）</strong>に拡張し、さらにファイルシステムキャッシュの保持優先度を高めることで、SSDストリーミング帯域を最大化しました。</p>
 
-<div class="code-block-container" style="position: relative; margin: 24px 0; background: #0d1117; border: 1px solid #30363d; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
-  <div class="code-block-header" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; background: #161b22; border-bottom: 1px solid #30363d; user-select: none;">
-    <div style="display: flex; align-items: center; gap: 6px;">
-      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ff5f56; display: inline-block;"></span>
-      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ffbd2e; display: inline-block;"></span>
-      <span style="width: 10px; height: 10px; border-radius: 50%; background: #27c93f; display: inline-block;"></span>
-      <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #8b949e; text-transform: uppercase; margin-left: 10px;">--lang</span>
-    </div>
-    <button type="button" onclick="const c=this.closest('.code-block-container').querySelector('code, pre').innerText.trim(); navigator.clipboard.writeText(c).then(()=>{const t=this.querySelector('.btn-label'); t.innerText='コピー完了！'; this.style.borderColor='#10b981'; this.style.color='#34d399'; setTimeout(()=>{t.innerText='コピー'; this.style.borderColor='rgba(255,255,255,0.15)'; this.style.color='#cbd5e1';}, 2000);});" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.color='#cbd5e1';">
-      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-      </svg>
-      <span class="btn-label">コピー</span>
-    </button>
-  </div>
-  <pre style="margin: 0; padding: 16px 20px; overflow-x: auto; background: transparent; color: #e6edf3; font-size: 13.5px; line-height: 1.65; white-space: pre; font-family: inherit;"><code style="background: transparent; padding: 0; border: none; color: inherit; font-size: inherit;"># NVMe I/Oカーネル調整（2MB先読み＆物理メモリ保護）
+<pre data-language="--lang"><code class="lang---lang"># NVMe I/Oカーネル調整（2MB先読み＆物理メモリ保護）
 echo 2048 | sudo tee /sys/block/nvme0n1/queue/read_ahead_kb
 sudo sysctl -w vm.vfs_cache_pressure=50
 sudo sysctl -w vm.swappiness=10
@@ -89,7 +73,6 @@ sudo bash -c "cat << EOF > /etc/sysctl.d/99-colibri.conf
 vm.vfs_cache_pressure = 50
 vm.swappiness = 10
 EOF" </code></pre>
-</div>
 
 <h3>② 推論エンジン層：Vulkan常駐とポリシー設定</h3>
 <ul>
@@ -101,23 +84,7 @@ EOF" </code></pre>
 <h3>③ インフラ層：Systemdによる常駐サービス化</h3>
 <p>BC-250の起動時にVulkan環境変数とI/O調整を自動適用し、万が一のプロセス停止時も自動復帰するSystemdユニット（<code>colibri.service</code>）を整備しました。</p>
 
-<div class="code-block-container" style="position: relative; margin: 24px 0; background: #0d1117; border: 1px solid #30363d; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
-  <div class="code-block-header" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; background: #161b22; border-bottom: 1px solid #30363d; user-select: none;">
-    <div style="display: flex; align-items: center; gap: 6px;">
-      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ff5f56; display: inline-block;"></span>
-      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ffbd2e; display: inline-block;"></span>
-      <span style="width: 10px; height: 10px; border-radius: 50%; background: #27c93f; display: inline-block;"></span>
-      <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #8b949e; text-transform: uppercase; margin-left: 10px;">--lang</span>
-    </div>
-    <button type="button" onclick="const c=this.closest('.code-block-container').querySelector('code, pre').innerText.trim(); navigator.clipboard.writeText(c).then(()=>{const t=this.querySelector('.btn-label'); t.innerText='コピー完了！'; this.style.borderColor='#10b981'; this.style.color='#34d399'; setTimeout(()=>{t.innerText='コピー'; this.style.borderColor='rgba(255,255,255,0.15)'; this.style.color='#cbd5e1';}, 2000);});" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.color='#cbd5e1';">
-      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-      </svg>
-      <span class="btn-label">コピー</span>
-    </button>
-  </div>
-  <pre style="margin: 0; padding: 16px 20px; overflow-x: auto; background: transparent; color: #e6edf3; font-size: 13.5px; line-height: 1.65; white-space: pre; font-family: inherit;"><code style="background: transparent; padding: 0; border: none; color: inherit; font-size: inherit;"># /etc/systemd/system/colibri.service
+<pre data-language="--lang"><code class="lang---lang"># /etc/systemd/system/colibri.service
 [Unit]
 Description=Colibri MoE Inference Server (Qwen3.6-35B-A3B Vulkan)
 After=network.target
@@ -142,7 +109,6 @@ LimitNOFILE=65536
 
 [Install]
 WantedBy=multi-user.target</code></pre>
-</div>
 
 <hr />
 

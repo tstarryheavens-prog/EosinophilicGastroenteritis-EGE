@@ -1,0 +1,292 @@
+<!-- ============================================================== -->
+<!-- 【はてなブログ用 HTML原稿 - Microsoft 365 (OneDrive & OneNote) クラウドネイティブ連携】 -->
+<!-- 編集モード: 「HTML編集」に切り替えてそのまま貼り付けてください  -->
+<!-- 個人情報完全マスキング・汎用再現手順完備 -->
+<!-- ============================================================== -->
+<div class="pottle-article-wrapper" style="font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif; color: #2d3748; line-height: 1.85; max-width: 840px; margin: 0 auto; font-size: 16px;">
+<!-- 1. メインヘッダーバナー画像 -->
+<div style="text-align: center; margin-bottom: 30px;">
+<img alt="生成AIで日々の暮らしをアップデートしよう 省エネ脱力パンダ ぽトルの生活自動化ラボ" src="https://cdn-ak.f.st-hatena.com/images/fotolife/M/MyToyotaHomeBottle/20261003/20261003222748.jpg" style="max-width: 100%; height: auto; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.2);"/>
+</div>
+<!-- 2. キャラクター紹介ボックス -->
+<div style="background: linear-gradient(135deg, #f8fafc 0%, #f0fdf4 100%); border: 2px solid #86efac; border-radius: 18px; padding: 22px; margin-bottom: 35px; display: flex; gap: 20px; align-items: center; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.08);">
+<div style="flex-shrink: 0; text-align: center;">
+<img alt="ぽトル (Pottle) アイコン" src="https://cdn-ak.f.st-hatena.com/images/fotolife/M/MyToyotaHomeBottle/20261003/20261003213941.jpg" style="width: 88px; height: 88px; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border: 3px solid #ffffff; object-fit: cover;"/>
+<div style="font-size: 11px; font-weight: 700; color: #16a34a; margin-top: 4px;">POTTLE</div>
+</div>
+<div style="font-size: 14.5px;">
+<div style="font-weight: 800; color: #15803d; font-size: 16px; margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+<span>筆者：ぽトル（Pottle）</span>
+<span style="background: #dcfce7; color: #16a34a; font-size: 11px; padding: 2px 8px; border-radius: 9999px; font-weight: 700;">省エネ脱力パンダ</span>
+</div>
+<div style="color: #475569; line-height: 1.6;">
+        「過去の議事録も契約書も探すのが面倒なら、AIに全部クラウド直結で思い出させればいいじゃない」がモットーの自動化パンダ。今回はAIエージェントの記憶領域を拡張したお話です。
+      </div>
+</div>
+</div>
+<!-- 導入文 -->
+<p>どうも、ぽトル（Pottle）です。</p>
+<p>
+    普段からAIアシスタントやエージェント（Antigravity、Claude Code、Cursorなど）に仕事を頼んでいると、こんな<strong>「壁」</strong>にぶつかったことはありませんか？
+  </p>
+<ul style="background: #fff1f2; border-left: 5px solid #f43f5e; padding: 16px 20px 16px 35px; border-radius: 0 12px 12px 0; margin: 20px 0; color: #9f1239;">
+<li><strong>「Mac上のOneDriveフォルダをAIに検索させても、ファイル名しか見つからず中身が読めない…」</strong>（※macOSのFiles-On-Demand機能で、未DLファイルが実体のないプレースホルダーになっているため）</li>
+<li><strong>「OneNoteに長年書き溜めたアイデアや生活メモをAIに参照させたいのに、Mac版OneNoteはローカルAPIが貧弱でテキストが拾えない…」</strong></li>
+<li><strong>「いちいち手動でPDFやノートをダウンロードしてAIのチャットにドラッグ＆ドロップするのが果てしなく面倒…」</strong></li>
+</ul>
+<p>
+    せっかくAIが自律して動けるようになったのに、<strong>「過去の資料や手書き・メモデータがAIの視界に入らない」</strong>のでは真の自動化とは言えません。
+  </p>
+<p>
+    そこで今回、<strong>Microsoft Graph API 経由で「OneDrive」と「OneNote」を直接AIエージェントの脳（MCP）に直結</strong>し、クラウド上の全未ダウンロードファイル・全ノートブックを自然言語だけで横断検索・読込できる基盤を構築しました！
+  </p>
+<div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #f8fafc; padding: 25px; border-radius: 16px; margin: 30px 0; box-shadow: 0 10px 25px rgba(0,0,0,0.25);">
+<div style="font-size: 20px; font-weight: 800; color: #38bdf8; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+<span>☁️ 今回達成した「クラウド直結AIブレイン」のスペック</span>
+</div>
+<ul style="margin: 0; padding-left: 20px; line-height: 1.8; color: #cbd5e1;">
+<li><strong>OneDrive クラウド直結検索:</strong> ローカル未ダウンロード（オンデマンド状態）の数万件のファイルも、クラウドインデックスから瞬時に全文検索＆バイナリ取得可能！</li>
+<li><strong>OneNote 全ノートブック直結:</strong> 全ノートブック、セクション、ページ階層をGraph APIで走査し、ページ本文をMarkdown/HTMLで即時抽出！</li>
+<li><strong>超軽量MCPプリセット:</strong> 300個以上あるM365ツール群から <code style="background:#334155; padding:2px 6px; border-radius:4px; color:#38bdf8;">--preset files,onenote</code> で必要な34ツールだけに絞り込み、プロンプトのコンテキスト・トークン消費を最小化！</li>
+<li><strong>Google + Microsoft + ローカルOfficeの三位一体:</strong> 既存のGmail/Google Drive連携に加え、M365、Excel Live操作がひとつのAI頭脳に完全統合！</li>
+</ul>
+</div>
+<p>
+    後から誰でも、あるいは環境を移行した際にも<strong>100%同じ構成を再現できるように、手順・落とし穴・設定コードをすべて詳細にまとめました。</strong>ぜひご自身の環境でも試してみてください！
+  </p>
+<!-- 目次 -->
+<div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin: 35px 0;">
+<div style="font-weight: 800; color: #1e293b; font-size: 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+<span>📑 目次</span>
+</div>
+<ol style="margin: 0; padding-left: 24px; line-height: 1.9; color: #475569;">
+<li><a href="#section-why" style="color: #0284c7; text-decoration: none; font-weight: 600;">なぜローカル同期フォルダでは駄目なのか？（Files-On-Demandの罠）</a></li>
+<li><a href="#section-architecture" style="color: #0284c7; text-decoration: none; font-weight: 600;">アーキテクチャ設計：@softeria/ms-365-mcp-serverの採用</a></li>
+<li><a href="#section-step1" style="color: #0284c7; text-decoration: none; font-weight: 600;">【手順1】Microsoft Entra ID（Azure）でアプリ登録と権限設定</a></li>
+<li><a href="#section-step2" style="color: #0284c7; text-decoration: none; font-weight: 600;">【手順2】mcp_config.json への登録（個人アカウント必須パラメータ）</a></li>
+<li><a href="#section-step3" style="color: #0284c7; text-decoration: none; font-weight: 600;">【手順3】Device Code フローによる安全な初回認証</a></li>
+<li><a href="#section-demo" style="color: #0284c7; text-decoration: none; font-weight: 600;">実動デモ：未DLファイル検索とOneNoteノートブック読込</a></li>
+<li><a href="#section-summary" style="color: #0284c7; text-decoration: none; font-weight: 600;">まとめ：プライベートナレッジがAIとひとつになる世界</a></li>
+</ol>
+</div>
+<!-- セクション1 -->
+<h3 id="section-why" style="border-left: 6px solid #0284c7; padding-left: 14px; margin: 45px 0 20px; font-size: 22px; color: #0f172a; font-weight: 800;">
+    01. なぜローカル同期フォルダでは駄目なのか？（Files-On-Demandの罠）
+  </h3>
+<p>
+    「MacにOneDriveアプリが入っているなら、ローカルの同期フォルダ（<code style="background:#f1f5f9; padding:2px 6px; border-radius:4px;">~/Library/CloudStorage/OneDrive-...</code>）をAIに読み込ませればいいのでは？」と思うかもしれません。
+  </p>
+<p>
+    しかし、ここには<strong>macOS特有の大きな技術的障壁</strong>が存在します。
+  </p>
+<div style="background: #fffbeb; border-left: 4px solid #f59e0b; padding: 18px 20px; border-radius: 0 12px 12px 0; margin: 20px 0; color: #92400e;">
+<div style="font-weight: 800; margin-bottom: 6px;">⚠️ APFS Dataless File（オンデマンドファイル）の仕様</div>
+    macOSのOneDriveは、Macのストレージ容量を節約するために「ファイル名やメタデータだけをMacに置き、実データはクラウド上に置いたまま」にするFiles-On-Demand（オンデマンド機能）が標準で有効になっています。<br/>
+    この状態のファイルは、ターミナルやAIが <code style="background:#fef3c7; padding:2px 6px; border-radius:4px;">grep</code> や <code style="background:#fef3c7; padding:2px 6px; border-radius:4px;">view_file</code> で中身を読もうとしても<strong>「0バイトの空ファイル」または実体なし</strong>として扱われ、中身の全文検索が一切できません。
+  </div>
+<p>
+    さらに、<strong>OneNote for Mac</strong>はノートデータを暗号化されたローカルキャッシュに保存しており、Apple Events / AppleScript 経由でのDOM操作も提供されていません。そのため、ローカルからセクションやページ本文を安全に抽出する手段がありませんでした。
+  </p>
+<p>
+    解決策はただひとつ、<strong>「Microsoft Graph API を叩いてクラウドサーバー上の本尊データと直接おしゃべりする」</strong>ことでした。
+  </p>
+<!-- セクション2 -->
+<h3 id="section-architecture" style="border-left: 6px solid #0284c7; padding-left: 14px; margin: 45px 0 20px; font-size: 22px; color: #0f172a; font-weight: 800;">
+    02. アーキテクチャ設計：@softeria/ms-365-mcp-serverの採用
+  </h3>
+<p>
+    Microsoft Graph APIと連携するMCPサーバーとして、オープンソースで最も実績と柔軟性のある <strong><code style="background:#f1f5f9; padding:2px 6px; border-radius:4px; font-weight:700;">@softeria/ms-365-mcp-server</code></strong> を採用しました。
+  </p>
+<p>
+    このサーバーには、AIエージェント運用において決定的に重要な2つの強みがあります：
+  </p>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 25px 0;">
+<div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px;">
+<div style="font-weight: 800; color: #0369a1; font-size: 16px; margin-bottom: 8px;">🎯 1. プリセットによるツール絞り込み</div>
+<div style="font-size: 14px; color: #475569; line-height: 1.6;">
+        M365全体（Teams、SharePoint、Outlook、Planner等）を読み込むと300以上のツールが登録され、AIのコンテキストを大量に浪費します。<br/>
+<code style="background:#e0f2fe; padding:2px 4px; border-radius:4px; color:#0369a1;">--preset files,onenote</code> を指定することで、必要な<strong>34ツール</strong>だけに限定し、省エネ＆高速動作を実現できます。
+      </div>
+</div>
+<div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px;">
+<div style="font-weight: 800; color: #0369a1; font-size: 16px; margin-bottom: 8px;">🔒 2. 安全なローカル暗号化キャッシュ</div>
+<div style="font-size: 14px; color: #475569; line-height: 1.6;">
+        認証トークンは平文で保存されるのではなく、macOSのセキュアな <code style="background:#e0f2fe; padding:2px 4px; border-radius:4px; color:#0369a1;">~/Library/Application Support/ms-365-mcp-server</code> 配下に暗号化保存されます。一度認証すれば、次回以降は自動更新されます。
+      </div>
+</div>
+</div>
+<!-- セクション3 -->
+<h3 id="section-step1" style="border-left: 6px solid #0284c7; padding-left: 14px; margin: 45px 0 20px; font-size: 22px; color: #0f172a; font-weight: 800;">
+    03. 【手順1】Microsoft Entra ID（Azure）でアプリ登録と権限設定
+  </h3>
+<p>
+    自分専用のクライアントIDを発行し、セキュアに接続するためのEntra ID（旧Azure AD）設定手順です。
+  </p>
+<ol style="padding-left: 22px; line-height: 2; color: #334155;">
+<li>
+<a href="https://entra.microsoft.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade" rel="noopener noreferrer" style="color: #0284c7; font-weight: 700; text-decoration: underline;" target="_blank">Microsoft Entra 管理センター</a>（アプリの登録）にアクセスし、Microsoftアカウントでログインします。
+    </li>
+<li>
+<strong>[新規登録]</strong> をクリックします。
+      <ul style="line-height: 1.8; margin-top: 6px;">
+<li><strong>名前:</strong> <code style="background:#f1f5f9; padding:2px 6px; border-radius:4px;">Antigravity-M365-Bridge</code>（任意の分かりやすい名前）</li>
+<li><strong>サポートされているアカウントの種類:</strong> 「任意の組織ディレクトリ内のアカウント (任意の Microsoft Entra ID ディレクトリ - マルチテナント) と個人用の Microsoft アカウント (Skype、Xbox など)」を選択</li>
+</ul>
+</li>
+<li>
+      登録完了後、概要画面に表示される <strong>「アプリケーション (クライアント) ID」</strong> をメモします。
+    </li>
+<li>
+      左メニューの <strong>[管理] &gt; [認証]</strong> を開き、<strong>[プラットフォームを追加]</strong> をクリック。
+      <ul style="line-height: 1.8; margin-top: 6px;">
+<li><strong>[モバイル アプリケーションとデスクトップ アプリケーション]</strong> を選択</li>
+<li>リダイレクト URI で <code style="background:#f1f5f9; padding:2px 6px; border-radius:4px;">https://login.microsoftonline.com/common/oauth2/nativeclient</code> および <code style="background:#f1f5f9; padding:2px 6px; border-radius:4px;">http://localhost</code> にチェックを入れて保存</li>
+<li>下部の「詳細設定」にある <strong>「パブリック クライアントのフローを許可する」</strong> を <strong>「はい」</strong> に設定して保存</li>
+</ul>
+</li>
+<li>
+      左メニューの <strong>[管理] &gt; [API のアクセス許可]</strong> を開き、<strong>[アクセス許可の追加] &gt; [Microsoft Graph] &gt; [委任されたアクセス許可]</strong> を選択。
+      <ul style="line-height: 1.8; margin-top: 6px;">
+<li><code style="background:#f1f5f9; padding:2px 6px; border-radius:4px; font-weight:700;">Files.ReadWrite</code>（OneDriveファイルの検索・読込・書込）</li>
+<li><code style="background:#f1f5f9; padding:2px 6px; border-radius:4px; font-weight:700;">Notes.Create</code>（OneNote作成）</li>
+<li><code style="background:#f1f5f9; padding:2px 6px; border-radius:4px; font-weight:700;">Notes.Read</code>（OneNote読込）</li>
+<li><code style="background:#f1f5f9; padding:2px 6px; border-radius:4px; font-weight:700;">Notes.ReadWrite</code>（OneNote編集）</li>
+</ul>
+      を追加します。
+    </li>
+</ol>
+<!-- セクション4 -->
+<h3 id="section-step2" style="border-left: 6px solid #0284c7; padding-left: 14px; margin: 45px 0 20px; font-size: 22px; color: #0f172a; font-weight: 800;">
+    04. 【手順2】mcp_config.json への登録（個人アカウント必須パラメータ）
+  </h3>
+<p>
+    Antigravity（またはClaude Desktop等）のMCP設定ファイル（<code style="background:#f1f5f9; padding:2px 6px; border-radius:4px;">~/.gemini/config/mcp_config.json</code> 等）にサーバー定義を追加します。
+  </p>
+<div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 18px; margin: 20px 0;">
+<div style="font-weight: 800; color: #0f172a; font-size: 14px; margin-bottom: 8px;">💡 【超重要ノウハウ】個人アカウント特有の invalid_grant 回避策</div>
+<div style="font-size: 14px; color: #475569; line-height: 1.6;">
+      個人用Microsoftアカウント（hotmail.com, outlook.jp等）を使用する場合、既定のオーソリティ（<code style="background:#e2e8f0; padding:1px 4px; border-radius:3px;">common</code>）ではリフレッシュトークン更新時に <code style="color:#e11d48; font-weight:700;">invalid_grant</code> エラーが発生することがあります。<br/>
+      これを防ぐため、環境変数に必ず <strong><code style="background:#e0f2fe; padding:2px 6px; border-radius:4px; color:#0369a1; font-weight:700;">"MS365_MCP_TENANT_ID": "consumers"</code></strong> を指定してください！
+    </div>
+</div>
+<pre data-language="json"><code class="lang-json">{
+  "mcpServers": {
+    "ms-365": {
+      "command": "/opt/homebrew/bin/npx",
+      "args": [
+        "-y",
+        "@softeria/ms-365-mcp-server",
+        "--preset",
+        "files,onenote"
+      ],
+      "env": {
+        "MS365_MCP_CLIENT_ID": "あなたのクライアントIDをここに入力",
+        "MS365_MCP_TENANT_ID": "consumers"
+      }
+    }
+  }
+}</code></pre>
+<!-- セクション5 -->
+<h3 id="section-step3" style="border-left: 6px solid #0284c7; padding-left: 14px; margin: 45px 0 20px; font-size: 22px; color: #0f172a; font-weight: 800;">
+    05. 【手順3】Device Code フローによる安全な初回認証
+  </h3>
+<p>
+    ターミナルからワンタイムで初回認証を実行します。ブラウザで認証URLを開いて表示された8桁コードを入力するだけの簡単なステップです。
+  </p>
+<pre data-language="bash"><code class="lang-bash"># 初回ログインコマンドを実行
+MS365_MCP_CLIENT_ID="あなたのクライアントID" \
+MS365_MCP_TENANT_ID="consumers" \
+npx -y @softeria/ms-365-mcp-server --preset files,onenote --login</code></pre>
+<p>実行すると次のような案内が出力されます：</p>
+<pre data-language="bash"><code class="lang-bash">    To sign in, use a web browser to open the page https://www.microsoft.com/link and enter the code XXXXXXXX to authenticate.
+  </code></pre>
+<p>
+    ブラウザで <strong><a href="https://www.microsoft.com/link" rel="noopener noreferrer" style="color:#0284c7; font-weight:700;" target="_blank">https://www.microsoft.com/link</a></strong> を開き、表示されたコードを入力してサインインとアクセス許可を承認すれば完了です！トークンが安全に暗号化保存され、以降は常時AIからアクセス可能になります。
+  </p>
+<!-- セクション6 -->
+<h3 id="section-demo" style="border-left: 6px solid #0284c7; padding-left: 14px; margin: 45px 0 20px; font-size: 22px; color: #0f172a; font-weight: 800;">
+    06. 実動デモ：未DLファイル検索とOneNoteノートブック読込
+  </h3>
+<p>
+    実際にAntigravityからMCPツールを呼び出し、ローカル未ダウンロードのOneDriveファイルとクラウド上のOneNoteが即座に取得できることを実証しました。
+  </p>
+<!-- デモ1 -->
+<div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 22px; margin: 25px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+<div style="font-weight: 800; color: #0f172a; font-size: 17px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+<span style="font-size: 20px;">📔</span> 1. OneNote ノートブック一覧のクラウド取得 (<code style="background:#f1f5f9; font-size:14px; padding:2px 6px; border-radius:4px;">list-onenote-notebooks</code>)
+    </div>
+<p style="font-size: 14.5px; color: #475569; margin-bottom: 12px;">
+      AIがワンコールで、過去に作成したクラウド上の全ノートブックを検出しました。
+    </p>
+<pre data-language="bash"><code class="lang-bash">      • kanbancoder
+      • メイン日常ノートブック
+      • Family Notebook (家族共有ノート)
+      • Evernoteアーカイブ
+      • マイ ノートブック
+    </code></pre>
+<div style="font-size: 13.5px; color: #64748b; margin-top: 10px;">
+      👉 <code style="background:#f1f5f9; padding:2px 4px; border-radius:3px;">list-onenote-section-pages</code> や <code style="background:#f1f5f9; padding:2px 4px; border-radius:3px;">get-onenote-page-content</code> を呼ぶことで、各ページの内容を瞬時に引き出して要約・ブレストに活用できます。
+    </div>
+</div>
+<!-- デモ2 -->
+<div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 22px; margin: 25px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+<div style="font-weight: 800; color: #0f172a; font-size: 17px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+<span style="font-size: 20px;">☁️</span> 2. OneDrive クラウド全文検索 (<code style="background:#f1f5f9; font-size:14px; padding:2px 6px; border-radius:4px;">search-onedrive-files</code>)
+    </div>
+<p style="font-size: 14.5px; color: #475569; margin-bottom: 12px;">
+      Macのストレージには存在しない（クラウド側にある）10年以上前の過去書類を「住宅」キーワードで検索。
+    </p>
+<pre data-language="bash"><code class="lang-bash">      • 003_家・土地・車/住宅積立預金制度加入証.pdf
+      • 給与明細/住宅積立明細書_201110.pdf
+      • 各種源泉徴収票・住宅関連控除データ...
+    </code></pre>
+<div style="font-size: 13.5px; color: #64748b; margin-top: 10px;">
+      👉 ローカルには実体がないオンデマンドファイルも、Microsoft Graphのインデックス検索によってミリ秒単位で発見・ダウンロード可能です。
+    </div>
+</div>
+<!-- セクション7 -->
+<h3 id="section-summary" style="border-left: 6px solid #0284c7; padding-left: 14px; margin: 45px 0 20px; font-size: 22px; color: #0f172a; font-weight: 800;">
+    07. まとめ：プライベートナレッジがAIとひとつになる世界
+  </h3>
+<p>
+    今回Microsoft 365が直結したことで、私たちのAIラボ（Antigravity）の頭脳マップは次のような完全体へと進化しました：
+  </p>
+<table style="width: 100%; border-collapse: collapse; margin: 25px 0; font-size: 14.5px;">
+<thead>
+<tr style="background: #f1f5f9; border-bottom: 2px solid #cbd5e1; text-align: left;">
+<th style="padding: 12px 14px; color: #334155;">プラットフォーム</th>
+<th style="padding: 12px 14px; color: #334155;">MCPサーバー</th>
+<th style="padding: 12px 14px; color: #334155;">AIができること</th>
+</tr>
+</thead>
+<tbody>
+<tr style="border-bottom: 1px solid #e2e8f0;">
+<td style="padding: 12px 14px; font-weight: 700; color: #0f172a;">Google</td>
+<td style="padding: 12px 14px; font-family: monospace; color: #0369a1;">google-multi</td>
+<td style="padding: 12px 14px; color: #475569;">複数Gmail検索・送信、Google Drive書類検索、カレンダー空き時間確認</td>
+</tr>
+<tr style="border-bottom: 1px solid #e2e8f0; background: #f0fdf4;">
+<td style="padding: 12px 14px; font-weight: 700; color: #166534;">Microsoft 365 (NEW!)</td>
+<td style="padding: 12px 14px; font-family: monospace; color: #15803d; font-weight: 700;">ms-365</td>
+<td style="padding: 12px 14px; color: #166534;"><strong>OneDriveクラウド未DLファイル検索、OneNote全ノートブック読込・作成</strong></td>
+</tr>
+<tr style="border-bottom: 1px solid #e2e8f0;">
+<td style="padding: 12px 14px; font-weight: 700; color: #0f172a;">Mac Local Office</td>
+<td style="padding: 12px 14px; font-family: monospace; color: #0369a1;">excel-live &amp; ppt-mcp</td>
+<td style="padding: 12px 14px; color: #475569;">起動中Excelのセル読込・集計・編集、PowerPointスライドのリアルタイム全自動作成</td>
+</tr>
+</tbody>
+</table>
+<p>
+    「AIに質問する前に、人間が資料を集めて整えてあげる」という前時代の手間はもう必要ありません。<br/>
+    必要な過去の知見やメモは、AIが自律的にクラウドと対話して取りに行く。これこそが、本当の意味での<strong>「スマートAIライフ」</strong>です。
+  </p>
+<p>
+    ぜひ皆さんも、日々の手書きメモやクラウドストレージをAIの頭脳へ繋ぎ込み、脱力しながら最高の知的生産性を体験してみてください！
+  </p>
+<!-- フッター署名 -->
+<div style="margin-top: 45px; padding-top: 25px; border-top: 1px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 13.5px;">
+<div>Smart AI Life Laboratory / ぽトル（Pottle）</div>
+<div style="margin-top: 4px;">Powered by Google Antigravity &amp; Microsoft Graph MCP</div>
+</div>
+</div>

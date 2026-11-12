@@ -1,0 +1,518 @@
+<!-- ============================================================== -->
+<!-- 【はてなブログ & Smart AI Life 兼用 HTML原稿】                    -->
+<!-- タイトル: 【PS5の心臓部を完全解放】約2万円の「AMD BC-250」をフルダイ40CU＆8コア16スレッド化！Tailscale経由でMicrosoft Phi-4 (14B) を回すローカルLLMサーバ構築全記録（Ubuntuの挫折からFedora 45での完全突破まで） -->
+<!-- ============================================================== -->
+<div class="pottle-article-wrapper" style="font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif; color: #1e293b; line-height: 1.85; max-width: 860px; margin: 0 auto; font-size: 16px;">
+
+<!-- メインヘッダーバナー -->
+<div style="background: linear-gradient(135deg, #09203f 0%, #1e3c72 50%, #2a5298 100%); color: #ffffff; padding: 44px 28px; border-radius: 20px; margin-bottom: 32px; box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.35); text-align: center;">
+  <div style="display: inline-block; background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.35); color: #e0f2fe; font-size: 13px; font-weight: 700; padding: 6px 18px; border-radius: 9999px; margin-bottom: 16px; letter-spacing: 0.05em;">
+    ⚡ 自宅AIインフラ × ハードウェア極限ハック
+  </div>
+  <h1 style="font-size: 27px; font-weight: 800; line-height: 1.45; margin: 0 0 16px 0; color: #ffffff;">
+    PS5の心臓部を極限解放！<br/>
+    <span style="color: #38bdf8;">約2万円の「AMD BC-250」を40 CU＆8コア16スレッド化して専用LLMサーバに仕立てる完全マニュアル</span>
+  </h1>
+  <p style="font-size: 15px; color: #bae6fd; margin: 0; line-height: 1.6;">
+    〜Ubuntuでの挫折、ACPIリブート地獄、カーネルビルド拒絶を乗り越え、Fedora 45でシリコン全開（2560基）へ。Microsoft Phi-4 (14B) が秒速9.3トークンで動くまでの全コマンド・失敗記録〜
+  </p>
+</div>
+
+<!-- キャラクター掛け合いイントロ -->
+<div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 24px; margin-bottom: 36px;">
+  <!-- モコ -->
+  <div style="display: flex; gap: 16px; margin-bottom: 20px; align-items: flex-start;">
+    <div style="flex-shrink: 0; text-align: center; width: 64px;">
+      <div style="width: 56px; height: 56px; border-radius: 50%; background: #fed7aa; display: flex; align-items: center; justify-content: center; font-size: 28px; border: 2px solid #f97316;">🐿️</div>
+      <span style="font-size: 11px; font-weight: bold; color: #c2410c;">モコ</span>
+    </div>
+    <div style="background: #ffffff; border: 1px solid #fed7aa; border-radius: 12px; padding: 14px 18px; flex: 1; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+      「ぽトル、最近巷で『PS5のAPUがヤフオクやAliExpressで2万円前後で買える』って大騒ぎになってるけど、本当にAIのサーバとして使い物になるの？グラボ買うと10万円以上するのに…」
+    </div>
+  </div>
+
+  <!-- ぽトル -->
+  <div style="display: flex; gap: 16px; margin-bottom: 20px; align-items: flex-start;">
+    <div style="flex-shrink: 0; text-align: center; width: 64px;">
+      <div style="width: 56px; height: 56px; border-radius: 50%; background: #bae6fd; display: flex; align-items: center; justify-content: center; font-size: 28px; border: 2px solid #0284c7;">🐼</div>
+      <span style="font-size: 11px; font-weight: bold; color: #0369a1;">ぽトル</span>
+    </div>
+    <div style="background: #ffffff; border: 1px solid #bae6fd; border-radius: 12px; padding: 14px 18px; flex: 1; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+      「なるどころか、化け物マシンに変貌しちゃうんだよっ！工場出荷時はGPUが24 CU（1536コア）、CPUが6コア12スレッドに制限されてるんだけど、カーネルパッチとSMUレジスタ書き換えで、本家PS5（36 CU）すら超える『フルダイ40 CU（2560コア）＆8コア16スレッド』に物理リミッター解除できちゃうんだ！」
+    </div>
+  </div>
+
+  <!-- ゲンさん -->
+  <div style="display: flex; gap: 16px; align-items: flex-start;">
+    <div style="flex-shrink: 0; text-align: center; width: 64px;">
+      <div style="width: 56px; height: 56px; border-radius: 50%; background: #cbd5e1; display: flex; align-items: center; justify-content: center; font-size: 28px; border: 2px solid #475569;">🐢</div>
+      <span style="font-size: 11px; font-weight: bold; color: #334155;">ゲンさん</span>
+    </div>
+    <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 14px 18px; flex: 1; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+      「うむ。ただし、ネットの古い記事通りにやると、再起動で画面が真っ暗になって死んだり、Ubuntuのカーネルセキュリティに弾かれたり、ディスクが15GBで溢れたりと、罠が地雷原のように埋まっておる。今回は我々が実際に踏み抜いたすべての失敗と、その確実な解決ルートを完全公開するぞ。」
+    </div>
+  </div>
+</div>
+
+<!-- 目次カード -->
+<div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 22px; margin-bottom: 35px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+  <div style="font-weight: 800; color: #0f172a; font-size: 17px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+    <span>📋</span> 本記事の目次
+  </div>
+  <ul style="margin: 0; padding-left: 20px; color: #334155; line-height: 1.8;">
+    <li><a href="#section-1" style="color: #0284c7; text-decoration: none; font-weight: 600;">1. なぜ今「AMD BC-250」なのか？破格の16GB GDDR6帯域とポテンシャル</a></li>
+    <li><a href="#section-2" style="color: #0284c7; text-decoration: none; font-weight: 600;">2. 【失敗の全記録】私たちが遭遇した地獄の罠と挫折</a></li>
+    <li><a href="#section-3" style="color: #0284c7; text-decoration: none; font-weight: 600;">3. 【完全成功ルート】1から構築する全コマンド完全手順</a></li>
+    <li><a href="#section-4" style="color: #0284c7; text-decoration: none; font-weight: 600;">4. 【実測ベンチマーク】24 CU vs 40 CU、そして最新モデル「Phi-4 (14B)」の威力</a></li>
+    <li><a href="#section-5" style="color: #0284c7; text-decoration: none; font-weight: 600;">5. 【究極のゼロクォータAIクラスタ】Strata×BC-250×OpenRouterでGoogle AI Proを温存する自律運用</a></li>
+    <li><a href="#section-6" style="color: #0284c7; text-decoration: none; font-weight: 600;">6. まとめとハードウェア運用の最重要注意点（M.2熱対策）</a></li>
+  </ul>
+</div>
+
+<!-- 第1章 -->
+<h2 id="section-1" style="font-size: 22px; color: #0c4a6e; border-left: 6px solid #0284c7; padding-left: 14px; margin-top: 40px; margin-bottom: 20px;">
+  1. なぜ今「AMD BC-250」なのか？破格の16GB GDDR6帯域とポテンシャル
+</h2>
+
+<p>
+  ローカル環境でLLMを動かすとき、最大のボトルネックになるのは計算力以上に**「VRAM容量」と「メモリ帯域（転送速度）」**です。<br/>
+  通常のデスクトップPC（DDR4やDDR5）でCPU推論を行うと、メモリ帯域は40〜80GB/s程度にとどまり、7B〜14Bクラスのモデルを動かすと毎秒数トークンに落ち込みます。一方で、16GB以上のVRAMを持つグラフィックボード（RTX 4060 Ti 16GBやRTX 3090/4090）を導入すると、安くても8万円〜20万円以上の投資が必要です。
+</p>
+
+<p>
+  そこで登場したのが、暗号資産マイニング用にPS5のAPU（コードネーム：Oberon / Cyan Skillfish）を流用して作られた謎のマイニング基板、<strong>「AMD BC-250」</strong>です。
+</p>
+
+<!-- スペック比較テーブル -->
+<div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 14px; padding: 20px; margin: 25px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.04); overflow-x: auto;">
+  <table style="width: 100%; border-collapse: collapse; font-size: 14.5px; text-align: left;">
+    <thead>
+      <tr style="background: #f1f5f9; border-bottom: 2px solid #cbd5e1;">
+        <th style="padding: 10px 12px; color: #334155;">項目</th>
+        <th style="padding: 10px 12px; color: #334155;">通常のPS5</th>
+        <th style="padding: 10px 12px; color: #64748b;">BC-250（工場出荷初期）</th>
+        <th style="padding: 10px 12px; color: #0284c7; font-weight: bold;">BC-250（本記事の解放後）</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="border-bottom: 1px solid #e2e8f0;">
+        <td style="padding: 10px 12px; font-weight: 600;">CPU構成</td>
+        <td style="padding: 10px 12px;">8コア / 16スレッド (Zen 2)</td>
+        <td style="padding: 10px 12px; color: #dc2626;">6コア / 12スレッド (制限)</td>
+        <td style="padding: 10px 12px; color: #0284c7; font-weight: bold;">8コア / 16スレッド (全解放)</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
+        <td style="padding: 10px 12px; font-weight: 600;">GPU CU数 (コア数)</td>
+        <td style="padding: 10px 12px;">36 CU (2304 SP)</td>
+        <td style="padding: 10px 12px; color: #dc2626;">24 CU (1536 SP)</td>
+        <td style="padding: 10px 12px; color: #0284c7; font-weight: bold;">40 CU (2560 SP フルダイ解放！)</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e2e8f0;">
+        <td style="padding: 10px 12px; font-weight: 600;">メモリ仕様</td>
+        <td style="padding: 10px 12px;">16GB GDDR6 (256-bit)</td>
+        <td style="padding: 10px 12px;">16GB GDDR6 (256-bit)</td>
+        <td style="padding: 10px 12px; color: #0284c7; font-weight: bold;">16GB GDDR6 (実効VRAM 15.8GB利用)</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
+        <td style="padding: 10px 12px; font-weight: 600;">メモリ帯域</td>
+        <td style="padding: 10px 12px;">448 GB/s</td>
+        <td style="padding: 10px 12px;">448 GB/s</td>
+        <td style="padding: 10px 12px; font-weight: bold; color: #0284c7;">448 GB/s（DDR5の約6倍！）</td>
+      </tr>
+      <tr>
+        <td style="padding: 10px 12px; font-weight: 600;">入手価格</td>
+        <td style="padding: 10px 12px;">約7万円〜8万円</td>
+        <td style="padding: 10px 12px;">約2万円前後</td>
+        <td style="padding: 10px 12px; font-weight: bold; color: #16a34a;">約2万円（圧倒的コスパ）</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p>
+  初期状態では24 CU・6コア12スレッドにデチューンされていますが、シリコンダイ自体は**40 CU・8コア16スレッドの完全なフルダイ（欠損なし）**が乗っています。これを適切にアンロックしてあげると、<strong>「PS5を超える演算器と448GB/sの爆速帯域を持った、実質VRAM 16GBの専用推論サーバ」</strong>がたった2万円で手に入ることになります。
+</p>
+
+<!-- 第2章 -->
+<h2 id="section-2" style="font-size: 22px; color: #0c4a6e; border-left: 6px solid #0284c7; padding-left: 14px; margin-top: 40px; margin-bottom: 20px;">
+  2. 【失敗の全記録】私たちが遭遇した地獄の罠と挫折
+</h2>
+
+<p>
+  しかし、この基板は一般PC用ではなくマイニングファーム用です。素直に動かそうとすると次々と罠に引っかかります。私たちが踏み抜いた失敗のすべてを赤裸々に記録します。
+</p>
+
+<div style="background: #fef2f2; border-left: 5px solid #ef4444; padding: 18px; border-radius: 8px; margin: 20px 0;">
+  <strong style="color: #991b1b; font-size: 16px;">🚨 罠1: Ubuntu 24.04 でのカーネルモジュール拒絶（RANDSTRUCT）</strong><br/>
+  <span style="color: #7f1d1d; font-size: 14.5px;">
+    最初に使い慣れた Ubuntu 24.04 LTS で 40 CU パッチ済み `amdgpu.ko` をコンパイルしたところ、ロード時に `Exec format error` が発生。Ubuntu公式カーネルはセキュリティ機構 `CONFIG_RANDSTRUCT`（構造体レイアウトのランダマイズ）が有効になっており、外部でビルドしたカーネルモジュールを一切受け付けない仕様になっていました。
+  </span>
+</div>
+
+<div style="background: #fef2f2; border-left: 5px solid #ef4444; padding: 18px; border-radius: 8px; margin: 20px 0;">
+  <strong style="color: #991b1b; font-size: 16px;">🚨 罠2: 再起動するとブラックアウトして二度と上がってこない（ACPI問題）</strong><br/>
+  <span style="color: #7f1d1d; font-size: 14.5px;">
+    BC-250のBIOSファームウェアはリセット信号の受け渡しに癖があり、Linuxから普通に `sudo reboot` を実行すると電源が入ったまま画面がブラックアウトし、ウォームリブートがハングします。電源ボタンを長押しして強制断するしかなくなる地獄に陥りました。（GRUB引数に `reboot=acpi,cold` を付与することで完全解決）。
+  </span>
+</div>
+
+<div style="background: #fef2f2; border-left: 5px solid #ef4444; padding: 18px; border-radius: 8px; margin: 20px 0;">
+  <strong style="color: #991b1b; font-size: 16px;">🚨 罠3: GitHubスクリプトが Arch Linux（mkinitcpio）前提で作られている</strong><br/>
+  <span style="color: #7f1d1d; font-size: 14.5px;">
+    有名な `GabriWar/bc250-core-cu-unlock` の中にある `bc250-acpi-fix.sh` をそのまま叩くと、`mkinitcpio: command not found` で即死します。FedoraやUbuntuなどのRedHat/Debian系は `dracut` や `initramfs-tools` を使うため、そのままでは通りません。
+  </span>
+</div>
+
+<div style="background: #fef2f2; border-left: 5px solid #ef4444; padding: 18px; border-radius: 8px; margin: 20px 0;">
+  <strong style="color: #991b1b; font-size: 16px;">🚨 罠4: Fedora 45 での kernel-devel バージョン不一致</strong><br/>
+  <span style="color: #7f1d1d; font-size: 14.5px;">
+    Ubuntuを諦めてRedHat系の Fedora 45 Server を導入。しかし `uname -r` は `7.2.15-300` なのに、通常リポジトリの `kernel-devel` は `7.2.14-300` までしか配信されておらず、「一致するものはありません」と拒絶されました（`updates-testing` リポジトリを一時的に有効化して解決）。
+  </span>
+</div>
+
+<div style="background: #fef2f2; border-left: 5px solid #ef4444; padding: 18px; border-radius: 8px; margin: 20px 0;">
+  <strong style="color: #991b1b; font-size: 16px;">🚨 罠5: パッチを当てたのに「active CUs: 24」から変わらない</strong><br/>
+  <span style="color: #7f1d1d; font-size: 14.5px;">
+    ビルドした `amdgpu.ko` を配置しても、Fedora起動時に「initramfs（初期RAMディスク）」の中にある古い無改造モジュールが先にロードされてしまうため、何回再起動しても24 CUのままでした。`sudo dracut --regenerate-all --force` で初期RAMディスクを完全再生成し、GRUBに直接 `amdgpu.bc250_cc_write_mode=3` を渡すことで40 CUへ化けました。
+  </span>
+</div>
+
+<div style="background: #fef2f2; border-left: 5px solid #ef4444; padding: 18px; border-radius: 8px; margin: 20px 0;">
+  <strong style="color: #991b1b; font-size: 16px;">🚨 罠6: 500GB SSD なのに 15GB で「容量不足エラー」</strong><br/>
+  <span style="color: #7f1d1d; font-size: 14.5px;">
+    9GBのモデルファイルをダウンロードしようとすると、4.98GBで `curl: (23) Failure writing output to destination` と停止。Fedora Serverのインストーラは、大容量SSDでも初期設定ではルート（`/`）に15GBしか割り当てず、残りを未割り当てLVMプールに残す仕様でした（`sudo lvextend -l +100%FREE /dev/mapper/fedora-root -r` で464GBへ一発拡張して解決）。
+  </span>
+</div>
+
+<div style="background: #fef2f2; border-left: 5px solid #ef4444; padding: 18px; border-radius: 8px; margin: 20px 0;">
+  <strong style="color: #991b1b; font-size: 16px;">🚨 罠7: systemd サービス化すると SELinux に弾かれて起動しない</strong><br/>
+  <span style="color: #7f1d1d; font-size: 14.5px;">
+    常時起動しようと `/home/bc250/llama.cpp/build/bin/llama-server` をsystemdに登録したところ、`status=203/EXEC` で落ちました。FedoraのSELinuxがホームディレクトリ直下のバイナリ実行を拒否したためです。バイナリを `/usr/local/bin` にコピーして `restorecon` することで完全解決しました。
+  </span>
+</div>
+
+<!-- 第3章 -->
+<h2 id="section-3" style="font-size: 22px; color: #0c4a6e; border-left: 6px solid #0284c7; padding-left: 14px; margin-top: 40px; margin-bottom: 20px;">
+  3. 【完全成功ルート】1から構築する全コマンド完全手順
+</h2>
+
+<p>
+  お待たせしました！ここからは、上記すべての罠をクリアし、<strong>「この手順通りに実行すれば絶対に失敗しない完全成功ルート」</strong>をコマンド付きで順を追って解説します。
+</p>
+
+<h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">ステップ0: 推奨OSのインストール</h3>
+* **OS**: **Fedora Server 41 / 42 / 45**（x86_64）
+* 最小インストール（Minimal）でUSBからサクッとインストールしてください。
+
+<hr style="border:none; border-top:1px solid #e2e8f0; margin:32px 0;"/>
+
+<h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">ステップ1: SSD全容量の開放（LVM拡張）</h3>
+Fedora Serverの初期15GB制限を解除し、SSDの全容量をルート領域へ拡張します。
+
+<div style="position: relative; margin: 20px 0; background: #0f172a; border: 1px solid #334155; border-radius: 8px; overflow: hidden; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 14px; background: #1e293b; color: #94a3b8; font-size: 12px; user-select: none;">
+    <span style="font-weight: 600; text-transform: uppercase; color: #94a3b8;">BASH</span>
+    
+  </div>
+  <pre style="margin: 0; padding: 14px 16px; overflow-x: auto; background: transparent; color: #f8fafc; font-size: 13.5px; line-height: 1.6; font-family: inherit;"><code># LVM論理ボリュームとXFSファイルシステムをSSD全容量（残り100%）まで一括拡張
+sudo lvextend -l +100%FREE /dev/mapper/fedora-root -r
+
+# 容量が400GB以上空いていることを確認
+df -h /</code></pre>
+</div>
+
+<hr style="border:none; border-top:1px solid #e2e8f0; margin:32px 0;"/>
+
+<h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">ステップ2: 再起動ハング防止＆VRAM 14GB設定（GRUB）</h3>
+ウォームリブートでのフリーズを防止し、VRAM空間を最大化します。
+
+<div style="position: relative; margin: 20px 0; background: #0f172a; border: 1px solid #334155; border-radius: 8px; overflow: hidden; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 14px; background: #1e293b; color: #94a3b8; font-size: 12px; user-select: none;">
+    <span style="font-weight: 600; text-transform: uppercase; color: #94a3b8;">BASH</span>
+    
+  </div>
+  <pre style="margin: 0; padding: 14px 16px; overflow-x: auto; background: transparent; color: #f8fafc; font-size: 13.5px; line-height: 1.6; font-family: inherit;"><code># 再起動ハング防止（reboot=acpi,cold）とVRAM 14GB確保（amdgpu.gttsize）をカーネル引数に追加
+sudo grubby --update-kernel=ALL --args="reboot=acpi,cold amdgpu.gttsize=14336 ttm.pages_limit=3670016"</code></pre>
+</div>
+
+<hr style="border:none; border-top:1px solid #e2e8f0; margin:32px 0;"/>
+
+<h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">ステップ3: Tailscaleの導入とSSH通信の常時開放</h3>
+Macや外部からパスワードなしで安全に接続できるようにします。
+
+<div style="position: relative; margin: 20px 0; background: #0f172a; border: 1px solid #334155; border-radius: 8px; overflow: hidden; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 14px; background: #1e293b; color: #94a3b8; font-size: 12px; user-select: none;">
+    <span style="font-weight: 600; text-transform: uppercase; color: #94a3b8;">BASH</span>
+    
+  </div>
+  <pre style="margin: 0; padding: 14px 16px; overflow-x: auto; background: transparent; color: #f8fafc; font-size: 13.5px; line-height: 1.6; font-family: inherit;"><code># Tailscale のインストールと自動起動
+sudo dnf config-manager addrepo --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo
+sudo dnf install -y tailscale
+sudo systemctl enable --now tailscaled
+
+# Tailscale にログイン（SSH有効化）
+sudo tailscale up --ssh --accept-routes
+
+# ファイアウォールでTailscaleインターフェースとSSH/ポート8080を開放
+sudo firewall-cmd --permanent --zone=trusted --add-interface=tailscale0
+sudo firewall-cmd --permanent --add-service=ssh
+sudo firewall-cmd --permanent --add-port=8080/tcp
+sudo firewall-cmd --reload</code></pre>
+</div>
+
+<hr style="border:none; border-top:1px solid #e2e8f0; margin:32px 0;"/>
+
+<h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">ステップ4: GPU フルダイ 40 CU アンロックのビルド＆有効化</h3>
+Fedora専用パッチツールを使って `amdgpu` モジュールをビルドし、40 CU モードを適用します。
+
+<div style="position: relative; margin: 20px 0; background: #0f172a; border: 1px solid #334155; border-radius: 8px; overflow: hidden; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 14px; background: #1e293b; color: #94a3b8; font-size: 12px; user-select: none;">
+    <span style="font-weight: 600; text-transform: uppercase; color: #94a3b8;">BASH</span>
+    
+  </div>
+  <pre style="margin: 0; padding: 14px 16px; overflow-x: auto; background: transparent; color: #f8fafc; font-size: 13.5px; line-height: 1.6; font-family: inherit;"><code># 1. 必要な開発ツールのインストール（updates-testingからカーネルヘッダーを取得）
+sudo dnf install -y git make gcc zstd curl
+sudo dnf --enablerepo=updates-testing install -y kernel-devel-$(uname -r) kernel-headers
+
+# 2. Fedora専用 40 CU 解放リポジトリのクローンとビルド
+cd ~
+git clone https://github.com/duggasco/bc250-40cu-unlock.git
+cd bc250-40cu-unlock
+sudo ./scripts/bc250-enable-40cu-fedora.sh build
+
+# 3. 40CU有効化フラグをGRUBに追加
+sudo grubby --update-kernel=ALL --args="amdgpu.bc250_cc_write_mode=3"
+
+# 4. パッチ済みドライバを取り込んで initramfs を完全再生成！
+sudo dracut --regenerate-all --force
+
+# 5. 一旦再起動
+sudo systemctl reboot</code></pre>
+</div>
+
+再起動後、ステータスを確認します：
+<div style="position: relative; margin: 20px 0; background: #0f172a; border: 1px solid #334155; border-radius: 8px; overflow: hidden; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 14px; background: #1e293b; color: #94a3b8; font-size: 12px; user-select: none;">
+    <span style="font-weight: 600; text-transform: uppercase; color: #94a3b8;">BASH</span>
+    
+  </div>
+  <pre style="margin: 0; padding: 14px 16px; overflow-x: auto; background: transparent; color: #f8fafc; font-size: 13.5px; line-height: 1.6; font-family: inherit;"><code>cd ~/bc250-40cu-unlock
+sudo ./scripts/bc250-enable-40cu-fedora.sh status</code></pre>
+</div>
+ここで **`active CUs: 40 (full die)`** と表示されれば、GPU 40CU 化は完了です！
+
+<hr style="border:none; border-top:1px solid #e2e8f0; margin:32px 0;"/>
+
+<h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">ステップ5: CPU 8コア / 16スレッド化（SMUレジスタ書き換え）</h3>
+SMU（System Management Unit）のレジスタ `0x0115A870` を `0x77` から `0xFF` に書き換え、眠っているコア3とコア7をたたき起こします。
+
+<div style="position: relative; margin: 20px 0; background: #0f172a; border: 1px solid #334155; border-radius: 8px; overflow: hidden; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 14px; background: #1e293b; color: #94a3b8; font-size: 12px; user-select: none;">
+    <span style="font-weight: 600; text-transform: uppercase; color: #94a3b8;">BASH</span>
+    
+  </div>
+  <pre style="margin: 0; padding: 14px 16px; overflow-x: auto; background: transparent; color: #f8fafc; font-size: 13.5px; line-height: 1.6; font-family: inherit;"><code># 1. コアリポジトリのクローン
+cd ~
+git clone https://github.com/GabriWar/bc250-core-cu-unlock.git
+cd bc250-core-cu-unlock
+
+# 2. 自動起動サービスをインストール（コールドブート時も自動でアンロック）
+sudo ./bc250-8core-unlock.sh install
+
+# 3. 8コアアンロックを適用してウォームリブート
+sudo ./bc250-8core-unlock.sh apply --reboot
+
+# ※もし起動後にまだ12スレッドのままの場合は、1度手動でウォームリブートしてください
+sudo systemctl reboot</code></pre>
+</div>
+
+再起動後にスレッド数を確認します：
+<div style="position: relative; margin: 20px 0; background: #0f172a; border: 1px solid #334155; border-radius: 8px; overflow: hidden; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 14px; background: #1e293b; color: #94a3b8; font-size: 12px; user-select: none;">
+    <span style="font-weight: 600; text-transform: uppercase; color: #94a3b8;">BASH</span>
+    
+  </div>
+  <pre style="margin: 0; padding: 14px 16px; overflow-x: auto; background: transparent; color: #f8fafc; font-size: 13.5px; line-height: 1.6; font-family: inherit;"><code>nproc
+# -> 「16」と表示されれば成功！</code></pre>
+</div>
+
+<hr style="border:none; border-top:1px solid #e2e8f0; margin:32px 0;"/>
+
+<h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">ステップ6: Mesa RADV Vulkan ＆ llama.cpp の16スレッド並列ビルド</h3>
+ROCmはBC-250のコア（`gfx1013`）を公式サポートしていませんが、MesaのオープンソースVulkanドライバ（`RADV`）は完璧にネイティブ動作します。
+
+<div style="position: relative; margin: 20px 0; background: #0f172a; border: 1px solid #334155; border-radius: 8px; overflow: hidden; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 14px; background: #1e293b; color: #94a3b8; font-size: 12px; user-select: none;">
+    <span style="font-weight: 600; text-transform: uppercase; color: #94a3b8;">BASH</span>
+    
+  </div>
+  <pre style="margin: 0; padding: 14px 16px; overflow-x: auto; background: transparent; color: #f8fafc; font-size: 13.5px; line-height: 1.6; font-family: inherit;"><code># 1. 必要なVulkanコンパイラとヘッダーを導入
+sudo dnf install -y cmake gcc-c++ vulkan-loader-devel mesa-vulkan-drivers vulkan-tools \
+  glslc spirv-headers-devel spirv-tools-devel
+
+# 2. llama.cpp の取得と 16スレッド並列ビルド
+cd ~
+git clone https://github.com/ggerganov/llama.cpp.git
+cd llama.cpp
+cmake -B build -DGGML_VULKAN=ON
+cmake --build build --config Release -j16
+
+# 3. SELinux対策のため、バイナリをシステム標準パス（/usr/local/bin）に配置
+sudo cp build/bin/llama-server /usr/local/bin/
+sudo chmod +x /usr/local/bin/llama-server
+sudo restorecon -v /usr/local/bin/llama-server</code></pre>
+</div>
+
+<hr style="border:none; border-top:1px solid #e2e8f0; margin:32px 0;"/>
+
+<h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">ステップ7: Microsoft Phi-4 (14B) のダウンロードと systemd 常時起動化</h3>
+知能の高さで旧来70Bモデルを打ち破ったマイクロソフトの最新傑作 **Phi-4 (14B Q4_K_M 約9.1GB)** を配備し、OpenAI互換APIサーバとして常時稼働させます。
+
+<div style="position: relative; margin: 20px 0; background: #0f172a; border: 1px solid #334155; border-radius: 8px; overflow: hidden; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 14px; background: #1e293b; color: #94a3b8; font-size: 12px; user-select: none;">
+    <span style="font-weight: 600; text-transform: uppercase; color: #94a3b8;">BASH</span>
+    
+  </div>
+  <pre style="margin: 0; padding: 14px 16px; overflow-x: auto; background: transparent; color: #f8fafc; font-size: 13.5px; line-height: 1.6; font-family: inherit;"><code># 1. モデル保存ディレクトリ作成とダウンロード
+mkdir -p ~/models
+cd ~/models
+curl -L -o phi-4-Q4_K_M.gguf \
+  "https://huggingface.co/bartowski/phi-4-GGUF/resolve/main/phi-4-Q4_K_M.gguf"
+
+# 2. systemd サービスファイルの作成
+sudo tee /etc/systemd/system/llama-server.service << 'EOF'
+[Unit]
+Description=llama.cpp OpenAI-compatible API Server (Vulkan 40CU - Phi-4 14B)
+After=network.target tailscaled.service
+
+[Service]
+Type=simple
+User=bc250
+WorkingDirectory=/home/bc250
+ExecStart=/usr/local/bin/llama-server \
+  -m /home/bc250/models/phi-4-Q4_K_M.gguf \
+  --host 0.0.0.0 \
+  --port 8080 \
+  -ngl 99 \
+  -t 16 \
+  -c 8192
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# 3. 反映と即時起動
+sudo systemctl daemon-reload
+sudo systemctl enable --now llama-server</code></pre>
+</div>
+
+<!-- 第4章 -->
+<h2 id="section-4" style="font-size: 22px; color: #0c4a6e; border-left: 6px solid #0284c7; padding-left: 14px; margin-top: 40px; margin-bottom: 20px;">
+  4. 【実測ベンチマーク】24 CU vs 40 CU、そして最新モデル「Phi-4 (14B)」の威力
+</h2>
+
+<p>
+  アンロック前後の実機ベンチマーク結果を公開します。
+</p>
+
+<h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">① 7Bモデルでの速度比較（Qwen2.5-Coder-7B Q4_K_M）</h3>
+* **24 CU（工場出荷時）**:
+  - Prefill: `76.7 tokens/s`
+  - Generation: `14.25 tokens/s`
+* **40 CU（フルダイ解放後）**:
+  - Prefill: **`115.2 tokens/s` （+50.2% 爆速化！）**
+  - Generation: **`18.31 tokens/s` （+28.5% 爆速化！）**
+
+演算器が24基から40基へ増えたことで、並列処理能力が向上し、生成速度が約1.3倍に跳ね上がりました。
+
+<hr style="border:none; border-top:1px solid #e2e8f0; margin:32px 0;"/>
+
+<h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">② 14Bモデルでの実力（Microsoft Phi-4 14B Q4_K_M）</h3>
+MacBookからTailscale経由で難関論理パズルを出題した実際の結果です：
+
+<div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 20px; margin: 20px 0; font-size: 14.5px;">
+  <strong>【入力プロンプト】</strong><br/>
+  「1本のロープの両端に同時に火をつけると、ちょうど30分で燃え尽きます。このロープが2本あるとき、45分を正確に測るにはどうすればよいですか？論理的に解説してください。」<br/><br/>
+  <strong>【Phi-4の回答（一部抜粋）】</strong><br/>
+  「1. ロープAの両端に同時に火をつけます（30分で燃え尽きる）。<br/>
+  2. 同時にロープBの片端だけに火をつけます（そのままなら60分持つ）。<br/>
+  3. 30分後、ロープAが燃え尽きた瞬間に、ロープBのもう片端にも火をつけます。<br/>
+  4. 残り30分分の長さだったロープBが両端から燃えるため、15分で燃え尽きます。<br/>
+  合計：30分＋15分＝45分を正確に測定できます。」<br/><br/>
+  <strong>【実測速度】</strong><br/>
+  生成速度: **`9.28 tokens/sec`**（全40レイヤーをVulkan GPU上に100%オフロード）
+</div>
+
+14Bという重厚なモデルでありながら、1秒間に9.3トークン（人間の読書速度以上）で淀みなく論理的に正解を導き出しました！
+
+<!-- 第5章 -->
+<h2 id="section-5" style="font-size: 22px; color: #0c4a6e; border-left: 6px solid #0284c7; padding-left: 14px; margin-top: 40px; margin-bottom: 20px;">
+  5. 【究極のゼロクォータAIクラスタ】Strata×BC-250×OpenRouterでGoogle AI Proを温存する自律運用
+</h2>
+
+<p>
+  今回構築したBC-250は単体で使うだけでなく、既存の**メインGPU機（Strata: RTX 4070 Ti Super + RTX 3060）**および**OpenRouterの無料枠**と連携させ、**「Google AI Proのトークン消費を極小化するハイブリッド・ルーティング」**を実現しています。
+</p>
+
+<!-- クラスタ図解カード -->
+<div style="background: #0f172a; color: #f8fafc; border-radius: 16px; padding: 24px; margin: 25px 0;">
+  <div style="font-weight: 800; color: #38bdf8; font-size: 17px; margin-bottom: 16px;">
+    🌐 自宅ハイブリッド・ゼロクォータ・アーキテクチャ
+  </div>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
+    <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 16px;">
+      <div style="font-weight: bold; color: #7dd3fc; margin-bottom: 6px;">① 高速ドラフト・ブレスト担当</div>
+      <div style="font-size: 13.5px; color: #cbd5e1;"><strong>Strata (z790-al Dual GPU)</strong><br/>Qwen 3.8 Flash Next (45〜80 tok/s)<br/>費用: 完全無料 ($0.00)</div>
+    </div>
+    <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 16px;">
+      <div style="font-weight: bold; color: #a7f3d0; margin-bottom: 6px;">② 難関論理・セカンドオピニオン担当</div>
+      <div style="font-size: 13.5px; color: #cbd5e1;"><strong>AMD BC-250 (40CU / 16T)</strong><br/>Microsoft Phi-4 14B (9.3 tok/s)<br/>費用: 完全無料 ($0.00)</div>
+    </div>
+    <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 16px;">
+      <div style="font-weight: bold; color: #fde047; margin-bottom: 6px;">③ 100万トークン超長文担当</div>
+      <div style="font-size: 13.5px; color: #cbd5e1;"><strong>OpenRouter Free Tier</strong><br/>MiniMax M3.1 Flash (1M context)<br/>費用: 完全無料 ($0.00)</div>
+    </div>
+    <div style="background: rgba(255,255,255,0.05); border: 1px solid #38bdf8; border-radius: 10px; padding: 16px;">
+      <div style="font-weight: bold; color: #f43f5e; margin-bottom: 6px;">④ 最終アーキテクチャ意思決定のみ</div>
+      <div style="font-size: 13.5px; color: #cbd5e1;"><strong>Google AI Pro (Gemini 4.0 Argon)</strong><br/>日常タスクはローカルで肩代わりし、最高難度の意思決定のみに厳選集中投下！</div>
+    </div>
+  </div>
+</div>
+
+<p>
+  ルータープログラム（`model_router.py`）により、タスクの性質に合わせて自動的にローカルノードへ振り分けられます。日常のコーディングや調べ物でクラウドAPIのレートリミットを浪費することが一切なくなりました。
+</p>
+
+<!-- 第6章 -->
+<h2 id="section-6" style="font-size: 22px; color: #0c4a6e; border-left: 6px solid #0284c7; padding-left: 14px; margin-top: 40px; margin-bottom: 20px;">
+  6. まとめとハードウェア運用の最重要注意点（M.2熱対策）
+</h2>
+
+<p>
+  最後に、これからBC-250を導入する方に向けた**最も重要なハードウェア面の注意点**をお伝えします。
+</p>
+
+<div style="background: #fffbeb; border: 2px solid #fde68a; border-radius: 14px; padding: 20px; margin: 25px 0;">
+  <div style="font-weight: 800; color: #b45309; font-size: 16px; margin-bottom: 8px;">
+    ⚠️ M.2 SSD には必ずヒートシンクを装着し、ファン風を当てること！
+  </div>
+  <p style="margin: 0; color: #92400e; font-size: 14.5px; line-height: 1.6;">
+    BC-250の基板上にあるM.2スロットはエアフローがないと簡単に熱がこもります。今回、9GBのモデルファイルを連続ダウンロードした際、`SMART Disk monitor: Critical Warning: Temperature` が出ました。<br/>
+    市販のアルミ製ヒートシンクを取り付け、小型ファンやケースファンでそよ風程度でも風を当ててあげると、40℃〜50℃台で極めて安定して動作します。
+  </p>
+</div>
+
+<div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 14px; padding: 22px; margin-top: 30px; text-align: center;">
+  <div style="font-size: 20px; font-weight: 800; color: #166534; margin-bottom: 8px;">
+    🎉 2万円台で手に入る、最強のローカルAI専用サーバ
+  </div>
+  <p style="color: #15803d; font-size: 15px; margin: 0; line-height: 1.7;">
+    マイニング落ちの謎基板が、カーネルハックとオープンソースソフトウェア（Mesa RADV ＆ llama.cpp）の力によって、最新14Bモデルを難なく回す最高のおもちゃ兼実用サーバに進化しました。<br/>
+    自宅にプライベートな推論環境を持ちたい方は、ぜひチャレンジしてみてください！🐼🛠️
+  </p>
+</div>
+
+</div>
+<!-- ============================================================== -->

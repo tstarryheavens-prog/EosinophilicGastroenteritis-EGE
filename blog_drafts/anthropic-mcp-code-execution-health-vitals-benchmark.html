@@ -79,23 +79,7 @@
   過去のアーカイブCSV（<code>+0900</code>のtz-aware）と最新計測CSV（tz-naive）が混在している場合、Pandasで結合・比較する際に <code>TypeError: Cannot compare tz-naive and tz-aware timestamps</code> が発生します。必ず <code>Asia/Tokyo</code> への統一処理（<code>tz_localize</code> / <code>tz_convert</code>）を組み込んでおきます。
 </blockquote>
 
-<div class="code-block-container" style="position: relative; margin: 24px 0; background: #0d1117; border: 1px solid #30363d; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
-  <div class="code-block-header" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; background: #161b22; border-bottom: 1px solid #30363d; user-select: none;">
-    <div style="display: flex; align-items: center; gap: 6px;">
-      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ff5f56; display: inline-block;"></span>
-      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ffbd2e; display: inline-block;"></span>
-      <span style="width: 10px; height: 10px; border-radius: 50%; background: #27c93f; display: inline-block;"></span>
-      <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #8b949e; text-transform: uppercase; margin-left: 10px;">python</span>
-    </div>
-    <button type="button" onclick="const c=this.closest('.code-block-container').querySelector('code, pre').innerText.trim(); navigator.clipboard.writeText(c).then(()=>{const t=this.querySelector('.btn-label'); t.innerText='コピー完了！'; this.style.borderColor='#10b981'; this.style.color='#34d399'; setTimeout(()=>{t.innerText='コピー'; this.style.borderColor='rgba(255,255,255,0.15)'; this.style.color='#cbd5e1';}, 2000);});" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.color='#cbd5e1';">
-      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-      </svg>
-      <span class="btn-label">コピー</span>
-    </button>
-  </div>
-  <pre style="margin: 0; padding: 16px 20px; overflow-x: auto; background: transparent; color: #e6edf3; font-size: 13.5px; line-height: 1.65; white-space: pre; font-family: inherit;"><code style="background: transparent; padding: 0; border: none; color: inherit; font-size: inherit;">#!/usr/bin/env python3
+<pre data-language="python"><code class="lang-python">#!/usr/bin/env python3
 import sys
 import io
 import json
@@ -168,29 +152,12 @@ if __name__ == "__main__":
         if res["stderr"]:
             print(res["stderr"], file=sys.stderr, end="")
         sys.exit(0 if res["success"] else 1)</code></pre>
-</div>
 
 <h2 style="font-size: 20px; font-weight: 800; color: #0f172a; border-left: 6px solid #2563eb; padding-left: 12px; margin: 40px 0 18px 0; line-height: 1.4;">5. 【実践手順②】Gemini / Antigravity 向けMCPスキーマ定義</h2>
 
 <p>次に、Gemini（Antigravity）がFunction Callingとして認識できるよう、MCPツールスキーマを <code>~/.gemini/antigravity/mcp/code-executor/execute_code.json</code> に配置します。</p>
 
-<div class="code-block-container" style="position: relative; margin: 24px 0; background: #0d1117; border: 1px solid #30363d; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
-  <div class="code-block-header" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; background: #161b22; border-bottom: 1px solid #30363d; user-select: none;">
-    <div style="display: flex; align-items: center; gap: 6px;">
-      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ff5f56; display: inline-block;"></span>
-      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ffbd2e; display: inline-block;"></span>
-      <span style="width: 10px; height: 10px; border-radius: 50%; background: #27c93f; display: inline-block;"></span>
-      <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #8b949e; text-transform: uppercase; margin-left: 10px;">json</span>
-    </div>
-    <button type="button" onclick="const c=this.closest('.code-block-container').querySelector('code, pre').innerText.trim(); navigator.clipboard.writeText(c).then(()=>{const t=this.querySelector('.btn-label'); t.innerText='コピー完了！'; this.style.borderColor='#10b981'; this.style.color='#34d399'; setTimeout(()=>{t.innerText='コピー'; this.style.borderColor='rgba(255,255,255,0.15)'; this.style.color='#cbd5e1';}, 2000);});" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.color='#cbd5e1';">
-      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-      </svg>
-      <span class="btn-label">コピー</span>
-    </button>
-  </div>
-  <pre style="margin: 0; padding: 16px 20px; overflow-x: auto; background: transparent; color: #e6edf3; font-size: 13.5px; line-height: 1.65; white-space: pre; font-family: inherit;"><code style="background: transparent; padding: 0; border: none; color: inherit; font-size: inherit;">{
+<pre data-language="json"><code class="lang-json">{
   "name": "execute_code",
   "description": "Execute Python code within a pre-bound Pandas/NumPy data sandbox to analyze health records. Always aggregate data inside Python and print summary metrics to stdout. Never return raw full rows to avoid context blowup.",
   "parameters": {
@@ -210,7 +177,6 @@ if __name__ == "__main__":
     "required": ["code"]
   }
 }</code></pre>
-</div>
 
 <p>ツール説明文（<code>description</code>）に「必ずPython内で集計して標準出力へ印字すること。生レコードをそのまま返却してはならない」と明記することで、LLMが無意識に <code>print(df.to_string())</code> してトークンが溢れる事態を物理的に防止します。</p>
 
@@ -218,23 +184,7 @@ if __name__ == "__main__":
 
 <p>Nous Researchが開発した自律思考ループ型エージェント「Hermes Agent」に向けては、専用のスキル定義（<code>~/.hermes/skills/mcp-code-execution/SKILL.md</code>）を配備します。これにより、大規模データ解析タスクを検知したHermesが自律的に本パターンを選択します。</p>
 
-<div class="code-block-container" style="position: relative; margin: 24px 0; background: #0d1117; border: 1px solid #30363d; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
-  <div class="code-block-header" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; background: #161b22; border-bottom: 1px solid #30363d; user-select: none;">
-    <div style="display: flex; align-items: center; gap: 6px;">
-      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ff5f56; display: inline-block;"></span>
-      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ffbd2e; display: inline-block;"></span>
-      <span style="width: 10px; height: 10px; border-radius: 50%; background: #27c93f; display: inline-block;"></span>
-      <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #8b949e; text-transform: uppercase; margin-left: 10px;">yaml</span>
-    </div>
-    <button type="button" onclick="const c=this.closest('.code-block-container').querySelector('code, pre').innerText.trim(); navigator.clipboard.writeText(c).then(()=>{const t=this.querySelector('.btn-label'); t.innerText='コピー完了！'; this.style.borderColor='#10b981'; this.style.color='#34d399'; setTimeout(()=>{t.innerText='コピー'; this.style.borderColor='rgba(255,255,255,0.15)'; this.style.color='#cbd5e1';}, 2000);});" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.color='#cbd5e1';">
-      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-      </svg>
-      <span class="btn-label">コピー</span>
-    </button>
-  </div>
-  <pre style="margin: 0; padding: 16px 20px; overflow-x: auto; background: transparent; color: #e6edf3; font-size: 13.5px; line-height: 1.65; white-space: pre; font-family: inherit;"><code style="background: transparent; padding: 0; border: none; color: inherit; font-size: inherit;">---
+<pre data-language="yaml"><code class="lang-yaml">---
 name: mcp-code-execution
 description: Anthropic-style MCP Code Execution pattern for analyzing massive time-series datasets (HealthKit/blood pressure, HEMS meter, finance) with 99% token reduction.
 ---
@@ -247,7 +197,6 @@ When analyzing large tabular datasets:
 3. Print ONLY the calculated aggregates, percentiles, or anomaly summaries to stdout.
 4. Execute via:
    python3 ~/.gemini/antigravity/scripts/mcp_code_executor.py --code "<python_code>" --dataset health</code></pre>
-</div>
 
 <h2 style="font-size: 20px; font-weight: 800; color: #0f172a; border-left: 6px solid #2563eb; padding-left: 12px; margin: 40px 0 18px 0; line-height: 1.4;">7. 【実機検証】実測血圧データ346件によるベンチマーク結果</h2>
 
@@ -256,23 +205,7 @@ When analyzing large tabular datasets:
 <h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">実行した解析コード</h3>
 <p>2026年10月の測定データを対象に、収縮期140mmHgまたは拡張期90mmHgを超えた「血圧スパイク」の検出と基本統計サマリーを出力させました。</p>
 
-<div class="code-block-container" style="position: relative; margin: 24px 0; background: #0d1117; border: 1px solid #30363d; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
-  <div class="code-block-header" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; background: #161b22; border-bottom: 1px solid #30363d; user-select: none;">
-    <div style="display: flex; align-items: center; gap: 6px;">
-      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ff5f56; display: inline-block;"></span>
-      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ffbd2e; display: inline-block;"></span>
-      <span style="width: 10px; height: 10px; border-radius: 50%; background: #27c93f; display: inline-block;"></span>
-      <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #8b949e; text-transform: uppercase; margin-left: 10px;">python</span>
-    </div>
-    <button type="button" onclick="const c=this.closest('.code-block-container').querySelector('code, pre').innerText.trim(); navigator.clipboard.writeText(c).then(()=>{const t=this.querySelector('.btn-label'); t.innerText='コピー完了！'; this.style.borderColor='#10b981'; this.style.color='#34d399'; setTimeout(()=>{t.innerText='コピー'; this.style.borderColor='rgba(255,255,255,0.15)'; this.style.color='#cbd5e1';}, 2000);});" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.color='#cbd5e1';">
-      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-      </svg>
-      <span class="btn-label">コピー</span>
-    </button>
-  </div>
-  <pre style="margin: 0; padding: 16px 20px; overflow-x: auto; background: transparent; color: #e6edf3; font-size: 13.5px; line-height: 1.65; white-space: pre; font-family: inherit;"><code style="background: transparent; padding: 0; border: none; color: inherit; font-size: inherit;"># 2026年最新月の血圧スパイク（収縮期140以上または拡張期90以上）と基本統計を抽出
+<pre data-language="python"><code class="lang-python"># 2026年最新月の血圧スパイク（収縮期140以上または拡張期90以上）と基本統計を抽出
 target = df[df['measured_at'] >= '2026-10-01']
 spikes = target[(target['systolic'] >= 140) | (target['diastolic'] >= 90)]
 
@@ -284,7 +217,6 @@ print(f"基準値超過（高血圧リスク）: {len(spikes)}回 ({len(spikes)/
 if len(spikes) > 0:
     print("\n[スパイク記録一覧]")
     print(spikes[['measured_at', 'systolic', 'diastolic', 'pulse']].to_string(index=False))</code></pre>
-</div>
 
 <h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">ベンチマーク測定結果</h3>
 

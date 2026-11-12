@@ -1,0 +1,406 @@
+<!-- ============================================================== -->
+<!-- 【はてなブログ & Smart AI Life 兼用 HTML原稿】                    -->
+<!-- タイトル: 【完全解決】Windows 11 26H2で10GbE LANとThunderboltカードが消滅した問題：PCIeスロット入れ替えと低レイヤー設定で大逆転した技術ログ（MSI Z790環境） -->
+<!-- ============================================================== -->
+
+<div class="pottle-article-wrapper" style="font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif; color: #1e293b; line-height: 1.85; max-width: 840px; margin: 0 auto; font-size: 16px;">
+
+  <!-- メインヘッダーバナー -->
+  <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0369a1 100%); color: #ffffff; padding: 40px 24px; border-radius: 20px; margin-bottom: 32px; box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.35); text-align: center;">
+    <div style="display: inline-block; background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.35); color: #e0f2fe; font-size: 13px; font-weight: 700; padding: 5px 16px; border-radius: 9999px; margin-bottom: 16px; letter-spacing: 0.05em;">
+      🛠️ 自作PC × Windows 11 26H2 トラブルシューティング
+    </div>
+    <h1 style="font-size: 26px; font-weight: 800; line-height: 1.45; margin: 0 0 16px 0; color: #ffffff;">
+      Windows 11 26H2で10GbE LANとThunderboltカードが消滅！<br>
+      <span style="color: #7dd3fc;">PCIeスロットの物理入れ替えと低レイヤー設定で完全復旧させた全記録</span>
+    </h1>
+    <p style="font-size: 15px; color: #bae6fd; margin: 0; line-height: 1.6;">
+      〜消えた高速インターフェース、USB/IPコード52署名エラー、SSDホットプラグのゴースト残存をすべて根絶する〜
+    </p>
+  </div>
+
+  <!-- キャラクター紹介 -->
+  <div style="background: linear-gradient(135deg, #f8fafc 0%, #f0f9ff 100%); border: 2px solid #bae6fd; border-radius: 18px; padding: 22px; margin-bottom: 35px; display: flex; gap: 20px; align-items: center; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.08);">
+    <div style="flex-shrink: 0; text-align: center;">
+      <img src="https://cdn-ak.f.st-hatena.com/images/fotolife/M/MyToyotaHomeBottle/20261003/20261003213941.jpg" 
+           alt="ぽトル アイコン" 
+           style="width: 80px; height: 80px; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border: 3px solid #ffffff; object-fit: cover;">
+      <div style="font-size: 11px; font-weight: 700; color: #0284c7; margin-top: 4px;">POTTLE</div>
+    </div>
+    <div style="font-size: 14.5px;">
+      <div style="font-weight: 800; color: #0369a1; font-size: 16px; margin-bottom: 4px;">
+        筆者：ぽトル（Pottle）｜ 省エネ脱力パンダ
+      </div>
+      <div style="color: #475569; line-height: 1.6;">
+        「高速ネットワークとThunderboltで快適な自作PC開発環境を維持したい」脱力パンダ。Windows 11 26H2へアップデートした瞬間、10GbEカードとThunderboltカードがOSから同時に消失する怪奇現象に直面。基板の物理スロットを入れ替えて完全復旧させました🐼⚡
+      </div>
+    </div>
+  </div>
+
+  <!-- 導入部 -->
+  <p>どうも、ぽトルです。</p>
+
+  <p>
+    自作PCやモジュール型ワークステーションで開発を行うエンジニアにとって、足回りを支える高速インターフェースの安定性は極めて重要です。
+    筆者のメインPC（MSI PRO Z790-A搭載）では、ローカルNASとの大容量データ通信を担う「10Gbps LANカード（PCIe x4）」と、外部ドック経由でマルチディスプレイや各種USB機器、外付けNVMe SSDを一括集約する「Thunderbolt 4拡張カード（PCIe x4）」の2枚を挿して運用していました。
+  </p>
+
+  <p>
+    ところがある日、Windows 11の大型アップデート「26H2」を適用して再起動した瞬間、信じられないトラブルが発生しました。
+    タスクバーのネットワークアイコンが地球儀マーク（未接続）に変わり、昨日まで動いていた10GbE LANカードがデバイスマネージャーから完全に消失。
+    さらにThunderboltコントロールセンターを開いてもポートは「未接続」のまま沈黙し、ドックに繋いだ周辺機器やモニターがすべて停止してしまいました。
+  </p>
+
+  <p>
+    ドライバの再インストールを試みても「対応するハードウェアが見つかりません」と跳ね返され、デバイス自体がPCIeツリーから脱落している状態でした。
+    この壊滅的な状況から、<strong>「2枚のPCIeカードの物理スロットを入れ替える」というハードウェア的アプローチ</strong>によって完全復活を遂げ、さらにその後に連鎖して発生した「USB/IPのコード52署名エラー」や「外付けThunderbolt SSDのホットプラグ認識不全（ゴースト残存）」までを完治させた全手順を技術ログとして記録します。
+  </p>
+
+  <!-- 目次ブロック -->
+  <div style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 14px; padding: 20px 24px; margin: 30px 0;">
+    <div style="font-weight: 700; color: #0f172a; margin-bottom: 12px; font-size: 16px;">📑 目次</div>
+    <ul style="margin: 0; padding-left: 20px; color: #334155; font-size: 14.5px; line-height: 1.8;">
+      <li><a href="#section-1" style="color: #0284c7; text-decoration: none;">1. システム構成と直面したトラブルの全貌</a></li>
+      <li><a href="#section-2" style="color: #0284c7; text-decoration: none;">2. 【真相解明】なぜ10GbE LANとThunderboltカードが同時に消えたのか？</a></li>
+      <li><a href="#section-3" style="color: #0284c7; text-decoration: none;">3. 【最大の決定打】PCIeスロットの物理差し替えで大逆転</a></li>
+      <li><a href="#section-4" style="color: #0284c7; text-decoration: none;">4. 復旧後に連鎖した「USB/IP コード52署名エラー」の根絶</a></li>
+      <li><a href="#section-5" style="color: #0284c7; text-decoration: none;">5. Thunderbolt SSDホットプラグ「ゴースト残存バグ」の恒久対策</a></li>
+      <li><a href="#section-6" style="color: #0284c7; text-decoration: none;">6. システム健全性を一括確認する保守PowerShellスクリプト集</a></li>
+      <li><a href="#section-7" style="color: #0284c7; text-decoration: none;">7. まとめ：物理層と論理層の両面から切り分ける</a></li>
+    </ul>
+  </div>
+
+  <!-- 第1章 -->
+  <h2 id="section-1" style="font-size: 22px; color: #0f172a; border-left: 6px solid #0284c7; padding-left: 14px; margin-top: 40px; margin-bottom: 20px;">
+    1. システム構成と直面したトラブルの全貌
+  </h2>
+
+  <h3 style="font-size: 18px; color: #1e293b; margin-top: 24px; margin-bottom: 12px;">1.1 動作環境スペック</h3>
+  <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 14.5px;">
+    <thead>
+      <tr style="background-color: #f1f5f9; border-bottom: 2px solid #cbd5e1;">
+        <th style="padding: 10px; text-align: left; width: 30%;">項目</th>
+        <th style="padding: 10px; text-align: left;">構成パーツ / 仕様</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="border-bottom: 1px solid #e2e8f0;">
+        <td style="padding: 10px; font-weight: 600; color: #475569;">マザーボード</td>
+        <td style="padding: 10px;">MSI PRO Z790-A WIFI（Intel Z790チップセット、UEFI: Click BIOS 5）</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e2e8f0;">
+        <td style="padding: 10px; font-weight: 600; color: #475569;">CPU</td>
+        <td style="padding: 10px;">Intel Core 第13/14世代プロセッサ</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e2e8f0;">
+        <td style="padding: 10px; font-weight: 600; color: #475569;">OS</td>
+        <td style="padding: 10px;">Windows 11 Pro（バージョン 26H2、PowerShell 7.x 稼働）</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e2e8f0;">
+        <td style="padding: 10px; font-weight: 600; color: #475569;">拡張カード1（LAN）</td>
+        <td style="padding: 10px;">10Gbps イーサネット拡張カード（PCIe 3.0/4.0 x4接続）</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e2e8f0;">
+        <td style="padding: 10px; font-weight: 600; color: #475569;">拡張カード2（TB）</td>
+        <td style="padding: 10px;">Thunderbolt 4 PCIe拡張カード（PCIe x4接続、JTBT1ヘッダー＋内部USBヘッダー配線）</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e2e8f0;">
+        <td style="padding: 10px; font-weight: 600; color: #475569;">メインドック</td>
+        <td style="padding: 10px;">Lenovo ThinkPad Thunderbolt 3 Dock（モデル: 40AN / Intel Titan Ridge JHL7440搭載）</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e2e8f0;">
+        <td style="padding: 10px; font-weight: 600; color: #475569;">外付けストレージ</td>
+        <td style="padding: 10px;">Thunderbolt 3/4接続 NVMe SSD（外付けエンクロージャー、PCIeトンネリング）</td>
+      </tr>
+      <tr>
+        <td style="padding: 10px; font-weight: 600; color: #475569;">開発用途</td>
+        <td style="padding: 10px;">WSL2（Ubuntu）上へUSBシリアル機器を転送する usbipd-win の運用</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 style="font-size: 18px; color: #1e293b; margin-top: 24px; margin-bottom: 12px;">1.2 26H2アップデート後に連鎖した3大トラブル</h3>
+  <ol style="padding-left: 20px; line-height: 1.8;">
+    <li><strong>主障害：10GbE LANカードの完全消失とThunderboltカードの未接続沈黙</strong><br>
+    Windows 11 26H2の適用直後、有線LAN通信が切断。デバイスマネージャーの「ネットワーク アダプター」一覧から10GbEカード自体が消滅しました。同時にThunderboltコントロールセンターも「未接続」になり、ThinkPadドック（40AN）経由の画面出力、オーディオ、有線LANがすべて停止しました。</li>
+    <li><strong>従属障害A：WSL2用USB/IPドライバの「コード52（デジタル署名検証エラー）」</strong><br>
+    ハードウェア復旧後、WSL2へUSB機器をマウントしようとしたところ、<code>usbipd-win</code> の仮想コントローラーがドライバ署名検証エラー（コード52）を起こし、デバイスの転送が不能になりました。</li>
+    <li><strong>従属障害B：Thunderbolt SSDホットプラグ時の「ゴースト残存バグ」</strong><br>
+    Thunderbolt SSDを安全に取り外して別のSSDを接続しても、エクスプローラー上に抜いたはずの古いSSDのドライブ名が残り、手動でデバイスの再スキャンを行わないと新しいドライブが認識されなくなりました。</li>
+  </ol>
+
+  <!-- 第2章 -->
+  <h2 id="section-2" style="font-size: 22px; color: #0f172a; border-left: 6px solid #0284c7; padding-left: 14px; margin-top: 40px; margin-bottom: 20px;">
+    2. 【真相解明】なぜ10GbE LANとThunderboltカードが同時に消えたのか？
+  </h2>
+
+  <h3 style="font-size: 18px; color: #1e293b; margin-top: 24px; margin-bottom: 12px;">2.1 MSI PRO Z790-AのPCIeスロット仕様</h3>
+  <p>
+    トラブルの原因を突き止めるには、マザーボードの基板配線とチップセット（PCH）の内部構造を確認する必要があります。
+    MSI PRO Z790-Aの拡張スロットは、上から順に以下の構成になっています。
+  </p>
+  <ul>
+    <li><code>PCI_E1</code>：PCIe 5.0 x16スロット（CPU直結、グラフィックボードが占有）</li>
+    <li><code>PCI_E2</code>：PCIe 3.0 x1スロット（Z790 PCH接続）</li>
+    <li><code>PCI_E3</code>：PCIe 4.0 x4スロット（外見はx16形状、内部配線はPCH接続x4）</li>
+    <li><code>PCI_E4</code>：PCIe 4.0 x4スロット（外見はx16形状、内部配線はPCH接続x4）</li>
+  </ul>
+  <p>
+    グラフィックボード以外の高速カード（x4動作を要求する10GbEカードやThunderboltカード）を増設する場合、下段の <code>PCI_E3</code> と <code>PCI_E4</code> を使用することになります。
+    外見上、この2つのスロットは同じ仕様に見えますが、Z790チップセット内部のDMI 4.0 x8共通帯域とHSIO（高速I/O）レーンを基板上のM.2スロットやSATAポートと共有しています。
+  </p>
+
+  <h3 style="font-size: 18px; color: #1e293b; margin-top: 24px; margin-bottom: 12px;">2.2 26H2のPCIe電源管理強化と初期化競合</h3>
+  <p>
+    Windows 11 26H2では、プラットフォーム全体の省電力性向上のため、PCIeの電源管理（Modern Standby / ASPM）の厳格化と、ブート時におけるPCIe列挙タイマーの短縮が実施されました。
+  </p>
+  <p>
+    従来の23H2等では、ハードウェアの初期化に多少の遅延があってもOSカーネルが待機して認識していました。
+    しかし26H2では、起動時のごくわずかな制限時間内にPCIeリンクが安定確立しない場合、OSカーネルはそのポートへの給電ステートを落とし（D3cold）、バス列挙から除外する動作をとるようになりました。
+  </p>
+  <p>
+    当時のスロット配置は以下の通りでした。
+  </p>
+  <div style="background: #fff1f2; border: 1px solid #fecdd3; border-radius: 10px; padding: 14px 18px; margin-bottom: 20px;">
+    <strong>❌ 障害発生時の物理配置（変更前）:</strong><br>
+    ・<code>PCI_E3</code>（上段スロット）：10Gbps LAN拡張カード<br>
+    ・<code>PCI_E4</code>（下段スロット）：Thunderbolt 4拡張カード（JTBT1ヘッダー配線）
+  </div>
+  <p>
+    Thunderbolt 4拡張カードは、単にスロットから給電されるだけでなく、マザーボードの「JTBT1ヘッダー」を介してPCHのGPIOピンと専用の初期化ハンドシェイク（Force PowerおよびHot Plug信号）を行います。
+    この配置では、最下段のThunderboltカードがGPIOハンドシェイクを行おうとするのと同時に、上位チャネルにある10GbEカードがPHYのリンクネゴシエーションを開始し、PCH内部で初期化の競合（レースコンディション）が発生していました。
+  </p>
+  <p>
+    26H2の厳格なタイマーにより、PCH側のPCIeルートポートがタイムアウトと判定され、両スロットへの給電が停止。
+    その結果、10GbEカードはOSから存在が消え、Thunderboltカードもリンクアップできずに「未接続」で固まるという共倒れが起きていました。
+  </p>
+
+  <!-- 第3章 -->
+  <h2 id="section-3" style="font-size: 22px; color: #0f172a; border-left: 6px solid #0284c7; padding-left: 14px; margin-top: 40px; margin-bottom: 20px;">
+    3. 【最大の決定打】PCIeスロットの物理差し替えで大逆転
+  </h2>
+
+  <p>
+    デバイスがPCIeバス列挙の段階で脱落している以上、OS上でドライバを再インストールしても解決しません。
+    根本的な原因が「PCH内部でのハードウェア認識順序と初期化タイミングの衝突」にあると判断し、2枚のカードを挿すスロットを物理的に入れ替えることにしました。
+  </p>
+
+  <h3 style="font-size: 18px; color: #1e293b; margin-top: 24px; margin-bottom: 12px;">3.1 物理作業手順</h3>
+  <ol style="padding-left: 20px; line-height: 1.8;">
+    <li><strong>残留電荷の完全放電</strong><br>
+    PCをシャットダウンし、電源ユニットの主スイッチをオフにしてコンセントを抜きます。PC前面の電源ボタンを10回以上連打し、さらに30秒間長押しして、基板コンデンサの残留電荷を完全に放電させます。</li>
+    <li><strong>スロットの物理スワップ（入れ替え）</strong><br>
+    2枚の拡張カードを取り外し、スロットを入れ替えて装着します。
+    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 14px 18px; margin: 12px 0;">
+      <strong>✅ 解決時の物理配置（変更後）:</strong><br>
+      ・<code>PCI_E3</code>（上段スロット）：<strong>Thunderbolt 4拡張カード</strong><br>
+      ・<code>PCI_E4</code>（下段スロット）：<strong>10Gbps LAN拡張カード</strong>
+    </div>
+    Thunderboltカードの移動に合わせて、JTBT1ケーブルおよび内部USBヘッダーケーブルも配線し直します。</li>
+    <li><strong>PCの起動と認識確認</strong><br>
+    配線を確認し、PCの電源を投入します。</li>
+  </ol>
+
+  <h3 style="font-size: 18px; color: #1e293b; margin-top: 24px; margin-bottom: 12px;">3.2 スロット入れ替えによる効果</h3>
+  <p>
+    スロットを入れ替えて起動した直後、Windowsのハードウェア検出音が鳴り響きました。
+  </p>
+  <ul>
+    <li>タスクバーの地球儀マークが消え、有線ネットワーク通信が即座に復旧。</li>
+    <li>デバイスマネージャーに10GbEネットワークアダプターが正常表示。</li>
+    <li>ThinkPad Thunderbolt 3 Dock（40AN）のLEDが白色点灯に変わり、Thunderboltコントロールセンターで「接続済み」と認識。ドック経由の画面やUSB機器が一斉に動作再開。</li>
+  </ul>
+  <p>
+    PCHのスキャン順序において上位に位置する <code>PCI_E3</code> にThunderboltカードを配置したことで、GPIOハンドシェイクが先行して安定完了し、続いて <code>PCI_E4</code> の10GbEカードが認識されるという、正しい初期化シーケンスが成立しました。
+  </p>
+
+  <!-- 第4章 -->
+  <h2 id="section-4" style="font-size: 22px; color: #0f172a; border-left: 6px solid #0284c7; padding-left: 14px; margin-top: 40px; margin-bottom: 20px;">
+    4. 復旧後に連鎖した「USB/IP コード52署名エラー」の根絶
+  </h2>
+
+  <p>
+    ハードウェアが復旧した直後、WSL2環境へUSBシリアル機器を転送しようとしたところ、<code>usbipd</code> でエラーが発生しました。
+    デバイスマネージャーを開くと、「システム デバイス」内の「USB/IP VHCI」に黄色い感嘆符（コード52: デジタル署名の検証エラー）が表示されていました。
+  </p>
+
+  <h3 style="font-size: 18px; color: #1e293b; margin-top: 24px; margin-bottom: 12px;">4.1 原因調査：古いドライバ（oem41.inf）の競合</h3>
+  <p>
+    UEFIでSecure Bootが有効な環境では、テスト署名モード（<code>bcdedit /set testsigning on</code>）はブロックされます。
+    また、<code>winget install dorssel.usbipd-win</code> を実行しても「最新バージョンがインストール済み」と表示され改善しませんでした。
+  </p>
+  <p>
+    Windowsのドライバストア（Driver Store）内部を調査するため、管理者権限のPowerShellで以下のコマンドを実行しました。
+  </p>
+  <pre data-language="powershell"><code class="lang-powershell">pnputil /enum-drivers | Select-String -Pattern "usbip" -Context 2,4</code></pre>
+  <p>出力結果：</p>
+  <pre data-language="terminal output"><code class="lang-terminal output">公開名:      oem41.inf<br>
+    元の名前:    usbip_vhci.inf<br>
+    プロバイダー名: Open Source<br>
+    クラス名:    System<br>
+    ドライバー バージョン: 09/03/2019 0.3.0.0</code></pre>
+  <p>
+    過去に手動導入した2019年製の古い未署名ドライバ（<code>oem41.inf</code>）がドライバストアに残存しており、Windowsが最新の署名済みドライバではなくこの古いドライバを優先してバインドしていたことが原因でした。
+  </p>
+
+  <h3 style="font-size: 18px; color: #1e293b; margin-top: 24px; margin-bottom: 12px;">4.2 解決手順</h3>
+  <ol style="padding-left: 20px; line-height: 1.8;">
+    <li>古い未署名ドライバパッケージを強制削除します。
+      <pre data-language="powershell"><code class="lang-powershell">pnputil /delete-driver oem41.inf /uninstall /force</code></pre>
+    </li>
+    <li>デバイスマネージャーを開き、「システム デバイス」内の黄色い警告が出ている「USB/IP VHCI」を右クリックして「デバイスのアンインストール」を実行します。</li>
+    <li>署名済みの最新パッケージを強制再適用します。
+      <pre data-language="powershell"><code class="lang-powershell">winget install dorssel.usbipd-win --force</code></pre>
+    </li>
+    <li>状態を確認します。
+      <pre data-language="powershell"><code class="lang-powershell">usbipd list</code></pre>
+    </li>
+  </ol>
+  <p>
+    警告マークが消滅し、すべてのUSB機器が <code>Not shared</code> で正常に列挙され、WSL2へのアタッチも復旧しました。
+  </p>
+
+  <!-- 第5章 -->
+  <h2 id="section-5" style="font-size: 22px; color: #0f172a; border-left: 6px solid #0284c7; padding-left: 14px; margin-top: 40px; margin-bottom: 20px;">
+    5. Thunderbolt SSDホットプラグ「ゴースト残存バグ」の恒久対策
+  </h2>
+
+  <p>
+    最後に立ちはだかったのが、外付けThunderbolt SSDを取り外したあと、別のSSDを挿しても以前のドライブ名が残り続ける現象です。
+    手動で「ハードウェア変更のスキャン」を実行しないと新しいSSDがマウントされませんでした。
+  </p>
+
+  <h3 style="font-size: 18px; color: #1e293b; margin-top: 24px; margin-bottom: 12px;">5.1 MountMgrキャッシュパージ（DiskPart）</h3>
+  <p>
+    Windowsのボリュームマウントマネージャー（MountMgr）が、レジストリ（<code>HKLM\SYSTEM\MountedDevices</code>）に古いボリュームのGUIDとドライブ文字を保持し続けていたことが要因でした。
+    DiskPartを用いてキャッシュを一括消去します。
+  </p>
+  <pre data-language="diskpart"><code class="lang-diskpart"># 管理者権限のPowerShellでDiskPartを起動<br>
+    diskpart<br><br>
+    # DiskPartプロンプトで実行<br>
+    automount enable<br>
+    automount scrub<br>
+    exit</code></pre>
+  <p>
+    「マウントされていないボリュームの以前のマウント ディレクトリのクリーンアップが成功しました」と表示されれば、古いマウント情報の消去は完了です。
+  </p>
+
+  <h3 style="font-size: 18px; color: #1e293b; margin-top: 24px; margin-bottom: 12px;">5.2 高速スタートアップの完全無効化</h3>
+  <p>
+    高速スタートアップが有効だと、不完全なPCIeルートポートの割り込み状態が次回起動へ引き継がれてしまいます。
+    ハイバネーションごと完全に無効化します。
+  </p>
+  <pre data-language="powershell"><code class="lang-powershell">powercfg -h off</code></pre>
+
+  <h3 style="font-size: 18px; color: #1e293b; margin-top: 24px; margin-bottom: 12px;">5.3 MSI Click BIOS 5 の設定最適化</h3>
+  <p>
+    PC起動時に <code>Delete</code> キーを押してMSI Click BIOS 5に入り、<code>Advanced Mode (F7)</code> で以下のパラメータを確定させます。
+  </p>
+  <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 14.5px;">
+    <thead>
+      <tr style="background-color: #f1f5f9; border-bottom: 2px solid #cbd5e1;">
+        <th style="padding: 10px; text-align: left; width: 45%;">設定階層 / 項目名</th>
+        <th style="padding: 10px; text-align: left; width: 25%;">設定値</th>
+        <th style="padding: 10px; text-align: left;">目的・動作</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="border-bottom: 1px solid #e2e8f0;">
+        <td style="padding: 10px; font-family: Consolas, monospace; font-size: 13px;">Settings > Advanced > Intel(R) Thunderbolt<br><strong>Discrete Thunderbolt(TM) Support</strong></td>
+        <td style="padding: 10px; font-weight: 700; color: #0284c7;">Enabled</td>
+        <td style="padding: 10px;">拡張カードのTBチップセットを有効化</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e2e8f0;">
+        <td style="padding: 10px; font-family: Consolas, monospace; font-size: 13px;">Settings > Advanced > Intel(R) Thunderbolt<br><strong>Thunderbolt OS Support</strong></td>
+        <td style="padding: 10px; font-weight: 700; color: #0284c7;">Enabled</td>
+        <td style="padding: 10px;">OSネイティブのACPIホットプラグ制御へ委譲</td>
+      </tr>
+      <tr>
+        <td style="padding: 10px; font-family: Consolas, monospace; font-size: 13px;">Settings > Advanced > PCIe/PCI Sub-system Settings<br><strong>PCIe Native Power Management</strong></td>
+        <td style="padding: 10px; font-weight: 700; color: #0284c7;">Disabled</td>
+        <td style="padding: 10px;">ハードウェア省電力の競合デッドロックを防止</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>設定後、<code>F10</code> キーを押して変更を保存し再起動します。</p>
+
+  <h3 style="font-size: 18px; color: #1e293b; margin-top: 24px; margin-bottom: 12px;">5.4 ドック経由と直挿しの切り分け</h3>
+  <p>
+    ThinkPad Thunderbolt 3 Dock（40AN）を経由している場合、ドック内部のコントローラーが下流SSDのリンクダウン通知をドロップさせるバグが知られています。
+    SSDの差し替え時に違和感がある場合は、PC本体背面（カード直結ポート）への直接接続で再現性を確認し、ドック側のファームウェア更新（Lenovo公式ユーティリティ）を適用してください。
+  </p>
+
+  <!-- 第6章 -->
+  <h2 id="section-6" style="font-size: 22px; color: #0f172a; border-left: 6px solid #0284c7; padding-left: 14px; margin-top: 40px; margin-bottom: 20px;">
+    6. システム健全性を一括確認する保守PowerShellスクリプト集
+  </h2>
+
+  <p>
+    Windows Updateやドライバ更新後にシステムの健全性を一発で確認できる、管理者権限PowerShellワンライナー集です。
+  </p>
+  <pre data-language="powershell"><code class="lang-powershell"><span style="color: #94a3b8;"># 1. 10GbEを含むネットワークアダプターのリンク速度とステータス</span><br>
+    Get-NetAdapter | Select-Object Name, InterfaceDescription, Status, LinkSpeed<br><br>
+    <span style="color: #94a3b8;"># 2. エラー（コード52等）を起こしているPnPデバイスの抽出</span><br>
+    Get-PnpDevice | Where-Object { $_.Status -eq 'Error' -or $_.Problem -ne 'CM_PROB_NONE' } |<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;Select-Object FriendlyName, InstanceId, Status, Problem<br><br>
+    <span style="color: #94a3b8;"># 3. 認識されているディスクドライブの一覧</span><br>
+    Get-Disk | Select-Object Number, FriendlyName, OperationalStatus, HealthStatus, BusType<br><br>
+    <span style="color: #94a3b8;"># 4. usbipdの稼働状態</span><br>
+    usbipd list</code></pre>
+
+  <p>
+    万が一、外付けドライブの認識に一時的な引っかかりを感じた場合は、再起動せずに以下の2行を実行することで、デバイス構成とディスクキャッシュを即時更新できます。
+  </p>
+  <pre data-language="powershell"><code class="lang-powershell">pnputil /scan-devices<br>
+    Get-Disk | Update-Disk</code></pre>
+
+  <!-- 第7章 -->
+  <h2 id="section-7" style="font-size: 22px; color: #0f172a; border-left: 6px solid #0284c7; padding-left: 14px; margin-top: 40px; margin-bottom: 20px;">
+    7. まとめ：物理層と論理層の両面から切り分ける
+  </h2>
+
+  <p>
+    今回のトラブルシューティングを通じて得られた知見を整理します。
+  </p>
+  <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 14.5px;">
+    <thead>
+      <tr style="background-color: #f1f5f9; border-bottom: 2px solid #cbd5e1;">
+        <th style="padding: 10px; text-align: left; width: 25%;">対象階層</th>
+        <th style="padding: 10px; text-align: left; width: 35%;">直面した症状と根本原因</th>
+        <th style="padding: 10px; text-align: left;">決定打となった解決策</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="border-bottom: 1px solid #e2e8f0;">
+        <td style="padding: 10px; font-weight: 600; color: #0284c7;">物理ハードウェア層</td>
+        <td style="padding: 10px;">10GbEとThunderboltが同時消失（26H2タイマーとPCH配下の初期化競合）</td>
+        <td style="padding: 10px;"><strong>PCI_E3とPCI_E4のスロット物理入れ替え</strong></td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e2e8f0;">
+        <td style="padding: 10px; font-weight: 600; color: #0284c7;">ドライバ層（KMDF）</td>
+        <td style="padding: 10px;">USB/IPのコード52エラー（過去のoem41.inf未署名ドライバ残存）</td>
+        <td style="padding: 10px;"><strong>pnputilで旧ドライバ強制削除 ＆ usbipd-win再導入</strong></td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e2e8f0;">
+        <td style="padding: 10px; font-weight: 600; color: #0284c7;">OSストレージ層</td>
+        <td style="padding: 10px;">SSD差し替え時のゴースト残存（MountMgrのキャッシュ固着）</td>
+        <td style="padding: 10px;"><strong>diskpart automount scrub ＆ 高速スタートアップ無効化</strong></td>
+      </tr>
+      <tr>
+        <td style="padding: 10px; font-weight: 600; color: #0284c7;">ファームウェア層</td>
+        <td style="padding: 10px;">ACPIホットプラグ通知の遅延・競合</td>
+        <td style="padding: 10px;"><strong>MSI BIOSでThunderbolt OS Support有効化・Native Power無効化</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>
+    Windowsの大型アップデート（26H2）後に「拡張カードが見えなくなった」「ネットワークが繋がらない」という事象に遭遇した際、OSの設定やドライバだけを操作しても解決しない場合があります。
+    マザーボードのPCIe配線トポロジーとチップセットの初期化順序に立ち返り、物理スロットの配置を見直すことが、極めて強力な解決策になります。
+  </p>
+
+  <p>
+    同じ構成や似たトラブルで悩んでいるエンジニアや自作PCユーザーの参考になれば幸いです。
+  </p>
+
+</div>

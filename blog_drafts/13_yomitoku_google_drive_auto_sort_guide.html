@@ -1,0 +1,213 @@
+<!-- ============================================================== -->
+<!-- 【はてなブログ用 HTML原稿 - 実践ハック記事】                   -->
+<!-- タイトル: 【Yomitoku×Googleドライブ自動整理術】散らかるPDF・レシートをAIが高精度OCRで読み解き、フォルダ分け＆リネームを完全自動化！ -->
+<!-- 編集モード: 「HTML編集」に切り替えてそのまま貼り付けてください   -->
+<!-- ============================================================== -->
+<div class="pottle-article-wrapper" style="font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif; color: #2d3748; line-height: 1.85; max-width: 820px; margin: 0 auto; font-size: 16px;">
+<!-- メインヘッダーバナー -->
+<div style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #4338ca 100%); color: #ffffff; padding: 36px 24px; border-radius: 18px; margin-bottom: 30px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2); text-align: center;">
+<div style="display: inline-block; background: rgba(165, 180, 252, 0.2); border: 1px solid rgba(165, 180, 252, 0.4); color: #c7d2fe; font-size: 13px; font-weight: 700; padding: 4px 14px; border-radius: 9999px; margin-bottom: 15px; letter-spacing: 0.05em;">
+      📂 クラウド自動整理 × 日本語Document AI
+    </div>
+<h1 style="font-size: 26px; font-weight: 800; line-height: 1.45; margin: 0 0 15px 0; color: #ffffff;">
+      「名称未設定_scan.pdf」の山にサヨナラ！<br/>
+<span style="color: #a5b4fc;">Yomitokuを活用したGoogleドライブの自動整理術</span>
+</h1>
+<p style="font-size: 14.5px; color: #e0e7ff; margin: 0; line-height: 1.6;">
+      〜日本語特化OCRが中身を0.5秒で読み解き、適正フォルダ仕分け・日付/企業名リネーム・スプレッドシート台帳化まで全自動〜
+    </p>
+</div>
+<!-- キャラクター紹介 -->
+<div style="background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%); border: 2px solid #c7d2fe; border-radius: 18px; padding: 22px; margin-bottom: 35px; display: flex; gap: 20px; align-items: center; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.08);">
+<div style="flex-shrink: 0; text-align: center;">
+<img alt="ぽトル アイコン" src="https://cdn-ak.f.st-hatena.com/images/fotolife/M/MyToyotaHomeBottle/20261003/20261003213941.jpg" style="width: 80px; height: 80px; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border: 3px solid #ffffff; object-fit: cover;"/>
+<div style="font-size: 11px; font-weight: 700; color: #4338ca; margin-top: 4px;">POTTLE</div>
+</div>
+<div style="font-size: 14.5px;">
+<div style="font-weight: 800; color: #312e81; font-size: 16px; margin-bottom: 4px;">
+        筆者：ぽトル（Pottle）｜ 省エネ脱力パンダ
+      </div>
+<div style="color: #475569; line-height: 1.6;">
+        「スマホで撮った書類をフォルダにドラッグ＆ドロップして名前を変える作業、面倒くさすぎて放置したらドライブが樹海になった」脱力パンダ。AIに全自動仕分けさせて快適にだらだら暮らしています🐼💤
+      </div>
+</div>
+</div>
+<!-- 導入 -->
+<p>どうも、ぽトル（Pottle）です。</p>
+<p>
+    みなさんの<strong>Googleドライブ</strong>、こんな状態になっていませんか？
+  </p>
+<ul style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 14px 20px 14px 35px; border-radius: 0 10px 10px 0; color: #991b1b; font-size: 14.5px; line-height: 1.8;">
+<li>とりあえずスマホのGoogleドライブアプリでスキャンした<strong>「scan_20261013_120405.pdf」</strong>がドライブ直下に山積み</li>
+<li>ネット通販の<strong>領収書や請求書PDF</strong>がダウンロードフォルダとドライブに散らばっている</li>
+<li>後から「あの確定申告で使った領収書どこだっけ？」「先月の病院の調剤明細はどこ？」と探すのに30分かかる</li>
+</ul>
+<p>
+    「ファイルをリネームして適切なフォルダに移す」……頭ではわかっていても、忙しい毎日の中で毎回手作業でやるのは苦行ですよね。
+  </p>
+<p>
+    そこで今回、我が家の脱力ラボで構築したのが、<strong>「日本語特化Document AI『Yomitoku』× GoogleドライブAPI」を組み合わせた完全全自動の書類仕分けシステム</strong>です！
+  </p>
+<p>
+<strong>「指定フォルダにポイッと投げ込むだけで、AIが中身を読んで適切な名前（例: 2026-10-12_スギ薬局_調剤明細書_3240円.pdf）に変え、所定のフォルダへ勝手に仕分けしてくれる」</strong><br/>
+    この驚異の仕組みを、設定方法から我が家のリアル活用まで詳しく解説します！
+  </p>
+<hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;"/>
+<!-- アーキテクチャ図解 -->
+<h2 style="font-size: 22px; color: #312e81; border-left: 6px solid #4f46e5; padding-left: 12px; margin-bottom: 20px;">
+    1. 全体像：散らかる書類が勝手に整う3ステップ
+  </h2>
+<div style="background: #ffffff; border: 2px solid #e0e7ff; border-radius: 16px; padding: 24px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.04);">
+<div style="display: grid; grid-template-columns: 1fr; gap: 16px;">
+<!-- ステップ1 -->
+<div style="display: flex; gap: 16px; align-items: flex-start;">
+<div style="background: #4f46e5; color: #ffffff; font-weight: 800; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">1</div>
+<div>
+<strong style="font-size: 16px; color: #1e1b4b;">受信ボックス（Inboxフォルダ）にファイルを放り込む</strong>
+<p style="margin: 4px 0 0; color: #475569; font-size: 14px;">
+            スマホのカメラ撮影、スキャナ、PCダウンロードなど。名前も気にせずGoogleドライブの「00_Inbox（未整理）」フォルダに入れるだけ。
+          </p>
+</div>
+</div>
+<!-- ステップ2 -->
+<div style="display: flex; gap: 16px; align-items: flex-start;">
+<div style="background: #7c3aed; color: #ffffff; font-weight: 800; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">2</div>
+<div>
+<strong style="font-size: 16px; color: #1e1b4b;">Yomitoku MCP が中身を構造化OCR（0.5秒）</strong>
+<p style="margin: 4px 0 0; color: #475569; font-size: 14px;">
+            日本の帳票に特化したYomitokuが、傾いた画像やPDFの表から「日付・発行元・書類の種類（領収書/見積書/検査結果/学校プリント）・合計金額」を瞬時に抽出。
+          </p>
+</div>
+</div>
+<!-- ステップ3 -->
+<div style="display: flex; gap: 16px; align-items: flex-start;">
+<div style="background: #059669; color: #ffffff; font-weight: 800; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">3</div>
+<div>
+<strong style="font-size: 16px; color: #1e1b4b;">自動リネーム ＆ カテゴリ別フォルダ移動</strong>
+<p style="margin: 4px 0 0; color: #475569; font-size: 14px;">
+<code>{日付}_{発行元}_{書類種別}_{金額}.pdf</code> に自動改名し、「医療費控除」「光熱費実績」「学校・受験」「家計簿」フォルダへ自動移動。同時にGoogleスプレッドシートの一覧台帳にも1行追記！
+          </p>
+</div>
+</div>
+</div>
+</div>
+<hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;"/>
+<!-- なぜYomitokuなのか -->
+<h2 style="font-size: 22px; color: #312e81; border-left: 6px solid #4f46e5; padding-left: 12px; margin-bottom: 20px;">
+    2. なぜ「普通のOCR」ではなく「Yomitoku」なのか？
+  </h2>
+<p>
+    一般的なクラウドAIのOCRを使うと、日本の領収書や請求書で以下のような問題が起きます。
+  </p>
+<div style="background: #fff1f2; border: 1px solid #fecdd3; border-radius: 12px; padding: 18px; margin: 20px 0;">
+<h3 style="margin: 0 0 10px; color: #9f1239; font-size: 16px;">❌ 普通のOCRでよくある失敗例：</h3>
+<ul style="margin: 0; padding-left: 20px; color: #881337; font-size: 14px; line-height: 1.7;">
+<li>「令和8年」を「2008年」と誤認して日付が狂う</li>
+<li>「内消費税等」や「ポイント利用」の数値を拾って、合計金額を間違える</li>
+<li>セル結合された明細表の列がズレて、何の商品か判別不能になる</li>
+</ul>
+</div>
+<div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 18px; margin: 20px 0;">
+<h3 style="margin: 0 0 10px; color: #166534; font-size: 16px;">⭕ Yomitoku を使う決定的なメリット：</h3>
+<ul style="margin: 0; padding-left: 20px; color: #14532d; font-size: 14px; line-height: 1.7;">
+<li><strong>日本語帳票のレイアウトを完全理解：</strong> 「発行者」「取引日」「請求金額」の相対的な位置関係を学習済み</li>
+<li><strong>複雑な結合テーブルもCSV化：</strong> <code>extract_tables</code>ツールにより、明細行の構造を崩さず抽出可能</li>
+<li><strong>完全ローカル推論（セキュア）：</strong> 機密書類や個人情報を含む領収書・処方箋を外部サードパーティに送らず手元で処理</li>
+</ul>
+</div>
+<hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;"/>
+<!-- 導入方法とスクリプト構成 -->
+<h2 style="font-size: 22px; color: #312e81; border-left: 6px solid #4f46e5; padding-left: 12px; margin-bottom: 20px;">
+    3. 連携の仕組みとAIエージェントへの指示プロンプト
+  </h2>
+<p>
+    AntigravityやClaude Codeなどのエージェント環境に、<strong>Yomitoku（OCR）</strong>と<strong>google-multi（Google Drive/Sheets API）</strong>の2つのMCPを登録しておきます。
+  </p>
+<div style="background: #090d16; border-radius: 12px; padding: 16px; margin: 20px 0;">
+<div style="color: #94a3b8; font-size: 12px; font-weight: 700; margin-bottom: 8px;">⚙️ エージェントに投げる魔法のプロンプト（指示文）</div>
+<pre data-language="bash"><code class="lang-bash">Googleドライブの「00_Inbox」フォルダにある未整理ファイルをチェックして。
+各ファイルに対して以下を自動実行してほしい：
+
+1. yomitoku の ocr_document / extract_tables を使って中身を解析
+2. 書類の種類（医療費・光熱費・教育費・一般領収書・行政書類）を判定
+3. 発行日（YYYY-MM-DD）、発行元名、金額、主な品目を特定
+4. ファイル名を「{日付}_{発行元}_{書類名}_{金額}円.pdf」にリネーム
+5. 該当するカテゴリフォルダ（例：「2026年_確定申告_医療費」）へ移動
+6. 「家計・医療管理台帳」スプレッドシートに1行追記
+
+処理が終わったら、リネーム前後の結果を一覧表で報告して！</code></pre>
+</div>
+<p>
+    これだけで、AIがMCP経由でドライブのファイル一覧を取得し、1件ずつYomitokuで高精度OCRを実行、リネームとフォルダ移動を淡々と全自動でこなしてくれます。
+  </p>
+<hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;"/>
+<!-- 一般的な活用事例 -->
+<h2 style="font-size: 22px; color: #312e81; border-left: 6px solid #4f46e5; padding-left: 12px; margin-bottom: 20px;">
+    4. 世間一般のビジネス活用事例
+  </h2>
+<div style="background: #eff6ff; border-left: 4px solid #3b82f6; padding: 18px 20px; border-radius: 0 12px 12px 0; margin-bottom: 25px;">
+<h3 style="margin: 0 0 10px; color: #1d4ed8; font-size: 17px;">🏢 経理・総務・バックオフィスでの代表例</h3>
+<ul style="margin: 0; padding-left: 20px; color: #334155; font-size: 15px; line-height: 1.8;">
+<li><strong>電子帳簿保存法（電帳法）対応：</strong> 取引年月日・取引先・金額でのファイル名検索要件を、フォルダ投入だけで完全自動クリア。</li>
+<li><strong>請求書・納品書の自動突合：</strong> 取引先ごとにフォルダを自動分割し、会計ソフト連携用CSVを自動生成。</li>
+<li><strong>契約書の有効期限管理：</strong> 契約締結日と満了日をOCRで抜き出し、Googleカレンダーに更新アラートを自動登録。</li>
+</ul>
+</div>
+<hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;"/>
+<!-- 我が家のリアル活用事例 -->
+<h2 style="font-size: 22px; color: #312e81; border-left: 6px solid #4f46e5; padding-left: 12px; margin-bottom: 20px;">
+    5. 🐼 我が家のリアル活用事例：医療費控除＆子供の学校プリントの「完全ノータッチ整理」！
+  </h2>
+<p>
+    我が家で最も威力を発揮しているのが、<strong>「通院時の医療費領収書・調剤明細」</strong>と<strong>「子供の学校・高校入試関連プリント」</strong>の整理です。
+  </p>
+<div style="background: #fefce8; border: 2px solid #fde047; border-radius: 16px; padding: 22px; margin: 25px 0;">
+<h3 style="margin: 0 0 12px; color: #a16207; font-size: 18px;">🔥 我が家での実際の仕分け実績：</h3>
+<table style="width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 10px; background: #ffffff;">
+<thead>
+<tr style="background: #fef08a; color: #713f12; text-align: left;">
+<th style="padding: 8px 10px; border: 1px solid #fde047;">元のファイル名（Inbox）</th>
+<th style="padding: 8px 10px; border: 1px solid #fde047;">自動変換後のファイル名</th>
+<th style="padding: 8px 10px; border: 1px solid #fde047;">移動先フォルダ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="padding: 8px 10px; border: 1px solid #fde047; font-family: monospace;">IMG_4021.JPG</td>
+<td style="padding: 8px 10px; border: 1px solid #fde047; font-weight: 700; color: #065f46;">2026-10-08_総合病院_好酸球検査結果領収書_6420円.pdf</td>
+<td style="padding: 8px 10px; border: 1px solid #fde047;">📂 医療・難病アーカイブ</td>
+</tr>
+<tr>
+<td style="padding: 8px 10px; border: 1px solid #fde047; font-family: monospace;">scan_003.pdf</td>
+<td style="padding: 8px 10px; border: 1px solid #fde047; font-weight: 700; color: #065f46;">2026-10-09_スギ薬局_処方箋調剤明細_1890円.pdf</td>
+<td style="padding: 8px 10px; border: 1px solid #fde047;">📂 確定申告2026_医療費控除</td>
+</tr>
+<tr>
+<td style="padding: 8px 10px; border: 1px solid #fde047; font-family: monospace;">Doc_20261011.pdf</td>
+<td style="padding: 8px 10px; border: 1px solid #fde047; font-weight: 700; color: #065f46;">2026-10-11_愛知県教育委員会_公立高校推薦基準変更案内.pdf</td>
+<td style="padding: 8px 10px; border: 1px solid #fde047;">📂 教育・高校進学ガイド</td>
+</tr>
+</tbody>
+</table>
+<p style="color: #713f12; margin: 15px 0 0; font-size: 14.5px; line-height: 1.75;">
+      病院から帰ってきたら、薬局の領収書をスマホで撮って「Inbox」にアップロードするだけ。<br/>
+      あとはAIとYomitokuが勝手にPDF化してリネームし、確定申告用のフォルダへ格納してスプレッドシートの医療費合計に自動加算してくれます。<br/>
+<strong>確定申告の時期にレシートの山を前に絶望する悪夢は、我が家から永遠に消え去りました！</strong>
+</p>
+</div>
+<!-- まとめ -->
+<div style="background: #f8fafc; border-radius: 16px; padding: 24px; border: 1px solid #cbd5e1; margin-top: 40px;">
+<h3 style="margin: 0 0 10px; font-size: 18px; color: #0f172a;">🐼 ぽトルのまとめ：書類整理は人間がやる仕事じゃない！</h3>
+<p style="margin: 0; color: #475569; font-size: 15px; line-height: 1.75;">
+      「スマホで撮って投げるだけ、あとは機械が勝手に整頓する」。<br/>
+      これこそが真の生活自動化（バイブコーディング）の醍醐味です。<br/>
+      日本語に特化したDocument AI「Yomitoku」とクラウドストレージの連携、みなさんもぜひ試してみてください！
+    </p>
+</div>
+<!-- ポータルリンク -->
+<div style="text-align: center; margin-top: 35px; padding: 20px; background: rgba(99, 102, 241, 0.08); border-radius: 14px; border: 1px solid rgba(99, 102, 241, 0.25);">
+<a href="https://ai-living-lab.pages.dev/mcp-showcase/" rel="noopener noreferrer" style="color: #4338ca; font-weight: 700; text-decoration: none;" target="_blank">
+      🌐 Smart AI Life ポータルで全MCP連携ガイド＆自作システムを見る ↗
+    </a>
+</div>
+</div>

@@ -1,0 +1,296 @@
+<!-- ============================================================== -->
+<!-- 【はてなブログ & Smart AI Life 兼用 HTML原稿】                    -->
+<!-- タイトル: 【全セッション同期】複数チャットで共有できるSQLiteカンバンタスクボードの作り方 -->
+<!-- ============================================================== -->
+<div class="pottle-article-wrapper" style="font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif; color: #1e293b; line-height: 1.85; max-width: 840px; margin: 0 auto; font-size: 16px;">
+<!-- メインヘッダーバナー -->
+<div style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%); color: #ffffff; padding: 40px 24px; border-radius: 20px; margin-bottom: 32px; box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.35); text-align: center;">
+<div style="display: inline-block; background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.35); color: #e0e7ff; font-size: 13px; font-weight: 700; padding: 5px 16px; border-radius: 9999px; margin-bottom: 16px; letter-spacing: 0.05em;">
+      📋 タスク永続化 × マルチエージェント同期
+    </div>
+<h1 style="font-size: 26px; font-weight: 800; line-height: 1.45; margin: 0 0 16px 0; color: #ffffff;">
+      別ウィンドウのAIでも進捗を忘れない！<br/>
+<span style="color: #a5b4fc;">SQLiteで複数チャットをつなぐ「共有カンバンボード」の構築法</span>
+</h1>
+<p style="font-size: 15px; color: #c7d2fe; margin: 0; line-height: 1.6;">
+      〜チャットを閉じてもタスクが消えない。中央DBとWeb GUIで一元管理する自律型タスク管理〜
+    </p>
+</div>
+<!-- キャラクター紹介 -->
+<div style="background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%); border: 2px solid #c7d2fe; border-radius: 18px; padding: 22px; margin-bottom: 35px; display: flex; gap: 20px; align-items: center; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.08);">
+<div style="flex-shrink: 0; text-align: center;">
+<img alt="ぽトル アイコン" src="https://cdn-ak.f.st-hatena.com/images/fotolife/M/MyToyotaHomeBottle/20261003/20261003213941.jpg" style="width: 80px; height: 80px; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border: 3px solid #ffffff; object-fit: cover;"/>
+<div style="font-size: 11px; font-weight: 700; color: #4338ca; margin-top: 4px;">POTTLE</div>
+</div>
+<div style="font-size: 14.5px;">
+<div style="font-weight: 800; color: #312e81; font-size: 16px; margin-bottom: 4px;">
+        筆者：ぽトル（Pottle）｜ 省エネ脱力パンダ
+      </div>
+<div style="color: #475569; line-height: 1.6;">
+        「チャットウィンドウを切り替えるたびに『前回の続きなんだっけ？』とAIに説明し直すのが面倒くさくなった」脱力パンダ。ローカルのSQLiteに全タスクを保存させて、どのチャットからでも同じカンバンを見られるようにしました🐼💤
+      </div>
+</div>
+</div>
+<!-- 第1部: 実現した機能と嬉しさ -->
+<h2 style="font-size: 22px; color: #1e1b4b; border-left: 6px solid #4338ca; padding-left: 14px; margin-bottom: 20px;">
+    1. 実現した機能と、使ってみて実感した嬉しさ
+  </h2>
+<p>どうも、ぽトル（Pottle）です。</p>
+<p>
+    複数のAIチャットツールを使い分けていると、必ず困ることがあります。<br/>
+    それは、<strong>「別のチャット画面や新しいセッションを開くと、過去のタスクや進捗がリセットされてしまう」</strong>という点です。
+  </p>
+<p>
+    「さっき別のウィンドウで頼んだブログの執筆、どこまで進んだっけ？」「昨日の夜に計画したHEMSの修正タスク、何が残っている？」といった状況が起きると、文脈を一から入力し直す手間が生じます。
+  </p>
+<p>
+    そこで作成したのが、ローカルの単一SQLiteデータベース（<code>kanban.db</code>）を介して、すべてのAIセッションがタスクを読み書きできる<strong>「グローバル・カンバンボード」</strong>です。
+  </p>
+<div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 14px; padding: 20px; margin: 25px 0;">
+<div style="font-weight: 800; color: #166534; font-size: 16px; margin-bottom: 10px;">🎉 導入して何が嬉しかったか？</div>
+<ul style="margin: 0; padding-left: 20px; color: #15803d; line-height: 1.8; font-size: 14.5px;">
+<li><strong>チャットを跨いだタスクの引き継ぎが自動化された</strong>：ウィンドウAで追加したタスクを、ウィンドウBのAIが即座に認識して「次はこれですね」と着手できます。</li>
+<li><strong>ブラウザで視覚的に進捗が見える</strong>：HTML形式のカンバン画面（TODO / IN PROGRESS / DONE）が自動更新されるため、作業状況が一目で把握できます。</li>
+<li><strong>外部サービス不要で完全無料</strong>：TrelloやNotionのAPIを使わず、PC内のSQLiteファイル1つで完結するため、認証エラーや課金の心配がありません。</li>
+<li><strong>コンテキスト消費の節約</strong>：タスク一覧をプロンプトに長々と貼る必要がなく、必要な行だけをSQLで素早く取得できます。</li>
+</ul>
+</div>
+<hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;"/>
+<!-- 第2部: アーキテクチャ構成 -->
+<h2 style="font-size: 22px; color: #1e1b4b; border-left: 6px solid #4338ca; padding-left: 14px; margin-bottom: 20px;">
+    2. システム構成と動作の流れ
+  </h2>
+<p>
+    仕組みは、中央のデータベースと操作用CLI、HTMLレンダラーの3要素で構成されています。
+  </p>
+<pre data-language="architecture"><code class="lang-architecture">[AIチャット A (VS Code / CLI)] ──┐
+                                 │ タスク追加・完了更新
+[AIチャット B (ブラウザ / Web)]   ──┼─▶ [kanban_manager.py]
+                                 │        │
+[人間 (ターミナル手動入力)]      ──┘        ▼
+                                   [~/.hermes/kanban/kanban.db] (SQLite)
+                                          │
+                                          ▼
+                                   [render_gui.py]
+                                          │
+                                          ▼
+                                   [kanban_board.html] (ブラウザで確認)
+  </code></pre>
+<hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;"/>
+<!-- 第3部: ステップバイステップ実装解説 -->
+<h2 style="font-size: 22px; color: #1e1b4b; border-left: 6px solid #4338ca; padding-left: 14px; margin-bottom: 20px;">
+    3. ステップバイステップ作成手順
+  </h2>
+<h3 style="font-size: 18px; color: #1e293b; margin-top: 25px;">
+    ステップ1: 準備とデータベース初期化
+  </h3>
+<p>
+    Pythonの標準機能である <code>sqlite3</code> を利用するため、追加ライブラリのインストールは一切不要です。保存先ディレクトリを作成するだけで即座に使い始められます。
+  </p>
+<pre data-language="bash"><code class="lang-bash"># 保存先ディレクトリの作成
+mkdir -p ~/kanban_data
+
+# Python環境確認（標準ライブラリのみで動作します）
+python3 -V
+  </code></pre>
+<h3 style="font-size: 18px; color: #1e293b; margin-top: 25px;">
+    ステップ2: タスク操作CLIスクリプト（kanban_manager.py）
+  </h3>
+<p>
+    AIエージェントがシェルコマンド経由でタスクを追加・更新できるよう、シンプルなPythonスクリプトを作成します。
+  </p>
+<pre data-language="python"><code class="lang-python">#!/usr/bin/env python3
+"""
+kanban_manager.py - SQLiteを用いたグローバルタスク管理CLI
+Python標準ライブラリのみで動作します。
+"""
+import sqlite3
+import os
+import sys
+import argparse
+from datetime import datetime
+
+DB_PATH = os.path.expanduser("~/kanban_data/kanban.db")
+
+def init_db():
+    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute("""
+    CREATE TABLE IF NOT EXISTS tasks (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        status TEXT NOT NULL CHECK(status IN ('todo', 'in_progress', 'done')),
+        priority TEXT NOT NULL DEFAULT 'medium',
+        description TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+    );
+    """)
+    conn.commit()
+    return conn
+
+def add_task(task_id, title, status='todo', priority='medium', description=''):
+    conn = init_db()
+    now = datetime.utcnow().isoformat()
+    conn.execute("""
+    INSERT OR REPLACE INTO tasks (id, title, status, priority, description, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, COALESCE((SELECT created_at FROM tasks WHERE id = ?), ?), ?)
+    """, (task_id, title, status, priority, description, task_id, now, now))
+    conn.commit()
+    conn.close()
+    print(f"✅ タスク追加/更新: [{status}] {task_id} - {title}")
+
+def update_status(task_id, status):
+    conn = init_db()
+    now = datetime.utcnow().isoformat()
+    cur = conn.cursor()
+    cur.execute("UPDATE tasks SET status = ?, updated_at = ? WHERE id = ?", (status, now, task_id))
+    if cur.rowcount == 0:
+        print(f"❌ エラー: タスク {task_id} が見つかりません")
+    else:
+        conn.commit()
+        print(f"🚀 ステータス変更: {task_id} -&gt; {status}")
+    conn.close()
+
+def list_tasks():
+    conn = init_db()
+    conn.row_factory = sqlite3.Row
+    rows = conn.execute("SELECT * FROM tasks ORDER BY created_at ASC").fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="カンバンタスクマネージャー")
+    subparsers = parser.add_subparsers(dest='command')
+
+    p_add = subparsers.add_parser('add')
+    p_add.add_argument('--id', required=True)
+    p_add.add_argument('--title', required=True)
+    p_add.add_argument('--status', default='todo', choices=['todo', 'in_progress', 'done'])
+    p_add.add_argument('--priority', default='medium')
+    p_add.add_argument('--desc', default='')
+
+    p_up = subparsers.add_parser('update')
+    p_up.add_argument('--id', required=True)
+    p_up.add_argument('--status', required=True, choices=['todo', 'in_progress', 'done'])
+
+    p_list = subparsers.add_parser('list')
+
+    args = parser.parse_args()
+    if args.command == 'add':
+        add_task(args.id, args.title, args.status, args.priority, args.desc)
+    elif args.command == 'update':
+        update_status(args.id, args.status)
+    elif args.command == 'list':
+        for t in list_tasks():
+            print(f"[{t['status']}] {t['id']}: {t['title']} ({t['priority']})")
+    else:
+        parser.print_help()
+  </code></pre>
+<p>CLIの実行例：</p>
+<pre data-language="python"><code class="lang-python"># タスクを追加
+python3 kanban_manager.py add --id "task_1" --title "ブログ記事の執筆" --status "todo"
+
+# 進行中に変更
+python3 kanban_manager.py update --id "task_1" --status "in_progress"
+
+# 完了にする
+python3 kanban_manager.py update --id "task_1" --status "done"
+  </code></pre>
+<h3 style="font-size: 18px; color: #1e293b; margin-top: 25px;">
+    ステップ3: 美しいHTMLボードを自動生成する（render_gui.py）
+  </h3>
+<p>
+    タスク更新後に以下のスクリプトを呼び出すことで、スタイリッシュなカンバンボードHTMLを即座に再生成できます。
+  </p>
+<pre data-language="python"><code class="lang-python">#!/usr/bin/env python3
+"""
+render_gui.py - SQLiteのタスクを読み込み、視覚的なHTMLカンバンボードを出力する
+"""
+import json
+import os
+from kanban_manager import list_tasks
+
+OUTPUT_HTML = os.path.expanduser("~/kanban_data/kanban_board.html")
+
+def render():
+    tasks = list_tasks()
+    tasks_json = json.dumps(tasks, ensure_ascii=False)
+
+    html = f"""
+
+
+
+AI Kanban Board
+
+
+
+
+
+📋 AI Task Kanban Board
+SQLiteリアルタイム同期
+
+
+
+
+
+未着手 (To Do)
+0
+
+
+
+
+
+
+進行中 (In Progress)
+0
+
+
+
+
+
+
+完了 (Done)
+0
+
+
+
+
+
+
+
+"""
+
+    with open(OUTPUT_HTML, "w", encoding="utf-8") as f:
+        f.write(html)
+    print(f"✨ カンバンボードを出力しました: {OUTPUT_HTML}")
+
+if __name__ == "__main__":
+    render()
+  </code></pre>
+<p>HTMLボードの生成とブラウザ表示：</p>
+<pre data-language="python"><code class="lang-python">python3 render_gui.py
+open ~/kanban_data/kanban_board.html
+  </code></pre>
+<!-- GitHub リポジトリリンクカード -->
+<div style="background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 14px; padding: 20px; margin: 30px 0; display: flex; align-items: center; justify-content: space-between;">
+<div>
+<div style="font-weight: 800; color: #0f172a; font-size: 15.5px; margin-bottom: 4px;">📦 GitHubで全コード公開中</div>
+<div style="font-size: 13.5px; color: #64748b;">本記事で紹介したSQLiteカンバンの管理CLIおよび自動HTML生成スクリプトはGitHubリポジトリから入手できます。</div>
+</div>
+<a href="https://github.com/tstarryheavens-prog/ai-living-lab/tree/main/tools/kanban" rel="noopener" style="background: #4338ca; color: #ffffff; padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 13.5px; text-decoration: none; flex-shrink: 0; margin-left: 16px;" target="_blank">
+      GitHubを見る →
+    </a>
+</div>
+<hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;"/>
+<!-- まとめ -->
+<h2 style="font-size: 22px; color: #1e1b4b; border-left: 6px solid #4338ca; padding-left: 14px; margin-bottom: 20px;">
+    4. まとめ：記憶をつなぐ仕組みが作業を楽にする
+  </h2>
+<p>
+    AIチャットのセッションが分断されていても、共通のデータベースを1つ用意するだけで、複数のAIがチームのように連携して動けるようになります。
+  </p>
+<p>
+    クラウドの重たいSaaSを使わなくても、身近なSQLiteだけで十分実用的な環境が手に入ります。複数のAIツールを並行して使う機会が多い方は、ぜひ試してみてください🐼💤
+  </p>
+</div>

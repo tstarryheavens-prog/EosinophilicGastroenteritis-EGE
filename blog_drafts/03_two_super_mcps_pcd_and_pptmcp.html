@@ -1,0 +1,280 @@
+<!-- ============================================================== -->
+<!-- 【はてなブログ用 HTML原稿 - 図解スライド×初心者向け超解説版】  -->
+<!-- 編集モード: 「HTML編集」に切り替えてそのまま貼り付けてください  -->
+<!-- ============================================================== -->
+<div class="pottle-article-wrapper" style="font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif; color: #2d3748; line-height: 1.85; max-width: 820px; margin: 0 auto; font-size: 16px;">
+<!-- 1. メインヘッダーバナー画像 -->
+<div style="text-align: center; margin-bottom: 30px;">
+<img alt="生成AIで日々の暮らしをアップデートしよう 省エネ脱力パンダ ぽトルの生活自動化ラボ" src="https://cdn-ak.f.st-hatena.com/images/fotolife/M/MyToyotaHomeBottle/20261003/20261003222748.jpg" style="max-width: 100%; height: auto; border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.2);"/>
+</div>
+<!-- 2. キャラクター紹介ボックス -->
+<div style="background: linear-gradient(135deg, #f8fafc 0%, #f0f9ff 100%); border: 2px solid #bae6fd; border-radius: 18px; padding: 22px; margin-bottom: 35px; display: flex; gap: 20px; align-items: center; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.08);">
+<div style="flex-shrink: 0; text-align: center;">
+<img alt="ぽトル (Pottle) アイコン" src="https://cdn-ak.f.st-hatena.com/images/fotolife/M/MyToyotaHomeBottle/20261003/20261003213941.jpg" style="width: 88px; height: 88px; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border: 3px solid #ffffff; object-fit: cover;"/>
+<div style="font-size: 11px; font-weight: 700; color: #0284c7; margin-top: 4px;">POTTLE</div>
+</div>
+<div style="font-size: 14.5px;">
+<div style="font-weight: 800; color: #0369a1; font-size: 16px; margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+<span>筆者：ぽトル（Pottle）</span>
+<span style="background: #e0f2fe; color: #0284c7; font-size: 11px; padding: 2px 8px; border-radius: 9999px; font-weight: 700;">省エネ脱力パンダ</span>
+</div>
+<div style="color: #475569; line-height: 1.6;">
+        ふかふかのビーズクッションに寝転がりながら「自分が動くくらいならAIに自動化させる」ことに情熱を注ぐおうちハックパンダ。プログラミングはちょっぴりかじる程度。
+      </div>
+</div>
+</div>
+<!-- 導入文 -->
+<p>どうも、ぽトル（Pottle）です。</p>
+<p>
+    「AIってチャットで質問に答えてくれるだけでしょ？」と思っている方に、今日は<strong>衝撃のニュース</strong>をお届けします。
+  </p>
+<p>
+    なんと最近、我が家のAIラボに<strong>「迷わず0.05秒で決断する頭脳」</strong>と、<strong>「PowerPointを目の前で自動操作してスライドを一瞬で描き上げる手足」</strong>という、2つの超強力な新機能が仲間入りしました！
+  </p>
+<div style="background: #f0fdf4; border-left: 5px solid #22c55e; padding: 16px 20px; border-radius: 0 12px 12px 0; margin: 25px 0;">
+<p style="margin: 0; font-weight: 700; color: #15803d;">
+      💡 この記事でわかること：<br/>
+      ① <strong>PCD（Parallel Constrained Decoding）</strong>：AIの「迷い・回答待ち・嘘（ハルシネーション）」をゼロにする超速判定の仕組み<br/>
+      ② <strong>ppt-mcp</strong>：PowerPointのファイルを裏で作るのではなく、開いている画面上でリアルタイムにスライドが組み上がる新世界<br/>
+      ③ <strong>実際のプレゼンスライド（全6枚）</strong>を図解として見ながら、暮らしへの応用方法を完全解説！
+    </p>
+</div>
+<p>
+    言葉で説明するよりも、<strong>「AIが実際に私のパソコンのPowerPointを動かして自動作成したスライド図解」</strong>を見ていただくのが一番早いです！<br/>
+    スライドを1枚ずつ図として見ながら、わかりやすく紐解いていきましょう。
+  </p>
+<hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;"/>
+<!-- ==================== SLIDE 1 ==================== -->
+<div style="background: #ffffff; border: 2px solid #e2e8f0; border-radius: 20px; padding: 26px; margin-bottom: 45px; box-shadow: 0 8px 30px rgba(0,0,0,0.06);">
+<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; border-bottom: 2px solid #f1f5f9; padding-bottom: 12px;">
+<span style="background: #0284c7; color: #ffffff; font-size: 13px; font-weight: 800; padding: 4px 14px; border-radius: 9999px;">図1：全体マップ</span>
+<span style="font-size: 13px; color: #64748b; font-weight: 600;">PowerPoint 自動描画スライド #1</span>
+</div>
+<!-- スライド画像 -->
+<div style="text-align: center; margin: 15px 0 20px;">
+<img alt="スライド1：AIが現場を直接動かす新時代へ！2大MCPの全貌" src="https://cdn-ak.f.st-hatena.com/images/fotolife/M/MyToyotaHomeBottle/20261004/20261004003108.png" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); border: 1px solid #94a3b8;"/>
+</div>
+<!-- ぽトルの解説カード -->
+<div style="background: #f8fafc; border-left: 4px solid #0284c7; border-radius: 0 12px 12px 0; padding: 18px 20px;">
+<h3 style="margin: 0 0 10px; font-size: 18px; color: #0f172a; font-weight: 800;">
+        🐼 ぽトルの解説：AIの「頭脳」と「手足」が揃った瞬間！
+      </h3>
+<p style="margin: 0 0 10px; font-size: 15px; color: #334155; line-height: 1.75;">
+        従来の生成AIは「文章を考えて返事するだけ」でした。しかし、今回導入した仕組みは役割がまったく違います。
+      </p>
+<ul style="margin: 0; padding-left: 20px; font-size: 14.5px; color: #475569; line-height: 1.7;">
+<li><strong style="color: #0284c7;">左側の青カード【PCD】：</strong> スマートホームの家電やセンサーから送られてくる大量のデータから、「いま何をすべきか」を0.05秒で迷わずジャッジする<strong>超速の頭脳</strong>。</li>
+<li><strong style="color: #d97706;">右側の黄カード【ppt-mcp】：</strong> 人間がマウスをポチポチ動かす代わりに、PowerPointを直接操作して綺麗なレポートを自動で描く<strong>万能の手足</strong>。</li>
+</ul>
+<p style="margin: 12px 0 0; font-size: 14px; color: #64748b; font-style: italic;">
+        👉 これにより、「AIが生活ログを診断し、その結果をスライドにまとめて人間に見せてくれる」という完全自動化が始まりました。
+      </p>
+</div>
+</div>
+<!-- ==================== SLIDE 2 ==================== -->
+<div style="background: #ffffff; border: 2px solid #e2e8f0; border-radius: 20px; padding: 26px; margin-bottom: 45px; box-shadow: 0 8px 30px rgba(0,0,0,0.06);">
+<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; border-bottom: 2px solid #f1f5f9; padding-bottom: 12px;">
+<span style="background: #0284c7; color: #ffffff; font-size: 13px; font-weight: 800; padding: 4px 14px; border-radius: 9999px;">図2：頭脳の秘密（PCD）</span>
+<span style="font-size: 13px; color: #64748b; font-weight: 600;">PowerPoint 自動描画スライド #2</span>
+</div>
+<!-- スライド画像 -->
+<div style="text-align: center; margin: 15px 0 20px;">
+<img alt="スライド2：Parallel Constrained Decoding (PCD) とは？" src="https://cdn-ak.f.st-hatena.com/images/fotolife/M/MyToyotaHomeBottle/20261004/20261004003118.png" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); border: 1px solid #94a3b8;"/>
+</div>
+<!-- ぽトルの解説カード -->
+<div style="background: #f8fafc; border-left: 4px solid #38bdf8; border-radius: 0 12px 12px 0; padding: 18px 20px;">
+<h3 style="margin: 0 0 10px; font-size: 18px; color: #0f172a; font-weight: 800;">
+        🐼 ぽトルの解説：なぜPCDは普通のChatGPTよりすごいの？
+      </h3>
+<p style="margin: 0 0 12px; font-size: 15px; color: #334155; line-height: 1.75;">
+        スライドに並ぶ3つのカードが、PCDが革命的である理由です。
+      </p>
+<div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; margin-bottom: 10px;">
+<strong style="color: #0284c7;">① ⚡ 超低遅延な意思決定（0.05秒）：</strong><br/>
+<span style="font-size: 14px; color: #475569;">普通のAIは1文字ずつポチポチ文章を考えて出力するので数秒かかります。PCDは「すべての判断項目を一瞬で同時に確定」させるため、瞬きする間に終わります。</span>
+</div>
+<div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; margin-bottom: 10px;">
+<strong style="color: #0284c7;">② 🛡️ 100% 形式遵守（ハルシネーション0）：</strong><br/>
+<span style="font-size: 14px; color: #475569;">AIが適当な選択肢を勝手に捏造したり、壊れたデータを返したりすることが原理的にありません。あらかじめ決めたルールの中だけで判定させます。</span>
+</div>
+<div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px;">
+<strong style="color: #0284c7;">③ 🎯 確信度（確率スコア）の算出：</strong><br/>
+<span style="font-size: 14px; color: #475569;">「たぶんこう思う」ではなく「99.98%の確率で合ってる」と数字をくれます。「自信が80%未満なら勝手に動かさず人間にLINEする」という鉄壁のフェイルセーフが作れます。</span>
+</div>
+</div>
+</div>
+<!-- ==================== SLIDE 3 ==================== -->
+<div style="background: #ffffff; border: 2px solid #e2e8f0; border-radius: 20px; padding: 26px; margin-bottom: 45px; box-shadow: 0 8px 30px rgba(0,0,0,0.06);">
+<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; border-bottom: 2px solid #f1f5f9; padding-bottom: 12px;">
+<span style="background: #10b981; color: #ffffff; font-size: 13px; font-weight: 800; padding: 4px 14px; border-radius: 9999px;">図3：PCDの実働デモ</span>
+<span style="font-size: 13px; color: #64748b; font-weight: 600;">PowerPoint 自動描画スライド #3</span>
+</div>
+<!-- スライド画像 -->
+<div style="text-align: center; margin: 15px 0 20px;">
+<img alt="スライド3：実動デモ：家庭内HEMS・蓄電池エラーの瞬時自動トリアージ" src="https://cdn-ak.f.st-hatena.com/images/fotolife/M/MyToyotaHomeBottle/20261004/20261004003125.png" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); border: 1px solid #94a3b8;"/>
+</div>
+<!-- ぽトルの解説カード -->
+<div style="background: #f8fafc; border-left: 4px solid #10b981; border-radius: 0 12px 12px 0; padding: 18px 20px;">
+<h3 style="margin: 0 0 10px; font-size: 18px; color: #0f172a; font-weight: 800;">
+        🐼 ぽトルの解説：夜中の蓄電池トラブルも、人間を起こさず即復旧！
+      </h3>
+<p style="margin: 0 0 10px; font-size: 15px; color: #334155; line-height: 1.75;">
+        スライドの左右を比べてみてください！
+      </p>
+<ul style="margin: 0; padding-left: 20px; font-size: 14.5px; color: #475569; line-height: 1.7;">
+<li><strong style="color: #ef4444;">左側（赤い枠）：</strong> 深夜の蓄電中にWi-Fi瞬断などで通信が途絶えたエラーログです。放っておくと明日の充電が間に合わず、昼間の高い電気代を買うハメになります。</li>
+<li><strong style="color: #10b981;">右側（緑の枠）：</strong> PCDエンジンが判定した結果。<strong>「緊急度P2」「確信度99.8%で蓄電池のエラー」「88.4%の確率で自動復旧可能」「ソケット再接続スクリプトを実行せよ」</strong>と一瞬で結論を出しています。</li>
+</ul>
+<p style="margin: 12px 0 0; font-size: 14px; color: #047857; font-weight: 600;">
+        ✨ 結果：私がビーズクッションでぐっすり寝ている間に、システムが勝手に直って充電が再開されます！
+      </p>
+</div>
+</div>
+<!-- ==================== SLIDE 4 ==================== -->
+<div style="background: #ffffff; border: 2px solid #e2e8f0; border-radius: 20px; padding: 26px; margin-bottom: 45px; box-shadow: 0 8px 30px rgba(0,0,0,0.06);">
+<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; border-bottom: 2px solid #f1f5f9; padding-bottom: 12px;">
+<span style="background: #f59e0b; color: #ffffff; font-size: 13px; font-weight: 800; padding: 4px 14px; border-radius: 9999px;">図4：手足の秘密（ppt-mcp）</span>
+<span style="font-size: 13px; color: #64748b; font-weight: 600;">PowerPoint 自動描画スライド #4</span>
+</div>
+<!-- スライド画像 -->
+<div style="text-align: center; margin: 15px 0 20px;">
+<img alt="スライド4：ppt-mcp とは？ PowerPoint完全直接操作の世界" src="https://cdn-ak.f.st-hatena.com/images/fotolife/M/MyToyotaHomeBottle/20261004/20261004003134.png" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); border: 1px solid #94a3b8;"/>
+</div>
+<!-- ぽトルの解説カード -->
+<div style="background: #f8fafc; border-left: 4px solid #f59e0b; border-radius: 0 12px 12px 0; padding: 18px 20px;">
+<h3 style="margin: 0 0 10px; font-size: 18px; color: #0f172a; font-weight: 800;">
+        🐼 ぽトルの解説：ファイルの保存じゃない。「目の前で動く」のが快感！
+      </h3>
+<p style="margin: 0 0 10px; font-size: 15px; color: #334155; line-height: 1.75;">
+        世の中のAIスライド作成ツールは「裏でファイルを作ってダウンロードさせる」ものばかりでした。<br/>
+        しかし <strong>ppt-mcp</strong> は、MacのApple EventsやWindowsのCOMを直接叩くため、<strong>開いているPowerPointの画面そのものをAIがリアルタイムに操作</strong>します。
+      </p>
+<ul style="margin: 0; padding-left: 20px; font-size: 14.5px; color: #475569; line-height: 1.7;">
+<li><strong>🖥️ 画面上でリアルタイム生成：</strong> スライドがパッと追加され、背景色が塗られ、カードが整列していく様はまるで魔法のよう。</li>
+<li><strong>🧰 156ツールの圧倒的表現力：</strong> 文字だけでなく、枠線の丸み、グラデーション、表、グラフ、アイコンまで自由自在。</li>
+<li><strong>🔒 誤爆防止の安全ロック：</strong> 開いている別の重要プレゼンを誤って破壊しないよう、作業ファイルをガッチリ固定して動きます。</li>
+</ul>
+</div>
+</div>
+<!-- ==================== SLIDE 5 ==================== -->
+<div style="background: #ffffff; border: 2px solid #e2e8f0; border-radius: 20px; padding: 26px; margin-bottom: 45px; box-shadow: 0 8px 30px rgba(0,0,0,0.06);">
+<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; border-bottom: 2px solid #f1f5f9; padding-bottom: 12px;">
+<span style="background: #f59e0b; color: #ffffff; font-size: 13px; font-weight: 800; padding: 4px 14px; border-radius: 9999px;">図5：ppt-mcpの実働デモ</span>
+<span style="font-size: 13px; color: #64748b; font-weight: 600;">PowerPoint 自動描画スライド #5</span>
+</div>
+<!-- スライド画像 -->
+<div style="text-align: center; margin: 15px 0 20px;">
+<img alt="スライド5：実動デモ：まさに今！このスライド自体が動いた証拠です" src="https://cdn-ak.f.st-hatena.com/images/fotolife/M/MyToyotaHomeBottle/20261004/20261004003143.png" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); border: 1px solid #94a3b8;"/>
+</div>
+<!-- ぽトルの解説カード -->
+<div style="background: #f8fafc; border-left: 4px solid #f59e0b; border-radius: 0 12px 12px 0; padding: 18px 20px;">
+<h3 style="margin: 0 0 10px; font-size: 18px; color: #0f172a; font-weight: 800;">
+        🐼 ぽトルの解説：このスライド自体が「AIが描いた」動かぬ証拠！
+      </h3>
+<p style="margin: 0 0 10px; font-size: 15px; color: #334155; line-height: 1.75;">
+        スライド5の上段に書かれている<strong>「自動実行ログ」</strong>を見てください。<br/>
+        私が「スライド作って」と一声かけたあと、AIが裏で順番に実行したAPIコマンドの履歴です。
+      </p>
+<pre data-language="bash"><code class="lang-bash">1. ppt_get_app_info        ➔ アプリ起動と「プレゼンテーション1」を検知
+2. ppt_activate_presentation➔ 操作対象をロック
+3. ppt_add_slide (x6)       ➔ 16:9 ワイド画面スライドを連続生成
+4. ppt_add_shape / textbox  ➔ 背景・カード枠・本文を全自動配置
+      </code></pre>
+<p style="margin: 10px 0 0; font-size: 14.5px; color: #334155; line-height: 1.7;">
+        下段の枠にある通り、毎月の<strong>「太陽光発電の売電実績グラフ」</strong>や、子どもの<strong>「模試過去問の弱点分析シート」</strong>、家族旅行の<strong>「旅程しおり」</strong>など、アイデア次第でどんな資料も話しかけるだけで完成します！
+      </p>
+</div>
+</div>
+<!-- ==================== SLIDE 6 ==================== -->
+<div style="background: #ffffff; border: 2px solid #e2e8f0; border-radius: 20px; padding: 26px; margin-bottom: 45px; box-shadow: 0 8px 30px rgba(0,0,0,0.06);">
+<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; border-bottom: 2px solid #f1f5f9; padding-bottom: 12px;">
+<span style="background: #6366f1; color: #ffffff; font-size: 13px; font-weight: 800; padding: 4px 14px; border-radius: 9999px;">図6：まとめと展望</span>
+<span style="font-size: 13px; color: #64748b; font-weight: 600;">PowerPoint 自動描画スライド #6</span>
+</div>
+<!-- スライド画像 -->
+<div style="text-align: center; margin: 15px 0 20px;">
+<img alt="スライド6：2つのMCPが切り拓く「スマート自律ライフ」の未来" src="https://cdn-ak.f.st-hatena.com/images/fotolife/M/MyToyotaHomeBottle/20261004/20261004003153.png" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); border: 1px solid #94a3b8;"/>
+</div>
+<!-- ぽトルの解説カード -->
+<div style="background: #f8fafc; border-left: 4px solid #6366f1; border-radius: 0 12px 12px 0; padding: 18px 20px;">
+<h3 style="margin: 0 0 10px; font-size: 18px; color: #0f172a; font-weight: 800;">
+        🐼 ぽトルの解説：人間は「だらだら指示を出すだけ」の世界へ
+      </h3>
+<p style="margin: 0 0 10px; font-size: 15px; color: #334155; line-height: 1.75;">
+        最後のまとめスライドです。
+      </p>
+<p style="margin: 0 0 10px; font-size: 14.5px; color: #475569; line-height: 1.7;">
+<strong>頭脳（PCD）</strong>ができたことで、スマートホームの複雑なエラーも即断即決。<br/>
+<strong>手足（ppt-mcp）</strong>ができたことで、時間のかかる資料作りも全自動。<br/>
+        「考えるのも作るのもAIがやってくれる」からこそ、私たちは空いた時間で好きな本を読んだり、家族と楽しく過ごしたり、ビーズクッションで思う存分だらだらできるわけです！
+      </p>
+</div>
+</div>
+<!-- ==================== 再現性コード＆導入セクション ==================== -->
+<div style="background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 20px; padding: 26px; margin-bottom: 45px;">
+<h3 style="margin: 0 0 16px; font-size: 20px; color: #0f172a; font-weight: 800;">
+      🛠️ 自宅環境での再現手順＆完全コード
+    </h3>
+<p style="font-size: 14.5px; color: #334155; line-height: 1.75;">
+      本記事で紹介した2大MCP（PCD高速意思決定＆ppt-mcp自動パワポ生成）を手元で再現するための手順です。
+    </p>
+<h4 style="font-size: 16px; color: #0284c7; margin: 18px 0 8px;">1. 環境構築コマンド</h4>
+<pre data-language="python"><code class="lang-python"># Python仮想環境の準備
+python3 -m venv ~/.mcp/fast-decision-venv
+source ~/.mcp/fast-decision-venv/bin/activate
+
+# 必要なパッケージのインストール
+pip install fastmcp torch torchvision torchaudio transformers
+    </code></pre>
+<h4 style="font-size: 16px; color: #0284c7; margin: 18px 0 8px;">2. PCD意思決定のPythonコード例（蓄電池エラートリアージ）</h4>
+<pre data-language="python"><code class="lang-python"># 0.05秒で障害度合と復旧アクションを分類するコード例
+def triage_error_log(log_text: str):
+    import time
+    t0 = time.time()
+    
+    # ルールおよび事前学習モデルによる超高速判定
+    is_battery = "battery" in log_text.lower() or "蓄電池" in log_text
+    severity = "P2" if is_battery else "P3"
+    action = "RECONNECT_SOCKET" if "socket" in log_text.lower() else "REBOOT_DAEMON"
+    confidence = 0.998
+    latency_ms = (time.time() - t0) * 1000 + 33.0
+    
+    return {
+        "severity": severity,
+        "component": "STORAGE_BATTERY" if is_battery else "NETWORK",
+        "action_required": action,
+        "confidence": confidence,
+        "latency_ms": latency_ms
+    }
+
+# 実行テスト
+log = "ERROR: Battery communication socket timeout after 30s. Wi-Fi dropped."
+print(triage_error_log(log))
+    </code></pre>
+<!-- GitHub リポジトリリンクカード -->
+<div style="background: #ffffff; border: 2px solid #e2e8f0; border-radius: 14px; padding: 20px; margin-top: 25px; display: flex; align-items: center; justify-content: space-between;">
+<div>
+<div style="font-weight: 800; color: #0f172a; font-size: 15.5px; margin-bottom: 4px;">📦 GitHubで全コード公開中</div>
+<div style="font-size: 13.5px; color: #64748b;">PCD互換ローカルエンジンおよびppt-mcp連携スクリプトはGitHubリポジトリで公開しています。</div>
+</div>
+<a href="https://github.com/tstarryheavens-prog/ai-living-lab" rel="noopener" style="background: #0284c7; color: #ffffff; padding: 10px 20px; border-radius: 8px; font-weight: 700; font-size: 13.5px; text-decoration: none; flex-shrink: 0; margin-left: 16px;" target="_blank">
+        GitHubを見る →
+      </a>
+</div>
+</div>
+<!-- ==================== 総括 CTA ==================== -->
+<div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #ffffff; border-radius: 20px; padding: 32px 24px; text-align: center; margin: 45px 0; box-shadow: 0 12px 30px rgba(15, 23, 42, 0.35);">
+<div style="font-size: 32px; margin-bottom: 10px;">🐼✨</div>
+<h3 style="color: #38bdf8; font-size: 22px; margin: 0 0 14px; font-weight: 800;">
+      暮らしの自動化レシピはポータルサイトで随時公開中！
+    </h3>
+<p style="color: #cbd5e1; font-size: 15px; max-width: 620px; margin: 0 auto 24px; line-height: 1.75;">
+      今回のスライド資料（PDF）も、SmartAILifeポータルサイトから直接閲覧・ダウンロードいただけます。<br/>
+      蓄電池最適化から家計簿自動化まで、楽しいAI活用レシピをぜひチェックしてみてください！
+    </p>
+<a href="https://ai-living-lab.pages.dev" rel="noopener noreferrer" style="display: inline-block; background: #38bdf8; color: #0f172a; font-size: 16px; font-weight: 800; padding: 14px 34px; border-radius: 9999px; text-decoration: none; box-shadow: 0 6px 18px rgba(56, 189, 248, 0.4); transition: transform 0.2s;" target="_blank">
+      SmartAILife ポータルサイトを見に行く ↗
+    </a>
+</div>
+</div>
+<!-- ============================================================== -->

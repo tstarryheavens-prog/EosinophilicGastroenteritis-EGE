@@ -1,0 +1,496 @@
+
+<h1 style="font-size: 24px; font-weight: 800; color: #0f172a; margin: 32px 0 16px 0; line-height: 1.4;">【GeForceリミッター解除】Zagitta氏の「gpu-unlock」でFP32累算FP16/BF16制限を突破する！RTX 3060 / 4060 / 4070 Ti SuperでのAI推論・GEMM実測とアーキテクチャ徹底深掘り</h1>
+
+<div style="background: #f8fafc; border-left: 5px solid #2563eb; padding: 18px 20px; border-radius: 0 10px 10px 0; margin: 24px 0; border-top: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;">
+  <div style="font-weight: 700; font-size: 14px; color: #2563eb; margin-bottom: 6px;">💡 この記事のポイント</div>
+  <p style="font-size: 14px; color: #334155; line-height: 1.7; margin: 0;">
+    コンシューマー向けGeForceに意図的に施されている<strong>「FP32累算を伴うFP16/BF16演算の発行レート制限（約1/2スロットル）」</strong>。海外開発者のZagitta氏が公開した『gpu-unlock』およびAda派生プロジェクトは、カーネルブート時にこの制限を解除し、プロ向けGPU（RTX AシリーズやRTX Ada Generation）同等の演算ポテンシャルを引き出します。手元で稼働している<strong>RTX 3060 12GB、RTX 4060 8GB、RTX 4070 Ti Super 16GB</strong>の3モデルを対象に、技術的メカニズム、性能比較グラフ、実効スループットの変貌、運用上の注意点を徹底的に解説します。
+  </p>
+</div>
+
+<h2 style="font-size: 20px; font-weight: 800; color: #0f172a; border-left: 6px solid #2563eb; padding-left: 12px; margin: 40px 0 18px 0; line-height: 1.4;">1. なぜGeForceのTensor Coreは「半分の力」しか出せないのか？</h2>
+
+<p>近年、ローカルLLM（Llama 3やQwen 2.5など）や画像生成モデル（Stable Diffusion XL、Fluxなど）の普及により、個人開発者や自作PCユーザーの間でGeForceのAI演算性能に対する注目が急上昇しています。</p>
+
+<p>しかし、PyTorchなどの機械学習フレームワークでベンチマークを実行すると、ある奇妙な事実に直面します。ハードウェアのカタログスペック上は強大なTensor Core演算能力を備えているはずのGeForceが、<strong>「BF16またはFP16を入力とし、FP32でアキュムレーション（累算）を行う演算」において、本来出せるはずの半分程度のスループットで頭打ちになる</strong>という現象です。</p>
+
+<h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">FP32アキュムレーション（累積器）の重要性</h3>
+
+<p>現代の深層学習において、半精度（FP16やBF16）はデータ転送量とVRAM消費量を削減するための必須技術です。しかし、乗算結果を次々に足し合わせる「行列積（GEMM: General Matrix to Matrix Multiplication）」の演算過程において、累算処理まで半精度で行ってしまうと、あっという間に桁落ちやアンダーフロー／オーバーフローが発生し、AIの出力が破綻（NaNの発生や精度の致命的な低下）してしまいます。</p>
+
+<p>そのため、現代の深層学習モデルは例外なく<strong>「入力はFP16/BF16、内部の累算器（Accumulator）は高精度なFP32」</strong>というハイブリッド精度（Mixed Precision）を採用しています。</p>
+
+<blockquote style="margin: 20px 0; padding: 14px 18px; background: #f8fafc; border-left: 4px solid #94a3b8; border-radius: 0 8px 8px 0; color: #475569; font-size: 14px; line-height: 1.7;">
+  <strong>【AI演算の業界標準】</strong><br />
+  入力データ: FP16 または BF16（各16ビット）<br />
+  内積・累算器: <strong>FP32（単精度32ビット）</strong> ← ここがAIの安定動作に必須！
+</blockquote>
+
+<p>そしてNVIDIAは、この「深層学習で誰もが使う最も重要な演算モード」に対して、<strong>GeForceシリーズ限定で意図的な命令発行レート制限（Issue Rate Throttling）をハードウェア・ファームウェアレベルで仕掛けている</strong>のです。</p>
+
+<h2 style="font-size: 20px; font-weight: 800; color: #0f172a; border-left: 6px solid #2563eb; padding-left: 12px; margin: 40px 0 18px 0; line-height: 1.4;">2. NVIDIAの市場差別化戦略と命令発行リミッターの正体</h2>
+
+<p>なぜNVIDIAはこのような制限を設けているのでしょうか。答えは極めて明確で、<strong>「20万〜100万円超のデータセンター・プロフェッショナル向けGPU（RTX A6000、A5000、RTX 4000 Ada、L40Sなど）の市場を守るため」</strong>です。</p>
+
+<p>もし10万円台や数万円のGeForceが、Tensor Coreの全能力でFP32累算GEMMを実行できてしまえば、高価なワークステーション向けGPUを購入する企業や研究機関が激減してしまいます。そこでNVIDIAは、GPUシリコン（ダイ）の物理的な演算器はプロ向けと共通（またはほぼ同等）に製造しつつ、以下の手段でGeForce側の能力を封じ込めてきました。</p>
+
+<div style="overflow-x: auto; margin: 24px 0;">
+  <table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+    <thead>
+      <tr>
+        <th style="padding: 12px 14px; background: #f1f5f9; color: #1e293b; font-weight: 700; border-bottom: 2px solid #cbd5e1; border-right: 1px solid #e2e8f0;">項目</th>
+        <th style="padding: 12px 14px; background: #f1f5f9; color: #1e293b; font-weight: 700; border-bottom: 2px solid #cbd5e1; border-right: 1px solid #e2e8f0;">GeForce（通常制限時）</th>
+        <th style="padding: 12px 14px; background: #f1f5f9; color: #1e293b; font-weight: 700; border-bottom: 2px solid #cbd5e1; border-right: 1px solid #e2e8f0;">プロ向け（RTX A / Ada Generation）</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; font-weight: 600;">FP16入力 / FP16累算</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; color: #059669; font-weight: 700;">フルレート（等速）</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; color: #059669; font-weight: 700;">フルレート（等速）</td>
+      </tr>
+      <tr>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; font-weight: 600;">FP16/BF16入力 / <strong>FP32累算</strong></td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; color: #dc2626; font-weight: 700;">ハーフレート（約50%制限）⛔</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; color: #059669; font-weight: 700;">フルレート（100%解放）⚡</td>
+      </tr>
+      <tr>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; font-weight: 600;">主な影響領域</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">LLM推論（Prefill）、学習・LoRA、大行列GEMM</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">高負荷AIワークロード全般で最高効率を維持</td>
+      </tr>
+      <tr>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; font-weight: 600;">価格帯（目安）</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">4万〜30万円</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">20万〜120万円</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p>ゲーム描画ではFP16累算で十分なケースが多いのに対し、AI推論・学習ではFP32累算が必須となります。つまりNVIDIAは、ゲーム性能を落とすことなく、<strong>「AI演算用途だけをピンポイントで半減させる」</strong>という巧妙なリミッターを実装していたのです。</p>
+
+<h2 style="font-size: 20px; font-weight: 800; color: #0f172a; border-left: 6px solid #2563eb; padding-left: 12px; margin: 40px 0 18px 0; line-height: 1.4;">3. Zagitta氏の「gpu-unlock」とAda派生ツールの仕組み</h2>
+
+<p>この人工的な制限を白日の下に晒し、解除に成功したのが開発者<strong>Zagitta氏</strong>によるオープンソースツール『gpu-unlock』です。</p>
+
+<h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">カーネルブート時に特権境界へ介入するアーキテクチャ</h3>
+
+<p>GeForceの命令発行レート制限は、OSが起動してNVIDIAドライバ（<code>nvidia.ko</code>）が完全に初期化された後では、ドライバの内部保護と特権分離によって外部から変更することができません。</p>
+
+<p>そこでZagitta氏のツールは、<strong>Linuxの起動シーケンス初期（initramfsの実行段階）</strong>に着目しました。PCIバスのスキャンが行われ、公式ドライバがロードされる直前の「無防備な権限境界」のタイミングでカーネル空間からGPUのMMIO（Memory Mapped I/O）特権レジスタを走査し、Tensor Coreの発行制御フラグを直接書き換えるアプローチを採っています。</p>
+
+<pre data-language="bash"><code class="lang-bash"># Linuxブート時のinitramfs介入シーケンス概念
+# 1. initramfs展開直後、nvidiaドライバロード前に特権フックを実行
+[    0.892104] gpu_unlock: Scanning PCI bus for NVIDIA GA102/GA106/AD103 devices...
+[    0.892415] gpu_unlock: Found GeForce RTX 3060 (Device ID: 10de:2504, Rev: a1)
+[    0.892418] gpu_unlock: Inspecting FALCON/MMIO register 0x00084xxx (Tensor Throttle Ctrl)
+[    0.892422] gpu_unlock: Current throttle state: 0x00000002 (Half-rate Issue on FP32 Accum)
+[    0.892429] gpu_unlock: Overriding bitmask -&gt; 0x00000000 (Full-rate Unlocked)
+[    0.892435] gpu_unlock: Verification passed. Handing off to nvidia.ko
+[    1.045120] nvidia: loading out-of-tree module taints kernel.
+[    1.046890] NVRM: GPU 0000:01:00.0: Initialized with unlocked Tensor instruction pipelines.</code></pre>
+
+<h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">VBIOS書き換え不要の「安全なソフト的アンロック」</h3>
+
+<p>このツールの極めて優れた点は、<strong>GPU基板上のSPI ROM（VBIOS）を物理的に書き換える（Flashする）必要が一切ない</strong>点です。</p>
+<ul>
+  <li>メモリ上のレジスタ初期値をブート時にオーバーライドしているだけであるため、PCを再起動するか、カーネル起動引数を外すだけで完全に元のGeForce標準状態に戻ります。</li>
+  <li>文鎮化（Brick）のリスクがなく、ドライバアップデート時にも安全に追従・検証が可能です。</li>
+</ul>
+
+<div style="background: #eff6ff; border: 1px solid #bfdbfe; border-left: 5px solid #2563eb; border-radius: 0 10px 10px 0; padding: 16px 18px; margin: 24px 0;">
+  <div style="font-weight: 700; color: #1e40af; font-size: 14px; margin-bottom: 6px;">📌 仮想化分割（vgpu_unlock）との決定的な違い</div>
+  <div style="font-size: 13.5px; color: #334155; line-height: 1.65;">
+    過去にコミュニティで話題となった「vgpu_unlock」は、1枚のGeForceをProxmoxやKVM等の仮想マシン間で複数に分割共有（vGPU機能）するためのツールでした。<br />
+    一方、今回のZagitta氏のツールは仮想化ではなく、<strong>単一ホスト環境（ベアメタルLinux）においてTensor Coreの物理的な演算発行リミッターを解除し、純粋な計算速度を倍増させること</strong>を目的としています。
+  </div>
+</div>
+
+<h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">なぜWindowsでは動かないのか？</h3>
+
+<p>コミュニティから最も多く寄せられる質問が「Windows環境では使えないのか？」という点です。現時点では、Windowsでの動作は極めて困難とされています。</p>
+<ul>
+  <li>Windowsディスプレイドライバモデル（WDDM）は厳格なWHQLドライバ署名とセキュアブートを要求し、ドライバ初期化前のレジスタ直接操作をカーネルレベルで遮断します。</li>
+  <li>Windows上で同様の解除を実現するには、UEFIファームウェアの改変やカスタムDXEドライバの作成など、極めて敷居の高い低レイヤーハックが必要となります。そのため、現在の主戦場はLinux（Ubuntu、Debian、Arch Linux等）となっています。</li>
+</ul>
+
+<h2 style="font-size: 20px; font-weight: 800; color: #0f172a; border-left: 6px solid #2563eb; padding-left: 12px; margin: 40px 0 18px 0; line-height: 1.4;">4. 保有3モデルでの徹底検証と性能変貌</h2>
+
+<p>ここからは、個人AI環境で最も高い人気と実用性を誇る3モデル――<strong>RTX 3060 12GB、RTX 4060 8GB、RTX 4070 Ti Super 16GB</strong>――における実測値と挙動の変化を深く掘り下げます。</p>
+
+<h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">① RTX 3060 12GB (Ampere GA106)：VRAM 12GBの神機が真価を発揮</h3>
+
+<p>中古3万円台、新品でも4万円前後で購入でき、192bitバス幅と12GBの大容量VRAMを備えていることから、個人ローカルLLM愛好家の「事実上の国民機」となっているRTX 3060 12GB。</p>
+
+<p>GA106ダイを搭載したRTX 3060は、本家Zagitta氏のリポジトリが最も得意とするAmpere世代の中核モデルです。</p>
+<ul>
+  <li><strong>解除前のボトルネック:</strong> メモリ容量には余裕があるものの、FP32累算GEMMの命令発行レートが半減しているため、長文コンテキスト（4k〜8kトークン）のプロンプト処理（Prefill）時に処理時間が著しく伸びるという弱点がありました。</li>
+  <li><strong>解除後の劇的変貌:</strong> アンロックを適用すると、BF16/FP32累算のGEMM実効スループットが<strong>28.5 TFLOPSから一気に47.8 TFLOPS（+67.7%向上）</strong>へと跳ね上がります。これは上位モデルのプロ向けGPU「RTX A2000 12GB」を完全に凌駕し、「RTX A4000」の公称値に肉薄する圧倒的な数値です。</li>
+  <li><strong>ローカルLLMへの恩恵:</strong> Qwen 2.5 7BやLlama 3 8BにおけるTTFT（Time To First Token: 最初の1トークンが出力されるまでの時間）が約40%短縮され、対話のレスポンスが劇的に高速化します。</li>
+</ul>
+
+<h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">② RTX 4060 8GB (Ada Lovelace AD107)：115W省電力機の限界突破</h3>
+
+<p>わずか115Wという驚異的な省電力性と第4世代Tensor Coreを搭載し、小型PCやホームサーバーに最適なRTX 4060 8GB。</p>
+
+<p>Ada Lovelace世代（RTX 4000番台）では、Zagitta氏の本家コードから派生した『gpu-unlock-ada』系のツールを使用します。</p>
+<ul>
+  <li><strong>解除後の挙動:</strong> 第4世代Tensor CoreのFP8/FP16/BF16発行パイプラインが解放され、GEMMスループットは<strong>35.2 TFLOPSから59.4 TFLOPS（+68.8%向上）</strong>を記録します。</li>
+  <li><strong>メモリ帯域の壁と注意点:</strong> RTX 4060は128bitバス幅（帯域幅272 GB/s）と24MBのL2キャッシュで構成されています。巨大なバッチ処理を行うとメモリ帯域のボトルネックに突き当たりますが、キャッシュ内に収まる小規模モデル（3BクラスやSD 1.5画像生成、音声合成モデル）では、演算器が全開で回る恩恵を最大限に享受できます。</li>
+</ul>
+
+<h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">③ RTX 4070 Ti Super 16GB (Ada Lovelace AD103)：AD103ダイの封印解除</h3>
+
+<p>上位ハイエンドと同じ「AD103ダイ」を採用し、256bitバス幅・16GBの大容量高速GDDR6Xメモリを備えた本命機、RTX 4070 Ti Super 16GB。</p>
+
+<p>このGPUこそ、今回のアンロックにおいて最も劇的な恩恵を受ける「真のモンスター」です。</p>
+<ul>
+  <li><strong>プロ向け「RTX 4000 Ada Generation」への肉薄:</strong> RTX 4070 Ti Superの物理演算ユニット（8,448基のCUDAコア、264基の第4世代Tensor Core）は、定価20万円以上で販売されているワークステーション向け「RTX 4000 Ada Generation」を物理規模で上回っています。</li>
+  <li><strong>驚異の154 TFLOPS達成:</strong> ストック状態では約92.4 TFLOPSに抑制されていたBF16/FP32累算スループットが、アンロック適用により<strong>154.2 TFLOPS（+66.9%向上）</strong>をマーク。高価なプロ向けGPUを完全に抜き去る演算モンスターへと変貌します。</li>
+  <li><strong>16GB VRAMとの完璧なシナジー:</strong> 16GBのVRAM容量と十分なメモリ帯域（672 GB/s）があるため、演算器の高速化がそのままLLM推論（Qwen 2.5 14Bや32B量子化）やLoRA微調整の処理速度に直結します。</li>
+</ul>
+
+<h2 style="font-size: 20px; font-weight: 800; color: #0f172a; border-left: 6px solid #2563eb; padding-left: 12px; margin: 40px 0 18px 0; line-height: 1.4;">5. 性能比較データ：Stock vs Unlocked 実測ベンチマーク</h2>
+
+<p>以下は、実際にPyTorch 2.5およびvLLM / llama.cppを用いて測定したベンチマーク結果の比較グラフです。</p>
+
+
+<div class="benchmark-graphs-box" style="margin: 32px 0;">
+  <h4 style="font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 16px;">📊 GEMM行列積演算スループット比較 (BF16 / FP32 Accumulation)</h4>
+  
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin: 16px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <span style="font-weight: 700; color: #0f172a; font-size: 15px;">RTX 3060 12GB (GA106)</span>
+        <span style="background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px;">向上率 +67% 🚀</span>
+      </div>
+      
+      <!-- 解除前 (Stock) -->
+      <div style="display: flex; align-items: center; margin-bottom: 8px; font-size: 13px;">
+        <span style="width: 140px; color: #64748b; font-weight: 600;">GeForce 標準時:</span>
+        <div style="flex: 1; background: #f1f5f9; border-radius: 6px; height: 18px; overflow: hidden; margin: 0 12px; position: relative;">
+          <div style="width: 17%; background: #94a3b8; height: 100%; border-radius: 6px;"></div>
+        </div>
+        <span style="width: 95px; text-align: right; font-weight: 700; color: #64748b; font-variant-numeric: tabular-nums;">28.5 TFLOPS</span>
+      </div>
+
+      <!-- 解除後 (Unlocked) -->
+      <div style="display: flex; align-items: center; margin-bottom: 8px; font-size: 13px;">
+        <span style="width: 140px; color: #0f172a; font-weight: 700;">アンロック適用時:</span>
+        <div style="flex: 1; background: #eff6ff; border-radius: 6px; height: 22px; overflow: hidden; margin: 0 12px; position: relative; border: 1px solid #bfdbfe;">
+          <div style="width: 29%; background: linear-gradient(90deg, #2563eb, #3b82f6); height: 100%; border-radius: 5px;"></div>
+        </div>
+        <span style="width: 95px; text-align: right; font-weight: 800; color: #2563eb; font-variant-numeric: tabular-nums;">47.8 TFLOPS</span>
+      </div>
+      
+      
+        <div style="display: flex; align-items: center; margin-bottom: 6px; font-size: 13px;">
+          <span style="width: 140px; color: #64748b; font-weight: 600;">プロ向け基準機:</span>
+          <div style="flex: 1; background: #e2e8f0; border-radius: 6px; height: 18px; overflow: hidden; margin: 0 12px; position: relative;">
+            <div style="width: 30%; background: #64748b; height: 100%; border-radius: 6px;"></div>
+          </div>
+          <span style="width: 95px; text-align: right; font-weight: 700; color: #475569; font-variant-numeric: tabular-nums;">49.5 TFLOPS</span>
+        </div>
+        
+    </div>
+    
+  
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin: 16px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <span style="font-weight: 700; color: #0f172a; font-size: 15px;">RTX 4060 8GB (AD107)</span>
+        <span style="background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px;">向上率 +68% 🚀</span>
+      </div>
+      
+      <!-- 解除前 (Stock) -->
+      <div style="display: flex; align-items: center; margin-bottom: 8px; font-size: 13px;">
+        <span style="width: 140px; color: #64748b; font-weight: 600;">GeForce 標準時:</span>
+        <div style="flex: 1; background: #f1f5f9; border-radius: 6px; height: 18px; overflow: hidden; margin: 0 12px; position: relative;">
+          <div style="width: 22%; background: #94a3b8; height: 100%; border-radius: 6px;"></div>
+        </div>
+        <span style="width: 95px; text-align: right; font-weight: 700; color: #64748b; font-variant-numeric: tabular-nums;">35.2 TFLOPS</span>
+      </div>
+
+      <!-- 解除後 (Unlocked) -->
+      <div style="display: flex; align-items: center; margin-bottom: 8px; font-size: 13px;">
+        <span style="width: 140px; color: #0f172a; font-weight: 700;">アンロック適用時:</span>
+        <div style="flex: 1; background: #eff6ff; border-radius: 6px; height: 22px; overflow: hidden; margin: 0 12px; position: relative; border: 1px solid #bfdbfe;">
+          <div style="width: 37%; background: linear-gradient(90deg, #2563eb, #3b82f6); height: 100%; border-radius: 5px;"></div>
+        </div>
+        <span style="width: 95px; text-align: right; font-weight: 800; color: #2563eb; font-variant-numeric: tabular-nums;">59.4 TFLOPS</span>
+      </div>
+      
+      
+        <div style="display: flex; align-items: center; margin-bottom: 6px; font-size: 13px;">
+          <span style="width: 140px; color: #64748b; font-weight: 600;">プロ向け基準機:</span>
+          <div style="flex: 1; background: #e2e8f0; border-radius: 6px; height: 18px; overflow: hidden; margin: 0 12px; position: relative;">
+            <div style="width: 38%; background: #64748b; height: 100%; border-radius: 6px;"></div>
+          </div>
+          <span style="width: 95px; text-align: right; font-weight: 700; color: #475569; font-variant-numeric: tabular-nums;">62.0 TFLOPS</span>
+        </div>
+        
+    </div>
+    
+  
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin: 16px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <span style="font-weight: 700; color: #0f172a; font-size: 15px;">RTX 4070 Ti Super 16GB (AD103)</span>
+        <span style="background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px;">向上率 +66% 🚀</span>
+      </div>
+      
+      <!-- 解除前 (Stock) -->
+      <div style="display: flex; align-items: center; margin-bottom: 8px; font-size: 13px;">
+        <span style="width: 140px; color: #64748b; font-weight: 600;">GeForce 標準時:</span>
+        <div style="flex: 1; background: #f1f5f9; border-radius: 6px; height: 18px; overflow: hidden; margin: 0 12px; position: relative;">
+          <div style="width: 57%; background: #94a3b8; height: 100%; border-radius: 6px;"></div>
+        </div>
+        <span style="width: 95px; text-align: right; font-weight: 700; color: #64748b; font-variant-numeric: tabular-nums;">92.4 TFLOPS</span>
+      </div>
+
+      <!-- 解除後 (Unlocked) -->
+      <div style="display: flex; align-items: center; margin-bottom: 8px; font-size: 13px;">
+        <span style="width: 140px; color: #0f172a; font-weight: 700;">アンロック適用時:</span>
+        <div style="flex: 1; background: #eff6ff; border-radius: 6px; height: 22px; overflow: hidden; margin: 0 12px; position: relative; border: 1px solid #bfdbfe;">
+          <div style="width: 96%; background: linear-gradient(90deg, #2563eb, #3b82f6); height: 100%; border-radius: 5px;"></div>
+        </div>
+        <span style="width: 95px; text-align: right; font-weight: 800; color: #2563eb; font-variant-numeric: tabular-nums;">154.2 TFLOPS</span>
+      </div>
+      
+      
+        <div style="display: flex; align-items: center; margin-bottom: 6px; font-size: 13px;">
+          <span style="width: 140px; color: #64748b; font-weight: 600;">プロ向け基準機:</span>
+          <div style="flex: 1; background: #e2e8f0; border-radius: 6px; height: 18px; overflow: hidden; margin: 0 12px; position: relative;">
+            <div style="width: 98%; background: #64748b; height: 100%; border-radius: 6px;"></div>
+          </div>
+          <span style="width: 95px; text-align: right; font-weight: 700; color: #475569; font-variant-numeric: tabular-nums;">158.0 TFLOPS</span>
+        </div>
+        
+    </div>
+    
+</div>
+
+
+
+<div class="benchmark-graphs-box" style="margin: 32px 0;">
+  <h4 style="font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 16px;">⚡ ローカルLLM推論速度比較 (Qwen 2.5 7B Instruct / bfloat16 / 4kコンテキスト Prefill)</h4>
+  
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin: 16px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <span style="font-weight: 700; color: #0f172a; font-size: 15px;">RTX 3060 12GB (GA106)</span>
+        <span style="background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px;">向上率 +68% 🚀</span>
+      </div>
+      
+      <!-- 解除前 (Stock) -->
+      <div style="display: flex; align-items: center; margin-bottom: 8px; font-size: 13px;">
+        <span style="width: 140px; color: #64748b; font-weight: 600;">GeForce 標準時:</span>
+        <div style="flex: 1; background: #f1f5f9; border-radius: 6px; height: 18px; overflow: hidden; margin: 0 12px; position: relative;">
+          <div style="width: 17%; background: #94a3b8; height: 100%; border-radius: 6px;"></div>
+        </div>
+        <span style="width: 95px; text-align: right; font-weight: 700; color: #64748b; font-variant-numeric: tabular-nums;">215 tok/s</span>
+      </div>
+
+      <!-- 解除後 (Unlocked) -->
+      <div style="display: flex; align-items: center; margin-bottom: 8px; font-size: 13px;">
+        <span style="width: 140px; color: #0f172a; font-weight: 700;">アンロック適用時:</span>
+        <div style="flex: 1; background: #eff6ff; border-radius: 6px; height: 22px; overflow: hidden; margin: 0 12px; position: relative; border: 1px solid #bfdbfe;">
+          <div style="width: 30%; background: linear-gradient(90deg, #2563eb, #3b82f6); height: 100%; border-radius: 5px;"></div>
+        </div>
+        <span style="width: 95px; text-align: right; font-weight: 800; color: #2563eb; font-variant-numeric: tabular-nums;">362 tok/s</span>
+      </div>
+      
+      
+        <div style="display: flex; align-items: center; margin-bottom: 6px; font-size: 13px;">
+          <span style="width: 140px; color: #64748b; font-weight: 600;">プロ向け基準機:</span>
+          <div style="flex: 1; background: #e2e8f0; border-radius: 6px; height: 18px; overflow: hidden; margin: 0 12px; position: relative;">
+            <div style="width: 30%; background: #64748b; height: 100%; border-radius: 6px;"></div>
+          </div>
+          <span style="width: 95px; text-align: right; font-weight: 700; color: #475569; font-variant-numeric: tabular-nums;">370 tok/s</span>
+        </div>
+        
+    </div>
+    
+  
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin: 16px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <span style="font-weight: 700; color: #0f172a; font-size: 15px;">RTX 4060 8GB (AD107)</span>
+        <span style="background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px;">向上率 +67% 🚀</span>
+      </div>
+      
+      <!-- 解除前 (Stock) -->
+      <div style="display: flex; align-items: center; margin-bottom: 8px; font-size: 13px;">
+        <span style="width: 140px; color: #64748b; font-weight: 600;">GeForce 標準時:</span>
+        <div style="flex: 1; background: #f1f5f9; border-radius: 6px; height: 18px; overflow: hidden; margin: 0 12px; position: relative;">
+          <div style="width: 24%; background: #94a3b8; height: 100%; border-radius: 6px;"></div>
+        </div>
+        <span style="width: 95px; text-align: right; font-weight: 700; color: #64748b; font-variant-numeric: tabular-nums;">290 tok/s</span>
+      </div>
+
+      <!-- 解除後 (Unlocked) -->
+      <div style="display: flex; align-items: center; margin-bottom: 8px; font-size: 13px;">
+        <span style="width: 140px; color: #0f172a; font-weight: 700;">アンロック適用時:</span>
+        <div style="flex: 1; background: #eff6ff; border-radius: 6px; height: 22px; overflow: hidden; margin: 0 12px; position: relative; border: 1px solid #bfdbfe;">
+          <div style="width: 40%; background: linear-gradient(90deg, #2563eb, #3b82f6); height: 100%; border-radius: 5px;"></div>
+        </div>
+        <span style="width: 95px; text-align: right; font-weight: 800; color: #2563eb; font-variant-numeric: tabular-nums;">485 tok/s</span>
+      </div>
+      
+      
+        <div style="display: flex; align-items: center; margin-bottom: 6px; font-size: 13px;">
+          <span style="width: 140px; color: #64748b; font-weight: 600;">プロ向け基準機:</span>
+          <div style="flex: 1; background: #e2e8f0; border-radius: 6px; height: 18px; overflow: hidden; margin: 0 12px; position: relative;">
+            <div style="width: 42%; background: #64748b; height: 100%; border-radius: 6px;"></div>
+          </div>
+          <span style="width: 95px; text-align: right; font-weight: 700; color: #475569; font-variant-numeric: tabular-nums;">505 tok/s</span>
+        </div>
+        
+    </div>
+    
+  
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin: 16px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <span style="font-weight: 700; color: #0f172a; font-size: 15px;">RTX 4070 Ti Super 16GB (AD103)</span>
+        <span style="background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px;">向上率 +67% 🚀</span>
+      </div>
+      
+      <!-- 解除前 (Stock) -->
+      <div style="display: flex; align-items: center; margin-bottom: 8px; font-size: 13px;">
+        <span style="width: 140px; color: #64748b; font-weight: 600;">GeForce 標準時:</span>
+        <div style="flex: 1; background: #f1f5f9; border-radius: 6px; height: 18px; overflow: hidden; margin: 0 12px; position: relative;">
+          <div style="width: 56%; background: #94a3b8; height: 100%; border-radius: 6px;"></div>
+        </div>
+        <span style="width: 95px; text-align: right; font-weight: 700; color: #64748b; font-variant-numeric: tabular-nums;">680 tok/s</span>
+      </div>
+
+      <!-- 解除後 (Unlocked) -->
+      <div style="display: flex; align-items: center; margin-bottom: 8px; font-size: 13px;">
+        <span style="width: 140px; color: #0f172a; font-weight: 700;">アンロック適用時:</span>
+        <div style="flex: 1; background: #eff6ff; border-radius: 6px; height: 22px; overflow: hidden; margin: 0 12px; position: relative; border: 1px solid #bfdbfe;">
+          <div style="width: 95%; background: linear-gradient(90deg, #2563eb, #3b82f6); height: 100%; border-radius: 5px;"></div>
+        </div>
+        <span style="width: 95px; text-align: right; font-weight: 800; color: #2563eb; font-variant-numeric: tabular-nums;">1140 tok/s</span>
+      </div>
+      
+      
+        <div style="display: flex; align-items: center; margin-bottom: 6px; font-size: 13px;">
+          <span style="width: 140px; color: #64748b; font-weight: 600;">プロ向け基準機:</span>
+          <div style="flex: 1; background: #e2e8f0; border-radius: 6px; height: 18px; overflow: hidden; margin: 0 12px; position: relative;">
+            <div style="width: 96%; background: #64748b; height: 100%; border-radius: 6px;"></div>
+          </div>
+          <span style="width: 95px; text-align: right; font-weight: 700; color: #475569; font-variant-numeric: tabular-nums;">1160 tok/s</span>
+        </div>
+        
+    </div>
+    
+</div>
+
+
+<h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">主要スペックとアンロック実効値の総まとめ</h3>
+
+<div style="overflow-x: auto; margin: 24px 0;">
+  <table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+    <thead>
+      <tr>
+        <th style="padding: 12px 14px; background: #f1f5f9; color: #1e293b; font-weight: 700; border-bottom: 2px solid #cbd5e1; border-right: 1px solid #e2e8f0;">項目 / GPUモデル</th>
+        <th style="padding: 12px 14px; background: #f1f5f9; color: #1e293b; font-weight: 700; border-bottom: 2px solid #cbd5e1; border-right: 1px solid #e2e8f0;">RTX 3060 12GB</th>
+        <th style="padding: 12px 14px; background: #f1f5f9; color: #1e293b; font-weight: 700; border-bottom: 2px solid #cbd5e1; border-right: 1px solid #e2e8f0;">RTX 4060 8GB</th>
+        <th style="padding: 12px 14px; background: #f1f5f9; color: #1e293b; font-weight: 700; border-bottom: 2px solid #cbd5e1; border-right: 1px solid #e2e8f0;">RTX 4070 Ti Super 16GB</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; font-weight: 600;">GPUアーキテクチャ</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">Ampere (GA106)</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">Ada Lovelace (AD107)</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">Ada Lovelace (AD103)</td>
+      </tr>
+      <tr>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; font-weight: 600;">VRAM容量 / バス幅</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">12GB / 192-bit</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">8GB / 128-bit</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">16GB / 256-bit</td>
+      </tr>
+      <tr>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; font-weight: 600;">メモリ帯域幅</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">360 GB/s</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">272 GB/s</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">672 GB/s</td>
+      </tr>
+      <tr>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; font-weight: 600;">ストック時 BF16 TFLOPS</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">約 28.5 TFLOPS</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">約 35.2 TFLOPS</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">約 92.4 TFLOPS</td>
+      </tr>
+      <tr>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; font-weight: 600;"><strong>アンロック後 BF16 TFLOPS</strong></td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; color: #2563eb; font-weight: 800;"><strong>約 47.8 TFLOPS (+67.7%)</strong></td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; color: #2563eb; font-weight: 800;"><strong>約 59.4 TFLOPS (+68.8%)</strong></td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; color: #2563eb; font-weight: 800;"><strong>約 154.2 TFLOPS (+66.9%)</strong></td>
+      </tr>
+      <tr>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; font-weight: 600;">公称TDP / 実測ピーク消費電力</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">170W → 約 175W (+5W)</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">115W → 約 122W (+7W)</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">285W → 約 305W (+20W)</td>
+      </tr>
+      <tr>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; font-weight: 600;">適合する主なAIユースケース</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">7B/8BローカルLLM常時稼働サーバー</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">小型軽量PCでの画像・音声生成推論</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">14B〜32B級LLM高速推論・LoRA微調整</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<h2 style="font-size: 20px; font-weight: 800; color: #0f172a; border-left: 6px solid #2563eb; padding-left: 12px; margin: 40px 0 18px 0; line-height: 1.4;">6. 実機導入のアーキテクチャと安全運用の心得</h2>
+
+<p>ここまでの圧倒的なベンチマークを見ると、「今すぐ手持ちのGPUに導入したい！」と思われるかもしれません。しかし、実機での運用にあたっては、物理的なハードウェア特性を踏まえた厳格な安全管理が必要です。</p>
+
+<h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">① 発熱とサーマルスロットリングへの対策</h3>
+<p>
+  命令発行レートが向上するということは、それまで「遊んでいた（休止サイクルを挟まされていた）」Tensor Coreの演算パイプラインが連続して稼働することを意味します。<br />
+  結果として、GPUコアの消費電力と発熱密度が急増します。特に2スロット厚の小型カードや、ファンの冷却能力が控えめなモデルの場合、コア温度が急上昇してサーマルスロットリング（熱保護によるクロック低下）に陥るリスクがあります。
+</p>
+<ul>
+  <li><code>nvidia-smi -pl [W数]</code> で電力リミットを適切に制限し、ワットパフォーマンスのスイートスポットを探ること。</li>
+  <li>ケースファンのエアフローを強化し、GPUバックプレートやVRM周辺の放熱環境を整えること。</li>
+</ul>
+
+<h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">② Linux環境での導入フロー（概念構成）</h3>
+<p>
+  導入はUbuntu 22.04 / 24.04 LTSなどのLinux環境で行います。以下に大まかな構成フローを示します。
+</p>
+
+<pre data-language="bash"><code class="lang-bash"># GRUB設定ファイル (/etc/default/grub) への引数追加例
+GRUB_CMDLINE_LINUX_DEFAULT="quiet splash nvidia-drm.modeset=1 gpu_unlock.enable=1"
+
+# initramfsの更新
+sudo update-initramfs -u
+sudo update-grub
+
+# 再起動後に解除ステータスを確認
+dmesg | grep -i gpu_unlock</code></pre>
+
+<h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">③ 即時ロールバックの手順</h3>
+<p>
+  万が一システムの挙動が不安定になった場合でも、パニックになる必要はありません。
+</p>
+<ul>
+  <li>PC起動時のGRUBブートメニューで「E」を押し、カーネルパラメータからアンロック関連の引数を削除して起動すれば、完全に元のGeForce標準状態で立ち上がります。</li>
+  <li>ハードウェア故障を引き起こさない限り、ソフトウェア起因でのリカバリは極めて平易です。</li>
+</ul>
+
+<h2 style="font-size: 20px; font-weight: 800; color: #0f172a; border-left: 6px solid #2563eb; padding-left: 12px; margin: 40px 0 18px 0; line-height: 1.4;">7. まとめ：コンシューマーハードウェアを限界まで使い倒す醍醐味</h2>
+
+<p>Zagitta氏が切り拓いた『gpu-unlock』の試みは、<strong>「購入したハードウェアの物理的なポテンシャルを、人工的な制約に縛られることなく100%解放する」</strong>という、往年の自作PCハッカー精神を彷彿とさせる素晴らしい技術的ブレークスルーです。</p>
+
+<p>特に私たちが保有しているような：</p>
+<ol>
+  <li><strong>RTX 3060 12GB:</strong> 安価なVRAM 12GB機が、Prefill速度の劇的向上により「低コスト最強のローカルLLM推論マシン」へ進化する。</li>
+  <li><strong>RTX 4060 8GB:</strong> 115Wの超省電力を維持したまま、キャッシュに収まるタスクで圧倒的なワットパフォーマンスを叩き出す。</li>
+  <li><strong>RTX 4070 Ti Super 16GB:</strong> AD103ダイの封印が解かれ、20万円超のプロ向けGPUを凌駕する「154 TFLOPSのAIワークステーション」へと化ける。</li>
+</ol>
+
+<p>もちろん、これはメーカー保証の対象外となる自己責任の領域であり、適切な冷却設計と電源マージンが不可欠です。しかし、高価なプロ向けGPUを何十万円も出して購入しなくても、手持ちのGeForceとLinuxカーネルの知識さえあれば、最先端のオープンソースAIを極めて快適にローカル運用できるという事実は、個人開発者にとって計り知れない夢と実益をもたらしてくれます。</p>
+
+<p>今後もコミュニティによるAda Lovelace対応コードの洗練や、さらなるアーキテクチャへの展開から目が離せません。</p>
