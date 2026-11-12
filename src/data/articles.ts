@@ -15,6 +15,19 @@ export interface Article {
 
 export const ARTICLES: Article[] = [
   {
+    slug: 'gpu-cluster-fault-tolerance-failover-architecture',
+    title: '【ゼロコスト高可用性】自宅GPUクラスタ（Strata×BC-250）が落ちた・ビジーの時はどう動く？多層フェイルオーバーと自動自己復帰（Systemd × OpenRouter Free × Gemini Flash）の全貌',
+    excerpt: '常時稼働の自宅GPUクラスタ（Strata: RTX 4070TiS+3060 / BC-250: 40CU 16GB）におけるダウン・ビジー発生時の自律フェイルオーバー設計を公開。TCP死活プローブ（bc250_alive）、OpenRouter動的無料モデル（MiniMax 1M）へのゼロコスト退避、Systemd自動復帰（RestartSec=5）、Gemini 3.8 Flashへの安全なバトンタッチまで、推論が絶対に止まらない多層防御アーキテクチャを解説します。',
+    category: 'decision',
+    categoryLabel: '自律AI・GPUクラスタ',
+    tags: ['ローカルLLM', 'GPUクラスタ', 'Strata', 'AMD BC-250', 'フェイルオーバー', '高可用性', 'Systemd', 'OpenRouter'],
+    date: '2026-11-12',
+    readTime: '15分',
+    draftFile: 'gpu-cluster-fault-tolerance-failover-architecture.html',
+    featured: true,
+    siteId: 'smartailife',
+  },
+  {
     slug: 'amd-bc250-colibri-optimal-configuration-benchmark',
     title: '3-bit化の品質の崖を避ける：AMD BC-250 × Colibri（SSDストリーミング）における最良構成の設計と実装ベンチマーク',
     excerpt: 'MoEモデルの3-bit化に伴うルーター誤判定（PPL +10%悪化）を回避し、4-bit（Int4-gs64）の最高知能を維持したまま性能を引き出す「最良構成」をAMD BC-250に実装。NVMe I/Oカーネル調整（read_ahead_kb 2MB）、Vulkan Dense常駐、受動投機デコード、Systemd常駐化の実機ログとベンチマークを公開します。',
