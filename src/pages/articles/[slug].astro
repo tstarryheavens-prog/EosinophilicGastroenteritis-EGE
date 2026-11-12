@@ -266,7 +266,7 @@ const relatedArticles = ARTICLES.filter(
   (a) => a.slug !== article!.slug && (a.category === article!.category || a.siteId === article!.siteId)
 ).slice(0, 5);
 
-const currentUrl = `https://ai-living-lab.pages.dev/articles/${article.slug}`;
+const currentUrl = `https://eosinophilicgastroenteritis-ege.pages.dev/articles/${article.slug}`;
 const shareText = `${article.title} | Smart AI Life`;
 ---
 
@@ -371,13 +371,13 @@ const shareText = `${article.title} | Smart AI Life`;
           <p class="nc-article-lead-summary">{article.excerpt}</p>
         )}
 
-        <AdBanner siteId={article.siteId as any || 'smartailife'} />
+        <AdBanner siteId={article.siteId as any || 'smartailife'} category={article.category} />
 
         <article class="nc-article-body" id="article-content">
           <div class="nc-prose" set:html={contentHtml} />
         </article>
 
-        <AdBanner siteId={article.siteId as any || 'smartailife'} />
+        <AdBanner siteId={article.siteId as any || 'smartailife'} category={article.category} />
 
         <!-- Bottom Related Articles & Share Section (Nabu Casa .article-relatives) -->
         <section class="nc-article-relatives">
