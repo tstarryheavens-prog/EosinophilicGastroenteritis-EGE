@@ -287,7 +287,7 @@ const shareText = `${article.title} | Smart AI Life`;
   <section class="nc-sub-hero">
     <div class="nc-sub-hero-row">
       <ol class="nc-breadcrumbs" aria-label="パンくずリスト">
-        <li><a href="/">Smart AI Life</a></li>
+        <li><a href="/ai-living-lab" class="nc-breadcrumb-ai-home" title="AI Living Lab（暮らしとAIの実験室）トップへ">🤖 AI Living Lab</a></li>
         <li><a href="/articles">記事一覧</a></li>
         {article.siteId ? (
           <li><a href={`/divisions/${article.siteId}`}>{article.categoryLabel}</a></li>
@@ -296,22 +296,28 @@ const shareText = `${article.title} | Smart AI Life`;
         )}
       </ol>
 
-      <form class="nc-search-wrapper small" action="/articles" method="get" role="search">
-        <div class="nc-search-field">
-          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-            <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.8"/>
-            <path d="M13.5 13.5L17.5 17.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-          </svg>
-          <input
-            type="search"
-            name="q"
-            class="nc-search-input"
-            placeholder="記事を検索..."
-            aria-label="記事を検索"
-          />
-        </div>
-        <button type="submit" class="btn btn-dark">検索</button>
-      </form>
+      <div class="nc-sub-hero-actions" style="display: flex; items-center; gap: 8px;">
+        <a href="/ai-living-lab" class="btn btn-outline" style="font-size: 12px; font-weight: 700; padding: 6px 14px; border-radius: 9999px; background: #fff; border: 1.5px solid #2C3E35; color: #2C3E35; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);" title="AI Living Lab（全8ラボ・自律エージェント）トップへ">
+          <span>🤖 AIトップへ</span>
+        </a>
+
+        <form class="nc-search-wrapper small" action="/articles" method="get" role="search">
+          <div class="nc-search-field">
+            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M13.5 13.5L17.5 17.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+            <input
+              type="search"
+              name="q"
+              class="nc-search-input"
+              placeholder="記事を検索..."
+              aria-label="記事を検索"
+            />
+          </div>
+          <button type="submit" class="btn btn-dark">検索</button>
+        </form>
+      </div>
     </div>
   </section>
 
@@ -332,6 +338,20 @@ const shareText = `${article.title} | Smart AI Life`;
             <a href={`/articles?q=${encodeURIComponent(tag)}`} class="nc-tag-pill">#{tag}</a>
           ))}
         </div>
+      </div>
+
+      <!-- AI Living Lab 親ポータル直通案内バー -->
+      <div class="nc-ai-context-banner" style="margin-top: 16px; padding: 12px 18px; border-radius: 16px; background: linear-gradient(135deg, rgba(44, 62, 53, 0.05), rgba(129, 178, 154, 0.12)); border: 1.5px solid rgba(44, 62, 53, 0.15); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 22px;">🤖</span>
+          <div>
+            <strong style="color: #2C3E35; font-size: 13px; display: block;">Smart AI Life（AI Living Lab）技術検証アーカイブ</strong>
+            <span style="color: #555; font-size: 11px;">ローカルLLM・自作HEMS・100歳家計・自律エージェントの全8ラボ</span>
+          </div>
+        </div>
+        <a href="/ai-living-lab" class="btn btn-dark" style="font-size: 11px; font-weight: 700; padding: 6px 14px; border-radius: 9999px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          AIトップページへ →
+        </a>
       </div>
     </header>
 

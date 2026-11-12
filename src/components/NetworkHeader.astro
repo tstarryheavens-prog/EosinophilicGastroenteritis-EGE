@@ -3,12 +3,14 @@ import { HATENA_BLOG_URL } from '../data/projects';
 
 const currentPath = Astro.url.pathname;
 const isEn = currentPath.startsWith('/en');
+// AI側のトップページ（難病ポータル統合時は /ai-living-lab）
+const aiHomeHref = isEn ? '/en/ai-living-lab' : '/ai-living-lab';
 ---
 
 <header class="nc-header" id="site-header">
   <div class="nc-container nc-header-inner">
     <!-- Left: Nabu Casa Geometric Cube + Brand Logo -->
-    <a href={isEn ? '/en/' : '/'} class="nc-header-logo" aria-label="Smart AI Life Home">
+    <a href={aiHomeHref} class="nc-header-logo" aria-label="Smart AI Life Home">
       <svg class="nc-cube-mark" width="32" height="32" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <path d="M18 3L32 11V25L18 33L4 25V11L18 3Z" stroke="#1f1f1c" stroke-width="2.2" stroke-linejoin="round" fill="#ffde77"/>
         <path d="M18 3L32 11L18 19L4 11L18 3Z" fill="#ffffff" stroke="#1f1f1c" stroke-width="2.2" stroke-linejoin="round"/>
@@ -25,7 +27,7 @@ const isEn = currentPath.startsWith('/en');
     <nav class="nc-nav-desktop" aria-label="Primary Navigation">
       <ul class="nc-nav-list">
         <li>
-          <a href={isEn ? '/en/' : '/'} class="nc-nav-link">{isEn ? 'Home' : 'ホーム'}</a>
+          <a href={aiHomeHref} class="nc-nav-link">{isEn ? 'AI Lab Home' : 'AIラボ ホーム'}</a>
         </li>
 
         <!-- Divisions Dropdown -->
@@ -121,6 +123,12 @@ const isEn = currentPath.startsWith('/en');
             {isEn ? 'All Articles' : '記事一覧'}
           </a>
         </li>
+
+        <li>
+          <a href="/" class="nc-nav-link" style="background: rgba(224, 122, 95, 0.12); color: #c85a3b; font-weight: 700; padding: 5px 12px; border-radius: 9999px; border: 1px solid rgba(224, 122, 95, 0.35); text-decoration: none;" title="好酸球性胃腸炎・難病闘病ノートへ">
+            🩺 難病ノート
+          </a>
+        </li>
       </ul>
     </nav>
 
@@ -136,7 +144,8 @@ const isEn = currentPath.startsWith('/en');
   <div class="nc-mobile-drawer" id="mobileDrawer">
     <div class="nc-container nc-mobile-drawer-inner">
       <div class="nc-mobile-links">
-        <a href="/" class="nc-mobile-link">ホーム</a>
+        <a href={aiHomeHref} class="nc-mobile-link font-bold">🤖 AI Living Lab ホーム</a>
+        <a href="/" class="nc-mobile-link" style="color: #c85a3b; font-weight: 700;">🩺 難病闘病・服薬ノートへ</a>
         <a href="/articles" class="nc-mobile-link">実践記事一覧</a>
         <a href="/divisions" class="nc-mobile-link">ラボ一覧</a>
         <a href="/craft" class="nc-mobile-link">UI/UX Craft Showcase</a>

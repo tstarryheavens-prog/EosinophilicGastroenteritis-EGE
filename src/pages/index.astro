@@ -184,6 +184,18 @@ const getCategoryPlaceholderStyle = (category: string) => {
               </span>
               <span class="text-sm font-bold text-[#8C857B]">&rarr;</span>
             </button>
+
+            <!-- 🤖 AI Living Lab（暮らしとAI）への直接導線 -->
+            <a
+              href="/ai-living-lab"
+              class="w-full text-left px-4 sm:px-5 py-3.5 rounded-2xl font-bold transition-all flex items-center justify-between bg-gradient-to-r from-[#2C3E35] to-[#3D5A4C] text-[#ffde77] hover:brightness-110 shadow-sm border border-[#81B29A]/50 mt-1"
+            >
+              <span class="flex items-center gap-2">
+                <span class="text-lg">🤖</span>
+                <span class="text-white text-sm sm:text-base">AI Living Lab（暮らしとAI）</span>
+              </span>
+              <span class="text-xs font-bold text-[#ffde77] bg-white/15 px-2 py-1 rounded-lg shrink-0">TOPへ &rarr;</span>
+            </a>
           </nav>
         </div>
 
@@ -219,6 +231,27 @@ const getCategoryPlaceholderStyle = (category: string) => {
 
           <!-- Bento Grid: 6カテゴリカード -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
+            <!-- 🌟 AI Living Lab フィーチャーバナーカード -->
+            <a
+              href="/ai-living-lab"
+              class="sm:col-span-2 lg:col-span-3 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#2C3E35] via-[#324b3e] to-[#25352c] text-white border border-[#81B29A]/40 shadow-sm hover:shadow-md transition-all group flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+            >
+              <div class="space-y-1">
+                <div class="flex items-center gap-2">
+                  <span class="px-2.5 py-0.5 rounded-full bg-[#ffde77] text-[#1f1f1c] font-black text-xs">AI LAB</span>
+                  <span class="text-xs text-[#A3C4BC] font-bold">Smart AI Life 暮らしとAIの実験室</span>
+                </div>
+                <h3 class="text-base sm:text-lg font-bold text-white group-hover:text-[#ffde77] transition-colors">
+                  🤖 自作HEMS・100歳家計・ローカルLLM・自律エージェント総合ポータル
+                </h3>
+                <p class="text-xs text-[#E0E7E3] leading-relaxed">
+                  電気代削減、住宅ローン完済CF、Dual GPU推論など、テクノロジーで暮らしを自律化する全8ラボの技術実証・記事へ
+                </p>
+              </div>
+              <span class="px-4 py-2 rounded-xl bg-white/10 group-hover:bg-[#ffde77] group-hover:text-[#1f1f1c] text-[#ffde77] text-xs font-bold transition-all shrink-0 border border-white/20">
+                AIトップへ &rarr;
+              </span>
+            </a>
             {categories.map(cat => {
               const count = postCounts[cat.name] || 0;
               return (
