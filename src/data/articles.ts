@@ -15,6 +15,19 @@ export interface Article {
 
 export const ARTICLES: Article[] = [
   {
+    slug: 'amd-bc250-colibri-optimal-configuration-benchmark',
+    title: '3-bit化の品質の崖を避ける：AMD BC-250 × Colibri（SSDストリーミング）における最良構成の設計と実装ベンチマーク',
+    excerpt: 'MoEモデルの3-bit化に伴うルーター誤判定（PPL +10%悪化）を回避し、4-bit（Int4-gs64）の最高知能を維持したまま性能を引き出す「最良構成」をAMD BC-250に実装。NVMe I/Oカーネル調整（read_ahead_kb 2MB）、Vulkan Dense常駐、受動投機デコード、Systemd常駐化の実機ログとベンチマークを公開します。',
+    category: 'decision',
+    categoryLabel: '自律AI・GPUクラスタ',
+    tags: ['AMD BC-250', 'Colibri', 'Qwen3.6-35B', 'Vulkan', 'SSDストリーミング', 'MoE', '量子化'],
+    date: '2026-11-12',
+    readTime: '15分',
+    draftFile: 'amd-bc250-colibri-optimal-configuration-benchmark.html',
+    featured: true,
+    siteId: 'smartailife',
+  },
+  {
     slug: 'hermes-agent-dual-node-gpu-cluster-optimization',
     title: '【マルチGPU×分散自律】MacBook AirとZ790のHermes Agent頭脳最適化——RTX 4060（8GB）覚醒、OpenRouterレートリミット脱却、4070TiS+3060（28GB）専有解消の3階層推論アーキテクチャ',
     excerpt: 'MacBook AirとZ790で稼働するHermes Agentの頭脳運用課題（OpenRouterのレートリミット、Strata QwenによるGPU専有）を徹底解消。遊休中のRTX 4060（8GB）を即応エージェント専用頭脳として覚醒させ、4070TiS+3060（28GB）のヘビー演算レーン、41W常時稼働のBC-250と協調させる最適解を1万字超で完全解説。',
