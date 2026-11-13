@@ -61,12 +61,12 @@ if (posts.length === 0) {
                   {post.data.pubDate}
                 </time>
               </div>
-              <h3 class="font-bold text-[#2C3E35] text-lg sm:text-xl mb-2.5 leading-snug line-clamp-2">
+              <h3 class="font-bold text-[#2C3E35] text-lg sm:text-xl mb-2.5 leading-snug">
                 <a href={`/blog/${post.data.slug}`} class="hover:text-[#E07A5F] transition-colors">
                   {post.data.title}
                 </a>
               </h3>
-              <p class="text-sm text-[#5C574F] line-clamp-3 leading-relaxed mb-5">
+              <p class="text-sm text-[#5C574F] line-clamp-1 leading-relaxed mb-4">
                 {post.data.description}
               </p>
             </div>
