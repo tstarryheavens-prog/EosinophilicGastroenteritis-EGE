@@ -2,6 +2,7 @@
 export const prerender = false;
 
 import BaseLayout from '../../../layouts/SmartAIBaseLayout.astro';
+import AdBanner from '../../../components/AdBanner.astro';
 import { ARTICLES, type Article } from '../../../data/articles';
 import { DIVISIONS_DATA } from '../../../data/divisions';
 import { LOCAL_ADDRESS_REGEX } from '../../../data/ops_config';
@@ -14,7 +15,6 @@ const CAT_BY_DIVISION: Record<string, string> = {
   'aichi-high': 'education',
   'wakwak-money': 'education',
   'toyotahome': 'automation',
-  'nanbyo': 'automation',
   'ai-hems': 'energy',
   'hobby-labs': 'automation',
   'smartailife': 'decision',
@@ -24,14 +24,13 @@ const TONE_BY_DIVISION: Record<string, string> = {
   'ai-hems': 'sun',
   'wakwak-money': 'green',
   'toyotahome': 'tin',
-  'nanbyo': 'orange',
   'aichi-high': 'sun',
-  'hobby-labs': 'tin',
+  'hobby-labs': 'orange',
   'smartailife': 'green',
 };
 
-// 内部専用サイト（モータ学術論文など）は一般公開の索引一覧に出さない
-const divisions = Object.values(DIVISIONS_DATA).filter((d: any) => !isInternalSiteId(d?.id));
+// 内部専用サイトおよび難病医療ポータル（/ 側へ分離）はAIラボ索引には出さない
+const divisions = Object.values(DIVISIONS_DATA).filter((d: any) => !isInternalSiteId(d?.id) && d?.id !== 'nanbyo');
 
 let dbLatest: Array<{ slug: string; title: string; site_id: string }> = [];
 try {
@@ -117,6 +116,8 @@ const articlesFor = (id: string): Article[] => {
 
   <!-- 3. Nabu Casa Split Category Cards + Article Previews -->
   <div class="nc-container" style="padding-bottom: 3rem;">
+    <AdBanner slotType="banner" siteId="smartailife" />
+
     <div class="nc-divisions-grid">
       {divisions.map((div: any) => {
         const articles = articlesFor(div.id);
@@ -158,19 +159,19 @@ const articlesFor = (id: string): Article[] => {
                 )}
 
                 <div class="nc-div-actions">
-                  <a href={`/ai-living-lab/divisions/${div.id}`} class="btn btn-dark">詳細を見る →</a>
+                  <a href={publicExt || `/ai-living-lab/divisions/${div.id}`} class="btn btn-dark">特設ページへ →</a>
                   {cat && <a href={`/articles?cat=${cat}`} class="btn">関連記事</a>}
-                  {publicExt && (
-                    <a href={publicExt} target="_blank" rel="noopener noreferrer" class="btn">
-                      {div.extLabel || '特設サイト ↗'}
-                    </a>
-                  )}
+                  <a href={`/ai-living-lab/divisions/${div.id}`} class="btn btn-light">詳細ログ</a>
                 </div>
               </div>
             </div>
           </article>
         );
       })}
+    </div>
+
+    <div style="margin-top: 2rem;">
+      <AdBanner slotType="banner" siteId="smartailife" />
     </div>
   </div>
 </BaseLayout>
@@ -236,10 +237,8 @@ const articlesFor = (id: string): Article[] => {
     color: var(--nc-color-charcoal);
     text-decoration: underline;
     text-decoration-color: var(--nc-color-tin);
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    display: inline-block;
+    line-height: 1.45;
   }
 
   .nc-div-articles a:hover {

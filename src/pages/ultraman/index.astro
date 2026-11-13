@@ -1,0 +1,213 @@
+---
+export const prerender = false;
+import SmartAIBaseLayout from '../../layouts/SmartAIBaseLayout.astro';
+import AdBanner from '../../components/AdBanner.astro';
+import { ARTICLES } from '../../data/articles';
+
+const ultramanArticles = ARTICLES.filter(
+  (a) => a.siteId === 'hobby-labs' || a.slug.includes('ultraman')
+);
+
+const familySlugs = new Set([
+  'ultraman-card-game-family-beginner-deck-guide',
+  'ultraman-softvinyl-kids-collection-storage-guide',
+]);
+
+const familyArticles = ultramanArticles.filter((a) => familySlugs.has(a.slug));
+const maniaArticles = ultramanArticles.filter((a) => !familySlugs.has(a.slug));
+---
+
+<SmartAIBaseLayout
+  title="ウルトラマン カード＆ソフビ特設ラボ ｜ 親子ガイド＆コレクター研究"
+  description="お子さまと楽しむウルトラマンカードゲーム（UCG）や700円ソフビの遊び方から、1,400枚超の全カード検索ビューアー、リペイント重塗装・UCG環境分析まで幅広くお届けします。"
+>
+  <section class="nc-hero hero-orange">
+    <div class="nc-hero-inner">
+      <p class="eyebrow" style="color: #fff; opacity: 0.9;">ファミリー＆コレクター両対応ポータル</p>
+      <h1 class="nc-hero-title">ウルトラマン カード＆ソフビ特設ラボ</h1>
+      <p class="nc-hero-lead">
+        小学生と保護者の方に向けた「はじめてのカードゲーム・ソフビ整理」と、じっくり集めて戦うマニア向けの「1,400枚カード検索・UCG対戦分析・ソフビ塗装研究」を2つのコーナーに分けてまとめています。
+      </p>
+
+      <div style="margin-top: 1.25rem; display: flex; flex-wrap: wrap; gap: 0.65rem;">
+        <a href="/ultraman/viewer/index.html" class="btn btn-dark">🔎 全カード検索ビューアーを開く</a>
+        <a href="#family-corner" class="btn btn-light">👨‍👩‍👧 子ども・親子コーナー</a>
+        <a href="#collector-corner" class="btn btn-light">🔥 ガチ勢・コレクターコーナー</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="nc-container" style="padding-bottom: 3rem;">
+    <!-- 全カード検索ツール 目玉カード -->
+    <a href="/ultraman/viewer/index.html" class="nc-viewer-banner">
+      <div>
+        <span class="nc-viewer-pill">無料Webツール・リアルタイム絞り込み</span>
+        <h2 style="margin: 0.4rem 0 0.35rem;">ウルトラマン カードゲーム（UCG）全カード検索ビューアー</h2>
+        <p style="margin: 0; font-size: 0.94rem; color: #3a3934;">
+          1,400枚以上の収録カードを、キャラクター名・レアリティ・BP・テキスト・相場メモでサクッと検索。親子で好きなカードを探すときにも、デッキ調整にもそのまま使えます。
+        </p>
+      </div>
+      <span class="btn btn-dark" style="white-space: nowrap;">検索ツールを開く ↗</span>
+    </a>
+
+    <AdBanner slotType="banner" siteId="hobby-labs" />
+
+    <!-- コーナー1：子ども・ファミリー向け -->
+    <section id="family-corner" style="margin-top: 1.75rem;">
+      <div class="nc-section-head">
+        <span class="nc-audience-pill family">👨‍👩‍👧‍👦 子ども・ファミリー向け</span>
+        <h2>親子ではじめるカードゲーム＆おもちゃ整理</h2>
+        <p style="color: #55544d; font-size: 0.92rem; margin: 0;">
+          ルールがむずかしすぎない遊び方、お小遣いや週末のごほうびで無理なく楽しむコツをまとめました。
+        </p>
+      </div>
+
+      <div class="nc-article-grid" style="margin-top: 1rem;">
+        {familyArticles.map((art) => (
+          <a href={`/articles/${art.slug}`} class="nc-article-card family-card">
+            <div class="nc-card-top">
+              <span class="nc-card-badge">{art.categoryLabel}</span>
+              <span class="nc-card-date">{art.date} · {art.readTime}</span>
+            </div>
+            <h3 class="nc-card-title">{art.title}</h3>
+            <p class="nc-card-excerpt">{art.excerpt}</p>
+            <span class="nc-card-more">ガイドを読む →</span>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <AdBanner slotType="infeed" siteId="hobby-labs" />
+
+    <!-- コーナー2：コレクター・ガチ勢向け -->
+    <section id="collector-corner" style="margin-top: 2rem;">
+      <div class="nc-section-head">
+        <span class="nc-audience-pill collector">🔥 コレクター・ガチ勢向け</span>
+        <h2>UCG対戦メタ分析・LSSソフビ造形＆塗装ラボ</h2>
+        <p style="color: #55544d; font-size: 0.92rem; margin: 0;">
+          旧800サイズと現行500サイズの金型比較、水性シタデルカラーでの重塗装、3戦2勝ルールにおけるBP効率など深掘り研究をまとめています。
+        </p>
+      </div>
+
+      <div class="nc-article-grid" style="margin-top: 1rem;">
+        {maniaArticles.map((art) => (
+          <a href={`/articles/${art.slug}`} class="nc-article-card collector-card">
+            <div class="nc-card-top">
+              <span class="nc-card-badge">{art.categoryLabel}</span>
+              <span class="nc-card-date">{art.date} · {art.readTime}</span>
+            </div>
+            <h3 class="nc-card-title">{art.title}</h3>
+            <p class="nc-card-excerpt">{art.excerpt}</p>
+            <span class="nc-card-more">詳細記事を読む →</span>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <div style="margin-top: 2.5rem;">
+      <AdBanner slotType="banner" siteId="hobby-labs" />
+    </div>
+  </div>
+</SmartAIBaseLayout>
+
+<style>
+  .nc-viewer-banner {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    justify-content: space-between;
+    align-items: flex-start;
+    background: var(--nc-color-sun);
+    border-radius: 1rem;
+    padding: 1.35rem 1.5rem;
+    margin-bottom: 1.5rem;
+    text-decoration: none !important;
+  }
+  @media (min-width: 768px) {
+    .nc-viewer-banner {
+      flex-direction: row;
+      align-items: center;
+    }
+  }
+  .nc-viewer-pill {
+    display: inline-block;
+    font-size: 0.74rem;
+    font-weight: 700;
+    background: var(--nc-color-charcoal);
+    color: #fff;
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+  }
+  .nc-audience-pill {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    margin-bottom: 0.45rem;
+  }
+  .nc-audience-pill.family {
+    background: #fef3c7;
+    color: #92400e;
+  }
+  .nc-audience-pill.collector {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+  .nc-article-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 1rem;
+  }
+  .nc-article-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    background: var(--nc-color-light-gray);
+    border-radius: 1rem;
+    padding: 1.15rem;
+    text-decoration: none !important;
+    transition: transform 0.15s ease, background-color 0.15s ease;
+  }
+  .nc-article-card.family-card { border-left: 4px solid #f59e0b; }
+  .nc-article-card.collector-card { border-left: 4px solid #dc2626; }
+  .nc-article-card:hover {
+    background: var(--nc-color-sun);
+    transform: translateY(-2px);
+  }
+  .nc-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .nc-card-badge {
+    font-size: 0.74rem;
+    font-weight: 600;
+    background: #fff;
+    color: var(--nc-color-charcoal);
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+  }
+  .nc-card-date { font-size: 0.76rem; color: #66655d; }
+  .nc-card-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.45;
+    margin: 0;
+    color: var(--nc-color-charcoal);
+  }
+  .nc-card-excerpt {
+    font-size: 0.87rem;
+    line-height: 1.55;
+    color: #4b4a44;
+    margin: 0;
+    flex: 1;
+  }
+  .nc-card-more {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--nc-color-highlight);
+  }
+</style>

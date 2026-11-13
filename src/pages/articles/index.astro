@@ -20,14 +20,15 @@ const categories = [
 const SITE_CAT_MAP: Record<string, { category: Article['category']; label: string }> = {
   'aichi-high': { category: 'education', label: '🎓 愛知高校受験ナビ' },
   'wakwak-money': { category: 'education', label: '💰 ワクワク家計・100歳CF' },
-  'toyotahome': { category: 'automation', label: '🏠 トヨタホーム建築実録' },
+  'toyotahome': { category: 'energy', label: '🏡 トヨタホーム建築10年記' },
   'nanbyo': { category: 'automation', label: '🩺 難病・医療データ記録' },
   'ai-hems': { category: 'energy', label: '⚡ AI Home HEMS' },
-  'hobby-labs': { category: 'automation', label: '🎨 ホビー・特撮ラボ' },
+  'hobby-labs': { category: 'automation', label: '👾 ウルトラマン・ホビー' },
 };
 
 // 静的配列に内部専用サイト（モータ学術論文など）の記事が混ざっている場合も公開一覧から落とす
-const allArticles: Article[] = ARTICLES.filter((a) => isPublicArticle(a));
+// また AI/テックサイト側の記事一覧では医療（nanbyo）を混ぜず専門分離する
+const allArticles: Article[] = ARTICLES.filter((a) => isPublicArticle(a) && a.siteId !== 'nanbyo');
 const seenSlugs = new Set(allArticles.map((a) => a.slug));
 
 const requestedCat = (Astro.url.searchParams.get('cat') || 'all').trim();
@@ -191,44 +192,53 @@ const pageHref = (p: number): string => {
       ))}
     </div>
 
+    <AdBanner slotType="banner" siteId="smartailife" />
+
     <div class="nc-home-layout">
       <!-- Left Main Column: Article Cards Grid -->
       <div>
         <div class="nc-articles-grid" id="articles-grid">
-          {pageArticles.map((article) => (
-            <article
-              class="nc-doc-card article-magazine-card"
-              data-category={article.category}
-              data-search={`${article.title} ${article.excerpt} ${article.categoryLabel} ${article.tags.join(' ')}`.toLowerCase()}
-              style={activeCat !== 'all' && article.category !== activeCat ? 'display:none;' : undefined}
-            >
-              <div class="nc-doc-card-inner">
-                <div class="nc-doc-meta">
-                  <span class="nc-doc-cat">{article.categoryLabel}</span>
-                  <time datetime={article.date}>{article.date}</time>
-                  <span>· {article.readTime}</span>
-                </div>
-
-                <h2 class="nc-doc-title">
-                  <a href={`/articles/${article.slug}`}>{article.title}</a>
-                </h2>
-
-                <p class="nc-doc-excerpt">{article.excerpt}</p>
-
-                <div class="nc-doc-footer">
-                  <div class="nc-doc-tags">
-                    {article.tags.slice(0, 4).map((tag) => (
-                      <span class="nc-doc-tag">#{tag}</span>
-                    ))}
+          {pageArticles.map((article, idx) => (
+            <>
+              <article
+                class="nc-doc-card article-magazine-card"
+                data-category={article.category}
+                data-search={`${article.title} ${article.excerpt} ${article.categoryLabel} ${article.tags.join(' ')}`.toLowerCase()}
+                style={activeCat !== 'all' && article.category !== activeCat ? 'display:none;' : undefined}
+              >
+                <div class="nc-doc-card-inner">
+                  <div class="nc-doc-meta">
+                    <span class="nc-doc-cat">{article.categoryLabel}</span>
+                    <time datetime={article.date}>{article.date}</time>
+                    <span>· {article.readTime}</span>
                   </div>
-                  <a href={`/articles/${article.slug}`} class="nc-doc-cta" aria-label={`${article.title} を読む`}>
-                    <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
-                      <path d="M3.5 8H12.5M12.5 8L8.5 4M12.5 8L8.5 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                  </a>
+
+                  <h2 class="nc-doc-title">
+                    <a href={`/articles/${article.slug}`}>{article.title}</a>
+                  </h2>
+
+                  <p class="nc-doc-excerpt">{article.excerpt}</p>
+
+                  <div class="nc-doc-footer">
+                    <div class="nc-doc-tags">
+                      {article.tags.slice(0, 4).map((tag) => (
+                        <span class="nc-doc-tag">#{tag}</span>
+                      ))}
+                    </div>
+                    <a href={`/articles/${article.slug}`} class="nc-doc-cta" aria-label={`${article.title} を読む`}>
+                      <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                        <path d="M3.5 8H12.5M12.5 8L8.5 4M12.5 8L8.5 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </a>
+                  </div>
                 </div>
-              </div>
-            </article>
+              </article>
+              {idx === 5 && (
+                <div style="grid-column: 1 / -1;">
+                  <AdBanner slotType="infeed" siteId="smartailife" />
+                </div>
+              )}
+            </>
           ))}
         </div>
 
@@ -275,20 +285,25 @@ const pageHref = (p: number): string => {
 
       <!-- Right Sidebar Column: Nabu Casa Item Cards -->
       <aside class="nc-item-cards" aria-label="ラボ案内">
+        <AdBanner slotType="sidebar" siteId="smartailife" />
+
         <div class="nc-item-card primary">
-          <h3>テーマ別ラボから探す</h3>
-          <p>7つのラボごとに、関連する自作ツールと実践記事を体系化しています。</p>
-          <div style="margin-top: 0.5rem;">
-            <a href="/ai-living-lab/divisions" class="btn btn-dark">7つのラボ一覧 →</a>
+          <h3>テーマ別ポータルから探す</h3>
+          <p>住まい・お金・受験・ウルトラマン・HEMSの専用ページへ直接アクセスできます。</p>
+          <div style="margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.4rem;">
+            <a href="/toyotahome" class="btn btn-dark">🏡 トヨタホーム</a>
+            <a href="/ultraman" class="btn btn-light">👾 ウルトラマン</a>
+            <a href="/aichi-high" class="btn btn-light">🎓 高校受験</a>
+            <a href="/ai-hems" class="btn btn-light">⚡ HEMS</a>
           </div>
         </div>
 
         <div class="nc-item-card product">
           <p class="eyebrow">Featured Lab</p>
-          <h3>総合AIハック・自律エージェント</h3>
-          <p>自作 GPU クラスタ・ローカルLLM・日本語OCR書類仕分け・スマートホーム自動化の実践記録。</p>
+          <h3>AIリビングラボ（自律AI＆GPU）</h3>
+          <p>ローカルGPUクラスタ・FastMCP・スマートホーム自動化の実践記録。</p>
           <div style="margin-top: 0.5rem;">
-            <a href="/ai-living-lab/divisions/smartailife" class="btn btn-light">総合AIハックラボへ →</a>
+            <a href="/ai-living-lab" class="btn btn-light">AIリビングラボへ →</a>
           </div>
         </div>
 
@@ -403,13 +418,13 @@ const pageHref = (p: number): string => {
   }
 
   .nc-doc-excerpt {
-    font-size: 0.88rem;
-    line-height: 1.55;
+    font-size: 0.85rem;
+    line-height: 1.5;
     color: var(--nc-color-charcoal);
     opacity: 0.84;
     margin: 0;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }

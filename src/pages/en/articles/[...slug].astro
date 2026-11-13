@@ -1,0 +1,263 @@
+---
+export const prerender = false;
+import SmartAIBaseLayout from '../../../layouts/SmartAIBaseLayout.astro';
+import { ARTICLES_EN, type ArticleEn } from '../../../data/articles_en';
+import AdBanner from '../../../components/AdBanner.astro';
+
+const rawDrafts = import.meta.glob('../../../blog_drafts/*.html', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
+
+const rawSlug = (Astro.params.slug || '').replace(/\/+$/, '');
+const article: ArticleEn | undefined = ARTICLES_EN.find((a) => a.slug === rawSlug);
+
+if (!article) {
+  return Astro.redirect('/en/ai-living-lab');
+}
+
+let contentHtml = '';
+const draftKey = `../../../blog_drafts/${article.draftFile}`;
+if (rawDrafts[draftKey]) {
+  contentHtml = rawDrafts[draftKey];
+} else {
+  contentHtml = `<p>${article.excerpt}</p>`;
+}
+
+const relatedArticles = ARTICLES_EN.filter((a) => a.slug !== article.slug).slice(0, 4);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'TechArticle',
+      headline: article.title,
+      description: article.excerpt,
+      datePublished: `${article.date}T00:00:00+00:00`,
+      dateModified: `${article.date}T00:00:00+00:00`,
+      author: {
+        '@type': 'Person',
+        name: article.author,
+      },
+      publisher: {
+        '@type': 'Organization',
+        name: 'Smart AI Life Global',
+        logo: {
+          '@type': 'ImageObject',
+          url: 'https://eosinophilicgastroenteritis-ege.pages.dev/favicon.svg',
+        },
+      },
+      mainEntityOfPage: `https://eosinophilicgastroenteritis-ege.pages.dev/en/articles/${article.slug}`,
+    },
+  ],
+};
+---
+
+<SmartAIBaseLayout
+  title={`${article.title} | Smart AI Life Global`}
+  description={article.excerpt}
+  lang="en"
+>
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+  <section class="nc-hero hero-tin">
+    <div class="nc-hero-inner">
+      <p class="eyebrow" style="color: var(--nc-color-charcoal); opacity: 0.75;">Smart AI Life Global Documentation</p>
+      <h2 class="nc-hero-title">{article.categoryLabel}</h2>
+      <p class="nc-hero-lead">
+        Empirical telemetry, autonomous agent architectures, and open home energy systems from the Smart AI Life Living Lab.
+      </p>
+    </div>
+  </section>
+
+  <section class="nc-sub-hero">
+    <div class="nc-sub-hero-row">
+      <ol class="nc-breadcrumbs" aria-label="Breadcrumb">
+        <li><a href="/en/ai-living-lab">Smart AI Life Global</a></li>
+        <li><a href="/en/ai-living-lab#featured">Articles</a></li>
+        <li><span>{article.categoryLabel}</span></li>
+      </ol>
+
+      <form class="nc-search-wrapper small" action="/articles" method="get" role="search">
+        <div class="nc-search-field">
+          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M13.5 13.5L17.5 17.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <input
+            type="search"
+            name="q"
+            class="nc-search-input"
+            placeholder="Search for articles"
+            aria-label="Search for articles"
+          />
+        </div>
+        <button type="submit" class="btn btn-dark">Search</button>
+      </form>
+    </div>
+  </section>
+
+  <div class="nc-container" style="padding-bottom: 3rem;">
+    <header style="margin-bottom: 1.75rem; max-width: 960px;">
+      <h1 style="margin-bottom: 0.75rem;">{article.title}</h1>
+      <p style="font-family: var(--nc-font-serif); color: var(--nc-color-taupe); font-size: 1rem; font-weight: 300;">
+        Last updated: <time datetime={article.date}>{article.date}</time> · {article.readTime} · By {article.author}
+      </p>
+    </header>
+
+    <div class="nc-article-layout has-toc">
+      <aside class="nc-en-toc" aria-label="On this page">
+        <p class="nc-en-toc-title">On this page</p>
+        <ul class="nc-en-toc-list" id="nc-en-toc-list">
+          <li><a href="#en-article-body" class="is-active">Overview</a></li>
+        </ul>
+        <a href="#main-content" class="nc-en-toc-top">↑ Back to top</a>
+      </aside>
+
+      <div style="min-width: 0;">
+        <p style="font-family: var(--nc-font-serif); font-size: 1.05rem; line-height: 1.6; background: var(--nc-color-light-gray); padding: 1.1rem 1.25rem; border-radius: 0.75rem; margin-bottom: 1.5rem;">
+          {article.excerpt}
+        </p>
+
+        <AdBanner slotType="infeed" siteId="smartailife" />
+
+        <article id="en-article-body" class="nc-en-prose" set:html={contentHtml} />
+
+        <AdBanner slotType="banner" siteId="smartailife" />
+
+        {relatedArticles.length > 0 && (
+          <section style="margin-top: 2.5rem; padding-top: 1.75rem; border-top: 1px solid var(--nc-color-gray);">
+            <h3 style="font-size: 1.35rem; margin-bottom: 1rem;">Related articles</h3>
+            <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.65rem;">
+              {relatedArticles.map((rel) => (
+                <li style="background: var(--nc-color-light-gray); padding: 0.85rem 1.1rem; border-radius: 0.75rem;">
+                  <a href={`/en/articles/${rel.slug}`} style="font-weight: 450; text-decoration: underline; text-decoration-color: var(--nc-color-tin);">
+                    {rel.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+      </div>
+
+      <aside class="nc-item-cards">
+        <div class="nc-item-card product">
+          <p class="eyebrow">Global Engineering Hub</p>
+          <h3>Smart AI Life Research</h3>
+          <p>Empirical benchmarks on local LLM orchestration, ECHONET Lite battery optimization, and 100-year life-plan simulations.</p>
+          <div style="margin-top: 0.5rem;">
+            <a href="/en/ai-living-lab" class="btn btn-light">Explore Global Hub →</a>
+          </div>
+        </div>
+
+        <AdBanner slotType="sidebar" siteId="smartailife" />
+
+        <div class="nc-item-card primary">
+          <h3>Explore Japanese Archives</h3>
+          <p>Browse full technical logs, interactive tools, or reach out to the Living Lab maintainer.</p>
+          <div style="margin-top: 0.5rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <a href="/articles" class="btn btn-dark">JP Archives</a>
+            <a href="/contact" class="btn btn-light">Contact</a>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</SmartAIBaseLayout>
+
+<script is:inline>
+  (function() {
+    var body = document.getElementById('en-article-body');
+    var list = document.getElementById('nc-en-toc-list');
+    if (!body || !list) return;
+    var headings = Array.from(body.querySelectorAll('h2, h3'));
+    if (!headings.length) return;
+    list.innerHTML = '';
+    headings.forEach(function(h, idx) {
+      if (!h.id) h.id = 'en-sec-' + (idx + 1);
+      var li = document.createElement('li');
+      var a = document.createElement('a');
+      a.href = '#' + h.id;
+      a.textContent = (h.textContent || '').trim();
+      if (idx === 0) a.className = 'is-active';
+      li.appendChild(a);
+      list.appendChild(li);
+    });
+  })();
+</script>
+
+<style>
+  .nc-en-toc {
+    border-left: 1px solid var(--nc-color-gray);
+    padding-left: 1rem;
+  }
+  @media (min-width: 1024px) {
+    .nc-en-toc {
+      position: sticky;
+      top: 1.5rem;
+    }
+  }
+  .nc-en-toc-title {
+    font-family: var(--nc-font-serif);
+    font-size: 1.125rem;
+    font-weight: 300;
+    margin: 0 0 0.75rem;
+    padding-left: 0.5rem;
+  }
+  .nc-en-toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .nc-en-toc-list :global(a) {
+    display: block;
+    font-size: 0.86rem;
+    padding: 0.42rem 0.65rem;
+    border-radius: 0.5rem;
+    color: var(--nc-color-charcoal);
+    text-decoration: none !important;
+  }
+  .nc-en-toc-list :global(a.is-active) {
+    background-color: var(--nc-color-sun);
+    font-weight: 450;
+  }
+  .nc-en-toc-top {
+    display: inline-block;
+    margin-top: 1rem;
+    padding-left: 0.5rem;
+    font-size: 0.82rem;
+    color: var(--nc-color-taupe);
+  }
+  .nc-en-prose {
+    font-size: 1.04rem;
+    line-height: 1.75;
+    color: var(--nc-color-charcoal);
+  }
+  .nc-en-prose :global(h2) {
+    font-size: clamp(1.45rem, 1.3rem + 0.8vw, 1.95rem);
+    font-weight: 450;
+    border-bottom: 1px solid var(--nc-color-gray);
+    padding-bottom: 0.45rem;
+    margin: 2rem 0 0.9rem;
+  }
+  .nc-en-prose :global(h3) {
+    font-size: 1.25rem;
+    font-weight: 450;
+    margin: 1.75rem 0 0.7rem;
+  }
+  .nc-en-prose :global(p) {
+    margin: 0 0 1.15rem;
+  }
+  .nc-en-prose :global(blockquote) {
+    border-left: 0.25rem solid var(--nc-color-orange);
+    background-color: var(--nc-color-light-gray);
+    padding: 1rem 1.25rem;
+    border-radius: 0 0.75rem 0.75rem 0;
+    margin: 1.25rem 0;
+  }
+</style>

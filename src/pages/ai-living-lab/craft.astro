@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/SmartAIBaseLayout.astro';
+import AdBanner from '../../components/AdBanner.astro';
 import craftData from '../../data/craft-knowledge.json';
 
 const author = craftData.featured_author;
@@ -39,6 +40,7 @@ const articles = craftData.articles;
 
   <!-- 3. Nabu Casa 3-Column Documentation Layout -->
   <div class="nc-container" style="padding-bottom: 3rem;">
+    <AdBanner slotType="banner" siteId="smartailife" />
     <div class="nc-article-layout has-toc">
       <!-- Left Sticky TOC -->
       <aside class="nc-craft-toc" aria-label="On this page">
@@ -187,6 +189,7 @@ const articles = craftData.articles;
 
       <!-- Right Sidebar Cards -->
       <aside class="nc-item-cards">
+        <AdBanner slotType="sidebar" siteId="smartailife" />
         <div class="nc-item-card product">
           <p class="eyebrow">Active Design System</p>
           <h3>Nabu Casa Support Aesthetic</h3>

@@ -64,12 +64,13 @@ const navItems = [
           </button>
         </div>
 
-        <!-- モバイルメニュー用ハンバーガーボタン -->
+        <!-- メニュー用ハンバーガーボタン（管理用ジャンプ＆モバイルナビ兼用） -->
         <button
           type="button"
           id="mobile-menu-btn"
-          class="lg:hidden inline-flex items-center justify-center p-1.5 sm:p-2 rounded-xl text-[#3D3A35] hover:bg-[#F4F1EA] focus:outline-hidden border border-[#E6DFD3]"
+          class="inline-flex items-center justify-center p-1.5 sm:p-2 rounded-xl text-[#3D3A35] hover:bg-[#F4F1EA] focus:outline-hidden border border-[#E6DFD3]"
           aria-label="メニューを開く"
+          aria-expanded="false"
         >
           <svg class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -96,35 +97,63 @@ const navItems = [
     </nav>
   </div>
 
-  <!-- モバイルメニュー -->
-  <div id="mobile-menu" class="hidden lg:hidden border-t border-[#F0EAE1] bg-[#FDFBF7] px-3 pt-2.5 pb-4 space-y-1 shadow-lg max-h-[80vh] overflow-y-auto">
-    {navItems.map(item => (
-      <a
-        href={item.href}
-        class={`block px-3 py-2 rounded-xl text-sm font-bold transition-colors ${
-          item.highlight
-            ? 'text-[#2C3E35] bg-[#81B29A]/20 border border-[#81B29A]/40'
-            : 'text-[#3D3A35] hover:text-[#E07A5F] hover:bg-[#F4F1EA]'
-        }`}
-      >
-        {item.label}
-      </a>
-    ))}
-    <div class="pt-2 border-t border-[#F0EAE1] flex flex-wrap gap-2 text-xs">
+  <!-- ドロップダウン / モバイルメニュー -->
+  <div id="mobile-menu" class="hidden border-t border-[#F0EAE1] bg-[#FDFBF7] px-3 pt-2.5 pb-4 space-y-1 shadow-lg max-h-[85vh] overflow-y-auto lg:absolute lg:right-4 lg:top-full lg:w-96 lg:rounded-b-2xl lg:border lg:border-[#E6DFD3]">
+    <div class="lg:hidden space-y-1">
+      {navItems.map(item => (
+        <a
+          href={item.href}
+          class={`block px-3 py-2 rounded-xl text-sm font-bold transition-colors ${
+            item.highlight
+              ? 'text-[#2C3E35] bg-[#81B29A]/20 border border-[#81B29A]/40'
+              : 'text-[#3D3A35] hover:text-[#E07A5F] hover:bg-[#F4F1EA]'
+          }`}
+        >
+          {item.label}
+        </a>
+      ))}
+    </div>
+    <div class="pt-2 lg:pt-0 border-t lg:border-t-0 border-[#F0EAE1] flex flex-wrap gap-1.5 text-xs">
       <a href="/disclaimer" class="px-2.5 py-1 rounded-lg bg-[#F4F1EA] text-[#6E685F] hover:text-[#3D3A35]">医療に関するご注意</a>
       <a href="/privacy" class="px-2.5 py-1 rounded-lg bg-[#F4F1EA] text-[#6E685F] hover:text-[#3D3A35]">プライバシーポリシー</a>
       <a href="/contact" class="px-2.5 py-1 rounded-lg bg-[#F4F1EA] text-[#6E685F] hover:text-[#3D3A35]">お問い合わせ</a>
+    </div>
+
+    <!-- 管理用・配下サイトクイックリンク（控えめ表示） -->
+    <div class="pt-2.5 mt-2 border-t border-dashed border-[#E6DFD3]">
+      <div class="text-[10px] font-medium tracking-wider text-[#9A948B] mb-1.5 px-1">
+        管理用・配下サイトへ移動
+      </div>
+      <div class="grid grid-cols-2 gap-1 text-[11px]">
+        <a href="/ai-living-lab" class="px-2 py-1 rounded-md bg-[#F7F4EE] text-[#5C5750] hover:bg-[#EFE9DE] hover:text-[#2C2925] transition-colors truncate">AIリビングラボ</a>
+        <a href="/articles" class="px-2 py-1 rounded-md bg-[#F7F4EE] text-[#5C5750] hover:bg-[#EFE9DE] hover:text-[#2C2925] transition-colors truncate">全記事データベース</a>
+        <a href="/toyotahome" class="px-2 py-1 rounded-md bg-[#F7F4EE] text-[#5C5750] hover:bg-[#EFE9DE] hover:text-[#2C2925] transition-colors truncate">トヨタホーム実録</a>
+        <a href="/ultraman" class="px-2 py-1 rounded-md bg-[#F7F4EE] text-[#5C5750] hover:bg-[#EFE9DE] hover:text-[#2C2925] transition-colors truncate">ウルトラマン特設</a>
+        <a href="/aichi-high" class="px-2 py-1 rounded-md bg-[#F7F4EE] text-[#5C5750] hover:bg-[#EFE9DE] hover:text-[#2C2925] transition-colors truncate">愛知高校受験ラボ</a>
+        <a href="/wakwak-money" class="px-2 py-1 rounded-md bg-[#F7F4EE] text-[#5C5750] hover:bg-[#EFE9DE] hover:text-[#2C2925] transition-colors truncate">わくわくマネーラボ</a>
+        <a href="/ai-hems" class="px-2 py-1 rounded-md bg-[#F7F4EE] text-[#5C5750] hover:bg-[#EFE9DE] hover:text-[#2C2925] transition-colors truncate">AI Home HEMS</a>
+        <a href="/ai-living-lab/company" class="px-2 py-1 rounded-md bg-[#F7F4EE] text-[#5C5750] hover:bg-[#EFE9DE] hover:text-[#2C2925] transition-colors truncate">運営会社・全体組織</a>
+      </div>
     </div>
   </div>
 </header>
 
 <script is:inline>
-  // モバイルメニュートグル
+  // メニュートグル
   const btn = document.getElementById('mobile-menu-btn');
   const menu = document.getElementById('mobile-menu');
   if (btn && menu) {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const willOpen = menu.classList.contains('hidden');
       menu.classList.toggle('hidden');
+      btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+    });
+    document.addEventListener('click', (e) => {
+      if (!menu.classList.contains('hidden') && !menu.contains(e.target) && !btn.contains(e.target)) {
+        menu.classList.add('hidden');
+        btn.setAttribute('aria-expanded', 'false');
+      }
     });
   }
 

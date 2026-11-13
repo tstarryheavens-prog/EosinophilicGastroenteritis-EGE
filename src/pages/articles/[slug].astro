@@ -261,6 +261,34 @@ if (!article) {
 const siteKey = article.siteId || 'smartailife';
 const heroInfo = SITE_LABELS[siteKey] || SITE_LABELS['smartailife'];
 
+function portalHref(siteId?: string): string {
+  switch (siteId) {
+    case 'toyotahome': return '/toyotahome';
+    case 'hobby-labs':
+    case 'ultraman': return '/ultraman';
+    case 'aichi-high': return '/aichi-high';
+    case 'wakwak-money': return '/wakwak-money';
+    case 'ai-hems': return '/ai-hems';
+    case 'nanbyo': return '/';
+    case 'smartailife': return '/ai-living-lab/divisions/smartailife';
+    default: return siteId ? `/ai-living-lab/divisions/${siteId}` : '/ai-living-lab/divisions';
+  }
+}
+
+const labPortalUrl = portalHref(article.siteId);
+
+// Split contentHtml before the middle <h2> to insert an in-article AdSense slot
+let contentFirstHalf = contentHtml;
+let contentSecondHalf = '';
+const h2Matches = [...contentHtml.matchAll(/<h2[\s>]/gi)];
+if (h2Matches.length >= 2) {
+  const splitIdx = h2Matches[Math.floor(h2Matches.length / 2)].index ?? -1;
+  if (splitIdx > 0) {
+    contentFirstHalf = contentHtml.slice(0, splitIdx);
+    contentSecondHalf = contentHtml.slice(splitIdx);
+  }
+}
+
 // Related articles (same category or siteId, up to 5)
 const relatedArticles = ARTICLES.filter(
   (a) => a.slug !== article!.slug && (a.category === article!.category || a.siteId === article!.siteId)
@@ -290,7 +318,7 @@ const shareText = `${article.title} | Smart AI Life`;
         <li><a href="/ai-living-lab" class="nc-breadcrumb-ai-home" title="AI Living Lab（暮らしとAIの実験室）トップへ">🤖 AI Living Lab</a></li>
         <li><a href="/articles">記事一覧</a></li>
         {article.siteId ? (
-          <li><a href={`/divisions/${article.siteId}`}>{article.categoryLabel}</a></li>
+          <li><a href={labPortalUrl}>{article.categoryLabel}</a></li>
         ) : (
           <li><span>{article.categoryLabel}</span></li>
         )}
@@ -371,11 +399,19 @@ const shareText = `${article.title} | Smart AI Life`;
           <p class="nc-article-lead-summary">{article.excerpt}</p>
         )}
 
+        <AdBanner slotType="infeed" siteId={article.siteId as any || 'smartailife'} category={article.category} />
+
         <article class="nc-article-body" id="article-content">
-          <div class="nc-prose" set:html={contentHtml} />
+          <div class="nc-prose" set:html={contentFirstHalf} />
+          {contentSecondHalf && (
+            <>
+              <AdBanner slotType="infeed" siteId={article.siteId as any || 'smartailife'} category={article.category} />
+              <div class="nc-prose" set:html={contentSecondHalf} />
+            </>
+          )}
         </article>
 
-        <AdBanner siteId={article.siteId as any || 'smartailife'} category={article.category} />
+        <AdBanner slotType="banner" siteId={article.siteId as any || 'smartailife'} category={article.category} />
 
         <!-- Bottom Related Articles & Share Section (Nabu Casa .article-relatives) -->
         <section class="nc-article-relatives">
@@ -451,11 +487,13 @@ const shareText = `${article.title} | Smart AI Life`;
             <h3>{article.categoryLabel}</h3>
             <p>{heroInfo.desc}</p>
             <div style="margin-top: 0.5rem;">
-              <a href={article.siteId ? `/divisions/${article.siteId}` : '/divisions'} class="btn btn-light">
+              <a href={labPortalUrl} class="btn btn-light">
                 このラボの記事を見る →
               </a>
             </div>
           </div>
+
+          <AdBanner slotType="sidebar" siteId={article.siteId as any || 'smartailife'} category={article.category} />
 
           <!-- 2. Primary Sun Card (#ffde77) -->
           <div class="nc-item-card primary">

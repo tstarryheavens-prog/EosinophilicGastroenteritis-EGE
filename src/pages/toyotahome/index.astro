@@ -1,0 +1,250 @@
+---
+export const prerender = false;
+import SmartAIBaseLayout from '../../layouts/SmartAIBaseLayout.astro';
+import AdBanner from '../../components/AdBanner.astro';
+import { ARTICLES } from '../../data/articles';
+
+const toyotahomeArticles = ARTICLES.filter(
+  (a) => a.siteId === 'toyotahome' || a.slug.includes('toyotahome')
+);
+
+const tools = [
+  {
+    title: '総費用・5,200万ローン内訳シミュレーター',
+    desc: '土地・建物・値引き527万円・諸費用・ローン返済を数字でわかりやすく確認できます。',
+    href: '/toyotahome/cost.html',
+    tone: 'sun',
+    badge: '家づくり・予算',
+  },
+  {
+    title: '太陽光＆14.9kWh蓄電池の収支実録',
+    desc: '売電期間が終わったあとの電気代変化と蓄電池の元が取れるかを検証しています。',
+    href: '/toyotahome/solar-battery.html',
+    tone: 'green',
+    badge: '光熱費・卒FIT',
+  },
+  {
+    title: '10年間の住まい年表＆修繕タイムライン',
+    desc: '契約・引き渡しから10年目の点検・設備交換まで、時系列で振り返る家族の住まい年表。',
+    href: '/toyotahome/timeline.html',
+    tone: 'tin',
+    badge: '10年の記録',
+  },
+  {
+    title: '保証・メンテナンスのチェックリスト',
+    desc: '10年目あたりで発生するパントリー修理や給湯器・エアコン交換のリアルな費用と確認点。',
+    href: '/toyotahome/warranty-factcheck.html',
+    tone: 'orange',
+    badge: '10年点検・修繕',
+  },
+];
+---
+
+<SmartAIBaseLayout
+  title="トヨタホーム建築10年記 ｜ マイホームの費用・間取り・10年点検実録"
+  description="頭金0円・5,200万円フルローンで建てたトヨタホームの注文住宅10年実録。子育てファミリー目線の資金計画・値引き交渉・水回り比較・10年目設備交換まで分かりやすく公開。"
+>
+  <section class="nc-hero hero-sun">
+    <div class="nc-hero-inner">
+      <p class="eyebrow" style="color: var(--nc-color-charcoal); opacity: 0.85;">マイホーム実録ポータル（ファミリー向け）</p>
+      <h1 class="nc-hero-title">トヨタホーム建築10年記</h1>
+      <p class="nc-hero-lead">
+        頭金0円・5,200万円フルローンで家を建てて10年。注文住宅を検討中のご家族に向けて、実際にかかったお金、設備の使い心地、10年目の修理・交換費用まで包み隠さずまとめました。
+      </p>
+
+      <div style="margin-top: 1.25rem; display: flex; flex-wrap: wrap; gap: 0.65rem;">
+        <a href="#episodes" class="btn btn-dark">全{toyotahomeArticles.length}話の実録記事を読む</a>
+        <a href="/toyotahome/cost.html" class="btn btn-light">費用・ローン内訳ツールを見る</a>
+        <a href="/ai-living-lab" class="btn btn-light">AIリビングラボへ</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="nc-container" style="padding-bottom: 3rem;">
+    <!-- 数値ハイライト -->
+    <div class="nc-kpi-strip" style="margin-bottom: 1.5rem;">
+      <div class="nc-kpi-box">
+        <span class="nc-kpi-label">土地＋建物＋諸費用 合計</span>
+        <strong class="nc-kpi-value">5,160万円</strong>
+        <span class="nc-kpi-sub">5,200万円フルローン契約</span>
+      </div>
+      <div class="nc-kpi-box">
+        <span class="nc-kpi-label">相見積もり・決算値引き</span>
+        <strong class="nc-kpi-value">▲527万円</strong>
+        <span class="nc-kpi-sub">本体・外構を含む交渉結果</span>
+      </div>
+      <div class="nc-kpi-box">
+        <span class="nc-kpi-label">給湯・空調の住まい構成</span>
+        <strong class="nc-kpi-value">ガス給湯＋個別AC</strong>
+        <span class="nc-kpi-sub">エコジョーズ＋各部屋エアコン</span>
+      </div>
+      <div class="nc-kpi-box">
+        <span class="nc-kpi-label">10年目設備更新</span>
+        <strong class="nc-kpi-value">蓄電池14.9kWh</strong>
+        <span class="nc-kpi-sub">給湯器・換気扇・建具修理済</span>
+      </div>
+    </div>
+
+    <AdBanner slotType="banner" siteId="toyotahome" />
+
+    <!-- 特設ツールカード -->
+    <section style="margin-top: 1.5rem; margin-bottom: 2rem;">
+      <p class="eyebrow">家族で家計と住まいをシミュレーション</p>
+      <h2>目的別の実録データ・比較ページ</h2>
+      <div class="nc-category-cards" style="margin-top: 1rem;">
+        {tools.map((tool) => (
+          <a href={tool.href} class={`nc-category-card ${tool.tone}`}>
+            <div class="nc-category-card-content">
+              <div class="nc-category-card-title">
+                <span style="font-size: 0.78rem; font-weight: 600; opacity: 0.85;">{tool.badge}</span>
+                <h3>{tool.title}</h3>
+              </div>
+              <div class="nc-category-card-description">
+                <p>{tool.desc}</p>
+                <span class="nc-category-card-cta" aria-hidden="true">→</span>
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <AdBanner slotType="infeed" siteId="toyotahome" />
+
+    <!-- 全18回実録記事一覧 -->
+    <section id="episodes" style="margin-top: 2rem;">
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 1rem; margin-bottom: 1.25rem;">
+        <div>
+          <p class="eyebrow">注文住宅検討中・10年目オーナー必見</p>
+          <h2>家づくり〜10年点検 実録記事一覧（全{toyotahomeArticles.length}本）</h2>
+        </div>
+        <input
+          type="search"
+          id="th-search"
+          class="nc-inline-search"
+          placeholder="キーワードで絞り込み（例：値引き、給湯器、蓄電池）"
+          aria-label="トヨタホーム記事検索"
+        />
+      </div>
+
+      <div class="nc-article-grid" id="th-list">
+        {toyotahomeArticles.map((art) => (
+          <a
+            href={`/articles/${art.slug}`}
+            class="nc-article-card"
+            data-search={`${art.title} ${art.excerpt} ${art.tags.join(' ')}`.toLowerCase()}
+          >
+            <div class="nc-card-top">
+              <span class="nc-card-badge">{art.categoryLabel}</span>
+              <span class="nc-card-date">{art.date} · {art.readTime}</span>
+            </div>
+            <h3 class="nc-card-title">{art.title}</h3>
+            <p class="nc-card-excerpt">{art.excerpt}</p>
+            <span class="nc-card-more">詳しく読む →</span>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <div style="margin-top: 2.5rem;">
+      <AdBanner slotType="banner" siteId="toyotahome" />
+    </div>
+  </div>
+</SmartAIBaseLayout>
+
+<script is:inline>
+  (function () {
+    const input = document.getElementById('th-search');
+    const cards = document.querySelectorAll('#th-list .nc-article-card');
+    if (!input || !cards.length) return;
+    input.addEventListener('input', function () {
+      const q = (input.value || '').trim().toLowerCase();
+      cards.forEach(function (card) {
+        const text = card.getAttribute('data-search') || '';
+        card.style.display = !q || text.includes(q) ? '' : 'none';
+      });
+    });
+  })();
+</script>
+
+<style>
+  .nc-kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 0.75rem;
+  }
+  .nc-kpi-box {
+    background: var(--nc-color-light-gray);
+    border-radius: 0.85rem;
+    padding: 1rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  .nc-kpi-label { font-size: 0.76rem; color: #55544d; font-weight: 500; }
+  .nc-kpi-value { font-size: 1.35rem; font-weight: 700; color: var(--nc-color-charcoal); }
+  .nc-kpi-sub { font-size: 0.75rem; color: #6e6d65; }
+  .nc-inline-search {
+    width: 100%;
+    max-width: 360px;
+    padding: 0.65rem 1rem;
+    border: 1.5px solid var(--nc-color-charcoal);
+    border-radius: 999px;
+    font-size: 0.9rem;
+    background: #fff;
+  }
+  .nc-article-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 1rem;
+  }
+  .nc-article-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    background: var(--nc-color-light-gray);
+    border-radius: 1rem;
+    padding: 1.15rem;
+    text-decoration: none !important;
+    transition: transform 0.15s ease, background-color 0.15s ease;
+  }
+  .nc-article-card:hover {
+    background: var(--nc-color-sun);
+    transform: translateY(-2px);
+  }
+  .nc-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .nc-card-badge {
+    font-size: 0.74rem;
+    font-weight: 600;
+    background: #fff;
+    color: var(--nc-color-charcoal);
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+  }
+  .nc-card-date { font-size: 0.76rem; color: #66655d; }
+  .nc-card-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.45;
+    margin: 0;
+    color: var(--nc-color-charcoal);
+  }
+  .nc-card-excerpt {
+    font-size: 0.87rem;
+    line-height: 1.55;
+    color: #4b4a44;
+    margin: 0;
+    flex: 1;
+  }
+  .nc-card-more {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--nc-color-highlight);
+  }
+</style>

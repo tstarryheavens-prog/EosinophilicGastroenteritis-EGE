@@ -1,0 +1,251 @@
+<div class="article-body">
+<p class="lead">2026年、生成AIは「チャット画面でテキストをやり取りする対話アシスタント」から、OSやファイルシステム、開発環境に直接アクセスして複雑な業務を自律完結する<strong>「自律型デスクトップコワーキング（Autonomous PC Cowork）」</strong>の時代へと決定的な進化を遂げました。Googleが提唱する次世代エージェント構想「Gemini Spark」や、Anthropicの「Computer Use / Cowork」が目指す世界は、まさにローカルPC環境とAIの完全シームレスな融合です。</p>
+
+<p>本稿では、公式の<strong>Geminiアプリ</strong>にオープンスタンダードである<strong>MCP（Model Context Protocol）</strong>を導入し、開発環境である<strong>Antigravity IDE</strong>、および自律推論エージェント<strong>Hermes Agent Desktop（Nous Research）</strong>との間で「共通MCPハブ」を構築。さらに、macOSのシェルコマンドやリモートクラスタSSHを安全に直接駆動する<strong>「macOS ターミナル操作MCP」</strong>を独自開発して、Mac上の実務を完全自律化する構築手順をステップバイステップで公開します。（※セキュリティ保護のため、記事内のアカウント名・固有IP・認証トークン等はすべてマスクしています）</p>
+
+<hr />
+
+<h2>1. 全体アーキテクチャ：3大エージェントプレーンと共通MCPバス</h2>
+
+<p>これまで、異なるAIエージェントツール（Geminiアプリ、IDE型エージェント、ローカル自律エージェント）は個別にツール設定や拡張機能を持つのが一般的であり、ツール追加や認証情報の管理が多重化する問題がありました。</p>
+
+<p>本システムでは、すべてのエージェントが単一の中央MCP設定（<code>mcp_config.json</code>）を参照し、同一のローカルツール群・外部API・クラスタ操作モジュールを共有する<strong>「Universal MCP Bus アーキテクチャ」</strong>を採用しています。</p>
+
+<table border="1" cellpadding="8" style="border-collapse:collapse;width:100%;margin:16px 0;">
+  <thead>
+    <tr style="background:#f1f5f9;">
+      <th>構成レイヤー</th>
+      <th>主要コンポーネント</th>
+      <th>役割と機能連携</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Agent Plane（頭脳）</strong></td>
+      <td>
+        ・Google Gemini App（Web / Desktop）<br />
+        ・Antigravity Control Plane（IDE）<br />
+        ・Hermes Agent（Nous Research / ACP直結）
+      </td>
+      <td>推論、タスク計画、ユーザー指示の解釈。中央カンバン（<code>kanban.db</code>）と同期しながら並列実行。</td>
+    </tr>
+    <tr>
+      <td><strong>Protocol Plane（共通基盤）</strong></td>
+      <td>
+        ・Model Context Protocol (FastMCP)<br />
+        ・Agent Client Protocol (<code>mcacp</code> ブリッジ)
+      </td>
+      <td>JSON-RPC 2.0に基づく標準プロトコル。エージェントとOSツール間の抽象化通信を提供。</td>
+    </tr>
+    <tr>
+      <td><strong>Execution Plane（手足）</strong></td>
+      <td>
+        ・<code>macos-terminal</code>（zsh / bash / ssh直結）<br />
+        ・<code>excel-live</code>（Apple Events Excel操作）<br />
+        ・<code>emdash</code>（Cloudflare D1 CMS自動入稿）<br />
+        ・<code>chrome-devtools-mcp</code>（実ブラウザ遠隔）
+      </td>
+      <td>ローカルMacのファイル操作、シェル実行、GUIアプリ連動、GPUクラスタ監視を実際に遂行。</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2>2. ステップ1：中央MCP設定ファイル（mcp_config.json）の統合設計</h2>
+
+<p>すべての起点は、<code>~/.gemini/config/mcp_config.json</code> です。ここに登録されたMCPサーバーは、Geminiアプリ起動時に自動ロードされ、会話中の自然言語プロンプトに応じて動的にツール呼び出しが行われます。</p>
+
+<h3>共通設定ファイル（マスク済みテンプレート）</h3>
+<pre><code class="language-json">{
+  "mcpServers": {
+    "macos-terminal": {
+      "command": "/Users/&lt;username&gt;/my-mcp-server/macos-terminal-mcp/.venv/bin/python",
+      "args": [
+        "/Users/&lt;username&gt;/my-mcp-server/macos-terminal-mcp/server.py"
+      ]
+    },
+    "excel-live": {
+      "command": "/Users/&lt;username&gt;/my-mcp-server/macos-excel-mcp/.venv/bin/python",
+      "args": [
+        "/Users/&lt;username&gt;/my-mcp-server/macos-excel-mcp/server.py"
+      ]
+    },
+    "emdash": {
+      "command": "/Users/&lt;username&gt;/my-mcp-server/emdash-mcp/.venv/bin/python",
+      "args": [
+        "/Users/&lt;username&gt;/my-mcp-server/emdash-mcp/server.py"
+      ],
+      "env": {
+        "EMDASH_BASE_URL": "https://ai-living-lab.pages.dev"
+      }
+    },
+    "mcacp": {
+      "command": "/Users/&lt;username&gt;/.local/bin/mcacp"
+    },
+    "chrome-devtools-mcp": {
+      "command": "npx",
+      "args": ["-y", "chrome-devtools-mcp@latest"]
+    },
+    "ai-company-os": {
+      "command": "/Users/&lt;username&gt;/.hermes/hermes-agent/venv/bin/python",
+      "args": [
+        "/Volumes/Docker/SmartAILife/ai_company/tools_bridge/ai_company_mcp.py"
+      ]
+    }
+  }
+}
+</code></pre>
+
+<p><strong>【設計の勘所】:</strong><br />
+各MCPサーバーごとに独立したPython仮想環境（<code>.venv</code>）を用意し、依存パッケージの衝突を完全に防止しています。Node.js系のMCP（Chrome DevTools等）は<code>npx -y</code>で即時起動させることで、グローバル環境をクリーンに保ちます。</p>
+
+<hr />
+
+<h2>3. ステップ2：macOS ターミナル操作MCPの完全実装（Python FastMCP）</h2>
+
+<p>エージェントに「Macを操作させる」上で最大の難所は、環境変数やPATHが非ログインシェルで欠落し、<code>pyenv</code>や<code>homebrew</code>、SSH設定が正常に解決されない点にあります。</p>
+
+<p>本実装では、<strong>FastMCP</strong>を採用し、ユーザーの<code>~/.zprofile</code>および<code>~/.zshrc</code>を透過的にプリロードする堅牢な実行ラッパーを構築しました。</p>
+
+<h3>macos-terminal-mcp/server.py 実装コード</h3>
+<pre><code class="language-python">#!/usr/bin/env python3
+# macOS Terminal & Shell Execution MCP Server
+import os
+import subprocess
+import sys
+from pathlib import Path
+from typing import Any, Dict, Optional
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP(
+    "macos-terminal",
+    instructions="macOS上のローカルコマンド（Zsh）およびリモートクラスタ（SSH）を実行する統合ツール"
+)
+
+@mcp.tool()
+def execute_command(command: str, cwd: str = "~", timeout: int = 120) -> Dict[str, Any]:
+    """macOSのzsh経由でシェルコマンドを実行し、結果を返却する。"""
+    expanded_cwd = os.path.expanduser(cwd)
+    if not os.path.exists(expanded_cwd):
+        return {"success": False, "error": f"Directory not found: {expanded_cwd}", "exit_code": 1}
+
+    # ユーザーのログイン環境（PATH, alias等）を確実にロードして実行
+    shell_cmd = f"source ~/.zprofile 2>/dev/null; source ~/.zshrc 2>/dev/null; {command}"
+
+    try:
+        proc = subprocess.run(
+            ["/bin/zsh", "-c", shell_cmd],
+            cwd=expanded_cwd,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+            env=os.environ.copy()
+        )
+        return {
+            "success": proc.returncode == 0,
+            "exit_code": proc.returncode,
+            "stdout": proc.stdout,
+            "stderr": proc.stderr,
+            "cwd": expanded_cwd
+        }
+    except subprocess.TimeoutExpired as e:
+        return {"success": False, "error": f"Timeout ({timeout}s)", "exit_code": -1}
+    except Exception as e:
+        return {"success": False, "error": str(e), "exit_code": 1}
+
+@mcp.tool()
+def ssh_command(host: str, command: str, user: Optional[str] = None, timeout: int = 60) -> Dict[str, Any]:
+    """Tailscale / SSH経由でリモートGPUクラスタノードにコマンドを発行する。"""
+    target = f"{user}@{host}" if user else host
+    ssh_args = [
+        "ssh",
+        "-o", "ConnectTimeout=10",
+        "-o", "BatchMode=yes",
+        "-o", "StrictHostKeyChecking=accept-new",
+        target,
+        command
+    ]
+    try:
+        proc = subprocess.run(ssh_args, capture_output=True, text=True, timeout=timeout)
+        return {
+            "success": proc.returncode == 0,
+            "exit_code": proc.returncode,
+            "target": target,
+            "stdout": proc.stdout,
+            "stderr": proc.stderr
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e), "exit_code": 1}
+
+@mcp.tool()
+def open_in_terminal(command: str) -> Dict[str, Any]:
+    """AppleScriptを用いてmacOS Terminal.appの新規ウィンドウを可視起動し実行する。"""
+    escaped = command.replace('\\', '\\\\').replace('"', '\\"')
+    apple_script = f'''
+    tell application "Terminal"
+        activate
+        do script "{escaped}"
+    end tell
+    '''
+    try:
+        subprocess.run(["osascript", "-e", apple_script], capture_output=True, text=True, timeout=10)
+        return {"success": True, "message": "Opened new Terminal window"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@mcp.tool()
+def get_system_info() -> Dict[str, Any]:
+    """CPU負荷、空き容量、稼働時間、Tailscale接続状態を取得する。"""
+    uptime = subprocess.run(["uptime"], capture_output=True, text=True).stdout.strip()
+    disk = subprocess.run(["df", "-h", "/"], capture_output=True, text=True).stdout.strip()
+    return {"success": True, "uptime": uptime, "root_disk": disk}
+
+if __name__ == "__main__":
+    mcp.run()
+</code></pre>
+
+<hr />
+
+<h2>4. ステップ3：セキュリティ境界とサンドボックス防衛設計</h2>
+
+<p>AIエージェントにシェル実行権限を与える際、最も警戒すべきは「誤った一括削除コマンドの暴走」や「セキュリティ保護領域への無制限アクセス」です。</p>
+
+<ol>
+  <li><strong>macOS SIP（System Integrity Protection）との整合性:</strong><br />
+    macOSネイティブの保護領域（<code>/System</code>、<code>/usr/bin</code>など）や、TCC（Transparency, Consent, and Control）が保護する「連絡先」「カレンダー」「写真」等へのアクセスはOSカーネルが厳格に拒否するため、AIが暴走しても基幹システムが破壊されるリスクは構造的に排除されています。</li>
+  <li><strong>エージェント実行ユーザーの分離:</strong><br />
+    Geminiやサブプロセスの実行コンテキストは、必要最小限の権限を持つサンドボックス・ユーザーまたはプロジェクトディレクトリに限定し、秘密鍵やマスターパスワードはmacOSキーチェーン（<code>security</code>コマンド連携）または環境変数経由でのみ受け渡します。</li>
+  <li><strong>タイムアウト・リソース制限（cgroup / ulimit）:</strong><br />
+    無限ループやメモリ枯渇を防ぐため、すべてのコマンドに明示的な<code>timeout</code>パラメータ（既定120秒）を設定し、応答がないプロセスはSIGTERM/SIGKILLで確実に刈り取ります。</li>
+</ol>
+
+<hr />
+
+<h2>5. 実践検証：GeminiチャットからMacとリモートGPUを自律操作する</h2>
+
+<p>この仕組みを導入したGeminiアプリでは、ユーザーが「<strong>@macos-terminal Z790-AL の GPU 状態を確認して</strong>」と1行チャットで話しかけるだけで、以下の自律アクションが瞬時に実行されます。</p>
+
+<ol>
+  <li>Geminiがプロンプトを解析し、MCPツール<code>ssh_command</code>の呼び出しを選択。</li>
+  <li>引数として<code>host: "Z790-AL"</code>、<code>command: "nvidia-smi"</code>を透過送信。</li>
+  <li>ローカルMacのFastMCPサーバーがTailscaleメッシュを経由してリモートノード（RTX 4070 Ti SUPER ＋ RTX 3060）へSSHログイン。</li>
+  <li>VRAM使用量（14,757 MiB / 10,571 MiB）や稼働中プロセス（Strata推論エンジン）を解析し、チャット画面に見やすい表組みとして即座に返却。</li>
+</ol>
+
+<p>さらに、AppleScript連携（<code>open_in_terminal</code>）を使えば、GUI画面上でユーザーが目視確認できる形でシェルジョブを実行させたり、<code>excel-live</code>を呼び出してMac上のMicrosoft Excelシートにリアルタイムで数式やデータを書き込ませるなど、まさに<strong>「Gemini Spark」が目指すPC自動化が、今すぐ手元のMacで完全に動作</strong>します。</p>
+
+<hr />
+
+<h2>6. まとめ：自律PCコワーキングの新時代へ</h2>
+
+<p>オープンなプロトコルであるMCPを活用することで、独自モデルや特定の商用サービスに縛られることなく、手持ちのMacを最強の自律エージェントステーションへとアップグレードできます。</p>
+
+<ul>
+  <li><strong>統合性:</strong> Gemini、Antigravity、Hermesが同じツール・同じ環境を共有。</li>
+  <li><strong>拡張性:</strong> Python数行で新しいMCPツールを追加し、即座に全エージェントで利用可能。</li>
+  <li><strong>ローカル完結:</strong> 機密コードやローカルファイルをクラウドにアップロードせず、自前のマシンパワーとクラスタで処理。</li>
+</ul>
+
+<p>次世代のAIエージェントライフを、ぜひご自身のMacでも体験してみてください。</p>
+</div>

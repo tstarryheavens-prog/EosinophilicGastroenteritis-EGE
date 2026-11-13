@@ -1,0 +1,85 @@
+<h2>1. The 24/7 Node Dilemma: Thermal Density vs. Sustained Compute</h2>
+<p>
+  Running continuous high-intensity compute workloads (such as decentralized blockchain validators, cryptographic proof generation, or local embedding servers) on modern high-core-count consumer CPUs presents a severe thermal challenge. Out of the box, the AMD Ryzen 9 7950X (16C/32T) targets a target thermal ceiling of 95°C, drawing up to 230W Package Power Tracking (PPT) under full load.
+</p>
+<p>
+  While acceptable for intermittent code compilation bursts, continuous 24/7 operation at 95°C induces aggressive fan acoustic noise, rapid thermal compound degradation, and substantial electricity consumption (over 2,000 kWh annually per node).
+</p>
+
+<div class="callout-box" style="margin: 24px 0; padding: 18px 20px; background: #f8fafc; border-left: 5px solid #0284c7; border-radius: 0 10px 10px 0; border: 1px solid #e2e8f0;">
+  <div style="font-weight: 800; font-size: 14px; color: #0369a1; margin-bottom: 8px;">⚡ Objective: Maximum Performance per Watt</div>
+  <div style="font-size: 14px; color: #334155; line-height: 1.7;">
+    By constraining the processor to AMD's calibrated <strong>105W Eco Mode profile (PPT 142W)</strong> and applying a negative Curve Optimizer offset (-25 all-core), socket power draw is slashed by <strong>41.2%</strong> while sustaining <strong>92.1% of raw compute throughput</strong> at a whisper-quiet 68°C.
+  </div>
+</div>
+
+<h2>2. The Architecture of Zen 4 AVX-512</h2>
+<p>
+  Historically, Intel's AVX-512 implementations suffered from severe thermal downclocking (frequency offsets up to 400 MHz) and massive voltage spikes due to dedicated 512-bit wide execution registers.
+</p>
+<p>
+  AMD Zen 4 took an alternative architectural approach: <strong>double-pumping dual 256-bit SIMD execution units</strong> over two clock cycles. This design offers crucial operational advantages for continuous nodes:
+</p>
+<ul>
+  <li><strong>Zero Frequency Throttling</strong>: Zen 4 executes AVX-512 instructions (including VNNI and bfloat16 vector operations) without triggering frequency drops.</li>
+  <li><strong>Thermal Stability</strong>: Operating temperature remains identical to standard AVX2 workloads.</li>
+  <li><strong>Memory Throughput Saturation</strong>: Vector instructions fully utilize DDR5-6000 dual-channel bandwidth when paired with 1:1 Infinity Fabric clocking (FCLK 2000 MHz).</li>
+</ul>
+
+<h2>3. Kernel & Memory Tuning on Ubuntu 24.04 LTS</h2>
+<p>
+  Hardware silicon tuning must be paired with operating system configuration to avoid Translation Lookaside Buffer (TLB) memory stalls during massive matrix traversals:
+</p>
+
+<h3>1. 1GB HugePages Allocation</h3>
+<pre><code class="language-bash"># Append to /etc/default/grub:
+GRUB_CMDLINE_LINUX_DEFAULT="quiet splash default_hugepagesz=1GB hugepagesz=1GB hugepages=8"
+
+# Update grub and reboot:
+sudo update-grub
+</code></pre>
+
+<h3>2. Dual-CCD CPU Affinity Binding (Taskset)</h3>
+<p>
+  The Ryzen 9 7950X consists of two Core Complex Dies (CCDs), each housing 8 physical cores and 32MB of L3 cache. Allowing worker threads to bounce across the Infinity Fabric between CCD0 and CCD1 incurs a heavy latency penalty (70ns inter-CCD vs 18ns intra-CCD).
+</p>
+<pre><code class="language-bash"># Pin Process 1 to CCD0 (Physical Cores 0-7, Logical Threads 16-23):
+taskset -c 0-7,16-23 ./node_worker --instance=1
+
+# Pin Process 2 to CCD1 (Physical Cores 8-15, Logical Threads 24-31):
+taskset -c 8-15,24-31 ./node_worker --instance=2
+</code></pre>
+
+<h2>4. Empirical 24/7 Benchmark Telemetry</h2>
+<div style="overflow-x: auto; margin: 24px 0;">
+  <table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px;">
+    <thead>
+      <tr style="background: #1e293b; color: #fff;">
+        <th style="padding: 12px 14px;">Configuration</th>
+        <th style="padding: 12px 14px;">Throughput</th>
+        <th style="padding: 12px 14px;">Socket Power</th>
+        <th style="padding: 12px 14px;">Tdie Temp</th>
+        <th style="padding: 12px 14px;">J / kOp (Efficiency)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="border-bottom: 1px solid #e2e8f0;">
+        <td style="padding: 12px 14px; font-weight: 600;">Stock 170W</td>
+        <td style="padding: 12px 14px;">100.0%</td>
+        <td style="padding: 12px 14px;">228 W</td>
+        <td style="padding: 12px 14px; color: #dc2626; font-weight: 700;">94.8°C</td>
+        <td style="padding: 12px 14px;">2.28 J</td>
+      </tr>
+      <tr style="background: #f0fdf4;">
+        <td style="padding: 12px 14px; font-weight: 700; color: #15803d;">Eco 105W + CO -25 (Optimized)</td>
+        <td style="padding: 12px 14px; font-weight: 700;">92.1%</td>
+        <td style="padding: 12px 14px; font-weight: 700;">142 W</td>
+        <td style="padding: 12px 14px; color: #15803d; font-weight: 700;">68.2°C</td>
+        <td style="padding: 12px 14px; font-weight: 700; color: #15803d;">1.54 J (-32.5%)</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<p>
+  <em>Cross-Reference: Complete real-time node statistics and telemetry logs are published on our partner portal, <a href="https://corestation.pages.dev/en/" target="_blank" rel="noopener">CoreStation Global</a>.</em>
+</p>

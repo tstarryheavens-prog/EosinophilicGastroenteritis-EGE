@@ -1,0 +1,116 @@
+<!-- ============================================================== -->
+<!-- 【はてなブログ用 HTML原稿 - 単独記事第5弾】                     -->
+<!-- タイトル: 【Paper2Agent】論文やGitHubを渡すだけで即座にMCP化！Nature 2026手法の破壊力と難病バイオ論文活用法 -->
+<!-- 編集モード: 「HTML編集」に切り替えてそのまま貼り付けてください   -->
+<!-- ============================================================== -->
+<div class="pottle-article-wrapper" style="font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif; color: #2d3748; line-height: 1.85; max-width: 820px; margin: 0 auto; font-size: 16px;">
+<!-- ヘッダーバナー -->
+<div style="background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 40%, #0284c7 100%); color: #ffffff; padding: 36px 24px; border-radius: 18px; margin-bottom: 30px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2); text-align: center;">
+<div style="display: inline-block; background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.4); color: #ffffff; font-size: 13px; font-weight: 700; padding: 4px 14px; border-radius: 9999px; margin-bottom: 15px; letter-spacing: 0.05em;">
+      🔬 実践MCP徹底解説シリーズ #05
+    </div>
+<h1 style="font-size: 26px; font-weight: 800; line-height: 1.45; margin: 0 0 15px 0; color: #ffffff;">
+      「読むだけ」だった最新論文が、AIの「使える道具」に変わる！<br/>
+<span style="color: #bae6fd;">Paper2Agent で論文・GitHubリポジトリを即座にMCP化する技術</span>
+</h1>
+<p style="font-size: 14.5px; color: #e0f2fe; margin: 0; line-height: 1.6;">
+      〜スタンフォード大学発（Nature 2026）先端フレームワーク。難病・好酸球性疾患の最新論文を自作エージェントへ直結〜
+    </p>
+</div>
+<!-- キャラクター紹介 -->
+<div style="background: linear-gradient(135deg, #f8fafc 0%, #f0f9ff 100%); border: 2px solid #bae6fd; border-radius: 18px; padding: 22px; margin-bottom: 35px; display: flex; gap: 20px; align-items: center; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.08);">
+<div style="flex-shrink: 0; text-align: center;">
+<img alt="ぽトル アイコン" src="https://cdn-ak.f.st-hatena.com/images/fotolife/M/MyToyotaHomeBottle/20261003/20261003213941.jpg" style="width: 80px; height: 80px; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border: 3px solid #ffffff; object-fit: cover;"/>
+<div style="font-size: 11px; font-weight: 700; color: #0284c7; margin-top: 4px;">POTTLE</div>
+</div>
+<div style="font-size: 14.5px;">
+<div style="font-weight: 800; color: #0369a1; font-size: 16px; margin-bottom: 4px;">
+        筆者：ぽトル（Pottle）｜ 省エネ脱力パンダ
+      </div>
+<div style="color: #475569; line-height: 1.6;">
+        「難解な英語論文を自力で一行ずつ読むのは疲れる…機械に解析させて道具にしてもらおう」と考える脱力パンダ。海外の最新医療データを武器にしています🐼💤
+      </div>
+</div>
+</div>
+<p>どうも、ぽトル（Pottle）です。</p>
+<p>
+    GitHubやarXivで最新の論文・オープンソースを見つけたとき、<strong>「面白そうだけど、インストールや環境構築が面倒で諦めた」</strong>経験はありませんか？
+  </p>
+<p>
+    せっかく人類の知恵が詰まった最先端のアルゴリズムがあるのに、普通の人にとっては「PDFを読んで終わり」か「動かすまでに数日かかる」のが常でした。
+  </p>
+<p>
+    その壁をぶち壊したのが、スタンフォード大学の研究者らが開発した<strong>「Paper2Agent（Nature 2026掲載手法）」</strong>です。<br/>
+    論文PDFやGitHubのURLを渡すだけで、AIが<strong>「その論文のコアロジックを抜き出し、動作するMCPサーバーのコードを全自動で書いてテストまで完了させてくれる」</strong>という夢のようなツールです！
+  </p>
+<hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;"/>
+<!-- 設定と仕組み -->
+<h2 style="font-size: 22px; color: #0369a1; border-left: 6px solid #0284c7; padding-left: 12px; margin-bottom: 20px;">
+    1. Paper2Agent の仕組みと導入手順
+  </h2>
+<p>
+    Paper2Agentは、学術論文内の数式や疑似コード、またはGitHubのリポジトリ構造を自律的に解析します。
+  </p>
+<div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 18px; margin: 20px 0;">
+<h3 style="font-size: 16px; margin: 0 0 10px; color: #0f172a;">🛠️ 使える主なMCPツール群：</h3>
+<ul style="margin: 0; padding-left: 20px; color: #334155; font-size: 14.5px; line-height: 1.8;">
+<li><code>paper2agent_showcase_servers</code>：AlphaGenome、Scanpy、TISSUEなど、公式に事前構築済みの最先端科学MCP一覧を取得</li>
+<li><code>paper2agent_analyze_repo</code>：任意のGitHubリポジトリを解析し、MCP化できる関数やAPI候補を特定</li>
+<li><code>paper2agent_generate_server_template</code>：FastMCP仕様のPythonサーバーコードを自動生成</li>
+<li><code>paper2agent_verify_server</code>：生成したMCPサーバーの文法と起動テストを自律検証</li>
+</ul>
+</div>
+<div style="background: #090d16; border-radius: 12px; padding: 16px; margin: 20px 0;">
+<div style="color: #94a3b8; font-size: 12px; font-weight: 700; margin-bottom: 8px;">⚙️ 設定ファイル（~/.gemini/config/mcp_config.json）</div>
+<pre data-language="python"><code class="lang-python">"paper2agent": {
+  "command": "/Users//my-mcp-server/Paper2Agent/.venv/bin/python",
+  "args": [
+    "/Users//my-mcp-server/Paper2Agent/server.py"
+  ]
+}</code></pre>
+</div>
+<hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;"/>
+<!-- 一般的な活用事例 -->
+<h2 style="font-size: 22px; color: #0369a1; border-left: 6px solid #0284c7; padding-left: 12px; margin-bottom: 20px;">
+    2. 世間一般の学術・開発ユースケース
+  </h2>
+<div style="background: #eff6ff; border-left: 4px solid #3b82f6; padding: 18px 20px; border-radius: 0 12px 12px 0; margin-bottom: 25px;">
+<h3 style="margin: 0 0 10px; color: #1d4ed8; font-size: 17px;">🏢 学術研究・企業R&amp;Dでの代表例</h3>
+<ul style="margin: 0; padding-left: 20px; color: #334155; font-size: 15px; line-height: 1.8;">
+<li><strong>最新ゲノム・バイオインフォ解析の即時実用化：</strong> AlphaGenomeやScanpyなどの膨大な単一細胞解析ライブラリを、研究者のチャット画面から自然言語で実行。</li>
+<li><strong>社内ライブラリのMCP化：</strong> 社内で眠っている過去のデータ解析スクリプトを、新入社員でもチャットから叩けるエージェント用ツールに一発変換。</li>
+<li><strong>新規論文の追試自動化：</strong> 査読中論文の手法をコード化して自社データに当てはめるまでの時間を数週間から数十分へ短縮。</li>
+</ul>
+</div>
+<hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;"/>
+<!-- 我が家のリアル活用事例 -->
+<h2 style="font-size: 22px; color: #0369a1; border-left: 6px solid #0284c7; padding-left: 12px; margin-bottom: 20px;">
+    3. 🐼 我が家のリアル活用事例：好酸球性疾患＆群発頭痛の海外最新論文をツール化！
+  </h2>
+<p>
+    好酸球性胃腸炎やCGRP抗体薬（群発頭痛）などの難病・希少疾患は、国内の情報が限られており、英語の最新プレプリント論文や国際治験データに貴重なヒントが眠っています。
+  </p>
+<div style="background: #fefce8; border: 2px solid #fde047; border-radius: 16px; padding: 22px; margin: 25px 0;">
+<h3 style="margin: 0 0 12px; color: #a16207; font-size: 18px;">🔥 実際にAIに投げた指示：</h3>
+<p style="background: #ffffff; border: 1px solid #fef08a; padding: 12px 16px; border-radius: 8px; font-family: monospace; font-size: 14px; color: #713f12; margin-bottom: 15px;">
+      「この好酸球性胃腸炎の最新バイオマーカーに関する論文PDFから、末梢血好酸球数と粘膜生検の相関推定ロジックを解析して、MCPツールとして抽出・検証して！」
+    </p>
+<p style="color: #713f12; margin: 0; font-size: 15px; line-height: 1.75;">
+      Paper2Agentが論文の計算式を読み解き、私のローカルAI環境に「推計ツール」として登録。<br/>
+      日々の血液検査の数値を入力するだけで、「最新論文の基準に照らすとどのフェーズに相当するか」を客観的にシミュレーションできるようになりました。<br/>
+<strong>「論文を読む」だけでなく「論文を自分の道具として手に入れる」</strong>。この体験は、闘病や高度なリサーチにおいて圧倒的な武器になります！
+    </p>
+</div>
+<!-- まとめ -->
+<div style="background: #f8fafc; border-radius: 16px; padding: 24px; border: 1px solid #cbd5e1; margin-top: 40px;">
+<h3 style="margin: 0 0 10px; font-size: 18px; color: #0f172a;">🐼 ぽトルのまとめ</h3>
+<p style="margin: 0; color: #475569; font-size: 15px; line-height: 1.75;">
+      Paper2Agentは、「世界中の最新論文やコード」と「あなたのAIエージェント」をつなぐ架け橋です。最先端の研究成果を日々の生活や仕事に直結させたい方は、ぜひ試してみてください！
+    </p>
+</div>
+<div style="text-align: center; margin-top: 35px; padding: 20px; background: rgba(2, 132, 199, 0.08); border-radius: 14px; border: 1px solid rgba(2, 132, 199, 0.25);">
+<a href="https://ai-living-lab.pages.dev/mcp-showcase/" rel="noopener noreferrer" style="color: #0284c7; font-weight: 700; text-decoration: none;" target="_blank">
+      🌐 Smart AI Life ポータルで全6大MCPのまとめを見る ↗
+    </a>
+</div>
+</div>

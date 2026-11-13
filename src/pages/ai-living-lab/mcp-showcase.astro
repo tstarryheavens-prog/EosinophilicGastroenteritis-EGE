@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/SmartAIBaseLayout.astro';
+import AdBanner from '../../components/AdBanner.astro';
 import { HATENA_BLOG_URL } from '../../data/projects';
 
 const mcpList = [
@@ -120,6 +121,7 @@ const mcpList = [
   </section>
 
   <div class="nc-container" style="padding-bottom: 3rem;">
+    <AdBanner slotType="banner" siteId="smartailife" />
     <div class="nc-article-layout has-toc">
       <aside class="nc-mcp-toc" aria-label="On this page">
         <p style="font-family: var(--nc-font-serif); font-size: 1.05rem; margin-bottom: 0.75rem; padding-left: 0.5rem;">On this page</p>
@@ -162,6 +164,7 @@ const mcpList = [
       </div>
 
       <aside class="nc-item-cards">
+        <AdBanner slotType="sidebar" siteId="smartailife" />
         <div class="nc-item-card primary">
           <h3>公式はてなブログで詳細連載中</h3>
           <p>各MCPのプロンプト設計やPython仮想環境の構築手順を発信しています。</p>

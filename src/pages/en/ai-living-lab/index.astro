@@ -1,0 +1,154 @@
+---
+export const prerender = false;
+import SmartAIBaseLayout from '../../../layouts/SmartAIBaseLayout.astro';
+import AdBanner from '../../../components/AdBanner.astro';
+
+const featuredArticles = [
+  {
+    slug: 'strata-gpu-unlock-rtx4070tis-dual-gpu-benchmark',
+    title: 'Strata Dual-GPU Benchmark: RTX 4070 Ti SUPER (Primary 16GB) + RTX 3060 (Sub 12GB) with GPU-UNLOCK (1,265 tok/s Prefill)',
+    category: 'GPU Acceleration & LLM',
+    tag: 'Dual GPU Benchmark',
+    readTime: '10 min read',
+    date: 'October 31, 2026',
+    excerpt: 'Empirical telemetry on dual-GeForce MoE inference: RTX 4070 Ti SUPER as primary compute engine + RTX 3060 as sub KV-cache co-processor, hitting 158.5 TFLOPS and cutting TTFT by 58%.',
+    tone: 'sun',
+  },
+  {
+    slug: 'antigravity-hermes-agent-local-llm-routing',
+    title: 'Zero-Cloud-Cost Autonomous Agents: Routing Gemini & Antigravity to Local Hermes LLMs',
+    category: 'AI Agents & LLM',
+    tag: 'Autonomous AI',
+    readTime: '9 min read',
+    date: 'October 31, 2026',
+    excerpt: 'Build a zero-cloud-token agentic workflow by coupling Antigravity with local Nous Hermes models and Strata GPU routing, slashing API expenses while preserving reasoning depth.',
+    tone: 'green',
+  },
+  {
+    slug: 'open-energy-os-hems-jit-solar-battery-charging',
+    title: 'Building an Open Home Energy OS: JIT Night-Rate Charging (16.3 JPY) & ECHONET Lite Solar Offset',
+    category: 'Energy OS & HEMS',
+    tag: 'Smart Home',
+    readTime: '11 min read',
+    date: 'October 31, 2026',
+    excerpt: 'Residential microgrid protocol: Integrating Nichicon 14.9kWh batteries, DENSO HEMS CenteHTTPd, and Wi-SUN B-route telemetry to reduce annual electricity costs.',
+    tone: 'tin',
+  },
+  {
+    slug: 'ryzen-9-7950x-avx512-linux-decentralized-node-tuning',
+    title: 'Ryzen 9 7950X AVX-512 & Linux Kernel Tuning: Maximize Efficiency for 24/7 Compute Nodes',
+    category: 'Hardware & Silicon',
+    tag: 'Hardware Telemetry',
+    readTime: '8 min read',
+    date: 'October 31, 2026',
+    excerpt: 'Silicon benchmarks on AMD Zen 4 architecture: Cutting socket power consumption by 41% using 105W Eco Mode and Curve Optimizer while keeping high SIMD throughput on Ubuntu 24.04.',
+    tone: 'orange',
+  },
+];
+---
+
+<SmartAIBaseLayout
+  title="Smart AI Life Global | Autonomous Agents, Energy OS & Hardware Telemetry"
+  description="Independent research portal exploring zero-token-cost AI agents, open residential energy systems (HEMS), and high-efficiency silicon tuning."
+  lang="en"
+>
+  <section class="nc-hero hero-home hero-tin">
+    <div class="nc-hero-inner">
+      <p class="eyebrow" style="color: var(--nc-color-charcoal); opacity: 0.8;">Smart AI Life Global Documentation</p>
+      <h1 class="nc-hero-title">Autonomous Agents, Open Energy OS & Hardware Telemetry</h1>
+      <p class="nc-hero-lead">
+        Bridging high-performance hardware, local LLM orchestration, and residential battery optimization (ECHONET Lite) with verified empirical datasets.
+      </p>
+
+      <form class="nc-search-wrapper" action="/articles" method="get" role="search" style="margin-top: 1.5rem;">
+        <div class="nc-search-field">
+          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.8"/>
+            <path d="M13.5 13.5L17.5 17.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <input
+            type="search"
+            name="q"
+            class="nc-search-input"
+            placeholder="Search technical articles (e.g. RTX 4070 Ti, HEMS, ECHONET, Ryzen)..."
+            aria-label="Search for articles"
+          />
+        </div>
+        <button type="submit" class="btn btn-dark" style="height: 52px; padding: 0 1.5rem;">Search</button>
+      </form>
+
+      <div style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <a href="#featured" class="btn btn-dark">Explore Research Papers</a>
+        <a href="/ai-living-lab" class="btn btn-light">🇯🇵 日本語AIリビングラボへ</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="nc-container" style="padding-bottom: 3rem;">
+    <AdBanner slotType="banner" siteId="smartailife" />
+
+    <div class="nc-home-layout">
+      <div id="featured">
+        <div style="margin-bottom: 1.25rem;">
+          <p class="eyebrow">Empirical Research & Reproducible Setups</p>
+          <h2>Featured Technical Research & Architectures</h2>
+        </div>
+
+        <div class="nc-category-cards">
+          {featuredArticles.map((art) => (
+            <a href={`/en/articles/${art.slug}`} class={`nc-category-card ${art.tone}`}>
+              <div class="nc-category-card-content">
+                <div class="nc-category-card-title">
+                  <span style="font-family: var(--nc-font-serif); font-size: 0.82rem; opacity: 0.88;">
+                    {art.category} · {art.readTime}
+                  </span>
+                  <h3>{art.title}</h3>
+                </div>
+                <div class="nc-category-card-description">
+                  <p>{art.excerpt}</p>
+                  <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                    <span style="font-size: 0.78rem; color: var(--nc-color-taupe);">{art.date}</span>
+                    <span class="nc-category-card-cta" aria-hidden="true">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M3.5 8H12.5M12.5 8L8.5 4M12.5 8L8.5 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+
+        <AdBanner slotType="infeed" siteId="smartailife" />
+      </div>
+
+      <aside class="nc-item-cards" aria-label="Connected Engineering Labs">
+        <div class="nc-item-card product">
+          <p class="eyebrow">Portal Directory</p>
+          <h3>Japanese Living Lab Hub</h3>
+          <p>Explore our Japanese articles across Local GPU clusters, ECHONET Lite HEMS, Housing, Finance, and Hobby engineering.</p>
+          <div style="margin-top: 0.5rem;">
+            <a href="/ai-living-lab" class="btn btn-light">Open AI Living Lab ↗</a>
+          </div>
+        </div>
+
+        <AdBanner slotType="sidebar" siteId="smartailife" />
+
+        <div class="nc-item-card primary">
+          <p class="eyebrow" style="color: var(--nc-color-charcoal);">Full Archive</p>
+          <h3>All Research Articles</h3>
+          <p>Browse technical logs, MCP server guides, and automated workflows in one searchable archive.</p>
+          <div style="margin-top: 0.5rem;">
+            <a href="/articles" class="btn btn-dark">Browse Archive ↗</a>
+          </div>
+        </div>
+
+        <a href="https://x.com/PotoRuthege" target="_blank" rel="noopener noreferrer" class="nc-item-card">
+          <h3>Official X (@PotoRuthege) ↗</h3>
+          <p>Follow engineering updates on GPU benchmarks, autonomous AI agents, and residential energy automation.</p>
+        </a>
+      </aside>
+    </div>
+  </div>
+</SmartAIBaseLayout>

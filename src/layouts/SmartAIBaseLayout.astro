@@ -66,6 +66,7 @@ const jaUrl = isEn ? new URL(currentPath.replace(/^\/en/, '') || '/', siteBase).
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&family=Noto+Serif+JP:wght@300;400;500&family=Outfit:wght@300;400;450;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300&display=swap" rel="stylesheet" />
 
     <!-- Google AdSense -->
+    <meta name="google-adsense-account" content="ca-pub-1988464307898443" />
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1988464307898443" crossorigin="anonymous"></script>
 
     <!-- Google tag (gtag.js) -->
@@ -108,10 +109,10 @@ const jaUrl = isEn ? new URL(currentPath.replace(/^\/en/, '') || '/', siteBase).
     --nc-color-highlight: #c05811;
 
     --nc-radius-md: 1rem;
-    --nc-gutter: 1.25rem;
-    --nc-section-gap: 2rem;
-    --nc-stack-gap: 1rem;
-    --nc-card-padding: 1.5rem;
+    --nc-gutter: 0.85rem;
+    --nc-section-gap: 1.25rem;
+    --nc-stack-gap: 0.75rem;
+    --nc-card-padding: 1.05rem;
 
     --nc-ring: 0 0 0 1px var(--nc-color-charcoal), 0 0 0 2px var(--nc-color-charcoal), 0 0 0 3px var(--nc-color-charcoal);
     --nc-ring-sun: 0 0 0 1px var(--nc-color-sun), 0 0 0 2px var(--nc-color-sun), 0 0 0 3px var(--nc-color-sun);
@@ -352,14 +353,14 @@ const jaUrl = isEn ? new URL(currentPath.replace(/^\/en/, '') || '/', siteBase).
     border-radius: var(--nc-radius-md);
     max-width: calc(1400px - var(--nc-gutter) * 2);
     width: calc(100% - var(--nc-gutter) * 2);
-    margin: var(--nc-gutter) auto 1.25rem;
-    padding: clamp(2.5rem, 5vw, 4.75rem) clamp(1.5rem, 4vw, 3.5rem);
+    margin: 0.75rem auto 1rem;
+    padding: clamp(1.25rem, 3.8vw, 3.25rem) clamp(1rem, 3.5vw, 3rem);
     background-color: var(--nc-color-tin);
     color: var(--nc-color-charcoal);
   }
 
   .nc-hero.hero-home {
-    padding: clamp(3rem, 6vw, 5.5rem) clamp(1.5rem, 4vw, 3.5rem);
+    padding: clamp(1.35rem, 4.2vw, 3.6rem) clamp(1rem, 3.5vw, 3rem);
     margin-bottom: var(--nc-section-gap);
   }
 

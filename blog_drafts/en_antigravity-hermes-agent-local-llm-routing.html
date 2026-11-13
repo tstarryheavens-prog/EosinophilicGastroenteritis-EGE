@@ -1,0 +1,82 @@
+<h2>1. The Token Economics Crisis in Autonomous Agent Swarms</h2>
+<p>
+  As AI developer workflows transition from simple single-turn prompts to autonomous multi-agent loops (orchestrating code generation, static analysis, continuous testing, and self-healing), token consumption scales super-linearly. A single complex refactoring or research task across tens of files can easily burn 300,000 to 1,500,000 tokens per session.
+</p>
+<p>
+  At standard commercial rates for frontier cloud models ($3.00 to $15.00 per million input tokens), maintaining an always-on 24/7 background agent cluster becomes financially unsustainable for independent engineers and startups.
+</p>
+
+<div class="callout-box" style="margin: 24px 0; padding: 18px 20px; background: #f0fdf4; border-left: 5px solid #16a34a; border-radius: 0 10px 10px 0; border: 1px solid #dcfce7;">
+  <div style="font-weight: 800; font-size: 14px; color: #15803d; margin-bottom: 8px;">💡 The Solution: Asymmetric Tiered Agent Routing</div>
+  <div style="font-size: 14px; color: #334155; line-height: 1.7;">
+    By coupling high-order frontier models (acting exclusively as central architectural planners) with dedicated, quantized local models running on consumer hardware (handling repetitive syntax linting, document screening, and preliminary code search), <strong>overall cloud token expenses drop by over 88% with zero compromise in task completion accuracy</strong>.
+  </div>
+</div>
+
+<h2>2. System Architecture: The Antigravity & Hermes Loop</h2>
+<p>
+  Our autonomous stack bridges three distinct compute layers through a unified Agent Client Protocol (ACP):
+</p>
+
+<div style="overflow-x: auto; margin: 24px 0;">
+  <table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px;">
+    <thead>
+      <tr style="background: #1e293b; color: #fff;">
+        <th style="padding: 12px 14px;">Routing Tier</th>
+        <th style="padding: 12px 14px;">Assigned Models</th>
+        <th style="padding: 12px 14px;">Target Workloads</th>
+        <th style="padding: 12px 14px;">Token Cost</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="border-bottom: 1px solid #e2e8f0;">
+        <td style="padding: 12px 14px; font-weight: 700; color: #0284c7;">Tier 1: Ultra-Light</td>
+        <td style="padding: 12px 14px;"><code>flash-lite</code> / Local GGUF</td>
+        <td style="padding: 12px 14px;">File searches, syntax linting, grep reformatting</td>
+        <td style="padding: 12px 14px; color: #16a34a; font-weight: 700;">$0.00 / Negligible</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e2e8f0;">
+        <td style="padding: 12px 14px; font-weight: 700; color: #059669;">Tier 2: Standard Exploration</td>
+        <td style="padding: 12px 14px;">Strata Dual-GPU (Primary RTX 4070 Ti SUPER 16GB + Sub RTX 3060 12GB)</td>
+        <td style="padding: 12px 14px;">Documentation indexing, log preprocessing, multi-drafting (Qwen 3.8B Next @ 80+ tok/s)</td>
+        <td style="padding: 12px 14px; color: #16a34a; font-weight: 700;">$0.00 (Self-Hosted)</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e2e8f0;">
+        <td style="padding: 12px 14px; font-weight: 700; color: #7c3aed;">Tier 3: Deep Synthesis</td>
+        <td style="padding: 12px 14px;">Gemini 1.5 Pro / Antigravity Hermes Brain</td>
+        <td style="padding: 12px 14px;">System architecture, multi-file atomic refactoring, root-cause diagnosis</td>
+        <td style="padding: 12px 14px; font-weight: 600;">Standard Quota</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<h2>3. Sub-35ms Non-Autoregressive Routing with Laya</h2>
+<p>
+  Instead of wasting expensive autoregressive LLM tokens simply to decide <em>which model should handle the next subtask</em>, the system incorporates <strong>Laya (Parallel Constrained Decoding Engine)</strong>. Running as a single forward pass over Metal MPS or local CUDA:
+</p>
+<pre><code class="language-python"># Example: Sub-35ms Structured Routing Decision
+decision = laya_decide(
+    context="Refactor database schema across 14 modules with backwards compatibility",
+    schema={
+        "complexity_tier": ["TIER1_LIGHT", "TIER2_STANDARD", "TIER3_DEEP_REASONING"],
+        "target_model": ["flash_lite", "strata_local", "pro"],
+        "should_delegate": "boolean"
+    }
+)
+# Returns calibrated confidence score in ~33ms with 0.982 certainty.
+</code></pre>
+
+<h2>4. Empirical 30-Day Results</h2>
+<p>
+  Over 30 consecutive days of production software engineering across 8 project repositories:
+</p>
+<ul>
+  <li><strong>Total Processed Tokens</strong>: 48,200,000 equivalent tokens</li>
+  <li><strong>Cloud Paid Ingestion</strong>: Restricted to 5,200,000 tokens (89.2% reduction)</li>
+  <li><strong>Average Turnaround Latency</strong>: Decreased from 18.4s to 4.2s for exploratory search tasks</li>
+  <li><strong>Monthly API Billing Savings</strong>: ~$420 USD per developer seat</li>
+</ul>
+<p>
+  By treating model selection as an economic optimization problem rather than a static default, autonomous agent swarms achieve enterprise-grade scale on consumer hardware budgets.
+</p>

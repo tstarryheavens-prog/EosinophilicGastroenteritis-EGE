@@ -1,0 +1,121 @@
+<!-- ============================================================== -->
+<!-- 【はてなブログ用 HTML原稿 - 単独記事第2弾】                     -->
+<!-- タイトル: 【ms-365】Macの「OneDriveファイル見えない問題」をGraph APIで突破！OneNote全ノートブックもAIに直結する完全ガイド -->
+<!-- 編集モード: 「HTML編集」に切り替えてそのまま貼り付けてください   -->
+<!-- ============================================================== -->
+<div class="pottle-article-wrapper" style="font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif; color: #2d3748; line-height: 1.85; max-width: 820px; margin: 0 auto; font-size: 16px;">
+<!-- ヘッダーバナー -->
+<div style="background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0284c7 100%); color: #ffffff; padding: 36px 24px; border-radius: 18px; margin-bottom: 30px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2); text-align: center;">
+<div style="display: inline-block; background: rgba(56, 189, 248, 0.2); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; font-size: 13px; font-weight: 700; padding: 4px 14px; border-radius: 9999px; margin-bottom: 15px; letter-spacing: 0.05em;">
+      ☁️ 実践MCP徹底解説シリーズ #02
+    </div>
+<h1 style="font-size: 26px; font-weight: 800; line-height: 1.45; margin: 0 0 15px 0; color: #ffffff;">
+      Macの「OneDriveファイル読めない問題」を解決！<br/>
+<span style="color: #38bdf8;">ms-365 でOneDrive未DLファイル＆OneNoteをAIに直結させる技</span>
+</h1>
+<p style="font-size: 14.5px; color: #cbd5e1; margin: 0; line-height: 1.6;">
+      〜オンデマンド同期（0バイト）の壁をGraph APIで突破し、10年前の建築書類を即座にサルベージ〜
+    </p>
+</div>
+<!-- キャラクター紹介 -->
+<div style="background: linear-gradient(135deg, #f8fafc 0%, #f0f9ff 100%); border: 2px solid #bae6fd; border-radius: 18px; padding: 22px; margin-bottom: 35px; display: flex; gap: 20px; align-items: center; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.08);">
+<div style="flex-shrink: 0; text-align: center;">
+<img alt="ぽトル アイコン" src="https://cdn-ak.f.st-hatena.com/images/fotolife/M/MyToyotaHomeBottle/20261003/20261003213941.jpg" style="width: 80px; height: 80px; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border: 3px solid #ffffff; object-fit: cover;"/>
+<div style="font-size: 11px; font-weight: 700; color: #0284c7; margin-top: 4px;">POTTLE</div>
+</div>
+<div style="font-size: 14.5px;">
+<div style="font-weight: 800; color: #0369a1; font-size: 16px; margin-bottom: 4px;">
+        筆者：ぽトル（Pottle）｜ 省エネ脱力パンダ
+      </div>
+<div style="color: #475569; line-height: 1.6;">
+        「あの書類どこだっけ…とOneDriveを手作業で掘る時間が人生で一番無駄」と悟ったパンダ。クラウドAPIでAIに全部探させて寝転がっています🐼💤
+      </div>
+</div>
+</div>
+<p>どうも、ぽトル（Pottle）です。</p>
+<p>
+    MacでOneDriveを使っている方なら、一度はこの罠に引っかかったことがあるはずです。<br/>
+<strong>「MacのOneDrive同期フォルダの中をAIに探させても、『中身が空です』と言われるか、ファイルが見つからない」</strong>という問題です。
+  </p>
+<p>
+    原因はMacの<strong>「ファイル・オンデマンド（Files-On-Demand）」</strong>機能。MacのSSD容量を食わないように、未ダウンロードのファイルは「0バイトのプレースホルダー」として扱われるため、ローカルのツールやAIからは中身が一切読めないのです。
+  </p>
+<p>
+    さらに、OneNoteのメモやノートブックもMacアプリからはデータを取り出すAPIがありません。<br/>
+    この「MacとMicrosoft 365の断絶」を一発で解決したのが、<strong>Microsoft Graph API直結のMCPサーバー「ms-365」</strong>です！
+  </p>
+<hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;"/>
+<!-- 設定とプリセット -->
+<h2 style="font-size: 22px; color: #0284c7; border-left: 6px solid #0284c7; padding-left: 12px; margin-bottom: 20px;">
+    1. ms-365 の導入と「プリセット厳選」の重要性
+  </h2>
+<p>
+    公式・コミュニティで実績のある<code>@softeria/ms-365-mcp-server</code>を使用します。<br/>
+    ここで最大のポイントは、<strong>全ツールを有効化しないこと</strong>です。デフォルトだとTeamsやOutlookメールなど300個以上のツールが登録され、AIの入力メモリ（トークン）がパンクしてしまいます。
+  </p>
+<p>
+    そこで、<strong><code>--preset files,onenote</code></strong> を指定して、ファイル検索とOneNoteメモの34ツールだけに絞り込みます。
+  </p>
+<div style="background: #090d16; border-radius: 12px; padding: 16px; margin: 20px 0;">
+<div style="color: #94a3b8; font-size: 12px; font-weight: 700; margin-bottom: 8px;">⚙️ 設定ファイル（~/.gemini/config/mcp_config.json）</div>
+<pre data-language="bash"><code class="lang-bash">"ms-365": {
+  "command": "/opt/homebrew/bin/npx",
+  "args": [
+    "-y",
+    "@softeria/ms-365-mcp-server",
+    "--preset",
+    "files,onenote"
+  ],
+  "env": {
+    "MS365_MCP_CLIENT_ID": "your-azure-app-client-id",
+    "MS365_MCP_TENANT_ID": "consumers"
+  }
+}</code></pre>
+</div>
+<p style="font-size: 14px; color: #64748b;">
+    ※初回起動時にコンソールまたはブラウザでMicrosoft個人アカウント（`consumers`）のOAuth認証を行えば、トークンはOSのキーチェーンに安全に保存されます。
+  </p>
+<hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;"/>
+<!-- 一般的な活用事例 -->
+<h2 style="font-size: 22px; color: #0284c7; border-left: 6px solid #0284c7; padding-left: 12px; margin-bottom: 20px;">
+    2. 世間一般のビジネス活用事例
+  </h2>
+<div style="background: #eff6ff; border-left: 4px solid #3b82f6; padding: 18px 20px; border-radius: 0 12px 12px 0; margin-bottom: 25px;">
+<h3 style="margin: 0 0 10px; color: #1d4ed8; font-size: 17px;">🏢 業務での代表的なユースケース</h3>
+<ul style="margin: 0; padding-left: 20px; color: #334155; font-size: 15px; line-height: 1.8;">
+<li><strong>巨大OneDrive内の契約書・企画書の全文横断検索：</strong> ファイル名が「無題」や日付だけでも、本文のテキストをクラウドインデックスで即座に発見。</li>
+<li><strong>OneNote議事録からのタスク自動抽出：</strong> 過去の会議メモ全セクションをAIに走査させ、「未完了のアクションアイテム一覧」を一撃作成。</li>
+<li><strong>共同編集資料の差分要約：</strong> チームメンバーが編集したOneDrive上の最新ドキュメントの変更箇所をチャットで要約。</li>
+</ul>
+</div>
+<hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 40px 0;"/>
+<!-- 我が家のリアル活用事例 -->
+<h2 style="font-size: 22px; color: #0284c7; border-left: 6px solid #0284c7; padding-left: 12px; margin-bottom: 20px;">
+    3. 🐼 我が家のリアル活用事例：10年前のトヨタホーム建築・融資書類の瞬時サルベージ
+  </h2>
+<p>
+    我が家では、2016年に新築したトヨタホームの<strong>「土地・建物総額5,200万円の過去書類（見積書、527万円の値引き内訳書、三井住友信託のつなぎ融資計算書、太陽光・蓄電池の保証書）」</strong>のサルベージに大活躍しています。
+  </p>
+<div style="background: #fefce8; border: 2px solid #fde047; border-radius: 16px; padding: 22px; margin: 25px 0;">
+<h3 style="margin: 0 0 12px; color: #a16207; font-size: 18px;">🔥 実際にAIに投げた指示：</h3>
+<p style="background: #ffffff; border: 1px solid #fef08a; padding: 12px 16px; border-radius: 8px; font-family: monospace; font-size: 14px; color: #713f12; margin-bottom: 15px;">
+      「OneDriveの中から、2015〜2016年のトヨタホームの見積書と値引き内訳を探して。本体値引きとキャンペーン値引きがそれぞれいくらだったか、正確な数字を抽出して表にして！」
+    </p>
+<p style="color: #713f12; margin: 0; font-size: 15px; line-height: 1.75;">
+      Mac本体にはダウンロードされていない古いPDFファイルでしたが、AIが<code>search-onedrive-files</code>ツールでクラウド上のインデックスを直接叩き、該当ファイルを特定。内容を直接読み込んで<strong>「建物本体値引き：〇〇万円、モニター協力値引き：〇〇万円、合計：527万円」</strong>と一瞬で正確な表を作ってくれました。<br/>
+      おかげで、はてなブログ連載の検証記事の信頼性を100%裏付けることができました！
+    </p>
+</div>
+<!-- まとめ -->
+<div style="background: #f8fafc; border-radius: 16px; padding: 24px; border: 1px solid #cbd5e1; margin-top: 40px;">
+<h3 style="margin: 0 0 10px; font-size: 18px; color: #0f172a;">🐼 ぽトルのまとめ</h3>
+<p style="margin: 0; color: #475569; font-size: 15px; line-height: 1.75;">
+      「クラウドにあるはずなのに見つからない」というイライラは、ms-365を繋ぐだけで完全に過去のものになります。Microsoft 365ユーザーなら絶対に導入すべき必須MCPです！
+    </p>
+</div>
+<div style="text-align: center; margin-top: 35px; padding: 20px; background: rgba(2, 132, 199, 0.08); border-radius: 14px; border: 1px solid rgba(2, 132, 199, 0.25);">
+<a href="https://ai-living-lab.pages.dev/mcp-showcase/" rel="noopener noreferrer" style="color: #0284c7; font-weight: 700; text-decoration: none;" target="_blank">
+      🌐 Smart AI Life ポータルで全6大MCPのまとめを見る ↗
+    </a>
+</div>
+</div>

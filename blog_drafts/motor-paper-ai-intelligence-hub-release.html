@@ -1,0 +1,22 @@
+<div class="article-body font-sans text-slate-800 leading-relaxed space-y-6">
+<div class="p-6 bg-gradient-to-r from-blue-900 to-indigo-900 text-white rounded-2xl shadow-lg mb-8">
+  <span class="inline-block px-3 py-1 bg-blue-500/30 text-blue-200 text-xs font-semibold rounded-full mb-3">学術文献＆最新AIインテリジェンス</span>
+  <h2 class="text-2xl font-bold tracking-tight mb-2">電動機工学×生成AI：2,280編のモータ学術論文と最新AI研究速報を統合する自律型Research Workbench</h2>
+  <p class="text-blue-100 text-sm leading-relaxed">J-STAGE、Crossref、arXiv、HuggingFace Daily Papers、YouTube技術解説動画をリアルタイムに自動収集・日本語要約・タグ付けし、社内NAS・Docker環境で常時提供するインテリジェンス基盤の全貌。</p>
+</div>
+
+<h3 class="text-xl font-bold text-slate-900 border-l-4 border-indigo-600 pl-3 my-4">1. モータ工学研究における情報爆発と課題</h3>
+<p>EV（電気自動車）、ドローン、産業ロボット、電動コンプレッサの急速な発展に伴い、アキシャルギャップモータ（Axial Flux）、ステータ巻線界磁束切替モータ（WFFSM）、能動型磁気軸受（AMB）など、最先端電動機に関する国際論文の発表ペースは年々加速しています。</p>
+<p>しかし、設計現場のエンジニアにとって、英語文献の精読、製品×構造×制御×製造材料の4軸多次元分類、そして日々のAIツール進化を同時にキャッチアップすることは極めて大きな負荷となっていました。</p>
+
+<h3 class="text-xl font-bold text-slate-900 border-l-4 border-indigo-600 pl-3 my-4">2. Research Workbench のアーキテクチャ</h3>
+<p>本システムは、以下の3層アーキテクチャによって完全自動で運用されています。</p>
+<ul class="list-disc list-inside space-y-2 text-slate-700">
+  <li><strong>第1層：自律ハーベスター (Harvester Engine)</strong>: J-STAGE API、Crossref API、arXiv APIから2,280編以上の文献メタデータとUnpaywallによるオープンアクセスPDFを自動取得。</li>
+  <li><strong>第2層：AI Intelligence Hub</strong>: HuggingFace Daily Papers、arXiv（AI/CL/LG）、YouTube公式チャンネル（Google DeepMind, OpenAI, Two Minute Papers等）を毎朝巡回し、3点構造化エグゼクティブサマリー（背景・手法・意義）を生成。</li>
+  <li><strong>第3層：常時稼働ダッシュボード (Docker on NAS)</strong>: ASUSTOR NAS上のPython 3.12-slimコンテナがポート8520で2Dクロス集計ヒートマップやインラインPDFビューアを提供。</li>
+</ul>
+
+<h3 class="text-xl font-bold text-slate-900 border-l-4 border-indigo-600 pl-3 my-4">3. 今後の展開とSmart AI Lifeとの統合</h3>
+<p>Smart AI Lifeのラボシステム（<code>/divisions/motor-paper</code>）と完全に連携し、モータ技術の専門知見を広く社会へ還元してまいります。</p>
+</div>

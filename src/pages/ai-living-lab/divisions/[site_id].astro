@@ -145,6 +145,7 @@ const previewDb = uniqueDbPosts.slice(0, Math.max(0, PREVIEW_LIMIT - previewStat
 
   <!-- 3. Nabu Casa 3-Column Layout (Left Sticky TOC & Lab Switcher | Center Main Content | Right Sidebar Cards) -->
   <div class="nc-container" style="padding-bottom: 3rem;">
+    <AdBanner slotType="banner" siteId={currentDiv.adSite as any} />
     <div class="nc-article-layout has-toc">
       <!-- Left Sticky Column: On this page + Topic Lab Switcher -->
       <aside class="nc-div-toc" aria-label="ラボ内ナビゲーション">
@@ -275,13 +276,19 @@ const previewDb = uniqueDbPosts.slice(0, Math.max(0, PREVIEW_LIMIT - previewStat
 
       <!-- Right Sidebar Column: Nabu Casa Item Cards -->
       <aside class="nc-item-cards" aria-label="ラボ概要カード">
+        <AdBanner slotType="sidebar" siteId={currentDiv.adSite as any} />
         <div class="nc-item-card product">
           <p class="eyebrow">Lab Metrics</p>
           <h3>{currentDiv.shortTitle}</h3>
           <p>公開記事: {totalArticles}本 · 稼働ツール: {currentDiv.features.length}基 · 更新: {currentDiv.stats.updateFrequency}</p>
           <div style="margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem;">
             {currentDiv.extUrl && !isLocalUrl(currentDiv.extUrl) && (
-              <a href={currentDiv.extUrl} target="_blank" rel="noopener noreferrer" class="btn btn-light">
+              <a
+                href={currentDiv.extUrl}
+                target={currentDiv.extUrl.startsWith('/') ? undefined : '_blank'}
+                rel={currentDiv.extUrl.startsWith('/') ? undefined : 'noopener noreferrer'}
+                class="btn btn-light"
+              >
                 {currentDiv.extLabel || '特設サイト ↗'}
               </a>
             )}

@@ -1,0 +1,914 @@
+{
+ "schema": 1,
+ "data_version": "2027-07-07",
+ "exam_year": "令和9年度（2027年度）",
+ "generated_at": "2026-11-09T22:36:33+09:00",
+ "definition": {
+  "hyotei": "評定得点 = 内申点(9教科×5=45点満点) × 2 → 90点満点",
+  "day": "学力検査合計得点 = 5教科 × 22点 = 110点満点",
+  "note": "順位決定は上記2値を方式ごとに重み付けして合算した数値を基礎資料とし、面接・特別検査・調査書その他を総合して行う（数値だけで機械的に決まるものではない）"
+ },
+ "selection_types": {
+  "I": {
+   "label": "バランス",
+   "formula": "評定 + 当日",
+   "naishin_weight": 1.0,
+   "day_weight": 1.0,
+   "max": 200.0
+  },
+  "II": {
+   "label": "内申やや重視",
+   "formula": "評定×1.5 + 当日",
+   "naishin_weight": 1.5,
+   "day_weight": 1.0,
+   "max": 245.0
+  },
+  "III": {
+   "label": "当日やや重視",
+   "formula": "評定 + 当日×1.5",
+   "naishin_weight": 1.0,
+   "day_weight": 1.5,
+   "max": 255.0
+  },
+  "IV": {
+   "label": "内申重視",
+   "formula": "評定×2 + 当日",
+   "naishin_weight": 2.0,
+   "day_weight": 1.0,
+   "max": 290.0
+  },
+  "V": {
+   "label": "当日重視",
+   "formula": "評定 + 当日×2",
+   "naishin_weight": 1.0,
+   "day_weight": 2.0,
+   "max": 310.0
+  }
+ },
+ "bands": {
+  "safe_margin": 8,
+  "risk_margin": 8,
+  "comment": "border+8以上=合格圏(安全) / border以上=合格圏(ボーダー) / border-8以上=要強化 / それ未満=挑戦圏"
+ },
+ "band_targets": [
+  {
+   "key": 43,
+   "naishin": [
+    43,
+    45
+   ],
+   "day": [
+    98,
+    106
+   ]
+  },
+  {
+   "key": 40,
+   "naishin": [
+    40,
+    42
+   ],
+   "day": [
+    88,
+    96
+   ]
+  },
+  {
+   "key": 37,
+   "naishin": [
+    37,
+    39
+   ],
+   "day": [
+    82,
+    88
+   ]
+  },
+  {
+   "key": 35,
+   "naishin": [
+    35,
+    36
+   ],
+   "day": [
+    78,
+    84
+   ]
+  },
+  {
+   "key": 33,
+   "naishin": [
+    33,
+    34
+   ],
+   "day": [
+    72,
+    78
+   ]
+  },
+  {
+   "key": 30,
+   "naishin": [
+    29,
+    32
+   ],
+   "day": [
+    64,
+    72
+   ]
+  },
+  {
+   "key": 26,
+   "naishin": [
+    25,
+    28
+   ],
+   "day": [
+    54,
+    64
+   ]
+  },
+  {
+   "key": 22,
+   "naishin": [
+    21,
+    24
+   ],
+   "day": [
+    42,
+    52
+   ]
+  },
+  {
+   "key": 18,
+   "naishin": [
+    18,
+    20
+   ],
+   "day": [
+    35,
+    45
+   ]
+  }
+ ],
+ "schools": [
+  {
+   "id": "asahi",
+   "name": "旭丘高等学校",
+   "dep": "普通科",
+   "type": "V",
+   "type_label": "Ⅴ型",
+   "type_formula": "評定 + 当日×2",
+   "max": 310.0,
+   "deps": {
+    "普通科": "V",
+    "美術科": "I"
+   },
+   "interview": false,
+   "group": "尾張1群 Aグループ",
+   "location": "名古屋市東区出来町",
+   "naishin_ref": "43〜45",
+   "deviation": "71",
+   "page": "schools/asahi.html",
+   "border": {
+    "naishin": 43,
+    "day": 95,
+    "score": 276,
+    "confidence": "C",
+    "note": "内申43/当日95で276点(310点満点換算)。塾推定の目安で合格を保証しない"
+   },
+   "ref_range": null
+  },
+  {
+   "id": "zuiryo",
+   "name": "瑞陵高等学校",
+   "dep": "普通科",
+   "type": "V",
+   "type_label": "Ⅴ型",
+   "type_formula": "評定 + 当日×2",
+   "max": 310.0,
+   "deps": {
+    "普通科": "V",
+    "理数科": "V",
+    "食物科": "III"
+   },
+   "interview": false,
+   "group": "尾張2群 Aグループ",
+   "location": "名古屋市瑞穂区北原町",
+   "naishin_ref": "40〜42",
+   "deviation": "66",
+   "page": "schools/zuiryo.html",
+   "border": null,
+   "ref_range": {
+    "score_min": 256.0,
+    "score_max": 276.0,
+    "naishin": [
+     40,
+     42
+    ],
+    "day": [
+     88,
+     96
+    ],
+    "band": 40
+   }
+  },
+  {
+   "id": "meiwa",
+   "name": "明和高等学校",
+   "dep": "普通科",
+   "type": "V",
+   "type_label": "Ⅴ型",
+   "type_formula": "評定 + 当日×2",
+   "max": 310.0,
+   "deps": {
+    "普通科": "V",
+    "音楽科": "V"
+   },
+   "interview": false,
+   "group": "尾張2群 Aグループ",
+   "location": "名古屋市東区白壁",
+   "naishin_ref": "43〜45",
+   "deviation": "70",
+   "page": "schools/meiwa.html",
+   "border": {
+    "naishin": 42,
+    "day": 93,
+    "score": 270,
+    "confidence": "C",
+    "note": ""
+   },
+   "ref_range": null
+  },
+  {
+   "id": "koyo",
+   "name": "向陽高等学校",
+   "dep": "普通科",
+   "type": "V",
+   "type_label": "Ⅴ型",
+   "type_formula": "評定 + 当日×2",
+   "max": 310.0,
+   "deps": {
+    "普通科": "V",
+    "国際科学科": "V"
+   },
+   "interview": false,
+   "group": "尾張2群 Bグループ",
+   "location": "名古屋市昭和区広池町",
+   "naishin_ref": "41〜43",
+   "deviation": "68",
+   "page": "schools/koyo.html",
+   "border": {
+    "naishin": 42,
+    "day": 92,
+    "score": 268,
+    "confidence": "C",
+    "note": ""
+   },
+   "ref_range": null,
+   "dep_options": [
+    {
+     "dep": "国際科学科",
+     "type": "V",
+     "type_label": "Ⅴ型",
+     "max": 310.0,
+     "border": {
+      "naishin": 43,
+      "day": 99,
+      "score": 284,
+      "confidence": "C",
+      "note": ""
+     }
+    }
+   ]
+  },
+  {
+   "id": "ichinomiya",
+   "name": "一宮高等学校",
+   "dep": "普通科",
+   "type": "V",
+   "type_label": "Ⅴ型",
+   "type_formula": "評定 + 当日×2",
+   "max": 310.0,
+   "deps": {
+    "普通科": "V"
+   },
+   "interview": false,
+   "group": "尾張1群 Aグループ（尾張共通）",
+   "location": "一宮市北園通",
+   "naishin_ref": "42〜44",
+   "deviation": "70",
+   "page": "schools/ichinomiya.html",
+   "border": {
+    "naishin": 41,
+    "day": 92,
+    "score": 266,
+    "confidence": "C",
+    "note": ""
+   },
+   "ref_range": null
+  },
+  {
+   "id": "kikuzato",
+   "name": "菊里高等学校",
+   "dep": "普通科",
+   "type": "V",
+   "type_label": "Ⅴ型",
+   "type_formula": "評定 + 当日×2",
+   "max": 310.0,
+   "deps": {
+    "普通科": "V",
+    "音楽科": "V"
+   },
+   "interview": false,
+   "group": "尾張1群 Bグループ",
+   "location": "名古屋市名東区星が丘",
+   "naishin_ref": "40〜43",
+   "deviation": "67",
+   "page": "schools/kikuzato.html",
+   "border": {
+    "naishin": 40,
+    "day": 93,
+    "score": 266,
+    "confidence": "C",
+    "note": ""
+   },
+   "ref_range": null
+  },
+  {
+   "id": "chigusa",
+   "name": "千種高等学校",
+   "dep": "普通科",
+   "type": "V",
+   "type_label": "Ⅴ型",
+   "type_formula": "評定 + 当日×2",
+   "max": 310.0,
+   "deps": {
+    "普通科": "V",
+    "国際教養科": "V"
+   },
+   "interview": false,
+   "group": "尾張2群 Bグループ",
+   "location": "名古屋市名東区社台",
+   "naishin_ref": "39〜42",
+   "deviation": "66",
+   "page": "schools/chigusa.html",
+   "border": null,
+   "ref_range": {
+    "score_min": 242.0,
+    "score_max": 260.0,
+    "naishin": [
+     39,
+     42
+    ],
+    "day": [
+     82,
+     88
+    ],
+    "band": 37
+   }
+  },
+  {
+   "id": "ichinomiya-nishi",
+   "name": "一宮西高等学校",
+   "dep": "普通科",
+   "type": "V",
+   "type_label": "Ⅴ型",
+   "type_formula": "評定 + 当日×2",
+   "max": 310.0,
+   "deps": {
+    "普通科": "V"
+   },
+   "interview": false,
+   "group": "尾張1群 Bグループ",
+   "location": "一宮市日光町",
+   "naishin_ref": "39〜41",
+   "deviation": "65",
+   "page": "schools/ichinomiya-nishi.html",
+   "border": null,
+   "ref_range": {
+    "score_min": 242.0,
+    "score_max": 258.0,
+    "naishin": [
+     39,
+     41
+    ],
+    "day": [
+     82,
+     88
+    ],
+    "band": 37
+   }
+  },
+  {
+   "id": "sakuradai",
+   "name": "桜台高等学校",
+   "dep": "普通科",
+   "type": "V",
+   "type_label": "Ⅴ型",
+   "type_formula": "評定 + 当日×2",
+   "max": 310.0,
+   "deps": {
+    "普通科": "V",
+    "ファッション創造科": "I"
+   },
+   "interview": false,
+   "group": "尾張1群 Bグループ",
+   "location": "名古屋市南区霞町",
+   "naishin_ref": "37〜40",
+   "deviation": "63",
+   "page": "schools/sakuradai.html",
+   "border": null,
+   "ref_range": {
+    "score_min": 238.0,
+    "score_max": 256.0,
+    "naishin": [
+     37,
+     40
+    ],
+    "day": [
+     82,
+     88
+    ],
+    "band": 37
+   }
+  },
+  {
+   "id": "meito",
+   "name": "名東高等学校",
+   "dep": "普通科",
+   "type": "V",
+   "type_label": "Ⅴ型",
+   "type_formula": "評定 + 当日×2",
+   "max": 310.0,
+   "deps": {
+    "普通科": "V"
+   },
+   "interview": false,
+   "group": "尾張2群 Aグループ",
+   "location": "名古屋市名東区神里",
+   "naishin_ref": "37〜40",
+   "deviation": "63",
+   "page": "schools/meito.html",
+   "border": null,
+   "ref_range": {
+    "score_min": 238.0,
+    "score_max": 256.0,
+    "naishin": [
+     37,
+     40
+    ],
+    "day": [
+     82,
+     88
+    ],
+    "band": 37
+   }
+  },
+  {
+   "id": "yokosuka",
+   "name": "横須賀高等学校",
+   "dep": "普通科",
+   "type": "V",
+   "type_label": "Ⅴ型",
+   "type_formula": "評定 + 当日×2",
+   "max": 310.0,
+   "deps": {
+    "普通科": "V"
+   },
+   "interview": false,
+   "group": "知多・尾張2群 Aグループ",
+   "location": "東海市高横須賀町",
+   "naishin_ref": "36〜39",
+   "deviation": "63",
+   "page": "schools/yokosuka.html",
+   "border": null,
+   "ref_range": {
+    "score_min": 228.0,
+    "score_max": 246.0,
+    "naishin": [
+     36,
+     39
+    ],
+    "day": [
+     78,
+     84
+    ],
+    "band": 35
+   }
+  },
+  {
+   "id": "showa",
+   "name": "昭和高等学校",
+   "dep": "普通科",
+   "type": "V",
+   "type_label": "Ⅴ型",
+   "type_formula": "評定 + 当日×2",
+   "max": 310.0,
+   "deps": {
+    "普通科": "V"
+   },
+   "interview": false,
+   "group": "尾張2群 Aグループ",
+   "location": "名古屋市瑞穂区玉水町",
+   "naishin_ref": "36〜38",
+   "deviation": "62",
+   "page": "schools/showa.html",
+   "border": null,
+   "ref_range": {
+    "score_min": 228.0,
+    "score_max": 244.0,
+    "naishin": [
+     36,
+     38
+    ],
+    "day": [
+     78,
+     84
+    ],
+    "band": 35
+   }
+  },
+  {
+   "id": "shoin",
+   "name": "松蔭高等学校",
+   "dep": "普通科",
+   "type": "V",
+   "type_label": "Ⅴ型",
+   "type_formula": "評定 + 当日×2",
+   "max": 310.0,
+   "deps": {
+    "普通科": "V"
+   },
+   "interview": false,
+   "group": "尾張1群 Bグループ",
+   "location": "名古屋市中村区烏森町",
+   "naishin_ref": "35〜38",
+   "deviation": "61",
+   "page": "schools/shoin.html",
+   "border": null,
+   "ref_range": {
+    "score_min": 226.0,
+    "score_max": 244.0,
+    "naishin": [
+     35,
+     38
+    ],
+    "day": [
+     78,
+     84
+    ],
+    "band": 35
+   }
+  },
+  {
+   "id": "nagoya-minami",
+   "name": "名古屋南高等学校",
+   "dep": "普通科",
+   "type": "V",
+   "type_label": "Ⅴ型",
+   "type_formula": "評定 + 当日×2",
+   "max": 310.0,
+   "deps": {
+    "普通科": "V"
+   },
+   "interview": false,
+   "group": "尾張1群 Aグループ",
+   "location": "名古屋市南区桜本町",
+   "naishin_ref": "35〜38",
+   "deviation": "61",
+   "page": "schools/nagoya-minami.html",
+   "border": null,
+   "ref_range": {
+    "score_min": 226.0,
+    "score_max": 244.0,
+    "naishin": [
+     35,
+     38
+    ],
+    "day": [
+     78,
+     84
+    ],
+    "band": 35
+   }
+  },
+  {
+   "id": "tempaku",
+   "name": "天白高等学校",
+   "dep": "普通科",
+   "type": "V",
+   "type_label": "Ⅴ型",
+   "type_formula": "評定 + 当日×2",
+   "max": 310.0,
+   "deps": {
+    "普通科": "V"
+   },
+   "interview": false,
+   "group": "尾張2群 Bグループ",
+   "location": "名古屋市天白区植田",
+   "naishin_ref": "33〜36",
+   "deviation": "58",
+   "page": "schools/tempaku.html",
+   "border": null,
+   "ref_range": {
+    "score_min": 210.0,
+    "score_max": 228.0,
+    "naishin": [
+     33,
+     36
+    ],
+    "day": [
+     72,
+     78
+    ],
+    "band": 33
+   }
+  },
+  {
+   "id": "atsuta",
+   "name": "熱田高等学校",
+   "dep": "普通科",
+   "type": "V",
+   "type_label": "Ⅴ型",
+   "type_formula": "評定 + 当日×2",
+   "max": 310.0,
+   "deps": {
+    "普通科": "V"
+   },
+   "interview": false,
+   "group": "尾張1群 Aグループ",
+   "location": "名古屋市熱田区神宮",
+   "naishin_ref": "32〜35",
+   "deviation": "56",
+   "page": "schools/atsuta.html",
+   "border": null,
+   "ref_range": {
+    "score_min": 192.0,
+    "score_max": 214.0,
+    "naishin": [
+     32,
+     35
+    ],
+    "day": [
+     64,
+     72
+    ],
+    "band": 30
+   }
+  },
+  {
+   "id": "nagakute",
+   "name": "長久手高等学校",
+   "dep": "普通科",
+   "type": "III",
+   "type_label": "Ⅲ型",
+   "type_formula": "評定 + 当日×1.5",
+   "max": 255.0,
+   "deps": {
+    "普通科": "III"
+   },
+   "interview": false,
+   "group": "尾張2群 Aグループ",
+   "location": "長久手市坊の後",
+   "naishin_ref": "28〜32",
+   "deviation": "51",
+   "page": "schools/nagakute.html",
+   "border": null,
+   "ref_range": {
+    "score_min": 137.0,
+    "score_max": 160.0,
+    "naishin": [
+     28,
+     32
+    ],
+    "day": [
+     54,
+     64
+    ],
+    "band": 26
+   }
+  },
+  {
+   "id": "narumi",
+   "name": "鳴海高等学校",
+   "dep": "普通科",
+   "type": "III",
+   "type_label": "Ⅲ型",
+   "type_formula": "評定 + 当日×1.5",
+   "max": 255.0,
+   "deps": {
+    "普通科": "III"
+   },
+   "interview": false,
+   "group": "尾張1群 Aグループ",
+   "location": "名古屋市緑区左京山",
+   "naishin_ref": "26〜29",
+   "deviation": "48",
+   "page": "schools/narumi.html",
+   "border": null,
+   "ref_range": {
+    "score_min": 133.0,
+    "score_max": 154.0,
+    "naishin": [
+     26,
+     29
+    ],
+    "day": [
+     54,
+     64
+    ],
+    "band": 26
+   }
+  },
+  {
+   "id": "yamada",
+   "name": "山田高等学校",
+   "dep": "普通科",
+   "type": "III",
+   "type_label": "Ⅲ型",
+   "type_formula": "評定 + 当日×1.5",
+   "max": 255.0,
+   "deps": {
+    "普通科": "III"
+   },
+   "interview": false,
+   "group": "尾張2群 Aグループ",
+   "location": "名古屋市西区山田町",
+   "naishin_ref": "26〜29",
+   "deviation": "47",
+   "page": "schools/yamada.html",
+   "border": null,
+   "ref_range": {
+    "score_min": 133.0,
+    "score_max": 154.0,
+    "naishin": [
+     26,
+     29
+    ],
+    "day": [
+     54,
+     64
+    ],
+    "band": 26
+   }
+  },
+  {
+   "id": "nisshin-nishi",
+   "name": "日進西高等学校",
+   "dep": "普通科",
+   "type": "I",
+   "type_label": "Ⅰ型",
+   "type_formula": "評定 + 当日",
+   "max": 200.0,
+   "deps": {
+    "普通科": "I"
+   },
+   "interview": false,
+   "group": "尾張2群 Bグループ",
+   "location": "日進市浅田町",
+   "naishin_ref": "29〜33",
+   "deviation": "53",
+   "page": "schools/nisshin-nishi.html",
+   "border": null,
+   "ref_range": {
+    "score_min": 122.0,
+    "score_max": 138.0,
+    "naishin": [
+     29,
+     33
+    ],
+    "day": [
+     64,
+     72
+    ],
+    "band": 30
+   }
+  },
+  {
+   "id": "midori",
+   "name": "緑高等学校",
+   "dep": "普通科",
+   "type": "III",
+   "type_label": "Ⅲ型",
+   "type_formula": "評定 + 当日×1.5",
+   "max": 255.0,
+   "deps": {
+    "普通科": "III"
+   },
+   "interview": false,
+   "group": "尾張2群 Bグループ",
+   "location": "名古屋市緑区旭出",
+   "naishin_ref": "23〜26",
+   "deviation": "44",
+   "page": "schools/midori.html",
+   "border": null,
+   "ref_range": {
+    "score_min": 109.0,
+    "score_max": 130.0,
+    "naishin": [
+     23,
+     26
+    ],
+    "day": [
+     42,
+     52
+    ],
+    "band": 22
+   }
+  },
+  {
+   "id": "kasugai-izumi",
+   "name": "春日井泉高等学校",
+   "dep": "商業科",
+   "type": "II",
+   "type_label": "Ⅱ型",
+   "type_formula": "評定×1.5 + 当日",
+   "max": 245.0,
+   "deps": {
+    "商業科": "II",
+    "生活文化科": "II"
+   },
+   "interview": false,
+   "group": "総合学科・専門学科",
+   "location": "春日井市西山町",
+   "naishin_ref": "18〜22",
+   "deviation": "39",
+   "page": "schools/kasugai-izumi.html",
+   "border": null,
+   "ref_range": {
+    "score_min": 89.0,
+    "score_max": 111.0,
+    "naishin": [
+     18,
+     22
+    ],
+    "day": [
+     35,
+     45
+    ],
+    "band": 18
+   }
+  },
+  {
+   "id": "moriyama",
+   "name": "守山高等学校",
+   "dep": "普通科",
+   "type": "I",
+   "type_label": "Ⅰ型",
+   "type_formula": "評定 + 当日",
+   "max": 200.0,
+   "deps": {
+    "普通科": "I"
+   },
+   "interview": true,
+   "group": "尾張1群 Aグループ",
+   "location": "名古屋市守山区緑ヶ丘",
+   "naishin_ref": "19〜22",
+   "deviation": "40",
+   "page": "schools/moriyama.html",
+   "border": null,
+   "ref_range": {
+    "score_min": 73.0,
+    "score_max": 89.0,
+    "naishin": [
+     19,
+     22
+    ],
+    "day": [
+     35,
+     45
+    ],
+    "band": 18
+   }
+  }
+ ],
+ "sources": [
+  {
+   "id": "aichi-pref-2027",
+   "url": "https://www.pref.aichi.jp/uploaded/attachment/623173.pdf",
+   "what": "Ⅰ〜Ⅴ型の算式、評定得点=評定合計×2(90点満点)、学力検査=110点満点",
+   "confidence": "A(公式)"
+  },
+  {
+   "id": "resemom-2027",
+   "url": "https://resemom.jp/article/2026/07/08/86713.html",
+   "what": "2027年度のⅤ方式採用校（旭丘・明和・一宮・市立向陽 等）",
+   "confidence": "A(報道ベース)"
+  },
+  {
+   "id": "axis-2027",
+   "url": "https://axis-kobetsu.jp/outline/juni/exam-info/general-info/aichi",
+   "what": "Ⅴ実施校一覧に市立菊里・市立向陽・旭丘・一宮・明和",
+   "confidence": "B(塾まとめ)"
+  },
+  {
+   "id": "inozyuku-2027",
+   "url": "https://inozyuku.com/aichi_zyuken/kouritsu",
+   "what": "内申/当日点/合格ボーダー（方式別計算値）の目安",
+   "confidence": "C(塾推定・非公式)"
+  }
+ ],
+ "source_pdf": "https://www.pref.aichi.jp/uploaded/attachment/623173.pdf",
+ "disclaimer": "本シミュレーターは愛知県教育委員会が公表する校内順位の決定方式（Ⅰ〜Ⅴ型）に基づき、内申点と学力検査点から算出した数値を機械的に示すものです。実際の校内順位は、この数値を基礎資料として、面接・特別検査・調査書の記載事項などを総合して決定されます。また各校のボーダーは塾・各種情報の推定値であり、合格を保証するものではありません。"
+}

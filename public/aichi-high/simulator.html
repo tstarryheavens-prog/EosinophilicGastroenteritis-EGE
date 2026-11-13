@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta name="google-adsense-account" content="ca-pub-1988464307898443" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>【愛知県公立高校】内申点×当日点 合否シミュレーター｜Ⅰ〜Ⅴ型の校内順位方式で即判定</title>
+  <meta name="description" content="愛知県公立高校一般入試の校内順位決定方式（Ⅰ〜Ⅴ型・傾斜配点）を完全再現。内申点（9教科45点満点）と学力検査（5教科110点満点）を入力するだけで、旭丘・明和・一宮・菊里・向陽などのボーダー到達度と「あと何点必要か」を即座に計算します。令和9年度（2027年度）公式方式対応。">
+  <link rel="canonical" href="https://eosinophilicgastroenteritis-ege.pages.dev/aichi-high/simulator.html">
+
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1988464307898443"
+     crossorigin="anonymous"></script>
+
+  <!-- A8.net リンクマネージャー -->
+  <script src="//statics.8me.jp/a8link/a8linkmgr.js"></script>
+  <script>
+    a8linkmgr({
+      "config_id": "AiCzxW5LM9avBb8VJ393"
+    });
+  </script>
+
+  <!-- 共通スタイルシート -->
+  <link rel="stylesheet" href="common.css">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="logo.png">
+
+  <style>
+    :root {
+      --navy: #0f172a;
+      --ink: #1E293B;
+      --muted: #64748B;
+      --gold: #D97706;
+      --gold-bg: #FEF9C3;
+      --line: #E2E8F0;
+      --safe: #059669;
+      --safe-bg: #ECFDF5;
+      --mid: #0284C7;
+      --mid-bg: #E0F2FE;
+      --warn: #C2410C;
+      --warn-bg: #FFF7ED;
+      --risk: #BE123C;
+      --risk-bg: #FFF1F2;
+    }
+    body { font-family: 'Zen Maru Gothic', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #F8FAFC; color: var(--ink); }
+
+    .sim-header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 55%, #7c2d12 100%);
+      color: #fff; padding: 34px 20px 30px; text-align: center;
+    }
+    .sim-header h1 { font-size: clamp(1.25rem, 3.4vw, 1.95rem); line-height: 1.45; margin: 10px 0 8px; }
+    .sim-header p { font-size: 0.9rem; color: #CBD5E1; max-width: 760px; margin: 0 auto; line-height: 1.8; }
+    .sim-badges { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 6px; }
+    .sim-badge {
+      font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 999px;
+      background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.28); color: #FDE68A;
+    }
+
+    .card {
+      background: #fff; border: 1px solid var(--line); border-radius: 16px;
+      padding: 20px; margin: 18px 0; box-shadow: 0 1px 3px rgba(15,23,42,0.06);
+    }
+    .card > h2 {
+      font-size: 1.1rem; margin: 0 0 4px; display: flex; align-items: center; gap: 8px;
+      border-left: 5px solid var(--gold); padding-left: 10px; line-height: 1.4;
+    }
+    .card > h2 + .card-sub { font-size: 0.82rem; color: var(--muted); margin: 0 0 16px 15px; }
+
+    .mode-switch { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .mode-btn {
+      flex: 1 1 150px; padding: 9px 12px; border-radius: 10px; border: 1.5px solid var(--line);
+      background: #F8FAFC; font-size: 0.84rem; font-weight: 700; cursor: pointer; color: var(--muted);
+      font-family: inherit;
+    }
+    .mode-btn.active { border-color: var(--gold); background: var(--gold-bg); color: #92400E; }
+
+    .subject-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 10px; }
+    .subject-cell label { display: block; font-size: 0.74rem; font-weight: 700; color: var(--muted); margin-bottom: 3px; }
+    .subject-cell select, .subject-cell input, .field input, .field select {
+      width: 100%; padding: 9px 8px; border: 1.5px solid var(--line); border-radius: 9px;
+      font-size: 0.95rem; font-family: inherit; background: #fff; color: var(--ink);
+    }
+    .subject-cell select:focus, .subject-cell input:focus, .field input:focus { outline: 2px solid #FCD34D; border-color: var(--gold); }
+
+    .totals { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+    .total-box {
+      flex: 1 1 200px; background: #F8FAFC; border: 1px dashed #CBD5E1; border-radius: 12px; padding: 12px 14px;
+    }
+    .total-box .tb-label { font-size: 0.74rem; color: var(--muted); font-weight: 700; }
+    .total-box .tb-value { font-size: 1.55rem; font-weight: 800; color: var(--navy); line-height: 1.2; }
+    .total-box .tb-value small { font-size: 0.8rem; color: var(--muted); font-weight: 700; }
+    .total-box .tb-sub { font-size: 0.72rem; color: var(--muted); }
+
+    .preset-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .preset {
+      font-size: 0.75rem; padding: 5px 11px; border-radius: 999px; border: 1px solid var(--line);
+      background: #fff; cursor: pointer; font-family: inherit; color: var(--muted); font-weight: 700;
+    }
+    .preset:hover { border-color: var(--gold); color: var(--gold); }
+
+    .result-hero {
+      display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between;
+      background: linear-gradient(135deg, #FFFDF5, #FEF3C7); border: 1px solid #FDE68A;
+      border-radius: 14px; padding: 16px 18px; margin-bottom: 16px;
+    }
+    .result-hero .rh-main { font-size: 1rem; font-weight: 800; color: #92400E; }
+    .result-hero .rh-sub { font-size: 0.8rem; color: #78350F; line-height: 1.7; }
+
+    table.sim-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+    table.sim-table th {
+      background: var(--navy); color: #fff; font-size: 0.74rem; padding: 8px 6px; text-align: center;
+      font-weight: 700; white-space: nowrap;
+    }
+    table.sim-table td { padding: 9px 6px; border-bottom: 1px solid #EEF2F7; text-align: center; }
+    table.sim-table td.name { text-align: left; font-weight: 700; }
+    table.sim-table td.name a { color: var(--navy); text-decoration: none; border-bottom: 1px dotted #CBD5E1; }
+    table.sim-table tr.best td { background: #FFFBEB; }
+    .tick { font-variant-numeric: tabular-nums; font-weight: 800; }
+
+    .chip {
+      display: inline-block; font-size: 0.72rem; font-weight: 800; padding: 3px 9px; border-radius: 999px;
+      white-space: nowrap;
+    }
+    .chip.safe  { background: var(--safe-bg); color: var(--safe); border: 1px solid #A7F3D0; }
+    .chip.mid   { background: var(--mid-bg);  color: var(--mid);  border: 1px solid #BAE6FD; }
+    .chip.warn  { background: var(--warn-bg); color: var(--warn); border: 1px solid #FED7AA; }
+    .chip.risk  { background: var(--risk-bg); color: var(--risk); border: 1px solid #FECDD3; }
+    .chip.plain { background: #F1F5F9; color: var(--muted); border: 1px solid var(--line); }
+    .chip.ref   { background: #F5F3FF; color: #6D28D9; border: 1px solid #DDD6FE; }
+
+    .type-tag {
+      display: inline-block; font-weight: 800; font-size: 0.78rem; padding: 2px 8px;
+      border-radius: 6px; background: #EEF2FF; color: #3730A3;
+    }
+    .row-note { font-size: 0.72rem; color: var(--muted); display: block; margin-top: 2px; }
+
+    .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+    .tab {
+      padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); background: #fff;
+      font-size: 0.8rem; font-weight: 700; cursor: pointer; color: var(--muted); font-family: inherit;
+    }
+    .tab.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+    .btn-main {
+      display: inline-flex; align-items: center; gap: 8px; padding: 11px 22px; border-radius: 999px;
+      background: var(--gold); color: #fff; font-weight: 800; border: none; font-size: 0.94rem;
+      cursor: pointer; font-family: inherit; box-shadow: 0 2px 8px rgba(217,119,6,0.28);
+    }
+    .btn-main:hover { background: #B45309; }
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px; border-radius: 999px;
+      border: 1.5px solid var(--line); background: #fff; color: var(--ink); font-weight: 700;
+      font-size: 0.82rem; cursor: pointer; font-family: inherit; text-decoration: none;
+    }
+    .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+    .action-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; align-items: center; }
+
+    .type-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+    .type-table th, .type-table td { padding: 8px 6px; border-bottom: 1px solid #EEF2F7; text-align: center; }
+    .type-table th { background: #F1F5F9; color: var(--muted); font-size: 0.74rem; }
+    .type-table td:first-child, .type-table th:first-child { text-align: left; }
+
+    .calc-out {
+      background: #0f172a; color: #E2E8F0; border-radius: 12px; padding: 16px 18px;
+      font-size: 0.86rem; line-height: 1.9;
+    }
+    .calc-out b { color: #FDE68A; }
+    .calc-out .big { font-size: 1.5rem; font-weight: 800; color: #fff; }
+    .calc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; }
+    .calc-cell { background: rgba(255,255,255,0.07); border-radius: 9px; padding: 9px 12px; }
+    .calc-cell .cc-label { font-size: 0.7rem; color: #94A3B8; }
+    .calc-cell .cc-value { font-size: 1.05rem; font-weight: 800; color: #fff; }
+
+    .warn-box {
+      background: #FFFBEB; border: 1px solid #FDE68A; border-left: 5px solid var(--gold);
+      border-radius: 10px; padding: 12px 16px; font-size: 0.8rem; color: #78350F; line-height: 1.8;
+    }
+    .link-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+    .link-card {
+      display: block; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px;
+      text-decoration: none; color: var(--ink); background: #fff; font-size: 0.82rem; line-height: 1.6;
+    }
+    .link-card b { display: block; color: var(--navy); font-size: 0.86rem; }
+    .link-card:hover { border-color: var(--gold); background: #FFFDF5; }
+
+    .site-footer { text-align: center; padding: 28px 20px 40px; color: var(--muted); font-size: 0.78rem; line-height: 2; }
+    .site-footer a { color: var(--muted); }
+
+    .field-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+    .field label { display: block; font-size: 0.74rem; font-weight: 700; color: var(--muted); margin-bottom: 3px; }
+
+    @media (max-width: 640px) {
+      .card { padding: 15px; border-radius: 13px; }
+      table.sim-table { font-size: 0.78rem; }
+      table.sim-table th, table.sim-table td { padding: 7px 4px; }
+      .total-box .tb-value { font-size: 1.3rem; }
+    }
+    @media print {
+      .top-nav, #ai-company-network-bar, .action-row, .mode-switch, .preset-row, .site-footer { display: none !important; }
+      body { background: #fff; }
+      .card { break-inside: avoid; box-shadow: none; }
+      .sim-header { background: #fff; color: #000; }
+      .sim-header p, .sim-badge { color: #333; }
+    }
+  </style>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "愛知県公立高校 内申点×当日点 合否シミュレーター",
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": "Web",
+    "url": "https://eosinophilicgastroenteritis-ege.pages.dev/aichi-high/simulator.html",
+    "description": "愛知県公立高校一般入試の校内順位決定方式（Ⅰ〜Ⅴ型）に基づき、内申点45点満点と学力検査110点満点から方式別スコアとボーダー到達度を計算する無料ツール。",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "JPY" },
+    "inLanguage": "ja"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "愛知県公立高校の校内順位は内申点と当日点だけで決まるのですか？",
+        "acceptedAnswer": { "@type": "Answer", "text": "いいえ。各高校があらかじめ選んだⅠ〜Ⅴ型の方式で、評定得点（内申点×2＝90点満点）と学力検査合計得点（110点満点）を重み付けして合算した数値を「基礎資料」とし、その上で面接・特別検査・調査書の記載事項などを総合して校内順位を決定します。本シミュレーターの数値は、その基礎資料に相当する計算結果です。" }
+      },
+      {
+        "@type": "Question",
+        "name": "Ⅴ型とⅣ型はどう違いますか？",
+        "acceptedAnswer": { "@type": "Answer", "text": "Ⅴ型は「評定得点＋学力検査合計得点×2」（310点満点）で当日点を重視、Ⅳ型は「評定得点×2＋学力検査合計得点」（290点満点）で内申点を重視する方式です。Ⅴ型では内申1点が当日点1点と等価、Ⅳ型では内申1点が当日点4点に相当します。" }
+      },
+      {
+        "@type": "Question",
+        "name": "ボーダー（合格ライン）は公式に公表されていますか？",
+        "acceptedAnswer": { "@type": "Answer", "text": "愛知県教育委員会が公表しているのは方式（Ⅰ〜Ⅴ型）と面接実施の有無であり、合格最低点は公表されていません。本サイトのボーダーは塾・各種情報の推定値、または本サイトの内申目安から算出した参考値であり、合否を保証するものではありません。" }
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+<!-- AI_COMPANY_MUTUAL_NETWORK_START -->
+<div id="ai-company-network-bar" style="background:linear-gradient(90deg,#0f172a,#1e293b);color:#f8fafc;font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:12px;padding:8px 16px;border-bottom:1px solid #334155;position:relative;z-index:9999;">
+  <div style="max-width:1200px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;">
+    <div style="display:flex;align-items:center;gap:6px;font-weight:700;">
+      <span>🐼 Smart AI Life 関連サイト:</span>
+      <a href="https://eosinophilicgastroenteritis-ege.pages.dev/ai-living-lab" target="_blank" rel="noopener" style="color:#38bdf8;text-decoration:none;background:rgba(56,189,248,0.15);padding:3px 8px;border-radius:6px;">🏠 Smart AI Life (本社ハブ)</a>
+      <a href="https://eosinophilicgastroenteritis-ege.pages.dev/ai-living-lab/divisions/aichi-high" target="_blank" rel="noopener" style="color:#a5b4fc;text-decoration:none;background:rgba(165,180,252,0.15);padding:3px 8px;border-radius:6px;">📚 愛知高校受験ナビ 特集記事アーカイブ</a>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-size:11.5px;">
+      <a href="https://ikomainagoyaaichihighschool.pages.dev" target="_blank" rel="noopener" style="color:#cbd5e1;text-decoration:none;">🎓 愛知高校受験ナビ</a>
+      <a href="https://mytoyotahomebottle.pages.dev" target="_blank" rel="noopener" style="color:#cbd5e1;text-decoration:none;">🏠 トヨタホーム10年実録</a>
+      <a href="https://eosinophilicgastroenteritis-ege.pages.dev" target="_blank" rel="noopener" style="color:#cbd5e1;text-decoration:none;">🩺 好酸球性胃腸炎ノート</a>
+      <a href="https://corestation.pages.dev" target="_blank" rel="noopener" style="color:#cbd5e1;text-decoration:none;">💻 CoreStation</a>
+      <a href="https://kurashi-ai.hatenadiary.com" target="_blank" rel="noopener" style="color:#cbd5e1;text-decoration:none;">📝 公式はてな</a>
+      <a href="https://www.youtube.com/@PotoRuthege" target="_blank" rel="noopener" style="color:#fca5a5;text-decoration:none;">📺 YouTube</a>
+      <a href="https://x.com/PotoRuthege" target="_blank" rel="noopener" style="color:#93c5fd;text-decoration:none;">𝕏 @PotoRuthege</a>
+    </div>
+  </div>
+</div>
+<!-- AI_COMPANY_MUTUAL_NETWORK_END -->
+
+  <!-- グローバルナビゲーション -->
+  <nav class="top-nav">
+  <!-- NAV_ROWS v1 -->
+    <input type="checkbox" class="nav-toggle" id="navRowsToggle" aria-label="メニューを開閉">
+    <div class="nav-shell">
+      <a href="/aichi-high" class="nav-chip nav-primary"><span class="nav-lg">📊 内申点ランキングTOP</span><span class="nav-sm">📊 内申ランキング</span></a>
+      <a href="simulator.html" class="nav-chip nav-primary active"><span class="nav-lg">🎯 内申×当日 合否シミュレーター</span><span class="nav-sm">🎯 合否シミュレーター</span></a>
+      <a href="community.html" class="nav-chip nav-primary nav-community"><span class="nav-lg">💬 質問・相談チャネル</span><span class="nav-sm">💬 相談チャネル</span></a>
+      <a href="https://naogoya-aichi-koukoujyuken.hatenadiary.com" target="_blank" rel="noopener" class="nav-chip nav-primary nav-blog"><span class="nav-lg">📝 公式ブログ ↗</span><span class="nav-sm">📝 ブログ</span></a>
+      <label class="nav-toggle-label" for="navRowsToggle"><span class="nav-lg">☰ すべてのメニュー</span><span class="nav-sm">☰ メニュー</span></label>
+    </div>
+    <div class="nav-rows">
+      <div class="nav-group">
+        <span class="nav-label">内申・時期</span>
+        <a href="r8-exam-result-report.html" class="nav-chip">📊 令和8年度 入試結果</a>
+        <a href="final-exam-naishin-guide.html" class="nav-chip">📝 2学期期末・内申攻略</a>
+        <a href="mock-exam-guide.html" class="nav-chip">📈 模試判定の読み方</a>
+        <a href="autumn-tour-guide.html" class="nav-chip">🍂 秋の見学会チェック</a>
+        <a href="schedule.html" class="nav-chip">📅 学年別進学スケジュール</a>
+        <a href="test-study-guide.html" class="nav-chip">📝 普段のテスト対策</a>
+      </div>
+      <div class="nav-group">
+        <span class="nav-label">出願・併願</span>
+        <a href="sowasowa-oya-guide.html" class="nav-chip">🫧 そわそわ期の親ガイド</a>
+        <a href="private-exam-guide.html" class="nav-chip">🏫 私立3日間併願パターン</a>
+        <a href="recommendation-guide.html" class="nav-chip">🎯 推薦・特色選抜</a>
+        <a href="composite-selection-guide.html" class="nav-chip">🔀 複合選抜・W出願</a>
+        <a href="public-vs-private-guide.html" class="nav-chip">⚖️ 公立・私立比較</a>
+      </div>
+      <div class="nav-group">
+        <span class="nav-label">お金・特待</span>
+        <a href="tokutai-scholarship-guide.html" class="nav-chip">🎓 私立特待・奨学金</a>
+        <a href="tuition-guide.html" class="nav-chip">💰 学費・補助金ガイド</a>
+      </div>
+      <div class="nav-group">
+        <span class="nav-label">対策・交流</span>
+        <a href="past-exam-guide.html" class="nav-chip">📝 マークシート・過去問対策</a>
+        <a href="sns-real-voices.html" class="nav-chip">📱 SNSリアル本音口コミ</a>
+        <a href="ai-study-guide.html" class="nav-chip">🤖 最新AI勉強法</a>
+        <a href="ai-prompts.html" class="nav-chip">⚡️ 神プロンプト集</a>
+        <a href="about-shachifuku.html" class="nav-chip">🦉 シャチフク先輩とは</a>
+        <a href="math-movie-lab.html" class="nav-chip">🎬 動く図でわかる数学</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="sim-header">
+    <div class="sim-badges">
+      <span class="sim-badge">令和9年度（2027年度）方式対応</span>
+      <span class="sim-badge">Ⅰ〜Ⅴ型 傾斜配点を再現</span>
+      <span class="sim-badge">内申45点 × 当日110点</span>
+      <span class="sim-badge">登録不要・無料</span>
+    </div>
+    <h1>内申点×当日点で<br>「あと何点必要か」まで分かる合否シミュレーター</h1>
+    <p>
+      愛知県公立高校の一般入試は、高校ごとに決めた<strong>校内順位の決定方式（Ⅰ〜Ⅴ型）</strong>で
+      「評定得点（内申×2＝90点満点）」と「学力検査合計（110点満点）」を重み付けして基礎資料を作ります。
+      このツールはその計算をそのまま再現し、内申点と当日点を入れるだけで
+      <strong>旭丘・明和・一宮・菊里・向陽</strong>などのボーダーに対する現在地を出します。
+    </p>
+  </header>
+
+  <div class="container">
+
+    <div class="mascot-hero-banner">
+      <img src="characters/shachifuku_face.webp" alt="尾張・名古屋高校進学ナビ公式マスコット シャチホコフクロウ" class="mascot-hero-img">
+      <div class="mascot-hero-bubble">
+        <div class="mascot-hero-name">🦉 シャチフク先輩のシミュレーター案内</div>
+        <div class="mascot-hero-quote">
+          「内申点はだいたい分かっても、当日点は入試が終わるまで分からないよね。だからこのツールは<b>逆算</b>もできるんだ。“この高校に行くには当日何点必要？”が一目で分かるよ🦉」
+        </div>
+        <p style="font-size: 0.82rem; color: #64748B; margin-top: 4px;">
+          まずは通知表の9教科の評定を入れてみてね。当日点は模試や過去問の結果でOK！
+        </p>
+      </div>
+    </div>
+
+    <!-- ============ 入力 ============ -->
+    <section class="card" id="input-card">
+      <h2>① 内申点と当日点を入力</h2>
+      <p class="card-sub">内申点は「中3・2学期（後期）の9教科評定」、当日点は学力検査5教科の合計（各22点満点）です。</p>
+
+      <div class="mode-switch" role="tablist">
+        <button class="mode-btn active" data-mode="detail" type="button">📋 教科ごとに入力</button>
+        <button class="mode-btn" data-mode="total" type="button">⚡️ 合計だけ入力</button>
+      </div>
+
+      <!-- 詳細入力 -->
+      <div id="detail-inputs">
+        <div style="font-size:0.82rem;font-weight:800;color:#0f172a;margin:0 0 8px;">📘 内申点（9教科・各5点満点）</div>
+        <div class="subject-grid" id="naishin-grid"></div>
+        <div class="preset-row">
+          <span style="font-size:0.74rem;color:#64748B;font-weight:700;align-self:center;">よく使う内申:</span>
+          <button class="preset" data-naishin="45" type="button">オール5 (45)</button>
+          <button class="preset" data-naishin="43" type="button">43</button>
+          <button class="preset" data-naishin="40" type="button">40</button>
+          <button class="preset" data-naishin="38" type="button">38</button>
+          <button class="preset" data-naishin="36" type="button">オール4 (36)</button>
+          <button class="preset" data-naishin="33" type="button">33</button>
+          <button class="preset" data-naishin="30" type="button">30</button>
+        </div>
+
+        <div style="font-size:0.82rem;font-weight:800;color:#0f172a;margin:20px 0 8px;">📝 学力検査（5教科・各22点満点／110点満点）</div>
+        <div class="subject-grid" id="exam-grid"></div>
+        <div class="preset-row">
+          <span style="font-size:0.74rem;color:#64748B;font-weight:700;align-self:center;">よく使う当日点:</span>
+          <button class="preset" data-day="100" type="button">100</button>
+          <button class="preset" data-day="95" type="button">95</button>
+          <button class="preset" data-day="88" type="button">88</button>
+          <button class="preset" data-day="82" type="button">82</button>
+          <button class="preset" data-day="75" type="button">75</button>
+          <button class="preset" data-day="65" type="button">65</button>
+          <button class="preset" data-day="50" type="button">50</button>
+        </div>
+      </div>
+
+      <!-- 合計入力 -->
+      <div id="total-inputs" style="display:none;">
+        <div class="field-row">
+          <div class="field">
+            <label for="in-naishin-total">内申点 合計（0〜45）</label>
+            <input type="number" id="in-naishin-total" min="0" max="45" step="1" value="38" inputmode="numeric">
+          </div>
+          <div class="field">
+            <label for="in-day-total">学力検査 合計（0〜110）</label>
+            <input type="number" id="in-day-total" min="0" max="110" step="1" value="88" inputmode="numeric">
+          </div>
+        </div>
+      </div>
+
+      <div class="totals">
+        <div class="total-box">
+          <div class="tb-label">評定得点（内申 × 2）</div>
+          <div class="tb-value"><span id="out-naishin">38</span><small> / 45</small></div>
+          <div class="tb-sub">→ 評定得点 <b id="out-hyotei">76</b> 点 / 90点満点</div>
+        </div>
+        <div class="total-box">
+          <div class="tb-label">学力検査 合計得点</div>
+          <div class="tb-value"><span id="out-day">88</span><small> / 110</small></div>
+          <div class="tb-sub">5教科 × 22点満点</div>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button class="btn-main" id="btn-calc" type="button">🎯 合否を判定する</button>
+        <button class="btn-ghost" id="btn-share" type="button">🔗 この条件のURLをコピー</button>
+        <button class="btn-ghost" id="btn-print" type="button">🖨️ 印刷・PDF保存</button>
+      </div>
+      <div id="input-error" style="color:#BE123C;font-size:0.82rem;font-weight:700;margin-top:8px;display:none;"></div>
+    </section>
+
+    <!-- ============ 結果 ============ -->
+    <section class="card" id="result-card">
+      <h2>② 判定結果</h2>
+      <p class="card-sub" id="result-sub">内申と当日点を入れると、その場で方式スコアと判定が出ます。</p>
+
+      <div class="result-hero" id="result-hero">
+        <div>
+          <div class="rh-main" id="rh-main">条件を入力してください</div>
+          <div class="rh-sub" id="rh-sub">内申点・当日点を入れると、登録校のボーダーに対する位置が出ます。</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:0.72rem;color:#92400E;font-weight:700;">最上位の判定</div>
+          <div class="chip plain" id="rh-chip">—</div>
+        </div>
+      </div>
+
+      <div class="tabs" role="tablist">
+        <button class="tab active" data-tab="border" type="button">🎯 ボーダー判定（数値データ校）</button>
+        <button class="tab" data-tab="ref" type="button">📊 参考レンジ（全登録校）</button>
+        <button class="tab" data-tab="type" type="button">🧮 型を選んで計算</button>
+      </div>
+
+      <div id="panel-border">
+        <div class="table-scroll">
+          <table class="sim-table" id="border-table">
+            <thead>
+              <tr>
+                <th style="text-align:left;">高校</th><th>方式</th><th>満点</th>
+                <th>あなたの<br>スコア</th><th>ボーダー</th><th>差</th>
+                <th>必要な<br>当日点</th><th>判定</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="row-note" style="margin-top:10px;">
+          💡 ボーダーは塾・各種情報の推定値（信頼度C）です。愛知県教育委員会は合格最低点を公表していません。
+          「必要な当日点」が110点を超える場合は、その内申では当日点だけでは届かない計算になります。
+        </p>
+      </div>
+
+      <div id="panel-ref" style="display:none;">
+        <div class="table-scroll">
+          <table class="sim-table" id="ref-table">
+            <thead>
+              <tr>
+                <th style="text-align:left;">高校</th><th>方式</th><th>内申目安</th>
+                <th>参考レンジ<br>（本サイト推定）</th><th>あなたの<br>スコア</th>
+                <th>位置</th><th>目安まで<br>必要な当日点</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="row-note" style="margin-top:10px;">
+          💡 参考レンジは、本サイトが公表している<strong>内申目安</strong>と<strong>内申帯別・当日点目標目安</strong>を、
+          その高校の方式（Ⅰ〜Ⅴ型）に当てはめて算出した参考値です。公式の合格ラインではありません。
+        </p>
+      </div>
+
+      <div id="panel-type" style="display:none;">
+        <div class="field-row" style="margin-bottom:12px;">
+          <div class="field">
+            <label for="calc-school">高校を選ぶ（方式が自動で入ります）</label>
+            <select id="calc-school"></select>
+          </div>
+          <div class="field">
+            <label for="calc-dep">学科</label>
+            <select id="calc-dep"></select>
+          </div>
+          <div class="field">
+            <label for="calc-type">校内順位の決定方式</label>
+            <select id="calc-type">
+              <option value="I">Ⅰ型</option>
+              <option value="II">Ⅱ型</option>
+              <option value="III">Ⅲ型</option>
+              <option value="IV">Ⅳ型</option>
+              <option value="V" selected>Ⅴ型</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="calc-target">目標スコア（任意・方式スコア）</label>
+            <input type="number" id="calc-target" min="0" max="310" step="0.5" placeholder="例: 276">
+          </div>
+        </div>
+        <div class="calc-out" id="calc-out"></div>
+      </div>
+    </section>
+
+    <!-- ============ 型の解説 ============ -->
+    <section class="card">
+      <h2>③ 校内順位の決定方式（Ⅰ〜Ⅴ型）とは</h2>
+      <p class="card-sub">愛知県教育委員会が公表している方式です。高校・学科ごとにどれを選ぶかが決まっています。</p>
+
+      <div class="table-scroll">
+        <table class="type-table">
+          <thead>
+            <tr><th>方式</th><th>計算式</th><th>満点</th><th>内申1点 ≒ 当日</th><th>特徴</th></tr>
+          </thead>
+          <tbody id="type-explain"></tbody>
+        </table>
+      </div>
+
+      <div class="warn-box" style="margin-top:16px;">
+        <strong>📌 ここが愛知のポイント</strong><br>
+        ① <strong>評定得点＝内申点×2（最高90点）</strong>、<strong>学力検査＝5教科×22点（最高110点）</strong>。<br>
+        ② 方式によって満点が200〜310点まで変わるため、<strong>「内申◯点・当日◯点」の同じ組み合わせでも高校ごとに有利不利が逆転</strong>します。<br>
+        ③ この数値はあくまで<strong>基礎資料</strong>。実際の校内順位は面接・特別検査・調査書の内容も総合して決まります。
+      </div>
+    </section>
+
+    <!-- ============ 次の一歩 ============ -->
+    <section class="card">
+      <h2>④ 判定のあとに読むページ</h2>
+      <p class="card-sub">「行ける高校」が分かったら、次は出願の組み合わせと当日点の伸ばし方です。</p>
+      <div class="link-grid">
+        <a class="link-card" href="composite-selection-guide.html">
+          <b>🔀 複合選抜・W出願ガイド</b>
+          群とA/Bグループの制約を満たす第1・第2志望の組み合わせ方を解説。
+        </a>
+        <a class="link-card" href="final-exam-naishin-guide.html">
+          <b>📝 2学期期末・内申攻略</b>
+          内申が固まる前に動く。実技4教科と提出物の詰め方。
+        </a>
+        <a class="link-card" href="past-exam-guide.html">
+          <b>📝 マークシート・過去問対策</b>
+          当日点を10点伸ばすための時間配分と見直し手順。
+        </a>
+        <a class="link-card" href="private-exam-guide.html">
+          <b>🏫 私立3日間併願パターン</b>
+          公立不合格時の受け皿を日程から設計する。
+        </a>
+        <a class="link-card" href="tuition-guide.html">
+          <b>💰 学費・補助金ガイド</b>
+          公立と私立の3年間総支出、無償化の判定基準。
+        </a>
+        <a class="link-card" href="/aichi-high">
+          <b>📊 内申点ランキングTOP</b>
+          内申帯から高校を絞り込み、41校を比較する。
+        </a>
+      </div>
+    </section>
+
+    <!-- ============ 免責・出典 ============ -->
+    <section class="card">
+      <h2>⑤ 出典・免責事項</h2>
+      <div style="font-size:0.8rem;color:#475569;line-height:1.9;">
+        <p style="margin-top:0;">
+          <strong>計算式の出典:</strong>
+          愛知県教育委員会「<a href="https://www.pref.aichi.jp/uploaded/attachment/623173.pdf" target="_blank" rel="noopener">令和9年度愛知県公立高等学校入学者選抜（全日制課程）一般選抜における各高等学校の面接実施の有無及び校内順位の決定方式について</a>」（2026年7月7日公表）に基づき、
+          評定得点＝評定合計×2（最高90点）、学力検査合計得点＝5教科×22点（最高110点）、Ⅰ〜Ⅴ型の算式を再現しています。
+        </p>
+        <p>
+          <strong>各校の方式:</strong> 上記PDFの学校別一覧に基づき登録しています（データ版 <span id="data-version">2027-07-07</span>）。
+          年度によって変更されることがあるため、出願時は必ず当該校の募集要項・公式サイトでご確認ください。
+        </p>
+        <p>
+          <strong>ボーダー・参考レンジ:</strong> 愛知県教育委員会は合格最低点を公表していません。本ツールのボーダーは塾・各種情報の推定値、
+          参考レンジは本サイトの内申目安と当日点目標目安から算出した参考値であり、<strong>合否を保証するものではありません</strong>。
+          また私立高校は校内順位の決定方式の対象外のため、判定対象は公立高校です。
+        </p>
+        <p style="margin-bottom:0;">
+          <strong>数値の性質:</strong> 実際の校内順位は、本ツールが算出する数値を基礎資料として、面接・特別検査・調査書の記載事項などを総合して決定されます。
+          本ツールの結果のみで出願校を決定しないでください。
+        </p>
+      </div>
+    </section>
+
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-links" style="margin-bottom: 8px;">
+      <a href="/privacy.html">プライバシーポリシー・免責事項</a>
+      <span>|</span>
+      <a href="/about-shachifuku.html">当サイトについて</a>
+      <span>|</span>
+      <a href="/community.html">お問い合わせ・相談</a>
+      <span>|</span>
+      <a href="/aichi-high">高校進学ナビTOP</a>
+    </div>
+    <div>© 2026 尾張・名古屋 高校進学ナビ（保護者発・実体験ノート）</div>
+  </footer>
+
+  <script>
+  (function () {
+    "use strict";
+
+    var NAISHIN_SUBJECTS = ["国語", "数学", "社会", "理科", "英語", "音楽", "美術", "保健体育", "技術・家庭"];
+    var EXAM_SUBJECTS = ["国語", "数学", "社会", "理科", "英語"];
+    var ROMA = { I: "Ⅰ", II: "Ⅱ", III: "Ⅲ", IV: "Ⅳ", V: "Ⅴ" };
+
+    // データが取得できない場合の最小フォールバック（式のみ。学校データは空）
+    var FALLBACK = {
+      data_version: "2027-07-07",
+      exam_year: "令和9年度（2027年度）",
+      selection_types: {
+        I:   { label: "バランス", formula: "評定 + 当日", naishin_weight: 1.0, day_weight: 1.0, max: 200 },
+        II:  { label: "内申やや重視", formula: "評定×1.5 + 当日", naishin_weight: 1.5, day_weight: 1.0, max: 245 },
+        III: { label: "当日やや重視", formula: "評定 + 当日×1.5", naishin_weight: 1.0, day_weight: 1.5, max: 255 },
+        IV:  { label: "内申重視", formula: "評定×2 + 当日", naishin_weight: 2.0, day_weight: 1.0, max: 290 },
+        V:   { label: "当日重視", formula: "評定 + 当日×2", naishin_weight: 1.0, day_weight: 2.0, max: 310 }
+      },
+      bands: { safe_margin: 8, risk_margin: 8 },
+      schools: [],
+      sources: []
+    };
+
+    var D = FALLBACK;
+    var state = { mode: "detail", tab: "border", naishinTotal: 38, dayTotal: 88 };
+
+    // ---------- ユーティリティ ----------
+    function $(id) { return document.getElementById(id); }
+    function fmt(n) {
+      if (n === null || n === undefined || isNaN(n)) return "—";
+      return (Math.round(n * 10) / 10).toString();
+    }
+    function fmtInt(n) { return String(Math.round(n)); }
+    function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+    function weights(code) {
+      var t = D.selection_types[code] || D.selection_types.V;
+      return { n: t.naishin_weight, d: t.day_weight, max: t.max, label: t.label, formula: t.formula };
+    }
+    function scoreOf(naishin, day, code) {
+      var w = weights(code);
+      return naishin * 2 * w.n + day * w.d;
+    }
+    // ボーダー到達に必要な当日点（110点上限。到達不能なら null）
+    function neededDay(borderScore, naishin, code) {
+      var w = weights(code);
+      var need = (borderScore - naishin * 2 * w.n) / w.d;
+      if (need > 110.0001) return null;
+      return Math.max(0, need);
+    }
+    function bandOf(diff) {
+      var safe = (D.bands && D.bands.safe_margin) || 8;
+      var risk = (D.bands && D.bands.risk_margin) || 8;
+      if (diff >= safe) return { cls: "safe", label: "合格圏（安全）", rank: 3 };
+      if (diff >= 0) return { cls: "mid", label: "合格圏（ボーダー）", rank: 2 };
+      if (diff >= -risk) return { cls: "warn", label: "要強化", rank: 1 };
+      return { cls: "risk", label: "挑戦圏", rank: 0 };
+    }
+
+    // ---------- 入力UI生成 ----------
+    function buildInputs() {
+      var ng = $("naishin-grid");
+      NAISHIN_SUBJECTS.forEach(function (sub, i) {
+        var d = document.createElement("div");
+        d.className = "subject-cell";
+        var opts = "";
+        for (var v = 5; v >= 1; v--) {
+          opts += '<option value="' + v + '"' + (v === 4 ? " selected" : "") + ">" + v + "</option>";
+        }
+        d.innerHTML = '<label for="n-' + i + '">' + sub + "</label>" +
+          '<select id="n-' + i + '" class="n-input" data-idx="' + i + '">' + opts + "</select>";
+        ng.appendChild(d);
+      });
+
+      var eg = $("exam-grid");
+      EXAM_SUBJECTS.forEach(function (sub, i) {
+        var d = document.createElement("div");
+        d.className = "subject-cell";
+        d.innerHTML = '<label for="e-' + i + '">' + sub + "（0〜22）</label>" +
+          '<input type="number" id="e-' + i + '" class="e-input" data-idx="' + i + '" min="0" max="22" step="0.5" value="18" inputmode="decimal">';
+        eg.appendChild(d);
+      });
+    }
+
+    function readNaishinFromGrid() {
+      var sum = 0;
+      document.querySelectorAll(".n-input").forEach(function (el) {
+        sum += parseInt(el.value, 10) || 0;
+      });
+      return sum;
+    }
+    function readDayFromGrid() {
+      var sum = 0;
+      document.querySelectorAll(".e-input").forEach(function (el) {
+        var v = parseFloat(el.value);
+        if (!isNaN(v)) sum += v;
+      });
+      return sum;
+    }
+
+    function fillNaishinGrid(total) {
+      // 45点満点に均等配分（端数は前の教科から1点ずつ。合計は必ず total に一致）
+      var remaining = clamp(Math.round(total), 0, 45);
+      var base = Math.floor(remaining / 9);
+      var high = remaining - base * 9;
+      document.querySelectorAll(".n-input").forEach(function (el, i) {
+        el.value = String(clamp(base + (i < high ? 1 : 0), 0, 5));
+      });
+    }
+    function fillDayGrid(total) {
+      var remaining = clamp(Math.round(total), 0, 110);
+      var els = document.querySelectorAll(".e-input");
+      var base = Math.floor(remaining / els.length);
+      var rem = remaining - base * els.length;
+      els.forEach(function (el, i) {
+        el.value = String(clamp(base + (i < rem ? 1 : 0), 0, 22));
+      });
+    }
+    function applyNaishinPreset(total) {
+      fillNaishinGrid(total);
+      syncFromGrid();
+    }
+    function applyDayPreset(total) {
+      fillDayGrid(total);
+      syncFromGrid();
+    }
+
+    function syncFromGrid() {
+      if (state.mode === "detail") {
+        state.naishinTotal = readNaishinFromGrid();
+        state.dayTotal = readDayFromGrid();
+      } else {
+        state.naishinTotal = clamp(parseFloat($("in-naishin-total").value) || 0, 0, 45);
+        state.dayTotal = clamp(parseFloat($("in-day-total").value) || 0, 0, 110);
+      }
+      $("out-naishin").textContent = fmt(state.naishinTotal);
+      $("out-day").textContent = fmt(state.dayTotal);
+      $("out-hyotei").textContent = fmt(state.naishinTotal * 2);
+      render();
+    }
+
+    // ---------- 結果描画 ----------
+    function render() {
+      var n = state.naishinTotal, day = state.dayTotal;
+      var err = $("input-error");
+      if (n < 0 || n > 45 || day < 0 || day > 110) {
+        err.style.display = "block";
+        err.textContent = "内申は0〜45、当日点は0〜110の範囲で入力してください。";
+        return;
+      }
+      err.style.display = "none";
+
+      renderBorderTable(n, day);
+      renderRefTable(n, day);
+      renderCalc(n, day);
+      updateUrl(n, day);
+    }
+
+    function updateUrl(n, day) {
+      if (!history.replaceState) return;
+      var u = new URL(window.location.href);
+      u.searchParams.set("n", fmt(n));
+      u.searchParams.set("d", fmt(day));
+      history.replaceState(null, "", u.toString());
+    }
+
+    function renderBorderTable(n, day) {
+      var rows = [];
+      D.schools.forEach(function (s) {
+        var cands = [{ dep: s.dep, code: s.type, border: s.border }];
+        if (s.dep_options) {
+          s.dep_options.forEach(function (o) {
+            cands.push({ dep: o.dep, code: o.type, border: o.border });
+          });
+        }
+        cands.forEach(function (c) {
+          if (!c.border) return;
+          var w = weights(c.code);
+          var sc = scoreOf(n, day, c.code);
+          var diff = sc - c.border.score;
+          var need = neededDay(c.border.score, n, c.code);
+          rows.push({
+            name: s.name, page: s.page, dep: c.dep, code: c.code,
+            typeLabel: ROMA[c.code] + "型", max: w.max,
+            score: sc, border: c.border.score, diff: diff, need: need,
+            band: bandOf(diff), conf: c.border.confidence || "C"
+          });
+        });
+      });
+
+      rows.sort(function (a, b) { return b.diff - a.diff; });
+
+      var tb = $("border-table").querySelector("tbody");
+      tb.innerHTML = "";
+      if (!rows.length) {
+        tb.innerHTML = '<tr><td colspan="8" style="padding:18px;color:#64748B;">学校データを読み込めませんでした（simulator-data.json）。</td></tr>';
+      }
+      rows.forEach(function (r, i) {
+        var tr = document.createElement("tr");
+        if (i === 0) tr.className = "best";
+        var needTxt = r.need === null
+          ? '<span style="color:#BE123C;font-weight:800;">到達不可</span>'
+          : '<span class="tick">' + fmt(r.need) + '</span><span class="row-note">/110</span>';
+        tr.innerHTML =
+          '<td class="name"><a href="' + r.page + '">' + r.name + '</a>' +
+            '<span class="row-note">' + r.dep + '</span></td>' +
+          '<td><span class="type-tag">' + r.typeLabel + "</span></td>" +
+          '<td class="tick">' + r.max + "</td>" +
+          '<td class="tick">' + fmt(r.score) + "</td>" +
+          '<td class="tick">' + fmt(r.border) + "</td>" +
+          '<td class="tick" style="color:' + (r.diff >= 0 ? "#059669" : "#BE123C") + ';">' +
+            (r.diff >= 0 ? "+" : "") + fmt(r.diff) + "</td>" +
+          "<td>" + needTxt + "</td>" +
+          '<td><span class="chip ' + r.band.cls + '">' + r.band.label + "</span></td>";
+        tb.appendChild(tr);
+      });
+
+      // サマリ
+      var hero = $("rh-main"), sub = $("rh-sub"), chip = $("rh-chip");
+      if (rows.length) {
+        var top = rows[0];
+        var safeCount = rows.filter(function (r) { return r.band.rank >= 2; }).length;
+        hero.innerHTML = "内申 <b>" + fmt(n) + "/45</b>・当日 <b>" + fmt(day) + "/110</b> なら";
+        sub.innerHTML = "ボーダー判定できる " + rows.length + " 件のうち <b style='color:#92400E;'>" + safeCount +
+          " 校</b>が合格圏（ボーダー以上）。最も余裕があるのは <b>" + top.name + "（" + top.dep + "）</b> で " +
+          (top.diff >= 0 ? "ボーダー比 <b>+" + fmt(top.diff) + "点</b>" : "ボーダーまで <b>" + fmt(-top.diff) + "点</b>");
+        chip.className = "chip " + top.band.cls;
+        chip.textContent = top.band.label;
+      } else {
+        hero.textContent = "条件を入力してください";
+        sub.textContent = "内申点・当日点を入れると、登録校のボーダーに対する位置が出ます。";
+        chip.className = "chip plain";
+        chip.textContent = "—";
+      }
+    }
+
+    function renderRefTable(n, day) {
+      var tb = $("ref-table").querySelector("tbody");
+      tb.innerHTML = "";
+      var list = D.schools.filter(function (s) { return s.ref_range; });
+      list.sort(function (a, b) { return b.ref_range.score_max - a.ref_range.score_max; });
+
+      if (!list.length) {
+        tb.innerHTML = '<tr><td colspan="7" style="padding:18px;color:#64748B;">参考レンジのデータがありません。</td></tr>';
+        return;
+      }
+      list.forEach(function (s) {
+        var w = weights(s.type);
+        var sc = scoreOf(n, day, s.type);
+        var lo = s.ref_range.score_min, hi = s.ref_range.score_max;
+        var cls, label;
+        if (sc >= hi) { cls = "safe"; label = "レンジ上限超"; }
+        else if (sc >= lo) { cls = "mid"; label = "レンジ内"; }
+        else { cls = "risk"; label = "レンジ未満"; }
+        var need = neededDay(lo, n, s.type);
+        var needTxt = need === null
+          ? '<span style="color:#BE123C;font-weight:800;">到達不可</span>'
+          : '<span class="tick">' + fmt(need) + "</span>";
+        var tr = document.createElement("tr");
+        tr.innerHTML =
+          '<td class="name"><a href="' + s.page + '">' + s.name + '</a><span class="row-note">' + s.dep + "</span></td>" +
+          '<td><span class="type-tag">' + ROMA[s.type] + "型</span></td>" +
+          '<td class="tick">' + s.naishin_ref + "</td>" +
+          '<td class="tick">' + fmt(lo) + "–" + fmt(hi) + '<span class="row-note">/' + w.max + "</span></td>" +
+          '<td class="tick">' + fmt(sc) + "</td>" +
+          '<td><span class="chip ' + cls + '">' + label + "</span></td>" +
+          "<td>" + needTxt + "</td>";
+        tb.appendChild(tr);
+      });
+    }
+
+    // ---------- 型を選んで計算 ----------
+    function buildCalcSelectors() {
+      var sel = $("calc-school");
+      sel.innerHTML = '<option value="">— 高校を選ぶ —</option>';
+      D.schools.forEach(function (s) {
+        var o = document.createElement("option");
+        o.value = s.id;
+        o.textContent = s.name + "（" + ROMA[s.type] + "型）";
+        sel.appendChild(o);
+      });
+      sel.addEventListener("change", onSchoolChange);
+      $("calc-dep").addEventListener("change", onDepChange);
+      $("calc-type").addEventListener("change", function () { renderCalc(state.naishinTotal, state.dayTotal); });
+      $("calc-target").addEventListener("input", function () { renderCalc(state.naishinTotal, state.dayTotal); });
+    }
+
+    function findSchool(id) {
+      for (var i = 0; i < D.schools.length; i++) if (D.schools[i].id === id) return D.schools[i];
+      return null;
+    }
+
+    function onSchoolChange() {
+      var s = findSchool($("calc-school").value);
+      var depSel = $("calc-dep");
+      depSel.innerHTML = "";
+      if (!s) {
+        renderCalc(state.naishinTotal, state.dayTotal);
+        return;
+      }
+      var deps = [{ dep: s.dep, code: s.type }];
+      if (s.deps) {
+        Object.keys(s.deps).forEach(function (name) {
+          if (name === s.dep) return;
+          deps.push({ dep: name, code: s.deps[name] });
+        });
+      }
+      deps.forEach(function (d) {
+        var o = document.createElement("option");
+        o.value = d.code + "|" + d.dep;
+        o.textContent = d.dep + "（" + ROMA[d.code] + "型）";
+        depSel.appendChild(o);
+      });
+      // 学科別ボーダーがあれば初期スコアに反映
+      var b = s.border;
+      var firstDep = deps[0];
+      if (s.dep_options) {
+        s.dep_options.forEach(function (o) {
+          if (o.border && o.dep === firstDep.dep) b = o.border;
+        });
+      }
+      $("calc-type").value = firstDep.code;
+      $("calc-target").value = b ? b.score : "";
+      renderCalc(state.naishinTotal, state.dayTotal);
+    }
+
+    function onDepChange() {
+      var v = $("calc-dep").value;
+      if (!v) return;
+      var parts = v.split("|");
+      $("calc-type").value = parts[0];
+      // 学科別ボーダーを目標欄へ
+      var s = findSchool($("calc-school").value);
+      if (s && s.dep_options) {
+        s.dep_options.forEach(function (o) {
+          if (o.dep === parts[1] && o.border) $("calc-target").value = o.border.score;
+        });
+      }
+      renderCalc(state.naishinTotal, state.dayTotal);
+    }
+
+    function renderCalc(n, day) {
+      var code = $("calc-type").value;
+      var w = weights(code);
+      var sc = scoreOf(n, day, code);
+      var target = parseFloat($("calc-target").value);
+      var hyotei = n * 2;
+      var perNaishin = (2 * w.n) / w.d;   // 内申1点 ≒ 当日◯点
+
+      var html = '<div style="font-size:0.78rem;color:#94A3B8;letter-spacing:.04em;">' +
+        ROMA[code] + "型 ／ " + w.formula + " ／ 満点 " + w.max + "点</div>" +
+        '<div class="big">' + fmt(sc) + " 点</div>" +
+        '<div style="font-size:0.8rem;color:#CBD5E1;">評定得点 ' + fmt(hyotei) + "（内申" + fmt(n) + "×2） ×" + w.n +
+        " ＋ 学力検査 " + fmt(day) + " ×" + w.d + " で計算</div>";
+
+      html += '<div class="calc-grid">';
+      html += '<div class="calc-cell"><div class="cc-label">内申1点 ≒ 当日</div><div class="cc-value">' + fmt(perNaishin) + "点</div></div>";
+      html += '<div class="calc-cell"><div class="cc-label">内申が1点上がると</div><div class="cc-value">+' + fmt(2 * w.n) + "点</div></div>";
+      html += '<div class="calc-cell"><div class="cc-label">当日点が1点上がると</div><div class="cc-value">+' + fmt(w.d) + "点</div></div>";
+
+      if (!isNaN(target)) {
+        var diff = sc - target;
+        var need = neededDay(target, n, code);
+        html += '<div class="calc-cell"><div class="cc-label">目標との差</div><div class="cc-value" style="color:' +
+          (diff >= 0 ? "#34D399" : "#F87171") + ';">' + (diff >= 0 ? "+" : "") + fmt(diff) + "点</div></div>";
+        html += '<div class="calc-cell"><div class="cc-label">目標到達に必要な当日点</div><div class="cc-value">' +
+          (need === null ? "到達不可" : fmt(need) + " / 110") + "</div></div>";
+      }
+      html += "</div>";
+      $("calc-out").innerHTML = html;
+    }
+
+    // ---------- 型の解説表 ----------
+    function renderTypeExplain() {
+      var tb = $("type-explain");
+      tb.innerHTML = "";
+      ["I", "II", "III", "IV", "V"].forEach(function (code) {
+        var w = weights(code);
+        var per = (2 * w.n) / w.d;
+        var tr = document.createElement("tr");
+        tr.innerHTML = "<td><span class='type-tag'>" + ROMA[code] + "型</span></td>" +
+          "<td>" + w.formula + "</td>" +
+          "<td class='tick'>" + w.max + "</td>" +
+          "<td class='tick'>" + fmt(per) + "点</td>" +
+          "<td style='font-size:0.76rem;color:#64748B;'>" + w.label + "</td>";
+        tb.appendChild(tr);
+      });
+    }
+
+    // ---------- イベント ----------
+    function bindEvents() {
+      document.querySelectorAll(".mode-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          document.querySelectorAll(".mode-btn").forEach(function (b) { b.classList.remove("active"); });
+          btn.classList.add("active");
+          state.mode = btn.dataset.mode;
+          var isDetail = state.mode === "detail";
+          $("detail-inputs").style.display = isDetail ? "" : "none";
+          $("total-inputs").style.display = isDetail ? "none" : "";
+          if (!isDetail) {
+            $("in-naishin-total").value = fmt(state.naishinTotal);
+            $("in-day-total").value = fmt(state.dayTotal);
+          }
+          syncFromGrid();
+        });
+      });
+
+      document.querySelectorAll(".tab").forEach(function (tab) {
+        tab.addEventListener("click", function () {
+          document.querySelectorAll(".tab").forEach(function (t) { t.classList.remove("active"); });
+          tab.classList.add("active");
+          state.tab = tab.dataset.tab;
+          $("panel-border").style.display = state.tab === "border" ? "" : "none";
+          $("panel-ref").style.display = state.tab === "ref" ? "" : "none";
+          $("panel-type").style.display = state.tab === "type" ? "" : "none";
+        });
+      });
+
+      document.querySelectorAll(".preset").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          if (btn.dataset.naishin) { applyNaishinPreset(parseInt(btn.dataset.naishin, 10)); }
+          if (btn.dataset.day) { applyDayPreset(parseFloat(btn.dataset.day)); }
+        });
+      });
+
+      document.addEventListener("input", function (e) {
+        if (e.target.classList.contains("n-input") || e.target.classList.contains("e-input") ||
+            e.target.id === "in-naishin-total" || e.target.id === "in-day-total") {
+          syncFromGrid();
+        }
+      });
+      document.addEventListener("change", function (e) {
+        if (e.target.classList.contains("n-input")) syncFromGrid();
+      });
+
+      $("btn-calc").addEventListener("click", function () {
+        syncFromGrid();
+        var el = $("result-card");
+        if (el && el.scrollIntoView) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+
+      $("btn-print").addEventListener("click", function () { window.print(); });
+
+      $("btn-share").addEventListener("click", function () {
+        var url = window.location.href;
+        var done = function () {
+          var b = $("btn-share");
+          var t = b.textContent;
+          b.textContent = "✅ コピーしました";
+          setTimeout(function () { b.textContent = t; }, 1800);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(url).then(done, function () { window.prompt("このURLをコピーしてください", url); });
+        } else {
+          window.prompt("このURLをコピーしてください", url);
+        }
+      });
+    }
+
+    // ---------- 初期化 ----------
+    function readUrlParams() {
+      var p = new URLSearchParams(window.location.search);
+      var n = parseFloat(p.get("n"));
+      var d = parseFloat(p.get("d"));
+      if (!isNaN(n) && n >= 0 && n <= 45) { state.naishinTotal = n; }
+      if (!isNaN(d) && d >= 0 && d <= 110) { state.dayTotal = d; }
+      state.schoolParam = p.get("school") || "";
+    }
+
+    function applyLoadedState() {
+      // 詳細グリッドへ初期値を配分（内申は均等、当日は均等）— 途中で sync しない
+      fillNaishinGrid(state.naishinTotal);
+      fillDayGrid(state.dayTotal);
+      $("in-naishin-total").value = fmt(state.naishinTotal);
+      $("in-day-total").value = fmt(state.dayTotal);
+      if (D.data_version) $("data-version").textContent = D.data_version;
+      var sub = $("result-sub");
+      if (sub && D.exam_year) {
+        sub.textContent = D.exam_year + " 一般選抜の方式（公式）に基づく計算です。内申と当日点を入れると即時に再計算します。";
+      }
+    }
+
+    function boot() {
+      buildInputs();
+      bindEvents();
+      readUrlParams();
+
+      fetch("simulator-data.json", { cache: "no-cache" })
+        .then(function (r) { if (!r.ok) throw new Error("http " + r.status); return r.json(); })
+        .then(function (json) { D = json; })
+        .catch(function (e) {
+          console.warn("simulator-data.json 読み込み失敗:", e);
+        })
+        .then(function () {
+          renderTypeExplain();
+          buildCalcSelectors();
+          applyLoadedState();
+          syncFromGrid();
+
+          // ?school=<id> のディープリンク（学校ページのCTAから）
+          var target = state.schoolParam ? findSchool(state.schoolParam) : null;
+          if (target) {
+            $("calc-school").value = target.id;
+            onSchoolChange();
+            var tabBtn = document.querySelector('.tab[data-tab="type"]');
+            if (tabBtn) tabBtn.click();
+            var sub = $("result-sub");
+            if (sub) {
+              sub.textContent = target.name + "（" + target.dep + "）の方式 " + ROMA[target.type] +
+                "型で計算中。内申と当日点を変えると即時に再計算します。";
+            }
+          } else if (!$("calc-school").value && D.schools.length) {
+            $("calc-school").value = D.schools[0].id;
+            onSchoolChange();
+          }
+        });
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", boot);
+    } else {
+      boot();
+    }
+  })();
+  </script>
+  <!-- 広告マネージャー（A8.net自動配信＆空き地ゼロ化） -->
+  <script src="ads_manager.js"></script>
+</body>
+</html>

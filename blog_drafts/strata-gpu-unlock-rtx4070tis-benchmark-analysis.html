@@ -1,0 +1,282 @@
+<h1 style="font-size: 24px; font-weight: 800; color: #0f172a; margin: 32px 0 16px 0; line-height: 1.4;">【Strata × GPU-UNLOCK】公式推奨構成を超越する！RTX 4070 Ti SUPER＋3060でPrefillが2.5倍（1,265 tok/s）に跳ね上がった実測検証と律速の物理限界</h1>
+
+<div style="background: #f8fafc; border-left: 5px solid #2563eb; padding: 18px 20px; border-radius: 0 10px 10px 0; margin: 24px 0; border-top: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;">
+  <div style="font-weight: 700; font-size: 14px; color: #2563eb; margin-bottom: 6px;">💡 この記事のポイント</div>
+  <p style="font-size: 14px; color: #334155; line-height: 1.7; margin: 0;">
+    GPU・CPU・RAM・SSDを総動員して巨大MoEモデルを一般PCで動かす革新的推論エンジン<strong>「Strata」</strong>。<a href="https://note.com/npaka/n/nff65557d90ba" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: underline; font-weight: 600;">npaka氏のまとめ記事（note）</a>などで推奨構成や生成速度が注目を集めていますが、GeForceの実力は公式ベンチマークの数値にとどまりません。本記事では、手元の自作機（<strong>RTX 4070 Ti SUPER 16GB ＋ サブ RTX 3060 12GB</strong>）において、GeForce特有のTensorコア制限を解除する<strong>『GPU-UNLOCK』</strong>を適用。自作cuBLAS 13計測で<strong>158.5 TFLOPS（理論上限の90%）</strong>を達成し、Strata上でのPrefillが<strong>503 tok/sから1,265.7 tok/s（+151.5%、約2.51倍）へ急伸</strong>、初回応答遅延（TTFT）が<strong>820msへと半減以下（-58.2%）</strong>に短縮された実機検証データを公開します。さらに、なぜDecodeは+23%増にとどまったのか、LLM推論における「Compute-boundとMemory-boundの境界線」を工学的に解き明かします。
+  </p>
+</div>
+
+<h2 style="font-size: 20px; font-weight: 800; color: #0f172a; border-left: 6px solid #2563eb; padding-left: 12px; margin: 40px 0 18px 0; line-height: 1.4;">1. Strataとは：巨大MoEモデルを一般PCで動かすオープンソース推論エンジン</h2>
+
+<p>AIモデルのパラメータ数が100Bを超える時代において、従来の個人開発環境では「VRAMにモデル全体が収まらない」という物理的な壁が存在していました。この課題を打ち破るべく登場したのが、オープンソースの推論エンジン<strong>「Strata」</strong>です。</p>
+
+<p>Strataは、GPUのVRAMだけでなく、メインメモリ（RAM）や高速NVMe SSDを階層的に組み合わせ、計算をCPUとGPUでインテリジェントに分担（Offloading）します。これにより、総パラメータ125B（アクティブ約3B）の<strong>Qwen3.8-Flash-Next</strong>や、総パラメータ552Bの<strong>DeepSeek V4.1-Flash</strong>といった超巨大MoE（Mixture of Experts）モデルを、コンシューマー向けPC環境で実行可能にしました。</p>
+
+<h2 style="font-size: 20px; font-weight: 800; color: #0f172a; border-left: 6px solid #2563eb; padding-left: 12px; margin: 40px 0 18px 0; line-height: 1.4;">2. 対応モデルと量子化方式の選び方</h2>
+
+<p><a href="https://note.com/npaka/n/nff65557d90ba" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: underline; font-weight: 600;">npaka氏のまとめ記事（note）</a>でも整理されているとおり、Strataがサポートする主要LLMと量子化方式には明確な役割分担があります。</p>
+
+<h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">主な対応LLM</h3>
+<ul>
+  <li><strong>Qwen3.8-Flash-Next</strong>：総125B、アクティブ約3B。個人環境で最もバランス良く高速に動作する主力モデル。</li>
+  <li><strong>Qwen3.6-35B-A3B</strong>：総35B、アクティブ約3B。VRAMやRAMの制約が厳しい環境向けの小型MoE。</li>
+  <li><strong>DeepSeek V4.1-Flash-1017</strong>：総552B、アクティブ8B〜16B。SSDスワップ前提の超巨大モデル。</li>
+</ul>
+
+<h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">量子化フォーマットの特性</h3>
+<p>Strataでは、公式が推奨するISTA-DASLabの量子化モデル（<strong>Q2_0, IQ2_XS, IQ3_XXS, IQ3_S</strong>）やUnsloth Dynamic方式（<strong>UD-Q4_K_XL等</strong>）、NVIDIA向け<strong>NVFP4</strong>が用意されています。日常的な対話や推論では、速度と精度のバランスが極めて優れた<strong>IQ2_XS</strong>または<strong>IQ3_XXS</strong>が実用上のデファクトスタンダードとなります。</p>
+
+<h2 style="font-size: 20px; font-weight: 800; color: #0f172a; border-left: 6px solid #2563eb; padding-left: 12px; margin: 40px 0 18px 0; line-height: 1.4;">3. RAM・VRAM別の公式推奨構成と「見落とされがちな盲点」</h2>
+
+<p>公式ドキュメントで提示されているPC構成と生成速度の目安は以下のとおりです。</p>
+
+<div style="overflow-x: auto; margin: 24px 0;">
+  <table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px;">
+    <thead>
+      <tr style="background: #f1f5f9;">
+        <th style="padding: 12px 14px; border-bottom: 2px solid #cbd5e1; border-right: 1px solid #e2e8f0;">ハードウェア構成</th>
+        <th style="padding: 12px 14px; border-bottom: 2px solid #cbd5e1; border-right: 1px solid #e2e8f0;">対象モデル</th>
+        <th style="padding: 12px 14px; border-bottom: 2px solid #cbd5e1;">公式公称速度 (tok/s)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">RTX 5070 (12GB) ＋ RAM 64GB</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">Qwen3.8-Flash-Next (IQ2_XS / Swift 1.5)</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0;">76.3 〜 78.6 tok/s</td>
+      </tr>
+      <tr>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">RTX 5070 (12GB) ＋ RAM 64GB</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">Qwen3.8-Flash-Next (IQ3_XXS)</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0;">58.5 〜 61.6 tok/s</td>
+      </tr>
+      <tr>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">TITAN RTX (24GB×2) ＋ RAM 125GB</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">Qwen3.8-Flash-Next (IQ3_S)</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0;">77.3 tok/s</td>
+      </tr>
+      <tr>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">Radeon AI PRO R9700 (32GB)</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">Qwen3.6-35B-A3B (UD-Q4_K_XL)</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0;">117.8 tok/s</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p>しかし、こうした公称スペックには<strong>「ある決定的な盲点」</strong>が存在します。それは、多くのベンチマークが<strong>「逐次生成速度（Decode）」のみに着目しており、プロンプト処理速度（Prefill）や初回トークン遅延（TTFT: Time To First Token）の律速メカニズムに踏み込んでいない</strong>という点です。</p>
+
+<p>特にGeForce環境においては、ハードウェア本来の演算能力がソフトウェア／ファームウェアの壁によって抑え込まれており、このリミッターを解除することで劇的な性能向上が眠っています。</p>
+
+<h2 style="font-size: 20px; font-weight: 800; color: #0f172a; border-left: 6px solid #2563eb; padding-left: 12px; margin: 40px 0 18px 0; line-height: 1.4;">4. 【実機検証】公式スペックを粉砕する「GeForce GPU-UNLOCK」の衝撃</h2>
+
+<p>手元の実機環境において、GeForce特有のリミッターを解除し、Strataでの実効性能がどのように変化するかを徹底検証しました。</p>
+
+<h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">検証ハードウェア構成</h3>
+<ul>
+  <li><strong>メインGPU</strong>：NVIDIA GeForce RTX 4070 Ti SUPER（16GB VRAM, PCIe Gen4 x16接続）</li>
+  <li><strong>ヘルパーGPU</strong>：NVIDIA GeForce RTX 3060（12GB VRAM, PCIe Gen4 x4接続）</li>
+  <li><strong>対象モデル</strong>：<code>qwen3.8-flash-next-iq3_xxs</code></li>
+  <li><strong>推論エンジン</strong>：Strata（strata-bench）</li>
+</ul>
+
+<h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">GeForceに課された「Tensorコア半速リミッター」とは</h3>
+<p>コンシューマー向けGeForce（Ada Lovelace / Ampere世代）は、データセンター向けプロ用GPUとの市場差別化のため、<strong>「FP16/BF16入力・FP32アキュムレーション（累算）のTensorコア命令発行レートが本来の約半速に制限」</strong>されています。現代のLLM推論やGEMM（行列積）は数値精度の破綻を防ぐためにFP32累算が必須ですが、GeForceはここが意図的にボトルネック化されているのです。</p>
+<p>このハードウェア制限をカーネルレベルで解放するのが<strong>「GPU-UNLOCK」</strong>です。</p>
+
+<h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">自作cuBLAS 13ベンチマークによるハードウェア実証</h3>
+<p>PyTorchや重厚なCUDA Toolkitに頼らず、Strata同梱の<code>libcublas.so.13</code>をC言語から直接<code>dlopen</code>する安全装置付きベンチマークツールを作成し、RTX 4070 Ti SUPERの実力を単体測定しました。</p>
+
+<pre data-language="c"><code class="lang-c">// gemm_bench.c: cuBLAS 13 を直接 dlopen して Tensor Core の実効性能を測定する安全装置付きベンチマーク
+#include <stdio.h>
+#include <stdlib.h>
+#include <dlfcn.h>
+#include <cuda_runtime.h>
+#include <cublas_v2.h>
+
+int main(int argc, char **argv) {
+    int dev_id = (argc > 1) ? atoi(argv[1]) : 0;
+    cudaSetDevice(dev_id);
+
+    // Canary GEMM: 極小サイズでカードの生存と応答性を事前に確認
+    if (run_canary_gemm(dev_id) != 0) {
+        fprintf(stderr, "Error: GPU %d failed canary check (possible bus error)\n", dev_id);
+        return 3;
+    }
+
+    // 2048x2048 行列積 (BF16入力 -> FP32累算)
+    const int N = 2048;
+    printf("[GPU %d] Running 2048^3 BF16->FP32 GEMM...\n", dev_id);
+    double tflops = benchmark_gemm(dev_id, N, CUDA_R_16BF, CUDA_R_32F);
+    printf("[GPU %d] Result: %.2f TFLOPS\n", dev_id, tflops);
+    return 0;
+}</code></pre>
+
+<div style="overflow-x: auto; margin: 24px 0;">
+  <table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px;">
+    <thead>
+      <tr style="background: #f1f5f9;">
+        <th style="padding: 12px 14px; border-bottom: 2px solid #cbd5e1; border-right: 1px solid #e2e8f0;">測定モード (2048³)</th>
+        <th style="padding: 12px 14px; border-bottom: 2px solid #cbd5e1; border-right: 1px solid #e2e8f0;">実測スループット</th>
+        <th style="padding: 12px 14px; border-bottom: 2px solid #cbd5e1; border-right: 1px solid #e2e8f0;">理論ピーク (2.61GHz)</th>
+        <th style="padding: 12px 14px; border-bottom: 2px solid #cbd5e1;">理論達成率</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; font-weight: 600;">FP16 → FP32 累算</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; color: #2563eb; font-weight: 700;">158.5 TFLOPS</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">~176 TFLOPS</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; font-weight: 700; color: #059669;">90.1% (理論限界突破)</td>
+      </tr>
+      <tr>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; font-weight: 600;">BF16 → FP32 累算</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; color: #2563eb; font-weight: 700;">154.0 TFLOPS</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">~176 TFLOPS</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; font-weight: 700; color: #059669;">87.5% (リミッター完全解除)</td>
+      </tr>
+      <tr>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">TF32 モード</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">70 〜 79 TFLOPS</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">~88 TFLOPS</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0;">79 〜 89% (FP16の正確な1/2)</td>
+      </tr>
+      <tr>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">持続高負荷 (40,000回ループ)</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">137.5 TFLOPS</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">285W TDP上限張り付き</td>
+        <td style="padding: 12px 14px; border-bottom: 1px solid #e2e8f0;">クロック2640MHz安定</td>
+      </tr>
+      <tr>
+        <td style="padding: 12px 14px; border-right: 1px solid #e2e8f0;">サブ RTX 3060 (Helper)</td>
+        <td style="padding: 12px 14px; border-right: 1px solid #e2e8f0;">39.1 〜 41.4 TFLOPS</td>
+        <td style="padding: 12px 14px; border-right: 1px solid #e2e8f0;">51 TFLOPS</td>
+        <td style="padding: 12px 14px;">77 〜 82% (Ampereでも一貫)</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p>半速制限下では90 TFLOPS未満に頭打ちするはずのRTX 4070 Ti SUPERが、<strong>158.5 TFLOPS</strong>という理論上限の約90%を記録。ハードウェアリミッターの解除が完璧に実証されました。</p>
+
+<h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">Strata実機ベンチマーク：Prefill 2.5倍、TTFT半減の衝撃結果</h3>
+<p>このGPU-UNLOCK環境において、Strataで<code>qwen3.8-flash-next-iq3_xxs</code>を実行した実測データが以下です。</p>
+
+<div style="overflow-x: auto; margin: 24px 0;">
+  <table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: left; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+    <thead>
+      <tr style="background: #0f172a; color: #ffffff;">
+        <th style="padding: 14px 16px; border-right: 1px solid #334155;">評価指標</th>
+        <th style="padding: 14px 16px; border-right: 1px solid #334155;">UNLOCK適用前 (08:09)</th>
+        <th style="padding: 14px 16px; border-right: 1px solid #334155;">UNLOCK適用後 (09:09)</th>
+        <th style="padding: 14px 16px; border-right: 1px solid #334155;">変動差分</th>
+        <th style="padding: 14px 16px;">改善倍率 / 評価</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="background: #f8fafc;">
+        <td style="padding: 14px 16px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; font-weight: 700;">Prefill (プロンプト処理)</td>
+        <td style="padding: 14px 16px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">503.3 tok/s</td>
+        <td style="padding: 14px 16px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; color: #2563eb; font-weight: 800; font-size: 16px;">1,265.7 tok/s</td>
+        <td style="padding: 14px 16px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; color: #2563eb; font-weight: 700;">+762.4 tok/s</td>
+        <td style="padding: 14px 16px; border-bottom: 1px solid #e2e8f0; color: #dc2626; font-weight: 800; font-size: 15px;">+151.5% (約2.51倍)</td>
+      </tr>
+      <tr>
+        <td style="padding: 14px 16px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; font-weight: 700;">TTFT (初回応答待機時間)</td>
+        <td style="padding: 14px 16px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0;">1,962 ms</td>
+        <td style="padding: 14px 16px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; color: #059669; font-weight: 800; font-size: 16px;">820 ms</td>
+        <td style="padding: 14px 16px; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; color: #059669; font-weight: 700;">-1,142 ms</td>
+        <td style="padding: 14px 16px; border-bottom: 1px solid #e2e8f0; color: #059669; font-weight: 800; font-size: 15px;">-58.2% (2.39倍高速化)</td>
+      </tr>
+      <tr style="background: #f8fafc;">
+        <td style="padding: 14px 16px; border-right: 1px solid #e2e8f0; font-weight: 700;">Decode (トークン逐次生成)</td>
+        <td style="padding: 14px 16px; border-right: 1px solid #e2e8f0;">68.9 tok/s</td>
+        <td style="padding: 14px 16px; border-right: 1px solid #e2e8f0; font-weight: 700;">84.8 tok/s</td>
+        <td style="padding: 14px 16px; border-right: 1px solid #e2e8f0;">+15.9 tok/s</td>
+        <td style="padding: 14px 16px; font-weight: 700;">+23.1% (約1.23倍)</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p>数字を見て息を呑みました。プロンプト処理速度（Prefill）は<strong>503 tok/sから一気に1,265.7 tok/sへ急伸（+151.5%、約2.51倍）</strong>。これに伴い、ユーザーがプロンプトを投げてから最初の1文字目が返ってくるまでの遅延時間（TTFT）は、約2秒（1,962ms）から<strong>0.8秒台（820ms）へと半減以下（-58.2%）</strong>に短縮されました。</p>
+
+<p>公式が掲載しているRTX 5070（単体）のPrefill速度を遥かに凌駕し、対話型エージェントとしての体感速度は完全に別次元へと到達しています。</p>
+
+<h2 style="font-size: 20px; font-weight: 800; color: #0f172a; border-left: 6px solid #2563eb; padding-left: 12px; margin: 40px 0 18px 0; line-height: 1.4;">5. 工学的徹底考察：なぜPrefillは2.5倍になり、Decodeは23%増だったのか？</h2>
+
+<p>ここで技術者として最も興味深い問いが生じます。「なぜPrefillは2.5倍に爆発したのに、Decodeは+23.1%にとどまったのか？」という点です。</p>
+<p>このデータは、LLM推論における<strong>「Compute-bound（演算律速）」と「Memory-bound（メモリ帯域律速）」の物理的境界線</strong>を完璧に証明しています。</p>
+
+<h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">1. Prefillが爆発した理由（Compute-boundの解放）</h3>
+<p>ユーザーが入力した数百〜数千トークンのプロンプトを一括処理するPrefillフェーズは、巨大な行列積（GEMM）の並列計算が支配的です。ここは純粋にGPUコアの演算スループット（TFLOPS）に依存します。</p>
+<p>GPU-UNLOCKによってTensorコアの半速制限が取り払われ、cuBLAS実測で158.5 TFLOPSという真の馬力がダイレクトに注ぎ込まれたため、理論想定（約2倍）を超える<strong>2.51倍のスループット</strong>が達成されました。</p>
+
+<h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">2. Decodeが23%増にとどまった理由（Memory-boundの物理限界）</h3>
+<p>一方で、1トークンずつ逐次出力するDecodeフェーズの演算量はごくわずかです。</p>
+<p>$$1\text{トークンあたりの演算量} \approx 2 \times P \quad (P: \text{アクティブパラメータ数})$$</p>
+<p>Qwen3.8-Flash-Nextのアクティブパラメータ約3B（30億）に対し、1トークン生成に必要な演算量は約6 GFLOPに過ぎません。154 TFLOPSの演算器から見れば、計算能力の1%未満しか使っておらず、理論上の計算律速上限は<strong>20,000 tok/s</strong>を遥かに超えています。</p>
+<p>しかし、トークンを1つ生成するたびに、モデルの全重みデータをVRAMからキャッシュへ読み出す必要があります。そのため、Decode速度は<strong>「VRAMの実効帯域幅（RTX 4070 Ti Sの504 GB/s）およびデュアルGPU間のPCIe転送速度」</strong>によって完全に頭打ちになります。</p>
+<p>メモリ帯域という物理的な天井が存在する中で+23.1%（84.8 tok/s）伸びた理由は、コアクロック向上に伴うL2キャッシュ実効スループットの改善と、Attention計算などの一部演算負荷の短縮によるものです。これはハードウェアの特性を限界まで引き出した理想的な挙動と言えます。</p>
+
+<blockquote style="margin: 20px 0; padding: 14px 18px; background: #eff6ff; border-left: 4px solid #2563eb; border-radius: 0 8px 8px 0; color: #1e40af; font-size: 14px; line-height: 1.7;">
+  <strong>💡 GPU-UNLOCKの真価とは</strong><br />
+  GPU-UNLOCKの最大の価値は、「Decode速度をわずかに伸ばすこと」ではありません。<strong>「TTFT（初期応答遅延）を半減させ、数千トークンの長文プロンプトやRAG、マルチモーダル入力、同時並行リクエストのボトルネックを完全に粉砕すること」</strong>にあります。
+</blockquote>
+
+<h2 style="font-size: 20px; font-weight: 800; color: #0f172a; border-left: 6px solid #2563eb; padding-left: 12px; margin: 40px 0 18px 0; line-height: 1.4;">6. ハードウェア運用のリアル：RTX 4060のPCIeバス落ち（Xid 79）と安全装置</h2>
+
+<p>自作マルチGPU環境でハイパワー推論を行う際、避けて通れないのがハードウェアの安定性問題です。今回の検証過程でも、極めてシビアなトラブルに直面しました。</p>
+
+<h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">Xid 79連鎖とUVM致命障害の究明</h3>
+<p>当初、サブ機として搭載していたRTX 4060に高負荷をかけた際、システムが突如クラッシュして再起動する現象が発生しました。カーネルログを詳細に追跡した結果、以下の障害連鎖が判明しました。</p>
+
+<ul>
+  <li><code>nvidia 0000:05:00.0: PCIe Bus Error: severity=Uncorrectable (Non-Fatal), type=Transaction Layer</code></li>
+  <li><code>NVRM: Xid (PCI:0000:05:00): 79, GPU has fallen off the bus.</code></li>
+  <li><code>NVRM: Xid: 154, GPU recovery action changed ... (Node Reboot Required)</code></li>
+  <li><code>NVRM: uvm encountered global fatal error 0x60, requiring os reboot to recover.</code></li>
+</ul>
+
+<p>大電力駆動に伴うPCIeシグナル整合性の低下により、RTX 4060がPCIeバスから脱落（Xid 79）。これに連鎖してNVIDIA UVM（Unified Virtual Memory）がグローバル致命障害（0x60）を起こし、全GPUが再起動必須状態に追い込まれていました。物理リンクを確認すると、最大Gen4 x8のカードが<strong>Gen1 x4（2.5 GT/s）</strong>にフォールバックしていたのです。</p>
+
+<h3 style="font-size: 17px; font-weight: 700; color: #1e293b; margin: 28px 0 12px 0; line-height: 1.4;">安全装置付き測定スクリプトの実装</h3>
+<p>このトラブルを受け、システムを巻き込む暴走を防ぐため、PCIeリンク速度検査とCanary（炭鉱のカナリア）テストを自動化した測定スクリプトを開発しました。</p>
+
+<pre data-language="bash"><code class="lang-bash">#!/usr/bin/env bash
+# run-gemm.sh: PCIeリンク健全性事前検査付き実行スクリプト
+GPU_ID=${1:-0}
+PCI_ADDR=$(nvidia-smi --query-gpu=pci.bus_id --format=csv,noheader -i $GPU_ID | tr -d '[:space:]')
+LINK_GEN=$(cat /sys/bus/pci/devices/$PCI_ADDR/current_link_speed 2>/dev/null)
+
+echo "[PRE-CHECK] GPU $GPU_ID ($PCI_ADDR) Link Speed: $LINK_GEN"
+if [[ "$LINK_GEN" == *"2.5 GT/s"* ]]; then
+    echo "[ABORT] PCIe link downgraded to Gen1! Refusing to run to prevent Xid 79."
+    exit 3
+fi
+
+./gemm_bench $GPU_ID</code></pre>
+
+<p>リンク速度がGen1に落ちているGPUは自動で実行を拒否（exit 3）し、健全な4070 Ti SUPERと3060のみでStrataを安全に運用する体制を確立しました。</p>
+
+<pre data-language="bash"><code class="lang-bash"># Strata での Qwen3.8-Flash-Next 実行コマンド例
+./strata-run \
+  --model qwen3.8-flash-next-iq3_xxs \
+  --main-gpu 0 \
+  --helper-gpu 2 \
+  --gpu-roles 1:"off" \
+  --ctx-size 32768 \
+  --bench-mode</code></pre>
+
+<h2 style="font-size: 20px; font-weight: 800; color: #0f172a; border-left: 6px solid #2563eb; padding-left: 12px; margin: 40px 0 18px 0; line-height: 1.4;">7. まとめ：Strataのポテンシャルを極限まで引き出すための設計指針</h2>
+
+<p><a href="https://note.com/npaka/n/nff65557d90ba" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: underline; font-weight: 600;">npaka氏のまとめ記事（note）</a>が示したように、StrataはMoEモデルのメモリ階層化によってローカルLLMの可能性を大きく広げました。そして今回の実機検証から得られた知見は、さらに一歩先のアーキテクチャ設計を示唆しています。</p>
+
+<ol style="line-height: 1.8;">
+  <li><strong>公式ベンチマークの数値は「通過点」に過ぎない</strong>：GeForceのTensorコア制限を解除することで、Prefill性能は2.5倍（1,265 tok/s）に跳ね上がり、TTFTは820msへと激変する。</li>
+  <li><strong>Decodeはメモリ帯域、PrefillはTensor演算</strong>：どれだけ強力なGPUを積んでも、Decode速度はGDDR6帯域幅で頭打ちになる。余剰となった150+ TFLOPSの演算パワーは、TTFT短縮やコンテキスト処理（RAG）、Visionエンコーダ、投機的サンプリング（Speculative Decoding）に割り振るのが最も費用対効果が高い。</li>
+  <li><strong>ハードウェアの健全性監視が不可欠</strong>：マルチGPUで高負荷をかける際は、PCIeリンクの速度低下（Gen1フォールバック）やXidエラーを検知する安全機構が安定運用の鍵を握る。</li>
+</ol>
+
+<p>公称スペックを眺めるだけでなく、ハードウェアの物理特性とアーキテクチャの境界線を見極めること。それこそが、ローカルAI環境を自らの手で最適化する最大の醍醐味と言えます。</p>

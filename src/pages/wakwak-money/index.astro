@@ -1,0 +1,154 @@
+---
+export const prerender = false;
+import SmartAIBaseLayout from '../../layouts/SmartAIBaseLayout.astro';
+import AdBanner from '../../components/AdBanner.astro';
+import { ARTICLES } from '../../data/articles';
+
+const moneyArticles = ARTICLES.filter(
+  (a) =>
+    a.siteId === 'wakwak-money' ||
+    a.slug.includes('wakwak') ||
+    a.slug.includes('nisa') ||
+    a.tags.some((t) => t.includes('NISA') || t.includes('家計') || t.includes('キャッシュフロー'))
+);
+---
+
+<SmartAIBaseLayout
+  title="わくわくマネーラボ ｜ 100歳までの家計計画・教育費ピーク対策"
+  description="教育費が重なる時期の乗り切り方、NISA（オルカン）積立、住宅ローンを抱えた家庭の生活口座と貯蓄口座の分け方を分かりやすくまとめました。"
+>
+  <section class="nc-hero hero-tin">
+    <div class="nc-hero-inner">
+      <p class="eyebrow" style="color: var(--nc-color-charcoal); opacity: 0.85;">家計管理＆ライフプラン（ファミリー向け）</p>
+      <h1 class="nc-hero-title">わくわくマネーラボ</h1>
+      <p class="nc-hero-lead">
+        高校・大学の学費が重なる時期（夫47〜53歳ごろ）でも慌てないために、日々の生活口座（三菱UFJ）と貯蓄・積立用（SMBC・NISA）の分け方と、100歳までの収支の見通しをまとめています。
+      </p>
+    </div>
+  </section>
+
+  <div class="nc-container" style="padding-bottom: 3rem;">
+    <div class="nc-kpi-strip" style="margin-bottom: 1.5rem;">
+      <div class="nc-kpi-box">
+        <span class="nc-kpi-label">ライフプラン計算期間</span>
+        <strong class="nc-kpi-value">42歳〜100歳</strong>
+        <span class="nc-kpi-sub">老後資金枯渇ゼロが目標</span>
+      </div>
+      <div class="nc-kpi-box">
+        <span class="nc-kpi-label">教育費ダブルピーク</span>
+        <strong class="nc-kpi-value">47〜53歳</strong>
+        <span class="nc-kpi-sub">高校・大学進学の集中期</span>
+      </div>
+      <div class="nc-kpi-box">
+        <span class="nc-kpi-label">口座管理ルール</span>
+        <strong class="nc-kpi-value">使う・貯める分離</strong>
+        <span class="nc-kpi-sub">生活費(MUFG)と予備(SMBC)</span>
+      </div>
+    </div>
+
+    <AdBanner slotType="banner" siteId="wakwak-money" />
+
+    <section style="margin-top: 1.75rem;">
+      <p class="eyebrow">お金と暮らしの実践レポート</p>
+      <h2>家計・資産形成の解説記事（{moneyArticles.length}本）</h2>
+      <div class="nc-article-grid" style="margin-top: 1rem;">
+        {moneyArticles.map((art) => (
+          <a href={`/articles/${art.slug}`} class="nc-article-card">
+            <div class="nc-card-top">
+              <span class="nc-card-badge">{art.categoryLabel}</span>
+              <span class="nc-card-date">{art.date} · {art.readTime}</span>
+            </div>
+            <h3 class="nc-card-title">{art.title}</h3>
+            <p class="nc-card-excerpt">{art.excerpt}</p>
+            <span class="nc-card-more">詳しく読む →</span>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <AdBanner slotType="infeed" siteId="wakwak-money" />
+
+    <div style="margin-top: 1.5rem; display: flex; flex-wrap: wrap; gap: 0.75rem;">
+      <a href="/toyotahome" class="btn btn-light">🏡 トヨタホーム5,200万ローン実録を見る</a>
+      <a href="/aichi-high" class="btn btn-light">🎓 愛知高校受験・私立無償化ガイドを見る</a>
+      <a href="/ai-living-lab" class="btn btn-dark">AIリビングラボ トップへ</a>
+    </div>
+
+    <div style="margin-top: 2rem;">
+      <AdBanner slotType="banner" siteId="wakwak-money" />
+    </div>
+  </div>
+</SmartAIBaseLayout>
+
+<style>
+  .nc-kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem;
+  }
+  .nc-kpi-box {
+    background: var(--nc-color-light-gray);
+    border-radius: 0.85rem;
+    padding: 1rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+  .nc-kpi-label { font-size: 0.76rem; color: #55544d; font-weight: 500; }
+  .nc-kpi-value { font-size: 1.3rem; font-weight: 700; color: var(--nc-color-charcoal); }
+  .nc-kpi-sub { font-size: 0.75rem; color: #6e6d65; }
+  .nc-article-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+    gap: 1rem;
+  }
+  .nc-article-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    background: var(--nc-color-light-gray);
+    border-radius: 1rem;
+    padding: 1.15rem;
+    text-decoration: none !important;
+    transition: transform 0.15s ease, background-color 0.15s ease;
+  }
+  .nc-article-card:hover {
+    background: var(--nc-color-sun);
+    transform: translateY(-2px);
+  }
+  .nc-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .nc-card-badge {
+    font-size: 0.74rem;
+    font-weight: 600;
+    background: #fff;
+    color: var(--nc-color-charcoal);
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+  }
+  .nc-card-date { font-size: 0.76rem; color: #66655d; }
+  .nc-card-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.45;
+    margin: 0;
+    color: var(--nc-color-charcoal);
+  }
+  .nc-card-excerpt {
+    font-size: 0.87rem;
+    line-height: 1.55;
+    color: #4b4a44;
+    margin: 0;
+    flex: 1;
+  }
+  .nc-card-more {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--nc-color-highlight);
+  }
+</style>

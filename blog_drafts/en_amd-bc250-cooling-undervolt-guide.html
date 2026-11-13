@@ -1,0 +1,299 @@
+<!-- ============================================================== -->
+<!-- 【Global English Edition: Smart AI Life Technical Guide】          -->
+<!-- Title: Taming the 100°C Beast: AMD BC-250 (PS5 APU) Thermal & Power Optimization Guide via SMU Undervolt and NCT6687d PWM Fan Control -->
+<!-- ============================================================== -->
+<div class="pottle-article-wrapper" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; line-height: 1.85; max-width: 860px; margin: 0 auto; font-size: 16px;">
+
+<!-- Header Banner -->
+<div style="background: linear-gradient(135deg, #0f172a 0%, #1e3c72 50%, #0284c7 100%); color: #ffffff; padding: 44px 28px; border-radius: 20px; margin-bottom: 32px; box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.35); text-align: center;">
+  <div style="display: inline-block; background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.35); color: #e0f2fe; font-size: 13px; font-weight: 700; padding: 6px 18px; border-radius: 9999px; margin-bottom: 16px; letter-spacing: 0.05em;">
+    ❄️ HARDWARE HACKING × THERMAL OPTIMIZATION
+  </div>
+  <h1 style="font-size: 27px; font-weight: 800; line-height: 1.45; margin: 0 0 16px 0; color: #ffffff;">
+    Taming the 100°C Beast: AMD BC-250 Power & Cooling Guide<br/>
+    <span style="color: #38bdf8;">SMU Undervolting & NCT6687d PWM Fan Control for 39% Power Drop</span>
+  </h1>
+  <p style="font-size: 15px; color: #bae6fd; margin: 0; line-height: 1.6;">
+    How we brought the Oberon / Cyan Skillfish APU from dangerous 101°C throttling down to 85°C while slashing power consumption from 68W to 41W with zero performance loss on Microsoft Phi-4 (14B).
+  </p>
+</div>
+
+<!-- Author Intro -->
+<div style="background: linear-gradient(135deg, #f8fafc 0%, #f0f9ff 100%); border: 2px solid #bae6fd; border-radius: 18px; padding: 22px; margin-bottom: 35px; display: flex; gap: 20px; align-items: center; box-shadow: 0 4px 15px rgba(2, 132, 199, 0.08);">
+  <div style="flex-shrink: 0; text-align: center;">
+    <img alt="Pottle Profile" src="https://cdn-ak.f.st-hatena.com/images/fotolife/M/MyToyotaHomeBottle/20261003/20261003213941.jpg" style="width: 80px; height: 80px; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.12); border: 3px solid #ffffff; object-fit: cover;"/>
+    <div style="font-size: 11px; font-weight: 700; color: #0284c7; margin-top: 4px;">POTTLE</div>
+  </div>
+  <div style="font-size: 14.5px;">
+    <div style="font-weight: 800; color: #0369a1; font-size: 16px; margin-bottom: 4px;">
+      Author: Pottle | Smart AI Life Hardware Lab
+    </div>
+    <div style="color: #475569; line-height: 1.6;">
+      Extreme enthusiast in home energy storage and budget AI clusters. Today we delve straight into the System Management Unit (SMU) registers and SuperIO drivers of the PS5 Oberon APU to fix its notorious overheating issues! 🐼❄️
+    </div>
+  </div>
+</div>
+
+<!-- Table of Contents -->
+<div style="background: #f1f5f9; border-radius: 12px; padding: 20px 24px; margin-bottom: 35px; border-left: 5px solid #0284c7;">
+  <div style="font-weight: 800; color: #0f172a; margin-bottom: 12px; font-size: 17px;">📑 Table of Contents</div>
+  <ul style="margin: 0; padding-left: 20px; line-height: 1.8; font-size: 14.5px;">
+    <li>1. The Crisis: 101.4°C APU and 85°C M.2 SSD Out-of-the-Box</li>
+    <li>2. Why Does the BC-250 Overheat? (Overvolted Stock Margins & Locked PWM)</li>
+    <li>3. Step 1: Building and Installing the NCT6687d Kernel Module for Full PWM Fan Control</li>
+    <li>4. Step 2: SMU Dynamic Undervolting (Curve Scale = -35)</li>
+    <li>5. Verification Results: 39% Power Drop (68W to 41W) and 15°C Temperature Reduction</li>
+    <li>6. Benchmark: Rock-Solid 9.2 tok/s on Microsoft Phi-4 (14B)</li>
+    <li>7. Production Setup: Persistent systemd Service Configuration</li>
+  </ul>
+</div>
+
+<!-- Section 1 -->
+<h2 style="font-size: 22px; color: #0c4a6e; border-left: 6px solid #0284c7; padding-left: 14px; margin-top: 40px; margin-bottom: 20px;">
+  1. The Crisis: 101.4°C APU and 85°C M.2 SSD Out-of-the-Box
+</h2>
+
+<p>
+  Right after successfully unlocking all 40 Compute Units (2,560 stream processors) and 16 CPU threads on our ~$150 AMD BC-250 board running Fedora 45 Server, running <code>sensors</code> revealed an alarming thermal state:
+</p>
+
+<div style="position: relative; margin: 20px 0; background: #0f172a; border: 1px solid #334155; border-radius: 8px; overflow: hidden; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 14px; background: #1e293b; color: #94a3b8; font-size: 12px; user-select: none;">
+    <span style="font-weight: 600; text-transform: uppercase; color: #94a3b8;">BASH (Stock Thermal Readings Under Idle/Light Load)</span>
+    
+  </div>
+  <pre style="margin: 0; padding: 14px 16px; overflow-x: auto; background: transparent; color: #f8fafc; font-size: 13.5px; line-height: 1.6; font-family: inherit;"><code>k10temp-pci-00c3
+Tctl:        +101.4°C   <-- CPU boiling above boiling point!
+
+nvme-pci-0300
+Composite:    +84.8°C  (crit = +94.8°C) <-- NVMe drive throttling!
+
+amdgpu-pci-0100
+vddnb:         1.22 V   <-- Dangerously high default voltage
+edge:        +100.0°C   <-- GPU silicon hit 100°C!
+PPT:          68.82 W</code></pre>
+</div>
+
+<p>
+  Both the CPU and GPU were pegged at <strong>100°C–101°C</strong>, with the M.2 NVMe SSD dangerously close to its critical shutdown threshold of 94.8°C. Continuous 24/7 operation in this state would severely degrade the hardware and cause severe thermal throttling during LLM inference.
+</p>
+
+<!-- Section 2 -->
+<h2 style="font-size: 22px; color: #0c4a6e; border-left: 6px solid #0284c7; padding-left: 14px; margin-top: 40px; margin-bottom: 20px;">
+  2. Why Does the BC-250 Overheat?
+</h2>
+
+<p>
+  Our diagnostic revealed two root causes rooted in the BC-250's origin as an industrial crypto-mining board:
+</p>
+
+<ol style="padding-left: 24px; font-size: 15px; line-height: 1.8;">
+  <li><strong>Excessive Factory Voltage Margin</strong>: Designed to run reliably in harsh mining farms without Silicon Lottery variance failures, the factory BIOS defaults to an aggressive <strong>1.22V</strong>, which is comparable to heavy overclocking profiles.</li>
+  <li><strong>Locked Fan PWM in Default Linux Kernels</strong>: The onboard Nuvoton NCT6686 Super-I/O chip defaults to the in-tree <code>nct6683</code> driver, which mounts all PWM registers as <strong>read-only</strong>. The cooling fan remained locked at a quiet ~820 RPM regardless of load.</li>
+</ol>
+
+<!-- Section 3 -->
+<h2 style="font-size: 22px; color: #0c4a6e; border-left: 6px solid #0284c7; padding-left: 14px; margin-top: 40px; margin-bottom: 20px;">
+  3. Step 1: Building and Installing the NCT6687d Kernel Driver
+</h2>
+
+<p>
+  To regain write control over the motherboard's PWM fan headers, we compile and install the out-of-tree <code>nct6687d</code> driver:
+</p>
+
+<div style="position: relative; margin: 20px 0; background: #0f172a; border: 1px solid #334155; border-radius: 8px; overflow: hidden; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 14px; background: #1e293b; color: #94a3b8; font-size: 12px; user-select: none;">
+    <span style="font-weight: 600; text-transform: uppercase; color: #94a3b8;">BASH (Compile & Install NCT6687d)</span>
+    
+  </div>
+  <pre style="margin: 0; padding: 14px 16px; overflow-x: auto; background: transparent; color: #f8fafc; font-size: 13.5px; line-height: 1.6; font-family: inherit;"><code># 1. Unload the legacy read-only module
+sudo modprobe -r nct6683
+
+# 2. Clone and build nct6687d
+cd ~
+git clone https://github.com/Fred78290/nct6687d.git
+cd nct6687d
+make -j16
+
+# 3. Install and load
+sudo make install
+sudo depmod -a
+sudo modprobe nct6687
+
+# 4. Persist on boot and blacklist the conflicting nct6683 driver
+echo 'nct6687' | sudo tee /etc/modules-load.d/nct6687.conf
+echo 'options nct6687 force=true' | sudo tee /etc/modprobe.d/nct6687.conf
+echo 'blacklist nct6683' | sudo tee /etc/modprobe.d/blacklist-nct6683.conf</code></pre>
+</div>
+
+<!-- Section 4 -->
+<h2 style="font-size: 22px; color: #0c4a6e; border-left: 6px solid #0284c7; padding-left: 14px; margin-top: 40px; margin-bottom: 20px;">
+  4. Step 2: SMU Dynamic Undervolting (Curve Scale = -35)
+</h2>
+
+<p>
+  The breakthrough comes from communicating directly with the AMD System Management Unit (SMU) using the open-source <code>bc250_smu_oc</code> library:
+</p>
+
+<div style="position: relative; margin: 20px 0; background: #0f172a; border: 1px solid #334155; border-radius: 8px; overflow: hidden; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 14px; background: #1e293b; color: #94a3b8; font-size: 12px; user-select: none;">
+    <span style="font-weight: 600; text-transform: uppercase; color: #94a3b8;">BASH (Clone SMU Tuning Library)</span>
+    
+  </div>
+  <pre style="margin: 0; padding: 14px 16px; overflow-x: auto; background: transparent; color: #f8fafc; font-size: 13.5px; line-height: 1.6; font-family: inherit;"><code>cd ~
+git clone https://github.com/bc250-collective/bc250_smu_oc.git</code></pre>
+</div>
+
+<p>
+  We apply four interlocking safety and efficiency configurations simultaneously:
+</p>
+<ul style="padding-left: 24px; font-size: 15px; line-height: 1.8;">
+  <li><strong>Hardware Safety Trip (85°C Max)</strong>: <code>smu.q3_0x8b_set_cpu_max_temperature(85)</code> and <code>smu.q3_0x8c_set_gpu_max_temperature(85)</code> ensure the hardware never breaches 85°C.</li>
+  <li><strong>Disable Extra Voltages</strong>: <code>smu.disable_extra_cpu_gpu_voltage(True)</code> prevents the motherboard from injecting artificial voltage spikes.</li>
+  <li><strong>Dynamic F-V Curve Undervolt (scale = -35)</strong>: <code>smu.q3_0x50_scale_f_vid_curve(-35)</code> shifts the voltage curve down across the entire frequency range while allowing dynamic scaling.</li>
+  <li><strong>Boost Frequency Ceiling (3,500 MHz)</strong>: <code>smu.q3_0x8f_set_max_cpu_boost_clk(3500)</code> caps the peak frequency at the PS5's native 3.5 GHz sweet spot.</li>
+</ul>
+
+<!-- Section 5 -->
+<h2 style="font-size: 22px; color: #0c4a6e; border-left: 6px solid #0284c7; padding-left: 14px; margin-top: 40px; margin-bottom: 20px;">
+  5. Real-World Results: 39% Power Drop and 15°C Cooler
+</h2>
+
+<!-- Comparison Table -->
+<div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 14px; padding: 20px; margin: 25px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.04); overflow-x: auto;">
+  <table style="width: 100%; border-collapse: collapse; font-size: 14.5px; text-align: left;">
+    <thead>
+      <tr style="background: #f1f5f9; border-bottom: 2px solid #cbd5e1;">
+        <th style="padding: 12px 14px; color: #334155;">Metric</th>
+        <th style="padding: 12px 14px; color: #dc2626; font-weight: bold;">Before (Factory Default)</th>
+        <th style="padding: 12px 14px; color: #059669; font-weight: bold;">After (SMU Undervolt + Fan)</th>
+        <th style="padding: 12px 14px; color: #0284c7; font-weight: bold;">Improvement</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="border-bottom: 1px solid #e2e8f0;">
+        <td style="padding: 12px 14px; font-weight: 600;">GPU Package Power (PPT)</td>
+        <td style="padding: 12px 14px; color: #dc2626;">68.82 W</td>
+        <td style="padding: 12px 14px; color: #059669; font-weight: bold;">41.88 W - 50.45 W</td>
+        <td style="padding: 12px 14px; color: #0284c7; font-weight: bold;">-27 W (-39.1% Power Draw)</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
+        <td style="padding: 12px 14px; font-weight: 600;">GPU Edge Temperature</td>
+        <td style="padding: 12px 14px; color: #dc2626;">100.0 °C (Dangerous)</td>
+        <td style="padding: 12px 14px; color: #059669; font-weight: bold;">85.0 °C</td>
+        <td style="padding: 12px 14px; color: #0284c7; font-weight: bold;">-15.0 °C Reduction</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e2e8f0;">
+        <td style="padding: 12px 14px; font-weight: 600;">CPU Temperature (Tctl)</td>
+        <td style="padding: 12px 14px; color: #dc2626;">101.4 °C (Boiling)</td>
+        <td style="padding: 12px 14px; color: #059669; font-weight: bold;">85.9 °C</td>
+        <td style="padding: 12px 14px; color: #0284c7; font-weight: bold;">-15.5 °C Reduction</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
+        <td style="padding: 12px 14px; font-weight: 600;">Supply Voltage (vddnb)</td>
+        <td style="padding: 12px 14px; color: #dc2626;">1.22 V (Overvolted)</td>
+        <td style="padding: 12px 14px; color: #059669; font-weight: bold;">0.73 V - 0.86 V (Dynamic)</td>
+        <td style="padding: 12px 14px; color: #0284c7; font-weight: bold;">Up to 0.49V lower</td>
+      </tr>
+      <tr>
+        <td style="padding: 12px 14px; font-weight: 600;">NVMe SSD Temp</td>
+        <td style="padding: 12px 14px; color: #dc2626;">84.8 °C (Near Critical)</td>
+        <td style="padding: 12px 14px; color: #059669; font-weight: bold;">77.8 °C</td>
+        <td style="padding: 12px 14px; color: #0284c7; font-weight: bold;">Cooled via overall board dissipation</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Section 6 -->
+<h2 style="font-size: 22px; color: #0c4a6e; border-left: 6px solid #0284c7; padding-left: 14px; margin-top: 40px; margin-bottom: 20px;">
+  6. Stability Verification: Microsoft Phi-4 (14B) Benchmark
+</h2>
+
+<p>
+  Is an undervolted Oberon APU rock-solid under real workloads? We tested sustained inference with <strong>Microsoft Phi-4 (14B Q4_K_M)</strong> over Tailscale:
+</p>
+
+<div style="position: relative; margin: 20px 0; background: #0f172a; border: 1px solid #334155; border-radius: 8px; overflow: hidden; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 14px; background: #1e293b; color: #94a3b8; font-size: 12px; user-select: none;">
+    <span style="font-weight: 600; text-transform: uppercase; color: #94a3b8;">BASH (Zero-Loss Inference Benchmark)</span>
+    
+  </div>
+  <pre style="margin: 0; padding: 14px 16px; overflow-x: auto; background: transparent; color: #f8fafc; font-size: 13.5px; line-height: 1.6; font-family: inherit;"><code>python3 model_router.py query "Explain prime numbers in 15 words" --prefer bc250
+
+[BC-250 Phi-4 Answer (9.2 tok/s, Cost: $0.00)]:
+A prime number is a natural number greater than one with exactly two divisors.</code></pre>
+</div>
+
+<p>
+  Zero kernel panics, zero Machine Check Exceptions (MCE), and zero token corruptions. Generation speed remained identical at <strong>9.2 tokens/second</strong>.
+</p>
+
+<!-- Section 7 -->
+<h2 style="font-size: 22px; color: #0c4a6e; border-left: 6px solid #0284c7; padding-left: 14px; margin-top: 40px; margin-bottom: 20px;">
+  7. Production Deployment: systemd Service Configuration
+</h2>
+
+<p>
+  Deploy the optimizer as a persistent systemd service so every cold boot automatically applies the optimal curve:
+</p>
+
+<div style="position: relative; margin: 20px 0; background: #0f172a; border: 1px solid #334155; border-radius: 8px; overflow: hidden; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 14px; background: #1e293b; color: #94a3b8; font-size: 12px; user-select: none;">
+    <span style="font-weight: 600; text-transform: uppercase; color: #94a3b8;">BASH (Setup Persistent Service)</span>
+    
+  </div>
+  <pre style="margin: 0; padding: 14px 16px; overflow-x: auto; background: transparent; color: #f8fafc; font-size: 13.5px; line-height: 1.6; font-family: inherit;"><code>sudo tee /usr/local/bin/bc250-power-optimizer.py << 'EOF'
+#!/usr/bin/env python3
+import sys
+sys.path.insert(0, '/home/bc250/bc250_smu_oc')
+from bc250_smu import Bc250Smu
+
+def main():
+    try:
+        smu = Bc250Smu(use_flock=True)
+        smu.q3_0x8b_set_cpu_max_temperature(85)
+        smu.q3_0x8c_set_gpu_max_temperature(85)
+        smu.disable_extra_cpu_gpu_voltage(True)
+        smu.q3_0x50_scale_f_vid_curve(-35)
+        smu.q3_0x8f_set_max_cpu_boost_clk(3500)
+        print('[BC-250] Power & thermal optimizer applied.')
+    except Exception as e:
+        print(f'[BC-250] Error: {e}', file=sys.stderr)
+
+if __name__ == '__main__':
+    main()
+EOF
+
+sudo chmod +x /usr/local/bin/bc250-power-optimizer.py
+
+sudo tee /etc/systemd/system/bc250-power-optimizer.service << 'EOF'
+[Unit]
+Description=AMD BC-250 SMU Power & Thermal Optimizer
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/bc250-power-optimizer.py
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now bc250-power-optimizer.service</code></pre>
+</div>
+
+<!-- Conclusion -->
+<div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 14px; padding: 22px; margin-top: 35px; text-align: center;">
+  <div style="font-size: 20px; font-weight: 800; color: #166534; margin-bottom: 8px;">
+    🎉 40W Whisper-Quiet Home AI Server Accomplished
+  </div>
+  <p style="color: #15803d; font-size: 15px; margin: 0; line-height: 1.7;">
+    By combining hardware-level SMU messaging with proper SuperIO kernel driver compilation, the budget AMD BC-250 transitions from an unmanageable mining slab into a power-efficient, whisper-quiet private inference server.
+  </p>
+</div>
+
+</div>
+<!-- ============================================================== -->

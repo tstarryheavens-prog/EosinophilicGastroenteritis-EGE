@@ -41,58 +41,51 @@ const aiHomeHref = isEn ? '/en/ai-living-lab' : '/ai-living-lab';
 
           <div class="nc-dropdown-panel" id="divisionsPanel" role="menu">
             <div class="nc-dropdown-top">
-              <span class="nc-dropdown-eyebrow">{isEn ? '8 Labs' : 'ラボ（テーマ別ナレッジベース）'}</span>
+              <span class="nc-dropdown-eyebrow">{isEn ? 'Portal & Labs' : 'テーマ別特設サイト・ラボ一覧'}</span>
               <a href="/ai-living-lab/divisions" class="nc-dropdown-all">{isEn ? 'All Labs →' : 'すべてのラボを見る →'}</a>
             </div>
 
             <div class="nc-dropdown-grid">
-              <a href="/ai-living-lab/divisions/ai-hems" class="nc-drop-card" role="menuitem">
+              <a href="/ai-hems" class="nc-drop-card" role="menuitem">
                 <span class="nc-drop-dot sun">⚡</span>
                 <div>
                   <strong>AI Home HEMS</strong>
                   <span>ニチコン14.9kWh・JIT深夜充電</span>
                 </div>
               </a>
-              <a href="/ai-living-lab/divisions/wakwak-money" class="nc-drop-card" role="menuitem">
+              <a href="/wakwak-money" class="nc-drop-card" role="menuitem">
                 <span class="nc-drop-dot green">💰</span>
                 <div>
-                  <strong>100歳家計・資産形成</strong>
-                  <span>教育費ピーク・口座分離・老後CF</span>
+                  <strong>わくわくマネーラボ</strong>
+                  <span>教育費ピーク・口座分離・100歳CF</span>
                 </div>
               </a>
-              <a href="/ai-living-lab/divisions/toyotahome" class="nc-drop-card" role="menuitem">
+              <a href="/toyotahome" class="nc-drop-card" role="menuitem">
                 <span class="nc-drop-dot tin">🏡</span>
                 <div>
-                  <strong>トヨタホーム住まい研究</strong>
-                  <span>5,200万ローン・鉄骨ユニット・維持費</span>
+                  <strong>トヨタホーム建築10年記</strong>
+                  <span>5,200万ローン・10年点検実録</span>
                 </div>
               </a>
-              <a href="/ai-living-lab/divisions/nanbyo" class="nc-drop-card" role="menuitem">
-                <span class="nc-drop-dot orange">🩺</span>
-                <div>
-                  <strong>難病・医療情報ポータル</strong>
-                  <span>好酸球性胃腸炎・医療費助成・血圧</span>
-                </div>
-              </a>
-              <a href="/ai-living-lab/divisions/aichi-high" class="nc-drop-card" role="menuitem">
+              <a href="/aichi-high" class="nc-drop-card" role="menuitem">
                 <span class="nc-drop-dot sun">🎓</span>
                 <div>
-                  <strong>愛知高校受験ナビ</strong>
-                  <span>公立2校複合選抜・内申点データ</span>
+                  <strong>愛知高校受験ラボ</strong>
+                  <span>合否シミュレーター・攻略ガイド</span>
                 </div>
               </a>
-              <a href="/ai-living-lab/divisions/hobby-labs" class="nc-drop-card" role="menuitem">
+              <a href="/ultraman" class="nc-drop-card" role="menuitem">
                 <span class="nc-drop-dot orange">👾</span>
                 <div>
-                  <strong>ウルトラマン総合研究</strong>
-                  <span>ソフビ造形解析・カードゲーム(UCG)</span>
+                  <strong>ウルトラマン特設ラボ</strong>
+                  <span>1,400枚カード検索＆ソフビ研究</span>
                 </div>
               </a>
-              <a href="/ai-living-lab/divisions/smartailife" class="nc-drop-card" role="menuitem">
+              <a href="/ai-living-lab" class="nc-drop-card" role="menuitem">
                 <span class="nc-drop-dot green">🐼</span>
                 <div>
-                  <strong>くらしAIラボ</strong>
-                  <span>ローカルLLM・自律エージェント</span>
+                  <strong>AIリビングラボ</strong>
+                  <span>ローカルLLM・MCP・自律エージェント</span>
                 </div>
               </a>
             </div>
@@ -113,20 +106,14 @@ const aiHomeHref = isEn ? '/en/ai-living-lab' : '/ai-living-lab';
         </li>
 
         <li>
-          <a href={isEn ? '/' : '/en/'} class="nc-nav-link nc-lang-switch">
+          <a href={isEn ? '/' : '/en/ai-living-lab'} class="nc-nav-link nc-lang-switch">
             {isEn ? 'JP 日本語' : 'EN English'}
           </a>
         </li>
 
         <li>
-          <a href={isEn ? '/en/' : '/articles'} class="btn btn-dark nc-header-cta">
+          <a href={isEn ? '/en/ai-living-lab' : '/articles'} class="btn btn-dark nc-header-cta">
             {isEn ? 'All Articles' : '記事一覧'}
-          </a>
-        </li>
-
-        <li>
-          <a href="/" class="nc-nav-link" style="background: rgba(224, 122, 95, 0.12); color: #c85a3b; font-weight: 700; padding: 5px 12px; border-radius: 9999px; border: 1px solid rgba(224, 122, 95, 0.35); text-decoration: none;" title="好酸球性胃腸炎・難病闘病ノートへ">
-            🩺 難病ノート
           </a>
         </li>
       </ul>
@@ -145,23 +132,21 @@ const aiHomeHref = isEn ? '/en/ai-living-lab' : '/ai-living-lab';
     <div class="nc-container nc-mobile-drawer-inner">
       <div class="nc-mobile-links">
         <a href={aiHomeHref} class="nc-mobile-link font-bold">🤖 AI Living Lab ホーム</a>
-        <a href="/" class="nc-mobile-link" style="color: #c85a3b; font-weight: 700;">🩺 難病闘病・服薬ノートへ</a>
         <a href="/articles" class="nc-mobile-link">実践記事一覧</a>
         <a href="/ai-living-lab/divisions" class="nc-mobile-link">ラボ一覧</a>
         <a href="/ai-living-lab/craft" class="nc-mobile-link">UI/UX Craft Showcase</a>
-        <a href="/en/" class="nc-mobile-link">English Global Edition (/en/)</a>
+        <a href="/en/ai-living-lab" class="nc-mobile-link">English Global Edition</a>
       </div>
 
       <div class="nc-mobile-labs">
-        <p class="nc-mobile-eyebrow">テーマ別ラボ</p>
+        <p class="nc-mobile-eyebrow">テーマ別特設ポータル</p>
         <div class="nc-mobile-labs-grid">
-          <a href="/ai-living-lab/divisions/ai-hems">⚡ AI Home HEMS</a>
-          <a href="/ai-living-lab/divisions/wakwak-money">💰 100歳家計・資産形成</a>
-          <a href="/ai-living-lab/divisions/toyotahome">🏡 トヨタホーム住まい研究</a>
-          <a href="/ai-living-lab/divisions/nanbyo">🩺 難病・医療情報ポータル</a>
-          <a href="/ai-living-lab/divisions/aichi-high">🎓 愛知高校受験ナビ</a>
-          <a href="/ai-living-lab/divisions/hobby-labs">👾 ウルトラマン総合研究</a>
-          <a href="/ai-living-lab/divisions/smartailife">🐼 くらしAIラボ</a>
+          <a href="/ai-hems">⚡ AI Home HEMS</a>
+          <a href="/wakwak-money">💰 わくわくマネーラボ</a>
+          <a href="/toyotahome">🏡 トヨタホーム建築10年記</a>
+          <a href="/aichi-high">🎓 愛知高校受験ラボ</a>
+          <a href="/ultraman">👾 ウルトラマン特設ラボ</a>
+          <a href="/ai-living-lab">🐼 AIリビングラボ</a>
         </div>
       </div>
 

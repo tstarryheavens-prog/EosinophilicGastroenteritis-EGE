@@ -12,7 +12,7 @@ const isEn = currentPath.startsWith('/en');
       <div class="nc-footer-grid">
         <!-- Col 1: Brand & Living Lab Identity -->
         <div class="nc-footer-brand">
-          <a href={isEn ? '/en/' : '/ai-living-lab'} class="nc-footer-logo">
+          <a href={isEn ? '/en/ai-living-lab' : '/ai-living-lab'} class="nc-footer-logo">
             <svg width="28" height="28" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <path d="M18 3L32 11V25L18 33L4 25V11L18 3Z" stroke="#1f1f1c" stroke-width="2.2" stroke-linejoin="round" fill="#ffde77"/>
               <path d="M18 3L32 11L18 19L4 11L18 3Z" fill="#ffffff" stroke="#1f1f1c" stroke-width="2.2" stroke-linejoin="round"/>
@@ -26,8 +26,8 @@ const isEn = currentPath.startsWith('/en');
 
           <p class="nc-footer-desc">
             {isEn
-              ? 'Open engineering documentation and real-world telemetry for home battery HEMS control, 100-year household cash-flow modeling, medical archives, and local AI automation.'
-              : '家庭用蓄電池（14.9kWh）の自動制御、100歳までの家計シミュレーション、難病や日々の健康管理、散らかる書類の自動整理など、暮らしを楽にするAI・自作ツールを実測データとともに公開しています。'}
+              ? 'Open engineering documentation and real-world telemetry for home battery HEMS control, 100-year household cash-flow modeling, housing records, and local AI automation.'
+              : 'ローカルGPU活用やMCP自動化、家庭用蓄電池（14.9kWh）の自動制御、100歳までの家計計画、注文住宅・高校受験・ウルトラマンまで暮らしの実験記録を公開しています。'}
           </p>
 
           <div class="nc-author-pill">
@@ -41,13 +41,13 @@ const isEn = currentPath.startsWith('/en');
 
         <!-- Col 2: Labs -->
         <div class="nc-footer-col">
-          <h3 class="nc-footer-heading">{isEn ? 'Labs' : 'ラボ・テーマ'}</h3>
+          <h3 class="nc-footer-heading">{isEn ? 'Labs' : '特設サイト・ラボ'}</h3>
           <ul class="nc-footer-list">
-            <li><a href="/ai-living-lab/divisions/ai-hems">⚡ AI Home HEMS（蓄電池・電気代）</a></li>
-            <li><a href="/ai-living-lab/divisions/wakwak-money">💰 100歳家計・5,200万ローン</a></li>
-            <li><a href="/ai-living-lab/divisions/toyotahome">🏡 トヨタホーム住まい・維持費研究</a></li>
-            <li><a href="/ai-living-lab/divisions/nanbyo">🩺 難病・医療情報・血圧アーカイブ</a></li>
-            <li><a href="/ai-living-lab/divisions/aichi-high">🎓 愛知高校受験・内申点ナビ</a></li>
+            <li><a href="/ai-hems">⚡ AI Home HEMS（蓄電池・電気代）</a></li>
+            <li><a href="/wakwak-money">💰 わくわくマネーラボ（100歳家計）</a></li>
+            <li><a href="/toyotahome">🏡 トヨタホーム建築10年記</a></li>
+            <li><a href="/aichi-high">🎓 愛知高校受験ラボ・シミュレーター</a></li>
+            <li><a href="/ultraman">👾 ウルトラマン カード＆ソフビ</a></li>
           </ul>
         </div>
 
@@ -55,10 +55,10 @@ const isEn = currentPath.startsWith('/en');
         <div class="nc-footer-col">
           <h3 class="nc-footer-heading">{isEn ? 'Resources' : 'ドキュメント・連載'}</h3>
           <ul class="nc-footer-list">
-            <li><a href="/articles">📖 実践ハック記事一覧</a></li>
-            <li><a href="/ai-living-lab/divisions">🧭 7つのラボ一覧</a></li>
+            <li><a href="/articles">📖 全記事データベース</a></li>
+            <li><a href="/ai-living-lab/divisions">🧭 ラボ一覧・ロードマップ</a></li>
             <li><a href="/ai-living-lab/craft">🎨 UI/UX Craft Showcase</a></li>
-            <li><a href="/en/">🌐 English Global Edition</a></li>
+            <li><a href="/en/ai-living-lab">🌐 English Global Edition</a></li>
             <li><a href={HATENA_BLOG_URL} target="_blank" rel="noopener noreferrer">📝 公式はてなブログ連載 ↗</a></li>
             <li><a href="https://www.youtube.com/@PotoRuthege" target="_blank" rel="noopener noreferrer">📺 公式 YouTube (@PotoRuthege) ↗</a></li>
             <li><a href="https://x.com/PotoRuthege" target="_blank" rel="noopener noreferrer">𝕏 公式 X (@PotoRuthege) ↗</a></li>

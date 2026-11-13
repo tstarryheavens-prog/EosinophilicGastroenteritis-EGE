@@ -1,0 +1,176 @@
+<!-- ============================================================== -->
+<!-- 【Smart AI Life Global English Article】                           -->
+<!-- Title: Unlocking the PS5 APU: Full 40 CU & 8-Core/16-Thread Guide for AMD BC-250 — Running Microsoft Phi-4 (14B) on Fedora 45 with Vulkan RADV -->
+<!-- ============================================================== -->
+<div class="pottle-article-wrapper" style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; line-height: 1.85; max-width: 860px; margin: 0 auto; font-size: 16px;">
+
+<div style="background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #0369a1 100%); color: #ffffff; padding: 44px 28px; border-radius: 20px; margin-bottom: 32px; box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.35); text-align: center;">
+  <div style="display: inline-block; background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.35); color: #e0f2fe; font-size: 13px; font-weight: 700; padding: 6px 18px; border-radius: 9999px; margin-bottom: 16px; letter-spacing: 0.05em;">
+    ⚡ Silicon Hack & Local AI Infrastructure
+  </div>
+  <h1 style="font-size: 27px; font-weight: 800; line-height: 1.45; margin: 0 0 16px 0; color: #ffffff;">
+    Unlocking the PS5 Silicon for \$150:<br/>
+    <span style="color: #38bdf8;">Full 40 CU & 8-Core/16-Thread AMD BC-250 Setup Running Microsoft Phi-4 (14B)</span>
+  </h1>
+  <p style="font-size: 15px; color: #bae6fd; margin: 0; line-height: 1.6;">
+    Bypassing Ubuntu RANDSTRUCT rejections, ACPI warm-reboot hangs, and LVM limitations to unleash all 2,560 stream processors and 448 GB/s GDDR6 bandwidth under Fedora 45.
+  </p>
+</div>
+
+<p>
+  When running large language models locally, the primary bottleneck is memory bandwidth. Desktop DDR5 systems cap out at 60–85 GB/s, throttling token generation. High-VRAM enterprise GPUs cost thousands of dollars.
+</p>
+<p>
+  Enter the <strong>AMD BC-250</strong>: a surplus cryptocurrency mining barebones board powered by the Sony PlayStation 5 APU (Oberon / Cyan Skillfish, <code>gfx1013</code>). While shipped with hardware throttles—24 Compute Units and 6 cores/12 threads—the underlying physical silicon is a <strong>complete, defect-free 40 CU (2,560 stream processors) and 8-core/16-thread Zen 2 die</strong> with 16GB of unified 256-bit GDDR6 memory pumping <strong>448 GB/s</strong>.
+</p>
+
+<!-- Comparison Table -->
+<div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 14px; padding: 20px; margin: 25px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.04); overflow-x: auto;">
+  <table style="width: 100%; border-collapse: collapse; font-size: 14.5px; text-align: left;">
+    <thead>
+      <tr style="background: #f1f5f9; border-bottom: 2px solid #cbd5e1;">
+        <th style="padding: 10px 12px; color: #334155;">Metric</th>
+        <th style="padding: 10px 12px; color: #334155;">Stock PS5</th>
+        <th style="padding: 10px 12px; color: #64748b;">AMD BC-250 (Factory Default)</th>
+        <th style="padding: 10px 12px; color: #0284c7; font-weight: bold;">AMD BC-250 (Fully Unlocked)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="border-bottom: 1px solid #e2e8f0;">
+        <td style="padding: 10px 12px; font-weight: 600;">CPU Configuration</td>
+        <td style="padding: 10px 12px;">8C / 16T (Zen 2)</td>
+        <td style="padding: 10px 12px; color: #dc2626;">6C / 12T (Masked)</td>
+        <td style="padding: 10px 12px; color: #0284c7; font-weight: bold;">8C / 16T (100% Unlocked)</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e2e8f0; background: #f8fafc;">
+        <td style="padding: 10px 12px; font-weight: 600;">GPU Compute Units</td>
+        <td style="padding: 10px 12px;">36 CU (2304 SP)</td>
+        <td style="padding: 10px 12px; color: #dc2626;">24 CU (1536 SP)</td>
+        <td style="padding: 10px 12px; color: #0284c7; font-weight: bold;">40 CU (2560 SP Full Die)</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #e2e8f0;">
+        <td style="padding: 10px 12px; font-weight: 600;">Memory Bandwidth</td>
+        <td style="padding: 10px 12px;">448 GB/s (GDDR6)</td>
+        <td style="padding: 10px 12px;">448 GB/s</td>
+        <td style="padding: 10px 12px; font-weight: bold; color: #0284c7;">448 GB/s (~6x DDR5)</td>
+      </tr>
+      <tr>
+        <td style="padding: 10px 12px; font-weight: 600;">Price</td>
+        <td style="padding: 10px 12px;">~\$500</td>
+        <td style="padding: 10px 12px;">~\$130–\$160</td>
+        <td style="padding: 10px 12px; font-weight: bold; color: #16a34a;">~\$150 (Incredible Value)</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<h2 style="font-size: 22px; color: #0c4a6e; border-left: 6px solid #0284c7; padding-left: 14px; margin-top: 40px; margin-bottom: 20px;">
+  The Pitfalls & Failure Modes We Overcame
+</h2>
+<ul>
+  <li><strong>Ubuntu 24.04 RANDSTRUCT Rejection:</strong> Building a patched <code>amdgpu</code> on Ubuntu failed with <code>Exec format error</code> due to kernel struct randomization. Solved by moving to Fedora 45 Server.</li>
+  <li><strong>ACPI Warm Reboot Lockup:</strong> The mining firmware fails to re-enumerate reset signals, causing black-screen hangs on reboot. Solved with GRUB parameter <code>reboot=acpi,cold</code>.</li>
+  <li><strong>LVM 15GB Disk Ceiling:</strong> Fedora Server defaults to a 15GB root logical volume regardless of NVMe drive size. Solved with <code>sudo lvextend -l +100%FREE /dev/mapper/fedora-root -r</code>.</li>
+  <li><strong>Unpatched Initramfs Persistence:</strong> Installing patched kernel modules did not take effect because Fedora booted the stock module bundled inside the initramfs. Solved via <code>sudo dracut --regenerate-all --force</code> and <code>amdgpu.bc250_cc_write_mode=3</code>.</li>
+  <li><strong>SELinux status=203/EXEC:</strong> Running <code>llama-server</code> from user home directories under systemd triggered SELinux execution denials. Solved by deploying to <code>/usr/local/bin</code> with proper <code>restorecon</code> labeling.</li>
+</ul>
+
+<h2 style="font-size: 22px; color: #0c4a6e; border-left: 6px solid #0284c7; padding-left: 14px; margin-top: 40px; margin-bottom: 20px;">
+  End-to-End Build Walkthrough (Fedora 45 Server)
+</h2>
+
+<div style="position: relative; margin: 20px 0; background: #0f172a; border: 1px solid #334155; border-radius: 8px; overflow: hidden; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 14px; background: #1e293b; color: #94a3b8; font-size: 12px; user-select: none;">
+    <span style="font-weight: 600; text-transform: uppercase; color: #94a3b8;">BASH</span>
+    
+  </div>
+  <pre style="margin: 0; padding: 14px 16px; overflow-x: auto; background: transparent; color: #f8fafc; font-size: 13.5px; line-height: 1.6; font-family: inherit;"><code># 1. Expand LVM disk space to 100% of NVMe
+sudo lvextend -l +100%FREE /dev/mapper/fedora-root -r
+
+# 2. Add reboot hang fix and 14GB VRAM/GTT reservation to GRUB
+sudo grubby --update-kernel=ALL --args="reboot=acpi,cold amdgpu.gttsize=14336 ttm.pages_limit=3670016"
+
+# 3. Setup Tailscale & Firewall
+sudo dnf config-manager addrepo --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo
+sudo dnf install -y tailscale && sudo systemctl enable --now tailscaled
+sudo tailscale up --ssh --accept-routes
+sudo firewall-cmd --permanent --zone=trusted --add-interface=tailscale0
+sudo firewall-cmd --permanent --add-port=8080/tcp && sudo firewall-cmd --reload
+
+# 4. Patch amdgpu for Full 40 CU unlock
+sudo dnf --enablerepo=updates-testing install -y kernel-devel-$(uname -r) kernel-headers gcc make zstd curl
+git clone https://github.com/duggasco/bc250-40cu-unlock.git ~/bc250-40cu-unlock
+cd ~/bc250-40cu-unlock && sudo ./scripts/bc250-enable-40cu-fedora.sh build
+sudo grubby --update-kernel=ALL --args="amdgpu.bc250_cc_write_mode=3"
+sudo dracut --regenerate-all --force && sudo systemctl reboot</code></pre>
+</div>
+
+<h2 style="font-size: 22px; color: #0c4a6e; border-left: 6px solid #0284c7; padding-left: 14px; margin-top: 40px; margin-bottom: 20px;">
+  Unlocking 8 Cores / 16 Threads & Running Phi-4 14B
+</h2>
+
+<div style="position: relative; margin: 20px 0; background: #0f172a; border: 1px solid #334155; border-radius: 8px; overflow: hidden; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 14px; background: #1e293b; color: #94a3b8; font-size: 12px; user-select: none;">
+    <span style="font-weight: 600; text-transform: uppercase; color: #94a3b8;">BASH</span>
+    
+  </div>
+  <pre style="margin: 0; padding: 14px 16px; overflow-x: auto; background: transparent; color: #f8fafc; font-size: 13.5px; line-height: 1.6; font-family: inherit;"><code># 1. Flip SMU Register 0x0115A870 from 0x77 to 0xFF (Unmask Cores 3 & 7)
+git clone https://github.com/GabriWar/bc250-core-cu-unlock.git ~/bc250-core-cu-unlock
+cd ~/bc250-core-cu-unlock
+sudo ./bc250-8core-unlock.sh install
+sudo ./bc250-8core-unlock.sh apply --reboot
+# Verify: nproc -> 16
+
+# 2. Build llama.cpp with Mesa RADV Vulkan Backend (16-thread compilation)
+sudo dnf install -y cmake gcc-c++ vulkan-loader-devel mesa-vulkan-drivers vulkan-tools glslc spirv-headers-devel spirv-tools-devel
+git clone https://github.com/ggerganov/llama.cpp.git ~/llama.cpp
+cd ~/llama.cpp && cmake -B build -DGGML_VULKAN=ON && cmake --build build --config Release -j16
+sudo cp build/bin/llama-server /usr/local/bin/ && sudo restorecon -v /usr/local/bin/llama-server
+
+# 3. Deploy Microsoft Phi-4 (14B Q4_K_M ~9.1GB) & Start Systemd Service
+mkdir -p ~/models && cd ~/models
+curl -L -o phi-4-Q4_K_M.gguf "https://huggingface.co/bartowski/phi-4-GGUF/resolve/main/phi-4-Q4_K_M.gguf"
+
+sudo tee /etc/systemd/system/llama-server.service << 'EOF'
+[Unit]
+Description=llama.cpp API Server (Vulkan 40CU - Phi-4 14B)
+After=network.target tailscaled.service
+
+[Service]
+Type=simple
+User=bc250
+WorkingDirectory=/home/bc250
+ExecStart=/usr/local/bin/llama-server -m /home/bc250/models/phi-4-Q4_K_M.gguf --host 0.0.0.0 --port 8080 -ngl 99 -t 16 -c 8192
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl daemon-reload && sudo systemctl enable --now llama-server</code></pre>
+</div>
+
+<h2 style="font-size: 22px; color: #0c4a6e; border-left: 6px solid #0284c7; padding-left: 14px; margin-top: 40px; margin-bottom: 20px;">
+  Empirical Telemetry & Results
+</h2>
+<ul>
+  <li><strong>Qwen2.5-Coder-7B Q4_K_M:</strong>
+    <ul>
+      <li>24 CU Stock: 14.25 tokens/s decode, 76.7 tokens/s prefill</li>
+      <li><strong>40 CU Unlocked: 18.31 tokens/s decode (+28.5%), 115.2 tokens/s prefill (+50.2%)</strong></li>
+    </ul>
+  </li>
+  <li><strong>Microsoft Phi-4 (14B Q4_K_M):</strong>
+    <ul>
+      <li>100% offloaded to Vulkan GPU (all 40 layers in VRAM).</li>
+      <li><strong>9.28 tokens/s sustained generation</strong> with zero rate limits, accessible across Tailscale mesh.</li>
+    </ul>
+  </li>
+</ul>
+
+<p>
+  Paired with our primary RTX 4070 Ti SUPER + RTX 3060 Strata rig and OpenRouter's dynamic free tier, this machine forms our <strong>Zero-Quota Private Inference Cluster</strong>, shielding cloud AI quotas for only top-tier architectural decisions.
+</p>
+
+</div>

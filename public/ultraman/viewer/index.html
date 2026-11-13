@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta name="google-adsense-account" content="ca-pub-1988464307898443" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1988464307898443" crossorigin="anonymous"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ウルトラマン カードゲーム 保有・未保有ビジュアルリスト</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡️</text></svg>">
+  <!-- Design System Fonts (Geist, Geist Mono & Noto Sans JP via ai-design-skills) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600;700&family=Geist:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div style="background:#0f172a;color:#f8fafc;padding:8px 16px;font-size:13px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #334155;"><a href="/ultraman" style="color:#fbbf24;text-decoration:none;font-weight:700;">← ウルトラマン特設ポータルへ戻る</a><a href="/ai-living-lab" style="color:#cbd5e1;text-decoration:none;">Smart AI Life</a></div>
+
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-container">
+      <div class="header-logo">
+        <span class="logo-badge">UCG</span>
+        <div>
+          <h1 class="header-title">ウルトラマン カードゲーム コレクション管理</h1>
+          <span class="header-subtitle">Excel照合 保有・未保有ビジュアルビューア</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="btnExport" class="btn" title="現在のステータスをJSON/CSVでエクスポート">
+          <span>💾</span> エクスポート
+        </button>
+        <button id="btnResetAll" class="btn" title="ローカルの編集内容をExcel原本の状態にリセット">
+          <span>🔄</span> 原本リセット
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    <!-- KPI Statistics Dashboard -->
+    <section class="dashboard-grid">
+      <!-- Owned Card -->
+      <div class="stat-card stat-owned" id="statCardOwned">
+        <div class="stat-label">
+          <span>保有カード (●)</span>
+          <span id="statOwnedRate" style="color: var(--color-owned); font-weight: 700;">0.0%</span>
+        </div>
+        <div class="stat-val-container">
+          <span class="stat-value" id="statOwnedCount" style="color: var(--color-owned);">0</span>
+          <span class="stat-subvalue">/ <span id="statTotalCount">0</span> 枚</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="statOwnedProgressBar" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <!-- In-Transit Card -->
+      <div class="stat-card stat-transit" id="statCardTransit">
+        <div class="stat-label">
+          <span>到着待ち (◯)</span>
+          <span style="color: var(--color-transit); font-size: 11px;">配送中</span>
+        </div>
+        <div class="stat-val-container">
+          <span class="stat-value" id="statTransitCount" style="color: var(--color-transit);">0</span>
+          <span class="stat-subvalue">枚</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="statTransitProgressBar" style="width: 0%; background: #f59e0b;"></div>
+        </div>
+      </div>
+
+      <!-- Unowned Card -->
+      <div class="stat-card stat-unowned" id="statCardUnowned">
+        <div class="stat-label">
+          <span>未保有 (目標・検討中含む)</span>
+          <span style="color: var(--text-muted); font-size: 11px;">収集対象</span>
+        </div>
+        <div class="stat-val-container">
+          <span class="stat-value" id="statUnownedCount" style="color: #cbd5e1;">0</span>
+          <span class="stat-subvalue">枚 (<span id="statWatchlistCount">0</span>枚検討中)</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="statUnownedProgressBar" style="width: 0%; background: #64748b;"></div>
+        </div>
+      </div>
+
+      <!-- Total Investment / Spent -->
+      <div class="stat-card stat-price">
+        <div class="stat-label">
+          <span>購入金額合計 (投資総額)</span>
+          <span style="color: var(--accent-blue); font-size: 11px;">Excel記録済</span>
+        </div>
+        <div class="stat-val-container">
+          <span class="stat-value" id="statTotalSpent" style="color: #60a5fa;">¥0</span>
+        </div>
+        <div class="stat-subvalue" style="margin-top: 8px;">
+          平均単価: <span id="statAvgPrice" style="color: var(--text-main); font-weight: 600;">¥0</span>
+        </div>
+      </div>
+
+      <!-- Market Valuation & Profit/Loss -->
+      <div class="stat-card stat-market" id="statCardMarket">
+        <div class="stat-label">
+          <span>保有コレクション市場総額</span>
+          <span id="statProfitBadge" class="profit-badge" style="font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 4px;">損益: ±¥0</span>
+        </div>
+        <div class="stat-val-container">
+          <span class="stat-value" id="statTotalMarket" style="color: #34d399;">¥0</span>
+        </div>
+        <div class="stat-subvalue" style="margin-top: 8px;">
+          購入済評価損益: <span id="statTotalProfit" style="font-weight: 700;">+¥0 (+0.0%)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pack & Series Breakdown Carousel -->
+    <section class="breakdown-section">
+      <div class="breakdown-header" id="breakdownToggle">
+        <div class="breakdown-title">
+          <span>📦 パック・シリーズ別 保有進捗 (クリックで絞り込み)</span>
+        </div>
+        <span class="breakdown-toggle-icon" id="breakdownIcon">▼</span>
+      </div>
+      <div class="breakdown-chips" id="seriesChipsContainer">
+        <!-- Series chips injected via JS -->
+      </div>
+    </section>
+
+    <!-- Controls & Filter Panel -->
+    <section class="controls-panel">
+      <!-- Search & View Mode -->
+      <div class="controls-row-top">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchInput" class="search-input" placeholder="カード名、カード番号、効果、入手方法で検索..." autocomplete="off">
+          <button id="searchClear" class="search-clear">×</button>
+        </div>
+
+        <div class="view-controls">
+          <select id="sortSelect" class="sort-select">
+            <option value="excel">並び順: Excel原本順</option>
+            <option value="unowned_first">並び順: 未保有を優先 (カラー表示)</option>
+            <option value="owned_first">並び順: 保有を優先</option>
+            <option value="market_price_desc">並び順: 市場価格が高い順 (高➔低)</option>
+            <option value="price_desc">並び順: 購入金額が高い順 (高➔低)</option>
+            <option value="profit_desc">並び順: 含み益が大きい順 (利益順)</option>
+            <option value="profit_asc">並び順: 含み損が大きい順 (下落順)</option>
+            <option value="number_asc">カード番号順 (昇順)</option>
+            <option value="rarity">レアリティ順 (UR ➔ C)</option>
+            <option value="name">カード名順</option>
+          </select>
+
+          <button id="colorToggleBtn" class="btn" style="padding: 6px 12px; font-size: 13px;" title="未保有カードのグレースケールを解除してカラー表示">
+            <span>🎨</span> <span id="colorToggleText">未保有カラー: OFF</span>
+          </button>
+
+          <div class="view-btn-group">
+            <button id="viewGridBtn" class="view-btn active" title="画像ギャラリー表示">
+              <span>🖼️</span> ギャラリー
+            </button>
+            <button id="viewTableBtn" class="view-btn" title="詳細テーブル一覧表示">
+              <span>📋</span> リスト
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Tabs -->
+      <div class="status-tabs" id="statusTabs">
+        <button class="status-tab active" data-status="all">
+          すべて <span class="tab-badge" id="badgeAllCount">0</span>
+        </button>
+        <button class="status-tab" data-status="owned">
+          🟢 保有のみ <span class="tab-badge" id="badgeOwnedCount">0</span>
+        </button>
+        <button class="status-tab" data-status="transit">
+          🟡 到着待ち <span class="tab-badge" id="badgeTransitCount">0</span>
+        </button>
+        <button class="status-tab" data-status="unowned">
+          ⚪️ 未保有 <span class="tab-badge" id="badgeUnownedCount">0</span>
+        </button>
+        <button class="status-tab" data-status="watchlist">
+          🟣 検討中 (▶️) <span class="tab-badge" id="badgeWatchlistCount">0</span>
+        </button>
+        <button class="status-tab" data-status="winner">
+          🏆 Winner <span class="tab-badge" id="badgeWinnerCount">0</span>
+        </button>
+      </div>
+
+      <!-- Rarity & Series Filter Pills -->
+      <div class="filter-pills-row">
+        <!-- Rarity Filter -->
+        <div class="filter-group">
+          <span class="filter-group-label">レアリティ:</span>
+          <div class="pill-list" id="rarityPills">
+            <button class="pill active" data-rarity="all">ALL</button>
+            <button class="pill" data-rarity="UR">UR</button>
+            <button class="pill" data-rarity="SSSP">SSSP</button>
+            <button class="pill" data-rarity="SP">SP</button>
+            <button class="pill" data-rarity="AP">AP</button>
+            <button class="pill" data-rarity="RRR">RRR</button>
+            <button class="pill" data-rarity="RR">RR</button>
+            <button class="pill" data-rarity="R">R</button>
+            <button class="pill" data-rarity="U">U</button>
+            <button class="pill" data-rarity="C">C</button>
+            <button class="pill" data-rarity="ExP">ExP</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results Status Info -->
+    <div class="results-info-bar">
+      <div>
+        表示中: <span class="results-count" id="filteredCount">0</span> 枚
+        <span id="filterSummaryText" style="color: var(--text-sub); margin-left: 8px;"></span>
+      </div>
+      <button id="btnResetFilters" class="filter-reset-btn" style="display: none;">
+        フィルタを解除
+      </button>
+    </div>
+
+    <!-- Gallery Grid View Container -->
+    <div id="galleryContainer" class="cards-grid">
+      <!-- Cards rendered here -->
+    </div>
+
+    <!-- Table View Container -->
+    <div id="tableContainer" class="table-container" style="display: none;">
+      <table class="cards-table">
+        <thead>
+          <tr>
+            <th style="width: 50px;">画像</th>
+            <th style="width: 120px;">カード番号</th>
+            <th>カード名</th>
+            <th style="width: 80px;">レアリティ</th>
+            <th style="width: 120px;">ステータス</th>
+            <th style="width: 95px;">購入金額</th>
+            <th style="width: 95px;">市場価格</th>
+            <th style="width: 105px;">評価損益</th>
+            <th style="width: 130px;">シリーズ</th>
+            <th>入手方法 / 備考</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <!-- Rows rendered here -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="empty-state" style="display: none;">
+      <div class="empty-icon">🔍</div>
+      <p style="font-size: 16px; font-weight: 700; margin-bottom: 6px;">該当するカードが見つかりませんでした</p>
+      <p style="font-size: 13px;">検索条件やフィルタを変更してお試しください</p>
+    </div>
+
+  </main>
+
+  <!-- Card Detail Modal -->
+  <div class="modal-overlay" id="cardModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title" id="modalCardTitle">カード詳細</div>
+        <button class="modal-close-btn" id="modalCloseBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-image-col">
+          <img id="modalCardImg" src="" alt="Card Preview" class="modal-card-img">
+        </div>
+        <div class="modal-details-col">
+          <!-- Status Editor -->
+          <div class="modal-status-edit">
+            <div>
+              <div style="font-size: 11px; color: var(--text-sub); font-weight: 700;">保有ステータス</div>
+              <div id="modalCurrentStatus" style="font-weight: 800; font-size: 15px; margin-top: 2px;"></div>
+            </div>
+            <select id="modalStatusSelect" class="modal-status-select">
+              <option value="owned">🟢 保有 (●)</option>
+              <option value="transit">🟡 到着待ち (◯)</option>
+              <option value="unowned">⚪️ 未保有</option>
+              <option value="watchlist">🟣 検討中 (▶️)</option>
+              <option value="owned_winner">🏆 保有 (Winner)</option>
+            </select>
+          </div>
+
+          <!-- Quick Specs Grid -->
+          <div class="modal-info-grid">
+            <div class="modal-info-item">
+              <span class="modal-info-label">カード番号</span>
+              <span class="modal-info-val" id="modalCardNumber">-</span>
+            </div>
+            <div class="modal-info-item">
+              <span class="modal-info-label">レアリティ</span>
+              <span class="modal-info-val" id="modalCardRarity">-</span>
+            </div>
+            <div class="modal-info-item">
+              <span class="modal-info-label">タイプ / レベル</span>
+              <span class="modal-info-val" id="modalCardType">-</span>
+            </div>
+            <div class="modal-info-item">
+              <span class="modal-info-label">バトルパワー</span>
+              <span class="modal-info-val" id="modalCardBP">-</span>
+            </div>
+          </div>
+
+          <!-- Price & Market Valuation Comparison Box -->
+          <div class="modal-price-box">
+            <div class="modal-price-col">
+              <span class="modal-price-col-title">🛒 購入価格</span>
+              <div class="modal-price-edit-row">
+                <input type="number" id="modalInputPrice" class="modal-price-input" placeholder="未記録">
+                <span style="font-size: 13px; font-weight: 700; color: var(--text-muted);">円</span>
+                <button id="btnSavePrice" class="btn-save-price" title="購入金額を保存">保存</button>
+              </div>
+              <div id="modalCardPriceRaw" style="font-size: 11px; color: var(--text-sub); margin-top: 3px;">Excel: -</div>
+            </div>
+            <div class="modal-price-col">
+              <span class="modal-price-col-title">📊 現在の市場価格</span>
+              <div class="modal-price-val-large" id="modalCardMarketPrice">¥0</div>
+              <div style="font-size: 11px; color: var(--text-sub); margin-top: 3px;">取引相場・レアリティ基準</div>
+            </div>
+            <div class="modal-price-col">
+              <span class="modal-price-col-title">💹 評価損益 (含み損益)</span>
+              <div class="modal-price-val-large" id="modalCardProfit">-</div>
+              <div id="modalCardProfitRate" style="font-size: 11px; margin-top: 3px;">-</div>
+            </div>
+          </div>
+
+          <!-- Effect Text -->
+          <div class="modal-section" id="modalEffectSection">
+            <span class="modal-section-title">効果テキスト</span>
+            <div class="modal-effect-box" id="modalCardEffect">-</div>
+          </div>
+
+          <!-- Flavor Text -->
+          <div class="modal-section" id="modalFlavorSection">
+            <span class="modal-section-title">フレーバーテキスト</span>
+            <p id="modalCardFlavor" style="font-size: 12px; color: var(--text-muted); font-style: italic;"></p>
+          </div>
+
+          <!-- Obtain / Notes -->
+          <div class="modal-section">
+            <span class="modal-section-title">入手方法 / 備考 (Excel記載)</span>
+            <p id="modalCardObtain" style="font-size: 13px; color: #cbd5e1; background: var(--bg-card); padding: 10px; border-radius: var(--radius-sm);"></p>
+          </div>
+
+          <!-- Illustrator -->
+          <div class="modal-section" id="modalIllustSection" style="margin-top: auto;">
+            <span style="font-size: 11px; color: var(--text-sub);">イラストレーター: <span id="modalCardIllust" style="color: var(--text-muted); font-weight: 600;">-</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toastMessage">保存しました</div>
+
+  <!-- Embedded Data for file:// compatibility -->
+  <script src="cards_data.js?v=20261029"></script>
+  <!-- JavaScript logic -->
+  <script src="app.js?v=20261029"></script>
+</body>
+</html>

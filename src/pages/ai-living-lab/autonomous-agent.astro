@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/SmartAIBaseLayout.astro';
+import AdBanner from '../../components/AdBanner.astro';
 ---
 
 <BaseLayout 
@@ -27,6 +28,7 @@ import BaseLayout from '../../layouts/SmartAIBaseLayout.astro';
   </section>
 
   <div class="nc-container" style="padding-bottom: 3rem;">
+    <AdBanner slotType="banner" siteId="smartailife" />
     <div class="nc-article-layout has-toc">
       <aside class="nc-ag-toc" aria-label="On this page">
         <p style="font-family: var(--nc-font-serif); font-size: 1.05rem; margin-bottom: 0.75rem; padding-left: 0.5rem;">On this page</p>
@@ -125,6 +127,7 @@ import BaseLayout from '../../layouts/SmartAIBaseLayout.astro';
       </div>
 
       <aside class="nc-item-cards">
+        <AdBanner slotType="sidebar" siteId="smartailife" />
         <div class="nc-item-card primary">
           <h3>詳細解説記事</h3>
           <p>はてなブログおよびGitHubリポジトリにて設定ファイル一式を公開しています。</p>

@@ -1007,6 +1007,8 @@ export async function ALL(context: any) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${post.title} ｜ Smart AI Life</title>
   <meta name="description" content="${post.excerpt || ""}">
+  <meta name="google-adsense-account" content="ca-pub-1988464307898443" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1988464307898443" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="/_astro/styles.qJevY_AE.css">
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; line-height: 1.8; color: #1e293b; background: #f8fafc; margin: 0; padding: 0; }
@@ -1144,9 +1146,25 @@ export async function ALL(context: any) {
           生成AI・Mac自動化・自作HEMS・ローカルLLMで日々の生活を快適にする実践ブログ。
         </div>
       </div>
+      <div class="ad-unit" style="margin: 24px 0; text-align: center;">
+        <div style="font-size: 11px; color: #64748b; margin-bottom: 6px;">📢 スポンサーリンク ｜ Google 広告</div>
+        <ins class="adsbygoogle" style="display:block; text-align:center;" data-ad-client="ca-pub-1988464307898443" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      </div>
       <div class="content-body">
         ${post.content || post.excerpt || "<p>本文を読み込んでいます...</p>"}
       </div>
+      <div class="ad-unit" style="margin: 32px 0 8px; text-align: center;">
+        <div style="font-size: 11px; color: #64748b; margin-bottom: 6px;">📢 スポンサーリンク ｜ Google 広告</div>
+        <ins class="adsbygoogle" style="display:block; text-align:center;" data-ad-client="ca-pub-1988464307898443" data-ad-format="auto" data-full-width-responsive="true"></ins>
+      </div>
+      <script>
+        try {
+          document.querySelectorAll('ins.adsbygoogle:not([data-ad-pushed])').forEach(function (el) {
+            el.setAttribute('data-ad-pushed', 'true');
+            (window.adsbygoogle = window.adsbygoogle || []).push({});
+          });
+        } catch (e) {}
+      </script>
     </article>
     <div class="footer-bar">
       © 2026 Smart AI Life ｜ Powered by EmDash & Cloudflare Pages

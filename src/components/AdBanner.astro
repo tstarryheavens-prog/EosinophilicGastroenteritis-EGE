@@ -1,7 +1,16 @@
 ---
 interface Props {
   slotType?: 'auto' | 'infeed' | 'banner' | 'sidebar';
-  siteId?: 'aichi-high' | 'smartailife' | 'money' | 'home';
+  siteId?:
+    | 'aichi-high'
+    | 'smartailife'
+    | 'ai-hems'
+    | 'money'
+    | 'wakwak-money'
+    | 'home'
+    | 'toyotahome'
+    | 'hobby-labs'
+    | 'ultraman';
   category?: string;
   adSenseSlotId?: string;
   className?: string;
@@ -15,17 +24,25 @@ const {
   className = '',
 } = Astro.props;
 
-// AI記事判定（smartailife または decision / cloud カテゴリ）
-const isAIArticle = siteId === 'smartailife' || category === 'decision' || category === 'cloud';
+// AI記事・アーリーアダプター向け判定（AI記事＆技術記事はAdSense専用・A8排除）
+const isAIArticle =
+  siteId === 'smartailife' ||
+  siteId === 'ai-hems' ||
+  category === 'decision' ||
+  category === 'cloud' ||
+  category === 'energy';
 
 // 有効なAdSense広告ユニットIDが指定されているか（ダミーID除外）
 const hasValidAdSenseSlot = Boolean(
-  adSenseSlotId && 
-  adSenseSlotId !== '9876543210' && 
+  adSenseSlotId &&
+  adSenseSlotId !== '9876543210' &&
   /^\d{5,}$/.test(adSenseSlotId)
 );
 
-// 非AI記事（教育・家計・住まい等）向けのフォールバック広告定義
+const adFormat =
+  slotType === 'infeed' ? 'fluid' : slotType === 'banner' ? 'horizontal' : 'auto';
+
+// 非AI記事（教育・家計・住まい・ホビー）向けのフォールバック広告定義
 const fallbackAds: Record<string, any> = {
   'aichi-high': {
     badge: '🎓 おすすめ進学・学習支援',
@@ -49,6 +66,17 @@ const fallbackAds: Record<string, any> = {
     width: 300,
     height: 250,
   },
+  'ai-hems': {
+    badge: '⚡ AI Home HEMS',
+    title: '卒FIT蓄電池・夜間電力コントロール検証ログ',
+    desc: 'ECHONET Liteと実測気象予報を組み合わせた自動充電の記録を公開中。',
+    linkUrl: '/ai-hems',
+    imgUrl: '',
+    trackUrl: '',
+    ctaText: 'AI Home HEMSを見る ↗',
+    width: 300,
+    height: 250,
+  },
   'money': {
     badge: '💰 教育費・家計防衛',
     title: '高校・大学進学に向けた家計見直し＆教育資金形成',
@@ -60,14 +88,58 @@ const fallbackAds: Record<string, any> = {
     width: 300,
     height: 250,
   },
+  'wakwak-money': {
+    badge: '💰 わくわくマネーラボ',
+    title: '100歳までの家族キャッシュフローとNISA積立設計',
+    desc: '住宅ローンと教育費ピークを乗り切る現実的な資産管理シミュレーターと実体験記。',
+    linkUrl: '/wakwak-money',
+    imgUrl: '',
+    trackUrl: '',
+    ctaText: 'わくわくマネーラボへ ↗',
+    width: 300,
+    height: 250,
+  },
   'home': {
     badge: '🏠 住宅ローン・住まい再生',
     title: '新築10年目のメンテナンス・外壁塗装＆蓄電池見積もり比較',
     desc: 'ハウスメーカーの定期点検と適正相場を把握し、住まいのランニングコストを大幅カット。',
-    linkUrl: 'https://px.a8.net/svt/ejp?a8mat=4BE70L+662RQI+36T2+TYQVL',
-    imgUrl: 'https://www29.a8.net/svt/bgt?aid=261002757373&wid=004&eno=01&mid=s00000014879005033000&mc=1',
-    trackUrl: 'https://www12.a8.net/0.gif?a8mat=4BE70L+662RQI+36T2+TYQVL',
-    ctaText: '一括無料見積もり・点検比較を見る ↗',
+    linkUrl: '/toyotahome',
+    imgUrl: '',
+    trackUrl: '',
+    ctaText: 'トヨタホーム実録ポータルを見る ↗',
+    width: 300,
+    height: 250,
+  },
+  'toyotahome': {
+    badge: '🏡 トヨタホーム実録',
+    title: '10年目メンテナンス＆住宅コストシミュレーター',
+    desc: '5,200万円ローンの現実、太陽光・蓄電池の実測ROI、保証点検の実体験まとめ。',
+    linkUrl: '/toyotahome/cost.html',
+    imgUrl: '',
+    trackUrl: '',
+    ctaText: '費用シミュレーターを見る ↗',
+    width: 300,
+    height: 250,
+  },
+  'hobby-labs': {
+    badge: '✨ ウルトラマン＆ソフビラボ',
+    title: 'UCG 1,400枚検索・デッキ分析＆ソフビ図鑑',
+    desc: '親子で遊べるカード図鑑から、ガチ勢のメタ分析・ソフビ塗装記録まで網羅。',
+    linkUrl: '/ultraman',
+    imgUrl: '',
+    trackUrl: '',
+    ctaText: 'ウルトラマン特設へ ↗',
+    width: 300,
+    height: 250,
+  },
+  'ultraman': {
+    badge: '✨ ウルトラマン特設',
+    title: 'ウルトラマン カードゲーム全カード検索ビューアー',
+    desc: 'レアリティ別・効果別の高速カード検索＆ショップ価格チェック。',
+    linkUrl: '/ultraman/viewer/index.html',
+    imgUrl: '',
+    trackUrl: '',
+    ctaText: 'カード検索ビューアーを開く ↗',
     width: 300,
     height: 250,
   },
@@ -79,7 +151,7 @@ const currentAd = fallbackAds[siteId] || fallbackAds.smartailife;
 <div class={`nc-ad-container ${className}`}>
   <div class="ad-banner-wrapper nc-ad-card">
     <div class="nc-ad-header">
-      <span class="nc-ad-label-official">{isAIArticle ? 'スポンサーリンク' : currentAd.badge}</span>
+      <span class="nc-ad-label-official">{isAIArticle ? '📢 スポンサーリンク ｜ Google 広告' : currentAd.badge}</span>
       {!isAIArticle && <span class="nc-ad-label">Sponsored / PR</span>}
     </div>
 
@@ -88,27 +160,27 @@ const currentAd = fallbackAds[siteId] || fallbackAds.smartailife;
       <div class="adsense-slot nc-adsense-slot">
         <ins class="adsbygoogle"
              style="display:block; text-align:center;"
-             data-ad-format="auto"
+             data-ad-format={adFormat}
              data-full-width-responsive="true"
              data-ad-client="ca-pub-1988464307898443"
-             data-ad-slot={hasValidAdSenseSlot ? adSenseSlotId : undefined}></ins>
+             {...(hasValidAdSenseSlot ? { 'data-ad-slot': adSenseSlotId } : {})}></ins>
       </div>
-    ) : hasValidAdSenseSlot ? (
-      /* 非AI記事でAdSenseスロットIDがある場合 */
+    ) : (
+      /* 非AI記事：Google AdSenseを優先描画し、未配信時のみ関連ナビ/フォールバックへ切替 */
       <>
         <div class="adsense-slot nc-adsense-slot">
           <ins class="adsbygoogle"
                style="display:block; text-align:center;"
-               data-ad-layout="in-article"
-               data-ad-format="fluid"
+               data-ad-format={adFormat}
+               data-full-width-responsive="true"
                data-ad-client="ca-pub-1988464307898443"
-               data-ad-slot={adSenseSlotId}></ins>
+               {...(hasValidAdSenseSlot ? { 'data-ad-slot': adSenseSlotId } : {})}></ins>
         </div>
 
         <div class="ad-fallback-card nc-ad-fallback hidden">
           <div class="nc-ad-title">{currentAd.title}</div>
           <p class="nc-ad-desc">{currentAd.desc}</p>
-          
+
           {currentAd.imgUrl && (
             <div class="nc-ad-media">
               <a href={currentAd.linkUrl} target="_blank" rel="nofollow noopener">
@@ -125,53 +197,38 @@ const currentAd = fallbackAds[siteId] || fallbackAds.smartailife;
           </div>
         </div>
       </>
-    ) : (
-      /* 非AI記事でフォールバック表示 */
-      <div class="ad-fallback-card nc-ad-fallback">
-        <div class="nc-ad-title">{currentAd.title}</div>
-        <p class="nc-ad-desc">{currentAd.desc}</p>
-        
-        {currentAd.imgUrl && (
-          <div class="nc-ad-media">
-            <a href={currentAd.linkUrl} target="_blank" rel="nofollow noopener">
-              <img src={currentAd.imgUrl} width={currentAd.width} height={currentAd.height} alt={currentAd.title} class="nc-ad-img" />
-            </a>
-            {currentAd.trackUrl && <img src={currentAd.trackUrl} width="1" height="1" alt="" style="display:none;" />}
-          </div>
-        )}
-
-        <div class="nc-ad-cta-wrap">
-          <a href={currentAd.linkUrl} target={currentAd.linkUrl.startsWith('/') ? undefined : '_blank'} rel={currentAd.linkUrl.startsWith('/') ? undefined : 'nofollow noopener'} class="btn btn-dark">
-            {currentAd.ctaText}
-          </a>
-        </div>
-      </div>
     )}
   </div>
 </div>
 
 <script is:inline>
   (function() {
-    var hasAdSlot = document.querySelector('.ad-banner-wrapper .adsense-slot');
-    if (!hasAdSlot) return;
-
-    try {
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
-    } catch (e) {}
-
-    setTimeout(function() {
-      document.querySelectorAll('.ad-banner-wrapper').forEach(function(wrapper) {
-        var adsenseSlot = wrapper.querySelector('.adsense-slot');
-        var fallback = wrapper.querySelector('.ad-fallback-card');
-        var ins = wrapper.querySelector('ins.adsbygoogle');
-        
-        // フォールバックが存在する場合のみ切り替え（AI記事などフォールバックなしの場合は非表示切り替えを行わない）
-        if (fallback && ins && (!ins.innerHTML || ins.getAttribute('data-ad-status') === 'unfilled' || ins.offsetHeight < 20)) {
-          if (adsenseSlot) adsenseSlot.style.display = 'none';
-          fallback.classList.remove('hidden');
-        }
+    var insList = document.querySelectorAll('.ad-banner-wrapper ins.adsbygoogle:not([data-ad-pushed])');
+    if (insList.length) {
+      insList.forEach(function(ins) {
+        ins.setAttribute('data-ad-pushed', 'true');
+        try {
+          (window.adsbygoogle = window.adsbygoogle || []).push({});
+        } catch (e) {}
       });
-    }, 1500);
+    }
+
+    if (!window.__ncAdFallbackScheduled) {
+      window.__ncAdFallbackScheduled = true;
+      setTimeout(function() {
+        document.querySelectorAll('.ad-banner-wrapper').forEach(function(wrapper) {
+          var adsenseSlot = wrapper.querySelector('.adsense-slot');
+          var fallback = wrapper.querySelector('.ad-fallback-card');
+          var ins = wrapper.querySelector('ins.adsbygoogle');
+
+          // フォールバックが存在する場合のみ未配信時切り替え（AI記事などフォールバックなしの場合は切り替えを行わない）
+          if (fallback && ins && (ins.getAttribute('data-ad-status') === 'unfilled' || (ins.innerHTML.trim() === '' && ins.offsetHeight < 20))) {
+            if (adsenseSlot) adsenseSlot.style.display = 'none';
+            fallback.classList.remove('hidden');
+          }
+        });
+      }, 2200);
+    }
   })();
 </script>
 

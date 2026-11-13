@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta name="google-adsense-account" content="ca-pub-1988464307898443" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>太陽光・卒FIT・蓄電池・自作HEMS | トヨタホーム建築10年記</title>
+  <meta name="description" content="2026年11月の卒FIT（売電31円→8.5円）に備えてニチコン14.9kWh蓄電池を導入。さらにPythonとDockerで自作したAIHomeHEMSによる電気代ゼロ化の全記録。">
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1988464307898443"
+       crossorigin="anonymous"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
+    body { font-family: 'Noto Sans JP', sans-serif; }
+    .ad-banner img { margin: 0 auto; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased">
+
+  <!-- ヘッダー -->
+  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <a href="/toyotahome" class="flex items-center gap-3 font-black text-xl text-slate-900 tracking-tight">
+        <img src="assets/images/icon.jpg" alt="ブログアイコン" class="w-10 h-10 rounded-full shadow-md object-cover ring-2 ring-rose-300">
+        <span>トヨタホーム建築10年記</span>
+      </a>
+      <nav class="hidden md:flex items-center gap-6 text-sm font-semibold text-slate-600">
+        <a href="/toyotahome" class="hover:text-rose-600 transition">ホーム</a>
+        <a href="timeline.html" class="hover:text-rose-600 transition">10年の軌跡</a>
+        <a href="cost.html" class="hover:text-rose-600 transition">費用・ローン・値引き</a>
+        <a href="solar-battery.html" class="text-rose-600 font-bold">太陽光・蓄電池・HEMS</a>
+        <a href="privacy.html" class="hover:text-rose-600 transition">ポリシー</a>
+        <a href="https://github.com/tstarryheavens-prog/AIHomeHEMS" target="_blank" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900 text-white text-xs hover:bg-slate-800 transition">
+          <i class="fa-brands fa-github text-sm"></i>
+          <span>AIHomeHEMS</span>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- メインコンテンツ -->
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold mb-3">
+        <i class="fa-solid fa-bolt"></i> Solar & Storage Battery System
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">太陽光発電・卒FITと大容量蓄電池×自作AI HEMS</h1>
+      <p class="text-slate-600 text-sm sm:text-base mt-2">
+        2016年の引き渡し時に導入した4.0kW太陽光発電が2026年11月に10年間のFITを満了。売電31円から8.5円への大暴落を機に、ニチコン14.9kWh蓄電池と自作HEMSで完全自家消費を実現した記録です。
+      </p>
+
+      <!-- ジブリ風スマートホームビジュアルカード -->
+      <div class="mt-6 rounded-3xl overflow-hidden shadow-lg border border-slate-200">
+        <img src="assets/images/smart_home.jpg" alt="ジブリ風スマートホームと蓄電池" class="w-full h-auto object-cover max-h-[380px]">
+      </div>
+    </div>
+
+    <!-- 1. 卒FITの衝撃と電気代の構造 -->
+    <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 mb-10">
+      <h2 class="text-xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2">
+        <i class="fa-solid fa-triangle-exclamation text-rose-500"></i> 売電31円→8.5円に暴落！卒FIT問題とは？
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-4">
+        <div class="p-5 bg-rose-50 rounded-2xl border border-rose-100">
+          <h3 class="font-bold text-rose-900 text-sm mb-2">⚡ 売電単価（FIT終了前後）</h3>
+          <div class="flex items-baseline gap-3">
+            <span class="text-3xl font-black text-rose-600">31円</span>
+            <span class="text-sm font-bold text-slate-400">→</span>
+            <span class="text-3xl font-black text-slate-800">8.5円</span>
+            <span class="text-xs text-slate-500">/ kWh</span>
+          </div>
+          <p class="text-xs text-rose-700 mt-2">約4分の1に大暴落。売電してもほぼお小遣い程度に激減。</p>
+        </div>
+        <div class="p-5 bg-amber-50 rounded-2xl border border-amber-100">
+          <h3 class="font-bold text-amber-900 text-sm mb-2">💡 買電単価（電力会社から買う価格）</h3>
+          <div class="flex items-baseline gap-2">
+            <span class="text-3xl font-black text-amber-600">約36.0円</span>
+            <span class="text-xs text-slate-500">/ kWh （昼〜夕方）</span>
+          </div>
+          <p class="text-xs text-amber-800 mt-2">再エネ賦課金や燃料費高騰により、買う電気は超高額！</p>
+        </div>
+      </div>
+      <p class="text-sm text-slate-600 leading-relaxed">
+        結論として、**「8.5円で売るくらいなら、昼間の太陽光をすべて蓄電池に貯めて、夜間の36円の買電をゼロにする」** ことが最も経済的な正解です。
+      </p>
+    </div>
+
+    <!-- 2. ニチコン14.9kWh蓄電池の導入 -->
+    <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 mb-10">
+      <h2 class="text-xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2">
+        <i class="fa-solid fa-battery-full text-emerald-500"></i> 我が家が導入したニチコン14.9kWh蓄電池
+      </h2>
+      <div class="space-y-4 text-sm text-slate-600 leading-relaxed">
+        <p>
+          我が家が導入したのは、家庭用として国内トップクラスの大容量を誇る**ニチコン製14.9kWh蓄電池（単機能タイプ）**です。
+        </p>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 my-4">
+          <div class="p-4 bg-slate-50 rounded-xl text-center">
+            <span class="text-xs text-slate-400 font-bold">蓄電容量</span>
+            <p class="text-2xl font-black text-slate-900 mt-1">14.9 kWh</p>
+            <span class="text-xs text-slate-500">丸1〜2日分の生活を賄える</span>
+          </div>
+          <div class="p-4 bg-slate-50 rounded-xl text-center">
+            <span class="text-xs text-slate-400 font-bold">定格出力</span>
+            <p class="text-2xl font-black text-slate-900 mt-1">最大5.9 kW</p>
+            <span class="text-xs text-slate-500">エアコン+IHでも余裕のパワー</span>
+          </div>
+          <div class="p-4 bg-slate-50 rounded-xl text-center">
+            <span class="text-xs text-slate-400 font-bold">停電時</span>
+            <p class="text-2xl font-black text-emerald-600 mt-1">200V機器対応</p>
+            <span class="text-xs text-slate-500">エコキュートやIHもそのまま稼働</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. 自作AIHomeHEMSの紹介 -->
+    <div class="bg-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-lg mb-12">
+      <div class="flex items-center gap-2 text-rose-400 text-xs font-bold uppercase mb-2">
+        <i class="fa-solid fa-code"></i> GitHub Open Source Project
+      </div>
+      <h2 class="text-xl sm:text-2xl font-black mb-3">自作AI HEMS「AIHomeHEMS」の開発</h2>
+      <p class="text-slate-300 text-sm leading-relaxed mb-6">
+        メーカー純正HEMSの「機械的な夜間フル充電」「モッサリUI」に耐えかね、自宅NAS上のDockerでPythonスクリプトを自作。
+        気象庁の天気予報APIから明日の日照量を予測し、ECHONET Liteプロトコルで蓄電池の充電量を最適自動制御するオープンソースシステムです。
+      </p>
+      <a href="https://github.com/tstarryheavens-prog/AIHomeHEMS" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 font-bold text-sm shadow transition">
+        <i class="fa-brands fa-github text-base"></i> GitHubリポジトリを見る
+      </a>
+    </div>
+
+    <!-- Google AdSense レスポンシブ広告ユニット -->
+    <div class="my-8 p-4 sm:p-6 bg-white rounded-2xl border border-slate-200 text-center shadow-sm">
+      <span class="text-[11px] font-bold text-slate-400 uppercase tracking-widest block mb-2">スポンサーリンク / 広告</span>
+    </div>
+
+    <!-- 4. 蓄電池・太陽光の一括見積もり（広告3社） -->
+    <div class="bg-slate-100 rounded-3xl p-6 sm:p-10 border border-slate-200">
+      <div class="text-center max-w-2xl mx-auto mb-8">
+        <span class="text-rose-600 text-xs font-bold uppercase tracking-wider">Recommended Services</span>
+        <h2 class="text-2xl sm:text-3xl font-black text-slate-900 mt-1">蓄電池・太陽光の無料相見積もり</h2>
+        <p class="text-slate-600 text-xs sm:text-sm mt-2">
+          蓄電池や太陽光パネルの設置費用は、販売店や施工業者によって数十万円以上の差が出ます。必ず複数社からプランを取り寄せて比較しましょう。
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 justify-items-center">
+
+        <!-- タイナビ太陽光 -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 flex flex-col items-center text-center w-full max-w-[340px]">
+          <span class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold mb-2">太陽光発電 一括見積</span>
+          <h3 class="font-bold text-slate-900 text-sm mb-1">タイナビ（太陽光）</h3>
+          <p class="text-slate-500 text-xs mb-3">最大5社を一括比較。屋根の形状や設置容量に最適なプランを提案。</p>
+          <div class="ad-banner my-auto">
+            <a href="https://px.a8.net/svt/ejp?a8mat=4BCA77+4G5O1U+2AG2+661TT" rel="nofollow" target="_blank">
+              <img border="0" width="300" height="250" alt="タイナビ 太陽光発電見積もり" src="https://www20.a8.net/svt/bgt?aid=260913571269&wid=003&eno=01&mid=s00000010685001036000&mc=1">
+            </a>
+            <img border="0" width="1" height="1" src="https://www15.a8.net/0.gif?a8mat=4BCA77+4G5O1U+2AG2+661TT" alt="">
+          </div>
+          <a href="https://px.a8.net/svt/ejp?a8mat=4BCA77+4G5O1U+2AG2+661TT" rel="nofollow" target="_blank" class="mt-4 w-full py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-xl shadow transition">
+            無料見積もりはこちら
+          </a>
+        </div>
+
+        <!-- エコエネ蓄電池 -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 flex flex-col items-center text-center w-full max-w-[340px]">
+          <span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold mb-2">蓄電池 専門相談</span>
+          <h3 class="font-bold text-slate-900 text-sm mb-1">エコエネ（蓄電池）</h3>
+          <p class="text-slate-500 text-xs mb-3">卒FIT向け蓄電池の相談から国の補助金申請までフルサポート。</p>
+          <div class="ad-banner my-auto">
+            <a href="https://px.a8.net/svt/ejp?a8mat=4BCA77+46MQDE+5CRG+5YZ75" rel="nofollow" target="_blank">
+              <img border="0" width="300" height="250" alt="エコエネ 家庭用蓄電池" src="https://www24.a8.net/svt/bgt?aid=260913571253&wid=003&eno=01&mid=s00000024982001003000&mc=1">
+            </a>
+            <img border="0" width="1" height="1" src="https://www18.a8.net/0.gif?a8mat=4BCA77+46MQDE+5CRG+5YZ75" alt="">
+          </div>
+          <a href="https://px.a8.net/svt/ejp?a8mat=4BCA77+46MQDE+5CRG+5YZ75" rel="nofollow" target="_blank" class="mt-4 w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow transition">
+            詳細を見る
+          </a>
+        </div>
+
+        <!-- タイナビ蓄電池 -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 flex flex-col items-center text-center w-full max-w-[340px]">
+          <span class="px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-800 text-xs font-bold mb-2">蓄電池 一括比較</span>
+          <h3 class="font-bold text-slate-900 text-sm mb-1">タイナビ蓄電池</h3>
+          <p class="text-slate-500 text-xs mb-3">ニチコン等の大容量蓄電池をメーカー・価格・保証で一括比較。</p>
+          <div class="ad-banner my-auto">
+            <a href="https://px.a8.net/svt/ejp?a8mat=4BCA77+44UFK2+2AG2+15Q9SH" rel="nofollow" target="_blank">
+              <img border="0" width="300" height="250" alt="タイナビ蓄電池 一括見積もり" src="https://www23.a8.net/svt/bgt?aid=260913571250&wid=003&eno=01&mid=s00000010685007009000&mc=1">
+            </a>
+            <img border="0" width="1" height="1" src="https://www14.a8.net/0.gif?a8mat=4BCA77+44UFK2+2AG2+15Q9SH" alt="">
+          </div>
+          <a href="https://px.a8.net/svt/ejp?a8mat=4BCA77+44UFK2+2AG2+15Q9SH" rel="nofollow" target="_blank" class="mt-4 w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow transition">
+            相見積もりはこちら
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="bg-white border-t border-slate-200 py-8 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 space-y-2">
+      <div class="flex flex-wrap justify-center gap-6 font-semibold text-slate-600 mb-2">
+        <a href="/toyotahome" class="hover:text-rose-600">ホーム</a>
+        <a href="timeline.html" class="hover:text-rose-600">10年の軌跡</a>
+        <a href="cost.html" class="hover:text-rose-600">費用・ローン</a>
+        <a href="solar-battery.html" class="hover:text-rose-600">太陽光・蓄電池</a>
+        <a href="privacy.html" class="hover:text-rose-600 text-slate-800 font-bold underline">プライバシーポリシー・免責事項</a>
+      </div>
+      <p>© 2016 - 2026 トヨタホーム建築10年記念アーカイブ</p>
+    </div>
+  </footer>
+</body>
+</html>
