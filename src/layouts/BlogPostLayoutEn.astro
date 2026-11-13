@@ -92,18 +92,18 @@ const breadcrumbSchema = {
   <script is:inline type="application/ld+json" set:html={JSON.stringify(blogPostingSchema)} />
   <script is:inline type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
 
-  <article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+  <article class="max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-10">
     <!-- Breadcrumbs -->
-    <nav class="flex text-sm text-slate-500 mb-6 space-x-2 overflow-x-auto whitespace-nowrap py-1">
-      <a href="/en/" class="hover:text-teal-700 font-medium">Home (EN)</a>
+    <nav class="flex flex-wrap items-center text-xs sm:text-sm text-slate-500 mb-4 sm:mb-6 gap-x-2 gap-y-1 py-0.5">
+      <a href="/en/" class="hover:text-teal-700 font-medium shrink-0">Home (EN)</a>
       <span>/</span>
-      <span class="text-slate-600 font-medium">{category}</span>
+      <span class="text-slate-600 font-medium shrink-0">{category}</span>
       <span>/</span>
-      <span class="text-slate-800 font-medium truncate max-w-xs">{title}</span>
+      <span class="text-slate-800 font-medium">{title}</span>
     </nav>
 
     <!-- Header -->
-    <header class="mb-8 border-b border-slate-200 pb-8">
+    <header class="mb-5 sm:mb-8 border-b border-slate-200 pb-5 sm:pb-8">
       <div class="flex items-center gap-3 mb-4 flex-wrap">
         <span class="inline-block px-3.5 py-1 text-xs sm:text-sm font-semibold rounded-full bg-teal-50 text-teal-800 border border-teal-200">
           {category}
@@ -159,9 +159,6 @@ const breadcrumbSchema = {
         />
       </div>
     )}
-
-    <!-- Top In-Article AdSense Unit -->
-    <AdSense slot="top-ad" format="auto" />
 
     <!-- Article Content -->
     <div class="prose prose-slate prose-teal lg:prose-lg max-w-none prose-headings:scroll-mt-24 prose-h2:text-2xl sm:prose-h2:3xl prose-h2:font-bold prose-h2:border-b prose-h2:border-slate-200 prose-h2:pb-3 prose-h2:mt-10 prose-h2:mb-4 prose-h3:text-xl sm:prose-h3:2xl prose-h3:font-bold prose-p:text-base sm:prose-p:lg prose-p:leading-relaxed sm:prose-p:leading-loose text-slate-800">

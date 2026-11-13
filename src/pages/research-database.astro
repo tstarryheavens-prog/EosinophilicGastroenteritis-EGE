@@ -8,54 +8,54 @@ const totalCount = researchEntries.length;
 ---
 
 <BaseLayout
-  title="好酸球性胃腸炎・消化管疾患 学術論文＆最新治験データベース"
-  description="世界中のNEJM、Lancet、Gut等に掲載された好酸球性胃腸炎（EGE）・好酸球性消化管疾患（EGID）の学術論文、国際治験（Phase 3）、バイオ製剤エビデンスを網羅。各論文の1000字要約と当事者による1000字臨床所感を収録。"
+  title="好酸球性胃腸炎の最新論文・治験まとめ"
+  description="世界中で発表された好酸球性胃腸炎（EGE）・消化管疾患の医学論文や、新しい薬の治験結果を患者目線でわかりやすく要約して紹介しています。"
 >
   <!-- データベース専用ヒーローヘッダー -->
-  <section class="relative overflow-hidden bg-gradient-to-b from-slate-900 via-teal-950 to-slate-950 text-white border-b border-slate-800 py-12 sm:py-16">
+  <section class="relative overflow-hidden bg-gradient-to-b from-slate-900 via-teal-950 to-slate-950 text-white border-b border-slate-800 py-7 sm:py-14">
     <div class="absolute inset-0 bg-[linear-gradient(to_right,#0f766e15_1px,transparent_1px),linear-gradient(to_bottom,#0f766e15_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
 
     <div class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- パンくずリスト -->
-      <nav class="flex text-xs text-slate-400 mb-5 space-x-2">
+      <nav class="flex text-xs text-slate-400 mb-4 space-x-2">
         <a href="/" class="hover:text-teal-300 transition-colors">ホーム</a>
         <span>/</span>
-        <span class="text-teal-300 font-medium">学術論文・治験データベース</span>
+        <span class="text-teal-300 font-medium">最新論文・治験まとめ</span>
       </nav>
 
-      <div class="max-w-4xl space-y-4">
-        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/20 border border-teal-400/40 text-teal-300 text-xs sm:text-sm font-semibold tracking-wide">
+      <div class="max-w-4xl space-y-3 sm:space-y-4">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/20 border border-teal-400/40 text-teal-300 text-xs font-semibold tracking-wide">
           <span class="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></span>
-          <span>世界最前線のエビデンス ✕ 当事者臨床考察</span>
+          <span>世界の研究論文 ✕ 患者の視点でわかりやすく解説</span>
         </div>
 
-        <h1 class="text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight sm:leading-snug text-white">
-          好酸球性胃腸炎・消化管疾患<br class="hidden sm:inline" />
-          学術論文＆治験エビデンス・データベース
+        <h1 class="text-xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-snug text-white">
+          好酸球性胃腸炎の<br class="hidden sm:inline" />
+          最新論文・治験まとめ
         </h1>
 
-        <p class="text-sm sm:text-base text-slate-300 leading-relaxed max-w-3xl">
-          世界最高峰の医学誌（NEJM、Lancet、Gastroenterology等）に発表された好酸球性消化管疾患（EGE/EoE/EGID）の主要論文、最新の国際臨床治験（Phase 2/3）、新規分子標的薬（バイオ製剤）のデータを網羅。
-          客観的な学術要約（約1,000字）と、10回以上の入院・ステロイド治療を経験した当事者視点の臨床的所感（約1,000字）を各エントリーに収録しています。
+        <p class="text-xs sm:text-base text-slate-300 leading-relaxed max-w-3xl">
+          海外や日本の医学誌に発表された好酸球性胃腸炎・消化管疾患の研究論文や、新しい注射薬の治験データをまとめました。
+          各研究の内容をわかりやすく要約し、10回以上の入院やステロイド治療を経験した当事者としての感想も添えています。
         </p>
 
         <!-- メトリクスバッジ -->
-        <div class="flex flex-wrap gap-2.5 pt-2 text-xs font-semibold">
-          <span class="px-3 py-1.5 rounded-lg bg-slate-800/90 border border-slate-700 text-teal-300">
-            収録エビデンス: {totalCount}件
+        <div class="flex flex-wrap gap-2 pt-1 text-xs font-semibold">
+          <span class="px-2.5 py-1 rounded-lg bg-slate-800/90 border border-slate-700 text-teal-300">
+            収録研究数: {totalCount}件
           </span>
-          <span class="px-3 py-1.5 rounded-lg bg-slate-800/90 border border-slate-700 text-sky-300">
-            対象: デュピクセント / ファセンラ / ヌーカラ / テゼスパイア / エキシデンサー / AK002 / SFED
+          <span class="px-2.5 py-1 rounded-lg bg-slate-800/90 border border-slate-700 text-sky-300">
+            対象: デュピクセント / ファセンラ / ヌーカラ / テゼスパイア / エキシデンサー / 食事療法
           </span>
-          <span class="px-3 py-1.5 rounded-lg bg-slate-800/90 border border-slate-700 text-amber-300">
-            全件DOI・治験番号（NCT）直接リンク付き
+          <span class="px-2.5 py-1 rounded-lg bg-slate-800/90 border border-slate-700 text-amber-300">
+            公式論文・治験ページのリンクつき
           </span>
         </div>
       </div>
     </div>
   </section>
 
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <div class="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10">
     <!-- 医療免責事項コールアウト -->
     <div class="mb-8 rounded-xl border-l-4 border-amber-500 bg-amber-50/80 p-4 sm:p-5 text-xs sm:text-sm text-amber-950 leading-relaxed shadow-2xs">
       <div class="font-bold flex items-center gap-1.5 mb-1 text-amber-900">

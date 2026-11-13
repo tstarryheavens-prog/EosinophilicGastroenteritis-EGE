@@ -1,63 +1,52 @@
 ---
 const navItems = [
   { label: 'ホーム', href: '/' },
-  { label: '🤖 AI Living Lab (暮らしとAI)', href: '/ai-living-lab', highlight: true },
-  { label: '好酸球性消化管疾患', href: '/category/好酸球性消化管疾患' },
-  { label: '群発頭痛・頭痛', href: '/category/群発頭痛・頭痛' },
-  { label: '重症喘息・呼吸器', href: '/category/重症喘息・呼吸器' },
-  { label: '服薬調査', href: '/category/服薬調査・治療薬' },
-  { label: 'バイオ製剤DB', href: '/biologics', highlight: true },
-  { label: '論文・治験DB', href: '/research-database', highlight: true },
-  { label: '臨床データ解析', href: '/clinical-analytics', highlight: true },
-  { label: '入院持ち物リスト', href: '/hospitalization-checklist', highlight: true },
-  { label: '医療費試算', href: '/medical-cost-simulator', highlight: true },
-  { label: '📚 特集記事', href: '/articles' },
-  { label: '支援の地域差', href: '/regional-support' },
-  { label: '難病リンク集', href: '/links' },
-  { label: '当サイトについて', href: '/about' }
+  { label: '好酸球性胃腸炎', href: '/category/好酸球性消化管疾患' },
+  { label: '群発頭痛・片頭痛', href: '/category/群発頭痛・頭痛' },
+  { label: '喘息・呼吸器', href: '/category/重症喘息・呼吸器' },
+  { label: 'お薬の記録', href: '/category/服薬調査・治療薬' },
+  { label: '入院・医療費制度', href: '/category/入院生活・制度' },
+  { label: '闘病記・日常の工夫', href: '/category/闘病日記・コラム' },
+  { label: '入院の持ち物リスト', href: '/hospitalization-checklist', highlight: true },
+  { label: '医療費の計算ツール', href: '/medical-cost-simulator', highlight: true },
+  { label: '新しい注射薬まとめ', href: '/biologics' },
+  { label: '10年間の体調グラフ', href: '/clinical-analytics' },
+  { label: '最新論文・治験まとめ', href: '/research-database' },
+  { label: '自治体の支援制度', href: '/regional-support' },
+  { label: '相談窓口・リンク集', href: '/links' },
+  { label: '運営者について', href: '/about' }
 ];
 ---
 
 <header class="bg-[#FDFBF7]/95 backdrop-blur-md border-b border-[#F0EAE1] sticky top-0 z-40 warm-shadow-sm">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8">
     <!-- 上段: サイトタイトル ＆ ツール（文字サイズ・メニューボタン） -->
-    <div class="flex items-center justify-between py-3 border-b border-[#F0EAE1] lg:border-none">
-      <!-- サイトタイトル -->
-      <div class="flex-1 min-w-0 pr-4">
+    <div class="flex items-center justify-between gap-2 py-2 sm:py-2.5 border-b border-[#F0EAE1] lg:border-none">
+      <!-- サイトタイトル（全画面で全文表示・見切れなし） -->
+      <div class="flex-1 min-w-0">
         <a href="/" class="group block">
-          <div class="flex items-center gap-2.5">
-            <span class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-[#E07A5F] text-white font-bold text-sm shadow-xs group-hover:bg-[#D0694E] transition-colors shrink-0">
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[#E07A5F] text-white font-bold text-xs sm:text-sm shadow-xs group-hover:bg-[#D0694E] transition-colors shrink-0">
               EG
             </span>
-            <span class="text-lg sm:text-xl font-bold text-[#2C3E35] tracking-tight group-hover:text-[#E07A5F] transition-colors truncate">
+            <span class="text-[15px] sm:text-lg lg:text-xl font-bold text-[#2C3E35] leading-snug tracking-tight group-hover:text-[#E07A5F] transition-colors">
               好酸球性胃腸炎と複合難病の闘病・服薬ノート
             </span>
           </div>
           <p class="text-xs text-[#6E685F] hidden sm:block mt-0.5 tracking-wide">
-            好酸球性消化管疾患・群発頭痛・重症喘息・小麦アレルギー当事者のリアルな治療・服薬記録
+            好酸球性胃腸炎・群発頭痛・重症喘息・小麦アレルギー当事者のリアルな治療・お薬の記録
           </p>
         </a>
       </div>
 
-      <!-- 右側ツール: AI Living Lab ボタン ＆ 文字サイズ切り替え ＆ モバイルメニュートグル -->
-      <div class="flex items-center gap-2.5 sm:gap-3 shrink-0">
-        <!-- AI Living Lab 直通クイックジャンプボタン（全画面で目立つデザイン） -->
-        <a
-          href="/ai-living-lab"
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#2C3E35] to-[#3D5A4C] text-[#ffde77] hover:text-white font-bold text-xs sm:text-sm shadow-xs hover:shadow-md hover:scale-[1.02] transition-all border border-[#81B29A]/50 shrink-0"
-          title="AI Living Lab（暮らしとAIの実験室）へ"
-        >
-          <span class="text-sm sm:text-base">🤖</span>
-          <span class="tracking-tight">AI Living Lab</span>
-          <span class="hidden md:inline text-[11px] text-[#A3C4BC] font-normal">| 暮らしとAI</span>
-        </a>
-
+      <!-- 右側ツール: 文字サイズ切り替え ＆ モバイルメニュートグル -->
+      <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
         <!-- 文字サイズ切り替えスイッチ -->
-        <div class="flex items-center bg-[#F4F1EA] p-1 rounded-xl border border-[#E6DFD3] text-xs shrink-0" role="group" aria-label="文字サイズ変更">
-          <span class="px-2 text-[#6E685F] font-bold hidden sm:inline">文字</span>
+        <div class="flex items-center bg-[#F4F1EA] p-0.5 sm:p-1 rounded-xl border border-[#E6DFD3] text-xs shrink-0" role="group" aria-label="文字サイズ変更">
+          <span class="px-1.5 text-[#6E685F] font-bold hidden md:inline">文字</span>
           <button
             type="button"
-            class="btn-font-normal px-3 py-1 rounded-lg font-bold transition-all text-[#3D3A35] hover:bg-[#EFECE6] data-[active=true]:bg-white data-[active=true]:text-[#2C3E35] data-[active=true]:shadow-xs"
+            class="btn-font-normal px-2 sm:px-2.5 py-1 rounded-lg font-bold transition-all text-[#3D3A35] hover:bg-[#EFECE6] data-[active=true]:bg-white data-[active=true]:text-[#2C3E35] data-[active=true]:shadow-xs"
             data-active="true"
             title="標準文字サイズ"
             aria-label="文字サイズを標準にする"
@@ -66,7 +55,7 @@ const navItems = [
           </button>
           <button
             type="button"
-            class="btn-font-large px-3 py-1 rounded-lg font-bold transition-all text-[#3D3A35] hover:bg-[#EFECE6] data-[active=true]:bg-[#E07A5F] data-[active=true]:text-white data-[active=true]:shadow-xs"
+            class="btn-font-large px-2 sm:px-2.5 py-1 rounded-lg font-bold transition-all text-[#3D3A35] hover:bg-[#EFECE6] data-[active=true]:bg-[#E07A5F] data-[active=true]:text-white data-[active=true]:shadow-xs"
             data-active="false"
             title="文字サイズを大きくする"
             aria-label="文字サイズを大きくする"
@@ -79,10 +68,10 @@ const navItems = [
         <button
           type="button"
           id="mobile-menu-btn"
-          class="lg:hidden inline-flex items-center justify-center p-2 rounded-xl text-[#3D3A35] hover:bg-[#F4F1EA] focus:outline-hidden border border-[#E6DFD3]"
+          class="lg:hidden inline-flex items-center justify-center p-1.5 sm:p-2 rounded-xl text-[#3D3A35] hover:bg-[#F4F1EA] focus:outline-hidden border border-[#E6DFD3]"
           aria-label="メニューを開く"
         >
-          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
@@ -108,36 +97,21 @@ const navItems = [
   </div>
 
   <!-- モバイルメニュー -->
-  <div id="mobile-menu" class="hidden lg:hidden border-t border-[#F0EAE1] bg-[#FDFBF7] px-4 pt-3 pb-4 space-y-1.5 shadow-lg">
-    <!-- モバイル用 AI Living Lab 特設カード -->
-    <a
-      href="/ai-living-lab"
-      class="block p-3 rounded-2xl bg-gradient-to-r from-[#2C3E35] to-[#3D5A4C] text-[#ffde77] border border-[#81B29A]/50 shadow-sm mb-2"
-    >
-      <div class="flex items-center justify-between">
-        <span class="flex items-center gap-2 font-bold text-sm text-white">
-          <span class="text-xl">🤖</span>
-          <span>AI Living Lab（暮らしとAI）</span>
-        </span>
-        <span class="text-xs font-bold text-[#ffde77]">TOPへ &rarr;</span>
-      </div>
-      <p class="text-[11px] text-[#A3C4BC] mt-1">ローカルLLM・自作HEMS・100歳家計・住まい研究の全8ラボ</p>
-    </a>
-
+  <div id="mobile-menu" class="hidden lg:hidden border-t border-[#F0EAE1] bg-[#FDFBF7] px-3 pt-2.5 pb-4 space-y-1 shadow-lg max-h-[80vh] overflow-y-auto">
     {navItems.map(item => (
       <a
         href={item.href}
-        class={`block px-3 py-2 rounded-xl text-base font-bold transition-colors ${
+        class={`block px-3 py-2 rounded-xl text-sm font-bold transition-colors ${
           item.highlight
             ? 'text-[#2C3E35] bg-[#81B29A]/20 border border-[#81B29A]/40'
             : 'text-[#3D3A35] hover:text-[#E07A5F] hover:bg-[#F4F1EA]'
         }`}
       >
-        {item.highlight ? `📊 ${item.label}（新着）` : item.label}
+        {item.label}
       </a>
     ))}
     <div class="pt-2 border-t border-[#F0EAE1] flex flex-wrap gap-2 text-xs">
-      <a href="/disclaimer" class="px-2.5 py-1 rounded-lg bg-[#F4F1EA] text-[#6E685F] hover:text-[#3D3A35]">医療免責事項</a>
+      <a href="/disclaimer" class="px-2.5 py-1 rounded-lg bg-[#F4F1EA] text-[#6E685F] hover:text-[#3D3A35]">医療に関するご注意</a>
       <a href="/privacy" class="px-2.5 py-1 rounded-lg bg-[#F4F1EA] text-[#6E685F] hover:text-[#3D3A35]">プライバシーポリシー</a>
       <a href="/contact" class="px-2.5 py-1 rounded-lg bg-[#F4F1EA] text-[#6E685F] hover:text-[#3D3A35]">お問い合わせ</a>
     </div>

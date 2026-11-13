@@ -9,54 +9,54 @@ const categoriesList = Object.entries(BIOLOGIC_CATEGORIES) as [BiologicEntry['ca
 ---
 
 <BaseLayout
-  title="国内外バイオ製剤（生物学的製剤）完全網羅データベース＆徹底解説"
-  description="アレルギー・消化器難病・リウマチ膠原病・頭痛・がん・眼科まで、現代医療を劇的に変革した国内外の主要バイオ製剤（抗体医薬品）を網羅。作用機序、標的分子、適応症、命名規則、医療費制度まで当事者視点で徹底解説。"
+  title="新しい注射薬（バイオ製剤）のわかりやすい解説＆一覧"
+  description="アレルギー・消化器難病・関節リウマチ・片頭痛・がん・眼科まで、新しい注射薬（バイオ製剤・抗体医薬）の働き、対象となる病気、医療費助成制度まで患者目線でわかりやすくまとめました。"
 >
   <!-- ヒーローヘッダー -->
-  <section class="relative overflow-hidden bg-gradient-to-b from-slate-900 via-teal-950 to-slate-950 text-white border-b border-slate-800 py-12 sm:py-20">
+  <section class="relative overflow-hidden bg-gradient-to-b from-slate-900 via-teal-950 to-slate-950 text-white border-b border-slate-800 py-7 sm:py-14">
     <div class="absolute inset-0 bg-[linear-gradient(to_right,#0f766e15_1px,transparent_1px),linear-gradient(to_bottom,#0f766e15_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
 
     <div class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- パンくずリスト -->
-      <nav class="flex text-xs text-slate-400 mb-6 space-x-2">
+      <nav class="flex text-xs text-slate-400 mb-4 space-x-2">
         <a href="/" class="hover:text-teal-300 transition-colors">ホーム</a>
         <span>/</span>
-        <span class="text-teal-300 font-medium">バイオ製剤完全網羅データベース</span>
+        <span class="text-teal-300 font-medium">新しい注射薬（バイオ製剤）まとめ</span>
       </nav>
 
-      <div class="max-w-4xl space-y-4">
-        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/20 border border-teal-400/40 text-teal-300 text-xs sm:text-sm font-semibold tracking-wide">
+      <div class="max-w-4xl space-y-3 sm:space-y-4">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/20 border border-teal-400/40 text-teal-300 text-xs font-semibold tracking-wide">
           <span class="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></span>
-          <span>全疾患領域・国内外分子標的抗体・包括的エビデンス集</span>
+          <span>国内外の新しい注射薬（バイオ製剤）まとめ</span>
         </div>
 
-        <h1 class="text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight sm:leading-snug text-white">
-          国内外バイオ製剤（生物学的製剤）<br class="hidden sm:inline" />
-          完全網羅データベース＆徹底解説
+        <h1 class="text-xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-snug text-white">
+          新しい注射薬（バイオ製剤）の<br class="hidden sm:inline" />
+          わかりやすい解説＆一覧
         </h1>
 
-        <p class="text-sm sm:text-base text-slate-300 leading-relaxed max-w-3xl">
-          好酸球性消化管疾患や重症喘息、クローン病・潰瘍性大腸炎、関節リウマチ、片頭痛、抗がん剤（ADC）、認知症治療薬まで。<br class="hidden sm:inline" />
-          細胞培養や遺伝子組換え技術から生まれ、従来の化学合成薬では届かなかった病気の根本原因をピンポイントで抑え込む「バイオ製剤（生物学的製剤・抗体医薬）」の国内外主要データを一挙に集約・解説しました。
+        <p class="text-xs sm:text-base text-slate-300 leading-relaxed max-w-3xl">
+          好酸球性胃腸炎や重症喘息、クローン病・潰瘍性大腸炎、関節リウマチ、片頭痛など。<br class="hidden sm:inline" />
+          従来の飲み薬では抑えきれなかった炎症の原因にピンポイントで効く「バイオ製剤（生物学的製剤・抗体のお薬）」の特徴と使い分けをわかりやすく整理しました。
         </p>
 
         <!-- メトリクスバッジ -->
-        <div class="flex flex-wrap gap-2.5 pt-2 text-xs font-semibold">
-          <span class="px-3 py-1.5 rounded-lg bg-slate-800/90 border border-slate-700 text-teal-300">
-            📊 収録製剤数: {totalBiologics}品目
+        <div class="flex flex-wrap gap-2 pt-1 text-xs font-semibold">
+          <span class="px-2.5 py-1 rounded-lg bg-slate-800/90 border border-slate-700 text-teal-300">
+            📊 収録しているお薬: {totalBiologics}種類
           </span>
-          <span class="px-3 py-1.5 rounded-lg bg-slate-800/90 border border-slate-700 text-sky-300">
-            🏥 対象領域: アレルギー / 消化器 / 膠原病 / 皮膚 / 神経頭痛 / がん / 眼科代謝
+          <span class="px-2.5 py-1 rounded-lg bg-slate-800/90 border border-slate-700 text-sky-300">
+            🏥 対象: アレルギー / 胃腸 / 膠原病 / 皮膚 / 頭痛 / がん / 眼科
           </span>
-          <span class="px-3 py-1.5 rounded-lg bg-slate-800/90 border border-slate-700 text-amber-300">
-            📑 全件PMDA添付文書・作用機序・標的分子情報つき
+          <span class="px-2.5 py-1 rounded-lg bg-slate-800/90 border border-slate-700 text-amber-300">
+            📑 公式添付文書・仕組みの解説つき
           </span>
         </div>
       </div>
     </div>
   </section>
 
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <div class="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10">
     <!-- 医療免責事項コールアウト（AdSense & YMYL準拠） -->
     <div class="mb-10 rounded-xl border-l-4 border-amber-500 bg-amber-50/80 p-5 text-sm sm:text-base text-amber-950 leading-relaxed shadow-2xs">
       <div class="font-bold flex items-center gap-1.5 mb-1.5 text-amber-900">

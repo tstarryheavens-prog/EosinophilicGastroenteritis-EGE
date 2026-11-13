@@ -17,710 +17,653 @@ posts.forEach(p => {
 const categories = [
   {
     name: '好酸球性消化管疾患',
-    description: '指定難病である好酸球性胃腸炎・好酸球性腸炎の診断、入退院、最新の抗体薬・治験情報',
+    shortName: '好酸球性胃腸炎',
+    description: '指定難病「好酸球性胃腸炎」の検査や入院の記録、新しい注射薬や研究の最新情報です。',
     icon: '🔬',
     bg: 'bg-[#F4F9F6] border-[#D8EAE0]',
     badge: 'bg-[#81B29A] text-white',
-    accent: '#81B29A'
   },
   {
     name: '群発頭痛・頭痛',
-    description: '「自殺頭痛」とも呼ばれる群発頭痛の激痛発作、片頭痛、CGRP関連薬（アイモビーク等）の記録',
+    shortName: '群発頭痛・片頭痛',
+    description: '激しい痛みが続く群発頭痛や片頭痛について、予防薬や痛み止めの使い心地を記録しています。',
     icon: '⚡',
     bg: 'bg-[#FDF6F0] border-[#F5DFD5]',
     badge: 'bg-[#E07A5F] text-white',
-    accent: '#E07A5F'
   },
   {
     name: '重症喘息・呼吸器',
-    description: '好酸球性喘息、生物学的製剤（ヌーカラ・エキシデンサー等）、吸入薬（ビレーズトリ）の治療ノート',
+    shortName: '喘息・呼吸器',
+    description: '喘息の発作や息苦しさへの向き合い方、吸入薬や注射薬（バイオ製剤）を続けた感想です。',
     icon: '🫁',
     bg: 'bg-[#F0F5FA] border-[#D6E4F0]',
     badge: 'bg-[#5B8FB9] text-white',
-    accent: '#5B8FB9'
   },
   {
     name: '服薬調査・治療薬',
-    description: '胃腸薬、神経痛薬（タリージェ等）、漢方薬（大建中湯等）、睡眠薬など実際に処方された薬のまとめ',
+    shortName: 'お薬の記録',
+    description: '胃腸薬、神経の痛み止め、漢方薬、睡眠薬など、実際に病院で処方されたお薬のまとめです。',
     icon: '💊',
     bg: 'bg-[#F5F8F2] border-[#DEE8D5]',
     badge: 'bg-[#769F6B] text-white',
-    accent: '#769F6B'
   },
   {
     name: '入院生活・制度',
-    description: '10回以上の入院生活で本当に役立った持ち物、大部屋の知恵、難病医療費助成・高額療養費の実態',
+    shortName: '入院・医療費制度',
+    description: '10回以上の入院で役立った持ち物、大部屋での過ごし方、医療費助成制度のしくみです。',
     icon: '🏥',
     bg: 'bg-[#F8F4FA] border-[#E8DEF0]',
     badge: 'bg-[#9D81BA] text-white',
-    accent: '#9D81BA'
   },
   {
     name: '闘病日記・コラム',
-    description: '難病告知からの歩み、家族への想い、小麦完全除去生活（グルテンフリー）の実践と工夫',
+    shortName: '闘病記・日々の工夫',
+    description: '難病と診断されたときの気持ち、家族のこと、小麦を抜く食事（グルテンフリー）の工夫です。',
     icon: '📖',
     bg: 'bg-[#FDF5F7] border-[#F5D8E0]',
     badge: 'bg-[#D67D8F] text-white',
-    accent: '#D67D8F'
   }
 ];
 
-// カテゴリに応じた温かみのあるプレースホルダースタイル定義
-const getCategoryPlaceholderStyle = (category: string) => {
-  switch (category) {
-    case '好酸球性消化管疾患':
-      return { gradient: 'from-[#81B29A] to-[#588157]', icon: '🔬', text: '好酸球性消化管疾患' };
-    case '群発頭痛・頭痛':
-      return { gradient: 'from-[#E07A5F] to-[#C95D42]', icon: '⚡', text: '群発頭痛・片頭痛' };
-    case '重症喘息・呼吸器':
-      return { gradient: 'from-[#5B8FB9] to-[#3D6E94]', icon: '🫁', text: '重症喘息・呼吸器' };
-    case '服薬調査・治療薬':
-      return { gradient: 'from-[#769F6B] to-[#537A49]', icon: '💊', text: '服薬調査・治療薬' };
-    case '入院生活・制度':
-      return { gradient: 'from-[#9D81BA] to-[#7B5E9C]', icon: '🏥', text: '入院生活・医療費制度' };
-    case '闘病日記・コラム':
-      return { gradient: 'from-[#D67D8F] to-[#B5596D]', icon: '📖', text: '闘病日記・コラム' };
-    default:
-      return { gradient: 'from-[#7D766D] to-[#5C554C]', icon: '📋', text: category };
-  }
-};
+const mainCategoryNames = new Set(categories.map(c => c.name));
+const otherCount = posts.filter(p => !mainCategoryNames.has(p.data.category || '')).length;
+
+const INITIAL_SHOW = 12;
+const remainingCount = Math.max(0, sortedPosts.length - INITIAL_SHOW);
+
+const vitalsSeries = [
+  { ep: '第1話', title: '10年間の体調記録（3.14GB）を整理してわかったこと', href: '/blog/ai-health-analytics-ep1-3gb-raw-data-reveal' },
+  { ep: '第2話', title: '全10回の入院と点滴・むくみ改善の体重変化', href: '/blog/ai-health-analytics-ep2-iv-fluid-and-admission-vitals' },
+  { ep: '第3話', title: '入院する前の体調サインと歩数の変化', href: '/blog/ai-health-analytics-ep3-admission-timeline-vitals' },
+  { ep: '第4話', title: '朝に血圧が急上昇（186/146mmHg）した原因と記録', href: '/blog/ai-health-analytics-ep4-extreme-hypertension-morning-surge' },
+  { ep: '第5話', title: '主治医に記録を見せて血圧を落ち着かせるまで（アジルバ）', href: '/blog/ai-health-analytics-ep5-azilsartan-blood-pressure-defense' },
+];
 ---
 
 <BaseLayout>
-  <!-- 1画面完結型 Bento Grid ＆ タブ切り替えコンテナ -->
-  <div class="max-w-7xl mx-auto px-3 sm:px-6 py-4 md:py-6">
-    <div class="grid grid-cols-1 md:grid-cols-12 gap-5 md:h-[calc(100vh-130px)] md:min-h-[640px]">
-      
-      <!-- ================= 左カラム：固定ナビゲーション ＆ 当事者サマリー（4列） ================= -->
-      <aside class="md:col-span-4 bg-[#F4F1EA] rounded-3xl p-5 sm:p-6 flex flex-col justify-between border border-[#E6DFD3] warm-shadow overflow-y-auto">
-        <div class="space-y-4">
-          <!-- やさしいガイドバッジ -->
-          <div class="flex items-center gap-2">
-            <span class="inline-flex items-center gap-1.5 bg-[#81B29A] text-white text-xs font-bold px-3 py-1 rounded-full shadow-2xs">
-              <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
-              当事者 ✕ 10年生体データ
-            </span>
-          </div>
+  <div class="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-6 space-y-6 sm:space-y-10">
 
-          <!-- タイトル ＆ メッセージ -->
+    <!-- 1. コンパクト導入 ＆ クイック移動バー -->
+    <section class="bg-[#F4F1EA] rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-[#E6DFD3] warm-shadow-sm space-y-3 sm:space-y-4">
+      <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+        <span class="inline-flex items-center gap-1.5 bg-[#81B29A] text-white text-xs font-bold px-2.5 py-0.5 rounded-full">
+          <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+          当事者の記録ノート
+        </span>
+        <span class="px-2 py-0.5 rounded-lg bg-white/90 border border-[#E0D8C8] text-[#2C3E35] text-[11px] font-bold">入院10回以上</span>
+        <span class="px-2 py-0.5 rounded-lg bg-white/90 border border-[#E0D8C8] text-[#2C3E35] text-[11px] font-bold">小麦除去生活</span>
+        <span class="px-2 py-0.5 rounded-lg bg-white/90 border border-[#E0D8C8] text-[#2C3E35] text-[11px] font-bold">指定難病受給者証</span>
+      </div>
+
+      <p class="text-sm sm:text-base text-[#3D3A35] leading-relaxed">
+        国の指定難病である<strong>「好酸球性胃腸炎」</strong>をはじめ、群発頭痛・重症喘息・小麦アレルギーと向き合う患者本人の記録ノートです。10回以上の入院経験や、実際に使ったお薬の感想、毎日の食事や医療費の工夫をわかりやすい言葉でまとめています。
+      </p>
+
+      <!-- クイック移動バー（スマホ2列・PC4列） -->
+      <nav aria-label="ページ内ショートカット" class="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 pt-1">
+        <a href="#articles-section" class="flex items-center justify-between gap-1.5 px-3 py-2.5 rounded-xl bg-[#E07A5F] text-white font-bold text-xs sm:text-sm hover:bg-[#D0694E] transition-colors shadow-xs">
+          <span class="flex items-center gap-1.5">
+            <span>📝</span>
+            <span>記事を読む（全{sortedPosts.length}件）</span>
+          </span>
+          <span>&darr;</span>
+        </a>
+        <a href="#categories-section" class="flex items-center justify-between gap-1.5 px-3 py-2.5 rounded-xl bg-white text-[#2C3E35] border border-[#E0D8C8] font-bold text-xs sm:text-sm hover:border-[#81B29A] transition-colors">
+          <span class="flex items-center gap-1.5">
+            <span>🌱</span>
+            <span>病気・テーマ別</span>
+          </span>
+          <span class="text-[#8C857B]">&darr;</span>
+        </a>
+        <a href="#tools-section" class="flex items-center justify-between gap-1.5 px-3 py-2.5 rounded-xl bg-white text-[#2C3E35] border border-[#E0D8C8] font-bold text-xs sm:text-sm hover:border-[#E07A5F] transition-colors">
+          <span class="flex items-center gap-1.5">
+            <span>🏥</span>
+            <span>持ち物・医療費計算</span>
+          </span>
+          <span class="text-[#8C857B]">&darr;</span>
+        </a>
+        <a href="#data-section" class="flex items-center justify-between gap-1.5 px-3 py-2.5 rounded-xl bg-white text-[#2C3E35] border border-[#E0D8C8] font-bold text-xs sm:text-sm hover:border-[#5B8FB9] transition-colors">
+          <span class="flex items-center gap-1.5">
+            <span>📊</span>
+            <span>体調グラフ・新薬</span>
+          </span>
+          <span class="text-[#8C857B]">&darr;</span>
+        </a>
+      </nav>
+    </section>
+
+    <!-- 2. すぐ使える実用ガイド＆ツール -->
+    <section id="tools-section" class="scroll-mt-24 space-y-3">
+      <div class="flex items-center justify-between gap-2">
+        <h2 class="text-lg sm:text-xl font-bold text-[#2C3E35] flex items-center gap-2">
+          <span>🛠️</span>
+          <span>まず役立つチェックリスト・計算ツール・ガイド</span>
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
+        <a href="/hospitalization-checklist" class="group p-3.5 sm:p-4 rounded-2xl bg-[#FDF6F0] border border-[#F5DFD5] hover:border-[#E07A5F] transition-all card-hover-fx flex flex-col justify-between">
           <div>
-            <h1 class="text-xl sm:text-2xl font-bold text-[#2C3E35] leading-snug tracking-tight mb-2">
-              好酸球性胃腸炎と<br class="hidden sm:inline" />複合難病の闘病・服薬ノート
-            </h1>
-            <p class="text-xs sm:text-sm text-[#5C574F] leading-relaxed">
-              ひとりじゃない。必要な情報を、すぐ手元に。<br />
-              10年間の実測データ解析と、闘病・服薬・暮らしの工夫をタブ切り替えですぐ閲覧できます。
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-xl">🏥</span>
+              <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#E07A5F] text-white">チェック保存可</span>
+            </div>
+            <h3 class="font-bold text-sm sm:text-base text-[#2C3E35] group-hover:text-[#E07A5F] mb-1 leading-snug">
+              入院の持ち物チェックリスト
+            </h3>
+            <p class="text-xs text-[#5C574F] leading-relaxed">
+              10回以上の入院で本当に役立った持ち物一覧。画面上でチェックして保存・印刷できます。
             </p>
           </div>
-
-          <!-- 当事者ステータスバッジ（大きめで見やすい） -->
-          <div class="flex flex-wrap gap-1.5 pt-1 text-[11px] sm:text-xs">
-            <span class="px-2.5 py-1 rounded-xl bg-white/90 border border-[#E0D8C8] text-[#2C3E35] font-bold shadow-2xs">入退院10回以上</span>
-            <span class="px-2.5 py-1 rounded-xl bg-white/90 border border-[#E0D8C8] text-[#2C3E35] font-bold shadow-2xs">ソルラクト点滴1,000ml/日</span>
-            <span class="px-2.5 py-1 rounded-xl bg-white/90 border border-[#E0D8C8] text-[#2C3E35] font-bold shadow-2xs">在宅酸素経験</span>
-            <span class="px-2.5 py-1 rounded-xl bg-white/90 border border-[#E0D8C8] text-[#2C3E35] font-bold shadow-2xs">完全グルテンフリー</span>
-            <span class="px-2.5 py-1 rounded-xl bg-white/90 border border-[#E0D8C8] text-[#2C3E35] font-bold shadow-2xs">指定難病受給者証保持</span>
+          <div class="pt-2 mt-2 border-t border-[#F5DFD5] text-xs font-bold text-[#E07A5F] flex justify-between">
+            <span>リストを使う</span>
+            <span>&rarr;</span>
           </div>
+        </a>
 
-          <!-- タブ切り替えナビゲーション（押しやすい大きめのユニバーサルボタン） -->
-          <nav class="flex flex-col gap-2.5 pt-2" role="tablist" aria-label="メインコンテンツ切り替え">
-            <button
-              onclick="switchTab('tab-diseases')"
-              id="btn-tab-diseases"
-              class="tab-btn w-full text-left px-4 sm:px-5 py-3.5 rounded-2xl font-bold transition-all flex items-center justify-between bg-[#E07A5F] text-white warm-shadow cursor-pointer"
-              role="tab"
-              aria-selected="true"
-              aria-controls="tab-diseases"
-            >
-              <span class="flex items-center gap-2">
-                <span class="text-lg">🌱</span>
-                <span>疾患・テーマ別カテゴリ</span>
-              </span>
-              <span class="text-sm font-bold opacity-90">&rarr;</span>
-            </button>
-
-            <button
-              onclick="switchTab('tab-data')"
-              id="btn-tab-data"
-              class="tab-btn w-full text-left px-4 sm:px-5 py-3.5 rounded-2xl font-bold transition-all flex items-center justify-between bg-white text-[#3D3A35] hover:bg-[#FAF6F0] border border-[#E6DFD3] cursor-pointer"
-              role="tab"
-              aria-selected="false"
-              aria-controls="tab-data"
-            >
-              <span class="flex items-center gap-2">
-                <span class="text-lg">📊</span>
-                <span>データ解析・論文DB</span>
-              </span>
-              <span class="text-sm font-bold text-[#8C857B]">&rarr;</span>
-            </button>
-
-            <button
-              onclick="switchTab('tab-articles')"
-              id="btn-tab-articles"
-              class="tab-btn w-full text-left px-4 sm:px-5 py-3.5 rounded-2xl font-bold transition-all flex items-center justify-between bg-white text-[#3D3A35] hover:bg-[#FAF6F0] border border-[#E6DFD3] cursor-pointer"
-              role="tab"
-              aria-selected="false"
-              aria-controls="tab-articles"
-            >
-              <span class="flex items-center gap-2">
-                <span class="text-lg">📝</span>
-                <span>すべての記事一覧</span>
-                <span class="text-xs px-2 py-0.5 rounded-full bg-[#F4F1EA] text-[#6E685F]">{sortedPosts.length}件</span>
-              </span>
-              <span class="text-sm font-bold text-[#8C857B]">&rarr;</span>
-            </button>
-
-            <button
-              onclick="switchTab('tab-support')"
-              id="btn-tab-support"
-              class="tab-btn w-full text-left px-4 sm:px-5 py-3.5 rounded-2xl font-bold transition-all flex items-center justify-between bg-white text-[#3D3A35] hover:bg-[#FAF6F0] border border-[#E6DFD3] cursor-pointer"
-              role="tab"
-              aria-selected="false"
-              aria-controls="tab-support"
-            >
-              <span class="flex items-center gap-2">
-                <span class="text-lg">☕</span>
-                <span>暮らしの工夫・相談窓口</span>
-              </span>
-              <span class="text-sm font-bold text-[#8C857B]">&rarr;</span>
-            </button>
-
-            <!-- 🤖 AI Living Lab（暮らしとAI）への直接導線 -->
-            <a
-              href="/ai-living-lab"
-              class="w-full text-left px-4 sm:px-5 py-3.5 rounded-2xl font-bold transition-all flex items-center justify-between bg-gradient-to-r from-[#2C3E35] to-[#3D5A4C] text-[#ffde77] hover:brightness-110 shadow-sm border border-[#81B29A]/50 mt-1"
-            >
-              <span class="flex items-center gap-2">
-                <span class="text-lg">🤖</span>
-                <span class="text-white text-sm sm:text-base">AI Living Lab（暮らしとAI）</span>
-              </span>
-              <span class="text-xs font-bold text-[#ffde77] bg-white/15 px-2 py-1 rounded-lg shrink-0">TOPへ &rarr;</span>
-            </a>
-          </nav>
-        </div>
-
-        <!-- 緊急・相談メッセージ常設枠 -->
-        <div class="mt-4 pt-3.5 border-t border-[#E0D8C8] text-xs text-[#6E685F] leading-relaxed">
-          <div class="flex items-center gap-1.5 font-bold text-[#2C3E35] mb-1">
-            <span>💡</span>
-            <span>迷ったときは</span>
-          </div>
-          <p>
-            急な体調不良や公的制度の相談は、右側タブの「相談窓口」より専門機関へご相談ください。
-          </p>
-        </div>
-      </aside>
-
-      <!-- ================= 右カラム：コンテンツ表示エリア（8列・内部スクロール対応） ================= -->
-      <section id="nanbyo-tab-panel" class="md:col-span-8 bg-white rounded-3xl p-5 sm:p-7 md:p-8 warm-shadow border border-[#F0EAE1] overflow-y-auto flex flex-col justify-between scroll-mt-20">
-        
-        <!-- ================= タブ1：🌱 疾患・テーマ別カテゴリ（初期表示） ================= -->
-        <div id="tab-diseases" class="tab-content space-y-5">
-          <div class="border-b-2 border-[#F4F1EA] pb-3 flex flex-wrap items-end justify-between gap-2">
-            <div>
-              <div class="inline-flex items-center gap-1.5 text-xs font-bold text-[#81B29A] uppercase tracking-wider mb-1">
-                <span>Category Guide</span>
-              </div>
-              <h2 class="text-xl sm:text-2xl font-bold text-[#2C3E35]">🌱 疾患・テーマ別の基礎知識と記録</h2>
-              <p class="text-xs sm:text-sm text-[#6E685F] mt-0.5">当事者が実際に経験・調査したテーマごとに情報を整理しています。</p>
+        <a href="/medical-cost-simulator" class="group p-3.5 sm:p-4 rounded-2xl bg-[#F4F9F6] border border-[#D8EAE0] hover:border-[#81B29A] transition-all card-hover-fx flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-xl">💰</span>
+              <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#81B29A] text-white">かんたん試算</span>
             </div>
-            <span class="text-xs font-bold text-[#81B29A] bg-[#F4F9F6] px-3 py-1 rounded-full border border-[#D8EAE0]">
-              全6テーマ
-            </span>
+            <h3 class="font-bold text-sm sm:text-base text-[#2C3E35] group-hover:text-[#588157] mb-1 leading-snug">
+              医療費のかんたん計算ツール
+            </h3>
+            <p class="text-xs text-[#5C574F] leading-relaxed">
+              指定難病の助成と高額療養費を使ったとき、毎月の窓口支払いがいくらになるか計算できます。
+            </p>
           </div>
+          <div class="pt-2 mt-2 border-t border-[#D8EAE0] text-xs font-bold text-[#588157] flex justify-between">
+            <span>計算してみる</span>
+            <span>&rarr;</span>
+          </div>
+        </a>
 
-          <!-- Bento Grid: 6カテゴリカード -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
-            <!-- 🌟 AI Living Lab フィーチャーバナーカード -->
+        <a href="/blog/gluten-free-survival-guide" class="group p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E6DFD3] hover:border-[#E07A5F] transition-all card-hover-fx flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-xl">🌾</span>
+              <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#F4F1EA] text-[#2C3E35]">食事の工夫</span>
+            </div>
+            <h3 class="font-bold text-sm sm:text-base text-[#2C3E35] group-hover:text-[#E07A5F] mb-1 leading-snug">
+              小麦を抜く食事（グルテンフリー）
+            </h3>
+            <p class="text-xs text-[#5C574F] leading-relaxed">
+              小麦アレルギーや胃腸炎でも食べやすい外食メニュー・市販食品の選び方まとめ。
+            </p>
+          </div>
+          <div class="pt-2 mt-2 border-t border-[#F0EAE1] text-xs font-bold text-[#E07A5F] flex justify-between">
+            <span>ガイドを読む</span>
+            <span>&rarr;</span>
+          </div>
+        </a>
+
+        <a href="/blog/doctor-consultation-1min-sheet" class="group p-3.5 sm:p-4 rounded-2xl bg-white border border-[#E6DFD3] hover:border-[#81B29A] transition-all card-hover-fx flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-xl">📋</span>
+              <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#F4F1EA] text-[#2C3E35]">診察のコツ</span>
+            </div>
+            <h3 class="font-bold text-sm sm:text-base text-[#2C3E35] group-hover:text-[#588157] mb-1 leading-snug">
+              診察で使える「症状メモ」
+            </h3>
+            <p class="text-xs text-[#5C574F] leading-relaxed">
+              短い診察時間でも、主治医に体調の変化や困りごとを3分で伝えるためのメモ術。
+            </p>
+          </div>
+          <div class="pt-2 mt-2 border-t border-[#F0EAE1] text-xs font-bold text-[#588157] flex justify-between">
+            <span>メモ術を見る</span>
+            <span>&rarr;</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- 3. 病気・テーマから探す -->
+    <section id="categories-section" class="scroll-mt-24 space-y-3">
+      <div class="flex items-end justify-between gap-2">
+        <div>
+          <h2 class="text-lg sm:text-xl font-bold text-[#2C3E35] flex items-center gap-2">
+            <span>🌱</span>
+            <span>病気・テーマから探す</span>
+          </h2>
+          <p class="text-xs text-[#6E685F] mt-0.5">気になるテーマを選ぶと、関連する記事だけをまとめて読めます。</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4">
+        {categories.map(cat => {
+          const count = postCounts[cat.name] || 0;
+          return (
             <a
-              href="/ai-living-lab"
-              class="sm:col-span-2 lg:col-span-3 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#2C3E35] via-[#324b3e] to-[#25352c] text-white border border-[#81B29A]/40 shadow-sm hover:shadow-md transition-all group flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+              href={`/category/${cat.name}`}
+              class={`group p-3 sm:p-4 rounded-2xl border transition-all duration-200 card-hover-fx ${cat.bg} flex flex-col justify-between`}
             >
-              <div class="space-y-1">
-                <div class="flex items-center gap-2">
-                  <span class="px-2.5 py-0.5 rounded-full bg-[#ffde77] text-[#1f1f1c] font-black text-xs">AI LAB</span>
-                  <span class="text-xs text-[#A3C4BC] font-bold">Smart AI Life 暮らしとAIの実験室</span>
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="text-xl sm:text-2xl">{cat.icon}</span>
+                  <span class={`text-[11px] font-bold px-2 py-0.5 rounded-full ${cat.badge}`}>
+                    {count}件
+                  </span>
                 </div>
-                <h3 class="text-base sm:text-lg font-bold text-white group-hover:text-[#ffde77] transition-colors">
-                  🤖 自作HEMS・100歳家計・ローカルLLM・自律エージェント総合ポータル
+                <h3 class="font-bold text-[#2C3E35] text-sm sm:text-base mb-1 group-hover:text-[#E07A5F] transition-colors leading-snug">
+                  {cat.shortName}
                 </h3>
-                <p class="text-xs text-[#E0E7E3] leading-relaxed">
-                  電気代削減、住宅ローン完済CF、Dual GPU推論など、テクノロジーで暮らしを自律化する全8ラボの技術実証・記事へ
+                <p class="text-[11px] sm:text-xs text-[#5C574F] leading-relaxed line-clamp-2">
+                  {cat.description}
                 </p>
               </div>
-              <span class="px-4 py-2 rounded-xl bg-white/10 group-hover:bg-[#ffde77] group-hover:text-[#1f1f1c] text-[#ffde77] text-xs font-bold transition-all shrink-0 border border-white/20">
-                AIトップへ &rarr;
-              </span>
-            </a>
-            {categories.map(cat => {
-              const count = postCounts[cat.name] || 0;
-              return (
-                <a
-                  href={`/category/${cat.name}`}
-                  class={`group p-4 sm:p-5 rounded-2xl border transition-all duration-200 card-hover-fx ${cat.bg} flex flex-col justify-between`}
-                >
-                  <div>
-                    <div class="flex items-center justify-between mb-2">
-                      <span class="text-2xl group-hover:scale-110 transition-transform">{cat.icon}</span>
-                      <span class={`text-[11px] font-bold px-2 py-0.5 rounded-full ${cat.badge}`}>
-                        {count}件
-                      </span>
-                    </div>
-                    <h3 class="font-bold text-[#2C3E35] text-base mb-1.5 group-hover:text-[#E07A5F] transition-colors leading-snug">
-                      {cat.name}
-                    </h3>
-                    <p class="text-xs text-[#5C574F] leading-relaxed line-clamp-3">
-                      {cat.description}
-                    </p>
-                  </div>
-                  <div class="pt-3 mt-3 border-t border-black/5 flex items-center justify-between text-xs font-bold text-[#2C3E35] group-hover:text-[#E07A5F]">
-                    <span>記事一覧</span>
-                    <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
-                  </div>
-                </a>
-              );
-            })}
-          </div>
-
-          <!-- カテゴリ補足メッセージ -->
-          <div class="bg-[#FDFBF7] p-4 rounded-2xl border border-[#EFECE6] text-xs text-[#6E685F] leading-relaxed">
-            <span class="font-bold text-[#2C3E35]">📌 閲覧のヒント：</span>
-            各カードをクリックすると、対象疾患に関する詳細な治療経過、処方薬の作用機序、日々の生活上の注意点などの記事をまとめてご覧いただけます。
-          </div>
-        </div>
-
-        <!-- ================= タブ2：📊 データ解析・論文DB（初期非表示） ================= -->
-        <div id="tab-data" class="tab-content hidden space-y-5">
-          <div class="border-b-2 border-[#F4F1EA] pb-3 flex flex-wrap items-end justify-between gap-2">
-            <div>
-              <div class="inline-flex items-center gap-1.5 text-xs font-bold text-[#81B29A] uppercase tracking-wider mb-1">
-                <span>Clinical & Vital Analytics</span>
+              <div class="pt-2 mt-2 border-t border-black/5 flex items-center justify-between text-xs font-bold text-[#2C3E35] group-hover:text-[#E07A5F]">
+                <span>一覧を見る</span>
+                <span>&rarr;</span>
               </div>
-              <h2 class="text-xl sm:text-2xl font-bold text-[#2C3E35]">📊 10年データ解析 ＆ 論文・治験データベース</h2>
-              <p class="text-xs sm:text-sm text-[#6E685F] mt-0.5">Apple Watch・Withingsで蓄積した生ログと国際学術エビデンスを公開。</p>
-            </div>
-            <a href="/research-database" class="text-xs font-bold text-[#E07A5F] hover:underline flex items-center gap-1">
-              論文DB全件 &rarr;
             </a>
-          </div>
+          );
+        })}
+      </div>
+    </section>
 
-          <!-- 10年間の実測バイタルメトリクスカード -->
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div class="p-3.5 rounded-2xl bg-[#F4F9F6] border border-[#D8EAE0]">
-              <div class="text-[11px] text-[#5C574F] font-bold">生体生ログ容量</div>
-              <div class="text-xl sm:text-2xl font-extrabold text-[#2C3E35] vital-stat-badge my-0.5">3.14 <span class="text-xs font-bold text-[#6E685F]">GB</span></div>
-              <div class="text-[10px] text-[#8C857B]">約1,500万行XML</div>
-            </div>
-            <div class="p-3.5 rounded-2xl bg-[#FDF6F0] border border-[#F5DFD5]">
-              <div class="text-[11px] text-[#5C574F] font-bold">心拍数測定件数</div>
-              <div class="text-xl sm:text-2xl font-extrabold text-[#E07A5F] vital-stat-badge my-0.5">164 <span class="text-xs font-bold text-[#6E685F]">万件</span></div>
-              <div class="text-[10px] text-[#8C857B]">Apple Watch常時</div>
-            </div>
-            <div class="p-3.5 rounded-2xl bg-[#F0F5FA] border border-[#D6E4F0]">
-              <div class="text-[11px] text-[#5C574F] font-bold">歩数記録件数</div>
-              <div class="text-xl sm:text-2xl font-extrabold text-[#5B8FB9] vital-stat-badge my-0.5">43 <span class="text-xs font-bold text-[#6E685F]">万件</span></div>
-              <div class="text-[10px] text-[#8C857B]">10年間の活動量</div>
-            </div>
-            <div class="p-3.5 rounded-2xl bg-[#FDF5F7] border border-[#F5D8E0]">
-              <div class="text-[11px] text-[#5C574F] font-bold">特定された入院歴</div>
-              <div class="text-xl sm:text-2xl font-extrabold text-[#D67D8F] vital-stat-badge my-0.5">全 10 <span class="text-xs font-bold text-[#6E685F]">回</span></div>
-              <div class="text-[10px] text-[#8C857B]">歩数-80%・除水相関</div>
-            </div>
-          </div>
+    <!-- 4. すべての記事一覧（リアルタイム検索・カテゴリ絞り込み・タイトル全文表示） -->
+    <section id="articles-section" class="scroll-mt-24 bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 border border-[#F0EAE1] warm-shadow-sm space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-[#F0EAE1] pb-3">
+        <div>
+          <h2 class="text-lg sm:text-xl font-bold text-[#2C3E35] flex items-center gap-2">
+            <span>📝</span>
+            <span>すべての記事一覧（全{sortedPosts.length}件）</span>
+          </h2>
+          <p class="text-xs text-[#6E685F] mt-0.5">薬の名前や病名で検索したり、テーマボタンで絞り込めます。</p>
+        </div>
+        <span id="articles-match-count" class="self-start sm:self-auto text-xs font-bold text-[#2C3E35] bg-[#F4F1EA] px-3 py-1 rounded-full border border-[#E6DFD3]">
+          表示中: {Math.min(INITIAL_SHOW, sortedPosts.length)} / {sortedPosts.length}件
+        </span>
+      </div>
 
-            <!-- 特集1: 10年データAI解析新連載 第1話 & 第2話 -->
-            <div class="space-y-3.5">
+      <!-- 検索ボックス＆クリア -->
+      <div class="flex gap-2">
+        <div class="relative flex-1">
+          <span class="absolute inset-y-0 left-3 flex items-center text-[#8C857B] pointer-events-none">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </span>
+          <input
+            type="search"
+            id="top-article-search"
+            placeholder="キーワード検索（例：デュピクセント、入院、頭痛、血圧、小麦...）"
+            class="w-full pl-9 pr-3 py-2 text-sm rounded-xl border border-[#D8D0C5] bg-[#FDFBF7] text-[#2C3E35] focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-[#E07A5F]/40 focus:border-[#E07A5F]"
+          />
+        </div>
+        <button
+          type="button"
+          id="top-search-reset"
+          class="hidden px-3 py-2 rounded-xl bg-[#F4F1EA] hover:bg-[#E6DFD3] text-xs font-bold text-[#2C3E35] shrink-0 cursor-pointer"
+        >
+          解除
+        </button>
+      </div>
+
+      <!-- カテゴリ絞り込みボタン -->
+      <div class="flex flex-wrap gap-1.5" role="group" aria-label="記事のテーマ絞り込み">
+        <button
+          type="button"
+          data-filter="all"
+          aria-pressed="true"
+          class="filter-pill px-3 py-1.5 rounded-full text-xs font-bold transition-colors bg-[#2C3E35] text-white cursor-pointer"
+        >
+          すべて ({sortedPosts.length})
+        </button>
+        {categories.map(cat => (
+          <button
+            type="button"
+            data-filter={cat.name}
+            aria-pressed="false"
+            class="filter-pill px-3 py-1.5 rounded-full text-xs font-bold transition-colors bg-[#F4F1EA] text-[#3D3A35] hover:bg-[#E6DFD3] cursor-pointer"
+          >
+            {cat.icon} {cat.shortName} ({postCounts[cat.name] || 0})
+          </button>
+        ))}
+        {otherCount > 0 && (
+          <button
+            type="button"
+            data-filter="__other__"
+            aria-pressed="false"
+            class="filter-pill px-3 py-1.5 rounded-full text-xs font-bold transition-colors bg-[#F4F1EA] text-[#3D3A35] hover:bg-[#E6DFD3] cursor-pointer"
+          >
+            📌 最新薬特集・PCメモ ({otherCount})
+          </button>
+        )}
+      </div>
+
+      <!-- 記事グリッド（スマホ：横並びコンパクトカード、PC：3列カード。タイトルは全文表示） -->
+      <div id="top-articles-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4">
+        {sortedPosts.map((post, idx) => {
+          const cat = post.data.category || 'その他';
+          const catGroup = mainCategoryNames.has(cat) ? cat : '__other__';
+          const searchBlob = `${post.data.title} ${post.data.description} ${cat} ${(post.data.tags || []).join(' ')}`.toLowerCase();
+          return (
+            <article
+              data-idx={idx}
+              data-cat-group={catGroup}
+              data-search={searchBlob}
+              class={`article-card bg-[#FDFBF7] rounded-xl sm:rounded-2xl border border-[#EFECE6] overflow-hidden hover:border-[#E07A5F] card-hover-fx transition-all duration-200 flex flex-row sm:flex-col ${idx >= INITIAL_SHOW ? 'hidden' : ''}`}
+            >
               <a
-                href="/blog/ai-health-analytics-ep2-iv-fluid-and-admission-vitals"
-                class="group p-5 rounded-2xl bg-[#FDF6F0] border border-[#F5DFD5] hover:border-[#E07A5F] transition-all card-hover-fx flex flex-col justify-between"
+                href={`/blog/${post.data.slug}`}
+                class="w-28 sm:w-full shrink-0 sm:aspect-video overflow-hidden bg-[#F4F1EA] block"
               >
+                {post.data.eyecatch ? (
+                  <img
+                    src={post.data.eyecatch}
+                    alt={post.data.title}
+                    class="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div class="w-full h-full bg-[#81B29A]/20 flex items-center justify-center text-2xl">📝</div>
+                )}
+              </a>
+
+              <div class="p-2.5 sm:p-4 flex-1 flex flex-col justify-between min-w-0">
                 <div>
-                  <div class="flex items-center justify-between mb-2">
-                    <span class="inline-block bg-[#E07A5F] text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full">
-                      🔥 新着・第2話
+                  <div class="flex flex-wrap items-center gap-1.5 mb-1">
+                    <span class="text-[10px] sm:text-[11px] font-bold px-1.5 sm:px-2 py-0.5 rounded bg-[#F4F1EA] text-[#2C3E35] border border-[#E6DFD3]">
+                      {cat}
                     </span>
-                    <span class="text-[10px] text-[#8C857B]">輸液動態＆除水解析</span>
+                    <time datetime={post.data.pubDate} class="text-[10px] sm:text-[11px] text-[#8C857B]">
+                      {post.data.pubDate}
+                    </time>
                   </div>
-                  <h3 class="font-bold text-base text-[#2C3E35] group-hover:text-[#E07A5F] transition-colors mb-1.5 leading-snug">
-                    全10回入院と「ソルラクト1日1000ml点滴」の動態
+
+                  <!-- タイトルは省略せずすべて全文表示 -->
+                  <h3 class="font-bold text-[#2C3E35] text-sm sm:text-[15px] leading-snug mb-1">
+                    <a href={`/blog/${post.data.slug}`} class="hover:text-[#E07A5F] transition-colors">
+                      {post.data.title}
+                    </a>
                   </h3>
-                  <p class="text-xs text-[#5C574F] leading-relaxed">
-                    毎日1リットルの水分を補給しながら4.5kg減る謎。好酸球性炎症サードスペース浮腫の解除メカニズム。
+
+                  <!-- 概要はPC/タブレットのみ1行表示してスマホの縦余白を圧縮 -->
+                  <p class="hidden sm:block text-xs text-[#5C574F] line-clamp-1 leading-relaxed mb-2">
+                    {post.data.description}
                   </p>
                 </div>
-                <div class="pt-3 mt-3 border-t border-[#F5DFD5] flex items-center justify-between text-xs font-bold text-[#E07A5F]">
-                  <span>第2話を読む</span>
-                  <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
-                </div>
-              </a>
 
-              <a
-                href="/blog/ai-health-analytics-ep1-3gb-raw-data-reveal"
-                class="group p-4 rounded-2xl bg-[#F4F1EA] border border-[#E6DFD3] hover:border-[#81B29A] transition-all card-hover-fx flex items-center justify-between"
-              >
-                <div class="pr-2">
-                  <span class="text-[10px] font-bold text-[#81B29A]">第1話（プロローグ）</span>
-                  <div class="text-xs font-bold text-[#2C3E35] group-hover:text-[#81B29A] transition-colors">
-                    10年分の生体データ3GBをAIで解剖した話
+                <div class="pt-1.5 sm:pt-2 mt-1 border-t border-[#EFECE6] flex items-center justify-between text-xs">
+                  <div class="hidden sm:flex gap-1 overflow-hidden">
+                    {(post.data.tags || []).slice(0, 2).map((t: string) => (
+                      <span class="text-[#8C857B] text-[10px] bg-white px-1.5 py-0.5 rounded border border-[#E6DFD3]">
+                        #{t}
+                      </span>
+                    ))}
                   </div>
-                </div>
-                <span class="text-xs font-bold text-[#81B29A] shrink-0">&rarr;</span>
-              </a>
-            </div>
-
-            <!-- 特集: バイオ製剤（生物学的製剤）完全網羅データベース -->
-            <a
-              href="/biologics"
-              class="group p-5 rounded-2xl bg-[#F0FDF4] border border-[#DCFCE7] hover:border-[#10B981] transition-all card-hover-fx flex flex-col justify-between"
-            >
-              <div>
-                <span class="inline-block bg-[#10B981] text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full mb-2">
-                  🧬 バイオ製剤DB
-                </span>
-                <h3 class="font-bold text-base text-[#2C3E35] group-hover:text-[#10B981] transition-colors mb-1.5 leading-snug">
-                  国内外バイオ製剤 完全網羅データベース
-                </h3>
-                <p class="text-xs text-[#5C574F] leading-relaxed">
-                  アレルギー・消化器・膠原病・頭痛・がん（ADC）・認知症まで、国内外の抗体医薬の作用機序・適応症・標的分子を網羅解説。
-                </p>
-              </div>
-              <div class="pt-3 mt-3 border-t border-[#DCFCE7] flex items-center justify-between text-xs font-bold text-[#10B981]">
-                <span>バイオ製剤DBを開く</span>
-                <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
-              </div>
-            </a>
-
-            <!-- 特集2: 学術論文＆最新治験データベース -->
-            <a
-              href="/research-database"
-              class="group p-5 rounded-2xl bg-[#F4F1EA] border border-[#E6DFD3] hover:border-[#E07A5F] transition-all card-hover-fx flex flex-col justify-between"
-            >
-              <div>
-                <span class="inline-block bg-[#E07A5F] text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full mb-2">
-                  📑 論文データベース
-                </span>
-                <h3 class="font-bold text-base text-[#2C3E35] group-hover:text-[#E07A5F] transition-colors mb-1.5 leading-snug">
-                  学術論文・国際治験エビデンスDB
-                </h3>
-                <p class="text-xs text-[#5C574F] leading-relaxed">
-                  NEJMやLancetの主要論文・Phase 3治験を網羅。各論文の1000字要約＆1000字当事者所感を収録。
-                </p>
-              </div>
-              <div class="pt-3 mt-3 border-t border-[#E0D8C8] flex items-center justify-between text-xs font-bold text-[#E07A5F]">
-                <span>論文DBを開く</span>
-                <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
-              </div>
-            </a>
-
-            <!-- 特集3: 臨床データ解析ダッシュボード -->
-            <a
-              href="/clinical-analytics"
-              class="group p-5 rounded-2xl bg-[#F4F1EA] border border-[#E6DFD3] hover:border-[#5B8FB9] transition-all card-hover-fx flex flex-col justify-between"
-            >
-              <div>
-                <span class="inline-block bg-[#5B8FB9] text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full mb-2">
-                  📊 インタラクティブ
-                </span>
-                <h3 class="font-bold text-base text-[#2C3E35] group-hover:text-[#E07A5F] transition-colors mb-1.5 leading-snug">
-                  臨床データダッシュボード
-                </h3>
-                <p class="text-xs text-[#5C574F] leading-relaxed">
-                  体重推移・安静時心拍数・歩数急落率（-80%）と入院時除水・血圧サージを動的グラフで可視化。
-                </p>
-              </div>
-              <div class="pt-3 mt-3 border-t border-[#E0D8C8] flex items-center justify-between text-xs font-bold text-[#5B8FB9]">
-                <span>データを見る</span>
-                <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
-              </div>
-            </a>
-
-            <!-- 特集4: 地域支援格差 ＆ 全国リンク集 -->
-            <a
-              href="/regional-support"
-              class="group p-5 rounded-2xl bg-[#F4F1EA] border border-[#E6DFD3] hover:border-[#F2CC8F] transition-all card-hover-fx flex flex-col justify-between"
-            >
-              <div>
-                <span class="inline-block bg-[#DDA15E] text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full mb-2">
-                  🏛️ 支援格差
-                </span>
-                <h3 class="font-bold text-base text-[#2C3E35] group-hover:text-[#E07A5F] transition-colors mb-1.5 leading-snug">
-                  難病支援・自治体助成の地域格差
-                </h3>
-                <p class="text-xs text-[#5C574F] leading-relaxed">
-                  月額手当や見舞金、タクシー券、災害電源等、市区町村独自の助成格差と申請ノウハウ。
-                </p>
-              </div>
-              <div class="pt-3 mt-3 border-t border-[#E0D8C8] flex items-center justify-between text-xs font-bold text-[#DDA15E]">
-                <span>格差と申請術を見る</span>
-                <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
-              </div>
-            </a>
-        </div>
-
-        <!-- ================= タブ3：📝 すべての記事一覧（初期非表示） ================= -->
-        <div id="tab-articles" class="tab-content hidden space-y-5">
-          <div class="border-b-2 border-[#F4F1EA] pb-3 flex flex-wrap items-end justify-between gap-2">
-            <div>
-              <div class="inline-flex items-center gap-1.5 text-xs font-bold text-[#81B29A] uppercase tracking-wider mb-1">
-                <span>Article Archive</span>
-              </div>
-              <h2 class="text-xl sm:text-2xl font-bold text-[#2C3E35]">📝 すべての記事一覧</h2>
-              <p class="text-xs sm:text-sm text-[#6E685F] mt-0.5">最新の闘病記、服薬調査、生体データ解析記事（全{sortedPosts.length}件）</p>
-            </div>
-            <span class="text-xs font-bold text-[#E07A5F] bg-[#FDF6F0] px-3 py-1 rounded-full border border-[#F5DFD5]">
-              全{sortedPosts.length}件を収録
-            </span>
-          </div>
-
-          <!-- 記事グリッド（スクロール可能） -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {sortedPosts.map(post => {
-              const placeholder = getCategoryPlaceholderStyle(post.data.category);
-              return (
-                <article class="bg-[#FDFBF7] rounded-2xl border border-[#EFECE6] overflow-hidden flex flex-col hover:border-[#E07A5F] card-hover-fx transition-all duration-200">
-                  <a href={`/blog/${post.data.slug}`} class="block aspect-video overflow-hidden bg-[#F4F1EA] relative group">
-                    {post.data.eyecatch ? (
-                      <img
-                        src={post.data.eyecatch}
-                        alt={post.data.title}
-                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div class={`w-full h-full bg-gradient-to-br ${placeholder.gradient} p-4 flex flex-col justify-between text-white group-hover:opacity-95 transition-opacity`}>
-                        <div class="flex items-center justify-between">
-                          <span class="text-2xl">{placeholder.icon}</span>
-                          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-xs text-white">
-                            {post.data.category}
-                          </span>
-                        </div>
-                        <div class="space-y-0.5">
-                          <div class="text-[11px] text-white/80 line-clamp-1">{post.data.category} 調査ノート</div>
-                          <div class="text-sm font-bold text-white line-clamp-2 leading-snug">
-                            {post.data.title}
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                  <a
+                    href={`/blog/${post.data.slug}`}
+                    class="font-bold text-[#E07A5F] hover:text-[#D0694E] text-xs ml-auto inline-flex items-center gap-1"
+                  >
+                    記事を読む &rarr;
                   </a>
+                </div>
+              </div>
+            </article>
+          );
+        })}
+      </div>
 
-                  <div class="p-4 flex-1 flex flex-col justify-between">
-                    <div>
-                      <div class="flex items-center gap-2 mb-2">
-                        <span class="text-[11px] font-bold px-2 py-0.5 rounded-md bg-[#F4F1EA] text-[#2C3E35] border border-[#E6DFD3]">
-                          {post.data.category}
-                        </span>
-                        <time datetime={post.data.pubDate} class="text-[11px] text-[#8C857B] font-medium">
-                          {post.data.pubDate}
-                        </time>
-                      </div>
-                      <h3 class="font-bold text-[#2C3E35] text-sm sm:text-base mb-1.5 leading-snug">
-                        <a href={`/blog/${post.data.slug}`} class="hover:text-[#E07A5F] transition-colors">
-                          {post.data.title}
-                        </a>
-                      </h3>
-                      <p class="text-xs text-[#5C574F] line-clamp-1 leading-relaxed mb-2.5">
-                        {post.data.description}
-                      </p>
-                    </div>
+      <div id="top-articles-empty" class="hidden py-8 text-center text-sm text-[#6E685F] bg-[#FDFBF7] rounded-2xl border border-[#EFECE6]">
+        条件に合う記事が見つかりませんでした。別のキーワードや「すべて」をお試しください。
+      </div>
 
-                    <div class="pt-2.5 border-t border-[#EFECE6] flex items-center justify-between text-xs">
-                      <div class="flex gap-1 overflow-hidden">
-                        {post.data.tags.slice(0, 2).map((t: string) => (
-                          <span class="text-[#8C857B] text-[10px] truncate bg-white px-1.5 py-0.5 rounded border border-[#E6DFD3]">
-                            #{t}
-                          </span>
-                        ))}
-                      </div>
-                      <a
-                        href={`/blog/${post.data.slug}`}
-                        class="font-bold text-[#E07A5F] hover:text-[#D0694E] text-xs shrink-0 inline-flex items-center gap-1 hover:translate-x-0.5 transition-transform"
-                      >
-                        読む &rarr;
-                      </a>
-                    </div>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
+      {remainingCount > 0 && (
+        <div id="expand-articles-wrap" class="pt-2 text-center">
+          <button
+            type="button"
+            id="btn-expand-articles"
+            class="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#F4F1EA] hover:bg-[#E07A5F] hover:text-white text-[#2C3E35] font-bold text-sm border border-[#E0D8C8] transition-colors cursor-pointer"
+          >
+            すべての記事を表示する（残り {remainingCount} 件を開く）
+          </button>
         </div>
+      )}
+    </section>
 
-        <!-- ================= タブ4：☕ 暮らしの工夫・相談窓口（初期非表示） ================= -->
-        <div id="tab-support" class="tab-content hidden space-y-5">
-          <div class="border-b-2 border-[#F4F1EA] pb-3 flex flex-wrap items-end justify-between gap-2">
-            <div>
-              <div class="inline-flex items-center gap-1.5 text-xs font-bold text-[#81B29A] uppercase tracking-wider mb-1">
-                <span>Patient Support & Tools</span>
-              </div>
-              <h2 class="text-xl sm:text-2xl font-bold text-[#2C3E35]">☕ 暮らしの工夫・実用ツール ＆ 相談窓口</h2>
-              <p class="text-xs sm:text-sm text-[#6E685F] mt-0.5">当事者が実際に役立てているチェックリスト・シミュレーターと公的窓口。</p>
-            </div>
-            <a href="/links" class="text-xs font-bold text-[#81B29A] hover:underline flex items-center gap-1">
-              全国行政リンク集 &rarr;
-            </a>
-          </div>
+    <!-- 5. 10年間の体調記録・新しいお薬・論文まとめ・相談窓口 -->
+    <section id="data-section" class="scroll-mt-24 space-y-5">
+      <div class="flex flex-wrap items-end justify-between gap-2">
+        <div>
+          <h2 class="text-lg sm:text-xl font-bold text-[#2C3E35] flex items-center gap-2">
+            <span>📊</span>
+            <span>10年間の体調データ・新しいお薬・研究まとめ</span>
+          </h2>
+          <p class="text-xs text-[#6E685F] mt-0.5">Apple Watchや血圧計で記録した10年分のデータや、最新のお薬・論文をわかりやすく整理しています。</p>
+        </div>
+      </div>
 
-          <!-- 新設実用ツール2大バナー（Bento Grid） -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <!-- ツール1: 入院持ち物チェックリスト -->
+      <!-- 10年間の体調・血圧の記録シリーズ（第1話〜第5話） -->
+      <div class="bg-[#FDF6F0] rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-[#F5DFD5] space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <h3 class="font-bold text-base sm:text-lg text-[#2C3E35]">
+            📈 連載：10年間の体調・血圧・入院の記録からわかったこと
+          </h3>
+          <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#E07A5F] text-white">全5話</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+          {vitalsSeries.map(item => (
             <a
-              href="/hospitalization-checklist"
-              class="group p-5 rounded-2xl bg-[#FDF6F0] border border-[#F5DFD5] hover:border-[#E07A5F] transition-all card-hover-fx flex flex-col justify-between"
+              href={item.href}
+              class="p-3 rounded-xl bg-white border border-[#F5DFD5] hover:border-[#E07A5F] transition-colors flex items-start justify-between gap-2 group"
             >
               <div>
-                <span class="inline-block px-2.5 py-0.5 rounded-full bg-[#E07A5F] text-white text-[11px] font-bold mb-2">
-                  🏥 インタラクティブ保存対応
-                </span>
-                <h3 class="font-bold text-base text-[#2C3E35] group-hover:text-[#E07A5F] transition-colors mb-1 leading-snug">
-                  10回以上の入院から厳選！<br />入院持ち物チェックリスト
-                </h3>
-                <p class="text-xs text-[#5C574F] leading-relaxed">
-                  点滴対応パジャマ、長尺ケーブル、S字フックなど現場の知恵。ブラウザ自動保存＆印刷対応。
-                </p>
+                <span class="text-[11px] font-bold text-[#E07A5F]">{item.ep}</span>
+                <div class="text-xs sm:text-sm font-bold text-[#2C3E35] group-hover:text-[#E07A5F] leading-snug mt-0.5">
+                  {item.title}
+                </div>
               </div>
-              <div class="pt-3 mt-3 border-t border-[#F5DFD5] flex items-center justify-between text-xs font-bold text-[#E07A5F]">
-                <span>リストを開く</span>
-                <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
-              </div>
+              <span class="text-xs font-bold text-[#E07A5F] shrink-0 mt-1">&rarr;</span>
             </a>
+          ))}
+        </div>
+      </div>
 
-            <!-- ツール2: 医療費シミュレーター -->
-            <a
-              href="/medical-cost-simulator"
-              class="group p-5 rounded-2xl bg-[#F4F9F6] border border-[#D8EAE0] hover:border-[#81B29A] transition-all card-hover-fx flex flex-col justify-between"
-            >
-              <div>
-                <span class="inline-block px-2.5 py-0.5 rounded-full bg-[#81B29A] text-white text-[11px] font-bold mb-2">
-                  💰 かんたん試算ツール
-                </span>
-                <h3 class="font-bold text-base text-[#2C3E35] group-hover:text-[#81B29A] transition-colors mb-1 leading-snug">
-                  指定難病 ✕ 高額療養費<br />医療費自己負担シミュレーター
-                </h3>
-                <p class="text-xs text-[#5C574F] leading-relaxed">
-                  生物学的製剤や入院時の実質負担額を階層区分ごとに即座に計算。年間の軽減効果も可視化。
-                </p>
-              </div>
-              <div class="pt-3 mt-3 border-t border-[#D8EAE0] flex items-center justify-between text-xs font-bold text-[#81B29A]">
-                <span>試算してみる</span>
-                <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
-              </div>
-            </a>
-          </div>
-
-          <!-- 実践ガイド2選（グルテンフリー＆主治医メモ） -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-            <a
-              href="/blog/gluten-free-survival-guide"
-              class="p-3.5 rounded-xl bg-white border border-[#EFECE6] hover:border-[#E07A5F] transition-colors flex items-center justify-between group"
-            >
-              <div>
-                <span class="text-[10px] font-bold text-[#E07A5F]">食事療法</span>
-                <div class="font-bold text-[#2C3E35] group-hover:text-[#E07A5F]">完全グルテンフリー外食・市販品ガイド</div>
-              </div>
-              <span class="font-bold text-[#8C857B] group-hover:text-[#E07A5F]">&rarr;</span>
-            </a>
-
-            <a
-              href="/blog/doctor-consultation-1min-sheet"
-              class="p-3.5 rounded-xl bg-white border border-[#EFECE6] hover:border-[#81B29A] transition-colors flex items-center justify-between group"
-            >
-              <div>
-                <span class="text-[10px] font-bold text-[#81B29A]">診察室の知恵</span>
-                <div class="font-bold text-[#2C3E35] group-hover:text-[#81B29A]">主治医に3分で伝わる「1分症状メモ」</div>
-              </div>
-              <span class="font-bold text-[#8C857B] group-hover:text-[#81B29A]">&rarr;</span>
-            </a>
-          </div>
-
-          <!-- 相談窓口カード -->
-          <div class="bg-[#FDFBF7] p-5 rounded-2xl border border-[#EFECE6] space-y-3">
-            <div class="flex items-center gap-2">
-              <span class="text-xl">📞</span>
-              <h3 class="font-bold text-base text-[#2C3E35]">難病相談支援センター・患者会のご案内</h3>
-            </div>
-            <p class="text-xs sm:text-sm text-[#5C574F] leading-relaxed">
-              各都道府県に設置されている「難病相談支援センター」では、専任の相談員（看護師・ソーシャルワーカー）が、療養生活の悩み、就労、福祉制度について無料で個別相談を受け付けています。
+      <!-- 4つのまとめページ -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
+        <a href="/biologics" class="group p-4 rounded-2xl bg-[#F0FDF4] border border-[#DCFCE7] hover:border-[#10B981] transition-all card-hover-fx flex flex-col justify-between">
+          <div>
+            <span class="inline-block bg-[#10B981] text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full mb-2">🧬 新しいお薬</span>
+            <h3 class="font-bold text-sm sm:text-base text-[#2C3E35] group-hover:text-[#059669] mb-1 leading-snug">
+              新しい注射薬（バイオ製剤）のまとめ
+            </h3>
+            <p class="text-xs text-[#5C574F] leading-relaxed">
+              アレルギー・胃腸・喘息・頭痛などで使われる注射のお薬の特徴と仕組みを整理しています。
             </p>
-            <div class="flex flex-wrap gap-2.5 pt-1">
-              <a href="/links" class="px-4 py-2 rounded-xl bg-[#81B29A] text-white text-xs font-bold hover:bg-[#6FA088] transition-colors shadow-2xs">
-                全国の相談窓口一覧を見る &rarr;
-              </a>
-              <a href="/about" class="px-4 py-2 rounded-xl bg-white text-[#2C3E35] border border-[#E6DFD3] text-xs font-bold hover:bg-[#F4F1EA] transition-colors">
-                当サイトについて・闘病の歩み
-              </a>
-            </div>
           </div>
+          <div class="pt-2.5 mt-2.5 border-t border-[#DCFCE7] flex justify-between text-xs font-bold text-[#059669]">
+            <span>まとめを見る</span>
+            <span>&rarr;</span>
+          </div>
+        </a>
 
-          <!-- スポンサー・広告エリア（温かい枠組み） -->
-          <div class="space-y-4 pt-2">
-            <AdSense className="my-2" />
-            <RakutenBanner variant="double" className="my-2" />
+        <a href="/research-database" class="group p-4 rounded-2xl bg-[#F4F1EA] border border-[#E6DFD3] hover:border-[#E07A5F] transition-all card-hover-fx flex flex-col justify-between">
+          <div>
+            <span class="inline-block bg-[#E07A5F] text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full mb-2">📑 論文・治験</span>
+            <h3 class="font-bold text-sm sm:text-base text-[#2C3E35] group-hover:text-[#E07A5F] mb-1 leading-snug">
+              海外の最新論文・治験のわかりやすい解説
+            </h3>
+            <p class="text-xs text-[#5C574F] leading-relaxed">
+              世界中の医学誌に出た好酸球性胃腸炎の研究や新しい薬の治験結果を噛み砕いて紹介しています。
+            </p>
           </div>
+          <div class="pt-2.5 mt-2.5 border-t border-[#E0D8C8] flex justify-between text-xs font-bold text-[#E07A5F]">
+            <span>解説を読む</span>
+            <span>&rarr;</span>
+          </div>
+        </a>
+
+        <a href="/clinical-analytics" class="group p-4 rounded-2xl bg-[#F4F1EA] border border-[#E6DFD3] hover:border-[#5B8FB9] transition-all card-hover-fx flex flex-col justify-between">
+          <div>
+            <span class="inline-block bg-[#5B8FB9] text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full mb-2">📈 体調グラフ</span>
+            <h3 class="font-bold text-sm sm:text-base text-[#2C3E35] group-hover:text-[#5B8FB9] mb-1 leading-snug">
+              10年間の体調・血圧・歩数の推移グラフ
+            </h3>
+            <p class="text-xs text-[#5C574F] leading-relaxed">
+              入院前後の歩数や体重の変化、急な血圧の上昇をわかりやすいグラフで振り返れます。
+            </p>
+          </div>
+          <div class="pt-2.5 mt-2.5 border-t border-[#E0D8C8] flex justify-between text-xs font-bold text-[#5B8FB9]">
+            <span>グラフを見る</span>
+            <span>&rarr;</span>
+          </div>
+        </a>
+
+        <a href="/regional-support" class="group p-4 rounded-2xl bg-[#F4F1EA] border border-[#E6DFD3] hover:border-[#DDA15E] transition-all card-hover-fx flex flex-col justify-between">
+          <div>
+            <span class="inline-block bg-[#DDA15E] text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full mb-2">🏛️ 自治体の支援</span>
+            <h3 class="font-bold text-sm sm:text-base text-[#2C3E35] group-hover:text-[#B57B35] mb-1 leading-snug">
+              自治体によって違う難病の支援・手当まとめ
+            </h3>
+            <p class="text-xs text-[#5C574F] leading-relaxed">
+              お住まいの地域ごとの手当、見舞金、通院交通費の補助、申請のコツをまとめています。
+            </p>
+          </div>
+          <div class="pt-2.5 mt-2.5 border-t border-[#E0D8C8] flex justify-between text-xs font-bold text-[#B57B35]">
+            <span>制度を見る</span>
+            <span>&rarr;</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- 相談窓口カード -->
+      <div class="bg-[#FDFBF7] p-4 sm:p-6 rounded-2xl border border-[#E6DFD3] space-y-2.5">
+        <div class="flex items-center gap-2">
+          <span class="text-xl">📞</span>
+          <h3 class="font-bold text-base text-[#2C3E35]">困ったときの相談窓口（難病相談支援センター・患者会）</h3>
         </div>
-
-        <!-- ================= フッター相当バー（右カラム内下部・スクロール不要設計） ================= -->
-        <div class="pt-4 mt-6 border-t border-[#F0EAE1] flex flex-wrap justify-between items-center text-xs text-[#8C857B] gap-2">
-          <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-[#81B29A]"></span>
-            <span>JIS X 8341-3（AA準拠コントラスト）対応ユニバーサルデザイン</span>
-          </div>
-          <span>好酸球性胃腸炎と複合難病の闘病・服薬ノート © 2026</span>
+        <p class="text-xs sm:text-sm text-[#5C574F] leading-relaxed">
+          各都道府県にある「難病相談支援センター」では、専任の相談員（看護師やソーシャルワーカーなど）が、日々の療養の悩み、仕事との両立、使える福祉制度について無料で相談に乗ってくれます。
+        </p>
+        <div class="flex flex-wrap gap-2 pt-1">
+          <a href="/links" class="px-4 py-2 rounded-xl bg-[#81B29A] text-white text-xs sm:text-sm font-bold hover:bg-[#6FA088] transition-colors shadow-2xs">
+            全国の相談窓口・リンク集を見る &rarr;
+          </a>
+          <a href="/about" class="px-4 py-2 rounded-xl bg-white text-[#2C3E35] border border-[#E6DFD3] text-xs sm:text-sm font-bold hover:bg-[#F4F1EA] transition-colors">
+            運営者のプロフィール・病歴
+          </a>
         </div>
-      </section>
+      </div>
 
-    </div>
+      <!-- 広告枠（ページ下部） -->
+      <div class="space-y-3 pt-1">
+        <AdSense className="my-2" />
+        <RakutenBanner variant="double" className="my-2" />
+      </div>
+    </section>
+
   </div>
 </BaseLayout>
 
 <script is:inline>
-  function switchTab(tabId, skipScroll) {
-    // 全タブコンテンツを非表示
-    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-    
-    // 選択されたタブコンテンツを表示
-    const targetContent = document.getElementById(tabId);
-    if (targetContent) {
-      targetContent.classList.remove('hidden');
-    }
+  (function () {
+    const searchInput = document.getElementById('top-article-search');
+    const resetBtn = document.getElementById('top-search-reset');
+    const pills = document.querySelectorAll('.filter-pill');
+    const cards = Array.from(document.querySelectorAll('.article-card'));
+    const countBadge = document.getElementById('articles-match-count');
+    const emptyBox = document.getElementById('top-articles-empty');
+    const expandWrap = document.getElementById('expand-articles-wrap');
+    const expandBtn = document.getElementById('btn-expand-articles');
 
-    // 全タブボタンのスタイルを標準状態（白背景＋グレー文字）にリセット
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-      btn.className = "tab-btn w-full text-left px-4 sm:px-5 py-3.5 rounded-2xl font-bold transition-all flex items-center justify-between bg-white text-[#3D3A35] hover:bg-[#FAF6F0] border border-[#E6DFD3] cursor-pointer";
-      btn.setAttribute('aria-selected', 'false');
-      const arrow = btn.querySelector('span:last-child');
-      if (arrow) arrow.className = "text-sm font-bold text-[#8C857B]";
-    });
+    let activeFilter = 'all';
+    let showAll = false;
+    const initialLimit = 12;
+    const totalCount = cards.length;
 
-    // 選択されたタブボタンをアクティブスタイル（テラコッタ背景＋白文字＋ソフトシャドウ）に設定
-    const activeBtn = document.getElementById('btn-' + tabId);
-    if (activeBtn) {
-      activeBtn.className = "tab-btn w-full text-left px-4 sm:px-5 py-3.5 rounded-2xl font-bold transition-all flex items-center justify-between bg-[#E07A5F] text-white warm-shadow cursor-pointer";
-      activeBtn.setAttribute('aria-selected', 'true');
-      const arrow = activeBtn.querySelector('span:last-child');
-      if (arrow) arrow.className = "text-sm font-bold opacity-90";
-    }
+    function renderList() {
+      const q = (searchInput && searchInput.value ? searchInput.value : '').trim().toLowerCase();
+      const isFiltered = activeFilter !== 'all' || q.length > 0;
 
-    // モバイル表示時はボタンの下にあるコンテンツ領域へスムーズにスクロール
-    if (!skipScroll && window.innerWidth < 768) {
-      const panel = document.getElementById('nanbyo-tab-panel');
-      if (panel) {
-        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (resetBtn) {
+        resetBtn.classList.toggle('hidden', !isFiltered);
+      }
+
+      let matched = 0;
+      let shown = 0;
+
+      cards.forEach((card) => {
+        const catGroup = card.getAttribute('data-cat-group') || '';
+        const blob = card.getAttribute('data-search') || '';
+        const matchesCat = activeFilter === 'all' || catGroup === activeFilter;
+        const matchesQuery = !q || blob.includes(q);
+
+        if (matchesCat && matchesQuery) {
+          matched++;
+          if (isFiltered || showAll || shown < initialLimit) {
+            card.classList.remove('hidden');
+            shown++;
+          } else {
+            card.classList.add('hidden');
+          }
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+
+      if (countBadge) {
+        if (isFiltered) {
+          countBadge.textContent = `絞り込み結果: ${matched}件`;
+        } else {
+          countBadge.textContent = `表示中: ${shown} / ${totalCount}件`;
+        }
+      }
+
+      if (emptyBox) {
+        emptyBox.classList.toggle('hidden', matched > 0);
+      }
+
+      if (expandWrap) {
+        const shouldHideExpand = isFiltered || showAll || matched <= initialLimit;
+        expandWrap.classList.toggle('hidden', shouldHideExpand);
       }
     }
 
-    // URLハッシュを更新（履歴を残さず同期）
-    try {
-      history.replaceState(null, '', '#' + tabId);
-    } catch (e) {}
-  }
+    pills.forEach((pill) => {
+      pill.addEventListener('click', () => {
+        activeFilter = pill.getAttribute('data-filter') || 'all';
+        pills.forEach((p) => {
+          const isActive = p === pill;
+          p.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+          if (isActive) {
+            p.className = 'filter-pill px-3 py-1.5 rounded-full text-xs font-bold transition-colors bg-[#2C3E35] text-white cursor-pointer';
+          } else {
+            p.className = 'filter-pill px-3 py-1.5 rounded-full text-xs font-bold transition-colors bg-[#F4F1EA] text-[#3D3A35] hover:bg-[#E6DFD3] cursor-pointer';
+          }
+        });
+        renderList();
+      });
+    });
 
-  // 初期化：URLハッシュに対応するタブがあればそれを開く
-  window.addEventListener('DOMContentLoaded', () => {
-    const hash = window.location.hash.replace('#', '');
-    if (hash && document.getElementById(hash)) {
-      switchTab(hash, true);
+    if (searchInput) {
+      searchInput.addEventListener('input', renderList);
     }
-  });
-</script>
 
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        if (searchInput) searchInput.value = '';
+        activeFilter = 'all';
+        pills.forEach((p) => {
+          const isAll = p.getAttribute('data-filter') === 'all';
+          p.setAttribute('aria-pressed', isAll ? 'true' : 'false');
+          p.className = isAll
+            ? 'filter-pill px-3 py-1.5 rounded-full text-xs font-bold transition-colors bg-[#2C3E35] text-white cursor-pointer'
+            : 'filter-pill px-3 py-1.5 rounded-full text-xs font-bold transition-colors bg-[#F4F1EA] text-[#3D3A35] hover:bg-[#E6DFD3] cursor-pointer';
+        });
+        renderList();
+      });
+    }
+
+    if (expandBtn) {
+      expandBtn.addEventListener('click', () => {
+        showAll = true;
+        renderList();
+      });
+    }
+  })();
+</script>

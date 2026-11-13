@@ -32,8 +32,12 @@
   }
 
   p {
-    margin-bottom: 1.25em;
+    margin: 0;
   }
+}
+
+.prose p {
+  margin-bottom: 1.25em;
 }
 
 /* 温かみのあるユニバーサルデザイン用トークン */
