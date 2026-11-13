@@ -119,8 +119,8 @@ const previewDb = uniqueDbPosts.slice(0, Math.max(0, PREVIEW_LIMIT - previewStat
   <section class="nc-sub-hero">
     <div class="nc-sub-hero-row">
       <ol class="nc-breadcrumbs" aria-label="パンくずリスト">
-        <li><a href="/">Smart AI Life</a></li>
-        <li><a href="/divisions">7つのラボ</a></li>
+        <li><a href="/ai-living-lab">Smart AI Life</a></li>
+        <li><a href="/ai-living-lab/divisions">7つのラボ</a></li>
         <li><span>{currentDiv.shortTitle}</span></li>
       </ol>
 
@@ -160,7 +160,7 @@ const previewDb = uniqueDbPosts.slice(0, Math.max(0, PREVIEW_LIMIT - previewStat
           {allDivisions.map((d) => (
             <li>
               <a
-                href={d.id === 'smartailife' ? '/' : `/divisions/${d.id}`}
+                href={d.id === 'smartailife' ? '/ai-living-lab' : `/ai-living-lab/divisions/${d.id}`}
                 class={d.id === currentDiv.id ? 'is-active' : ''}
               >
                 {d.icon} {d.shortTitle}
@@ -297,7 +297,7 @@ const previewDb = uniqueDbPosts.slice(0, Math.max(0, PREVIEW_LIMIT - previewStat
           <h3>他のラボを探す</h3>
           <p>Smart AI Lifeの7つのラボから、興味のある分野のドキュメントへ移動できます。</p>
           <div style="margin-top: 0.5rem;">
-            <a href="/divisions" class="btn btn-dark">全8ラボ一覧へ →</a>
+            <a href="/ai-living-lab/divisions" class="btn btn-dark">全8ラボ一覧へ →</a>
           </div>
         </div>
 

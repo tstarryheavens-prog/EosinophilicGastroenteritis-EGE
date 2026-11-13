@@ -371,8 +371,6 @@ const shareText = `${article.title} | Smart AI Life`;
           <p class="nc-article-lead-summary">{article.excerpt}</p>
         )}
 
-        <AdBanner siteId={article.siteId as any || 'smartailife'} category={article.category} />
-
         <article class="nc-article-body" id="article-content">
           <div class="nc-prose" set:html={contentHtml} />
         </article>
@@ -472,7 +470,7 @@ const shareText = `${article.title} | Smart AI Life`;
           </div>
 
           <!-- 3. Gray Hoverable Item Cards (#ecebe7 -> #ffde77 on hover) -->
-          <a href="/divisions" class="nc-item-card">
+          <a href="/ai-living-lab/divisions" class="nc-item-card">
             <h3>7つのラボ</h3>
             <p>HEMS・100歳家計・トヨタホーム・難病医療・愛知高校受験など分野別インデックスへ移動します。</p>
           </a>

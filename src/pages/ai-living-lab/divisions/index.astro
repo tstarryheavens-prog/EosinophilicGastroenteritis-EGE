@@ -92,7 +92,7 @@ const articlesFor = (id: string): Article[] => {
   <section class="nc-sub-hero">
     <div class="nc-sub-hero-row">
       <ol class="nc-breadcrumbs" aria-label="パンくずリスト">
-        <li><a href="/">Smart AI Life</a></li>
+        <li><a href="/ai-living-lab">Smart AI Life</a></li>
         <li><span>7つのラボ一覧</span></li>
       </ol>
 
@@ -131,7 +131,7 @@ const articlesFor = (id: string): Article[] => {
               <div class="nc-category-card-title">
                 <span class="nc-div-badge">{div.icon} {div.badge}</span>
                 <div>
-                  <h2><a href={`/divisions/${div.id}`}>{div.shortTitle}</a></h2>
+                  <h2><a href={`/ai-living-lab/divisions/${div.id}`}>{div.shortTitle}</a></h2>
                   <p class="nc-div-stats">
                     記事 {articles.length}本 · 機能 {div.features.length}基
                   </p>
@@ -158,7 +158,7 @@ const articlesFor = (id: string): Article[] => {
                 )}
 
                 <div class="nc-div-actions">
-                  <a href={`/divisions/${div.id}`} class="btn btn-dark">詳細を見る →</a>
+                  <a href={`/ai-living-lab/divisions/${div.id}`} class="btn btn-dark">詳細を見る →</a>
                   {cat && <a href={`/articles?cat=${cat}`} class="btn">関連記事</a>}
                   {publicExt && (
                     <a href={publicExt} target="_blank" rel="noopener noreferrer" class="btn">

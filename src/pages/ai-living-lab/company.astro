@@ -9,7 +9,8 @@ import { ARTICLES } from "../../data/articles";
 import { LOCAL_HUD_URL, LOCAL_ADDRESS_REGEX } from "../../data/ops_config";
 import { isInternalSiteId } from "../../data/public_scope";
 
-const SITE = "https://ai-living-lab.pages.dev";
+const SITE = "https://eosinophilicgastroenteritis-ege.pages.dev";
+const AI_LAB = `${SITE}/ai-living-lab`;
 const divisions = Object.values(DIVISIONS_DATA);
 const latestArticles = ARTICLES.slice(0, 5);
 const isLocal = (u?: string) => !!u && LOCAL_ADDRESS_REGEX.test(u);
@@ -132,7 +133,7 @@ const now = new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
           <h3>🌐 公開サイト（読者向け）</h3>
           <p>公開側は記事とテーマ別ラボだけを提供します。運営機能への導線は置いていません。</p>
           <div class="row">
-            <a class="btn" href={SITE} target="_blank" rel="noopener">公開トップ</a>
+            <a class="btn" href={AI_LAB} target="_blank" rel="noopener">公開トップ</a>
             <a class="btn" href={`${SITE}/articles`} target="_blank" rel="noopener">記事一覧（{ARTICLES.length}本）</a>
             <a class="btn" href={`${SITE}/sitemap.xml`} target="_blank" rel="noopener">sitemap.xml</a>
           </div>
@@ -172,7 +173,7 @@ const now = new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
                       <a href={`${LOCAL_HUD_URL}/divisions`} target="_blank" rel="noopener">ローカル専用HUD の {div.shortTitle} カードから開く</a>
                     </>
                   ) : (
-                    <a href={`${SITE}/divisions/${div.id}`} target="_blank" rel="noopener">/divisions/{div.id}</a>
+                    <a href={`${AI_LAB}/divisions/${div.id}`} target="_blank" rel="noopener">/ai-living-lab/divisions/{div.id}</a>
                   )}
                   {div.extUrl && !isLocal(div.extUrl) && (
                     <>

@@ -65,7 +65,7 @@ export const DIVISIONS_DATA: Record<string, Division> = {
     themeText: '#312e81',
     status: 'active',
     statusLabel: '本番稼働中 (Pages)',
-    extUrl: 'https://smartailife.pages.dev',
+    extUrl: 'https://eosinophilicgastroenteritis-ege.pages.dev/ai-living-lab',
     extLabel: '旗艦HP ↗',
     ghUrl: 'https://github.com/tstarryheavens-prog/SmartAILife',
     path: '/Volumes/Docker/SmartAILife',

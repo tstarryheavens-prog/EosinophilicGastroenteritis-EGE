@@ -132,6 +132,6 @@ export const NETWORK_SITES: ProjectSite[] = [
 
 export const HATENA_BLOG_URL = 'https://kurashi-ai.hatenadiary.com/';
 export const GITHUB_REPO_URL = 'https://github.com/tstarryheavens-prog/ai-living-lab';
-export const CLOUDFLARE_PAGES_URL = 'https://ai-living-lab.pages.dev';
+export const CLOUDFLARE_PAGES_URL = 'https://eosinophilicgastroenteritis-ege.pages.dev/ai-living-lab';
 export const WORKERS_DEV_URL = 'https://ai-living-lab.t-starryheavens.workers.dev';
 

@@ -13,7 +13,7 @@ const TOPIC_LABS = [
     badge: 'Energy OS',
     title: 'AI Home HEMS',
     desc: 'ニチコン14.9kWh蓄電池（T5）× ECHONET Lite。翌日の日射量予測と深夜電力（16.3円）を組み合わせたJIT充電制御。',
-    href: '/divisions/ai-hems',
+    href: '/ai-living-lab/divisions/ai-hems',
     tone: 'sun',
   },
   {
@@ -22,7 +22,7 @@ const TOPIC_LABS = [
     badge: 'Finance & CF',
     title: '100歳家計・資産形成ラボ',
     desc: '5,200万円フルローン返済と教育費ダブルピーク（夫47〜53歳）、老後100歳までのキャッシュフローを定量検証。',
-    href: '/divisions/wakwak-money',
+    href: '/ai-living-lab/divisions/wakwak-money',
     tone: 'green',
   },
   {
@@ -31,7 +31,7 @@ const TOPIC_LABS = [
     badge: 'Housing Archive',
     title: 'トヨタホーム住まい研究',
     desc: '鉄骨ユニット工法の住み心地、10年目点検・外壁メンテナンス、太陽光・蓄電池の実測ROIアーカイブ。',
-    href: '/divisions/toyotahome',
+    href: '/ai-living-lab/divisions/toyotahome',
     tone: 'tin',
   },
   {
@@ -40,7 +40,7 @@ const TOPIC_LABS = [
     badge: 'Medical Portal',
     title: '難病・医療情報ポータル',
     desc: '好酸球性胃腸炎・群発頭痛の医療費助成手続き、生物学的製剤・服薬記録、日常バイタルの体系化。',
-    href: '/divisions/nanbyo',
+    href: '/ai-living-lab/divisions/nanbyo',
     tone: 'orange',
   },
   {
@@ -49,7 +49,7 @@ const TOPIC_LABS = [
     badge: 'Education DB',
     title: '愛知高校受験ナビ',
     desc: '愛知県公立高校の2校複合選抜（A・Bグループ）組み合わせ判定、内申点目安、AI家庭教師プロンプト。',
-    href: '/divisions/aichi-high',
+    href: '/ai-living-lab/divisions/aichi-high',
     tone: 'sun',
   },
   {
@@ -58,7 +58,7 @@ const TOPIC_LABS = [
     badge: 'Tokusatsu & UCG',
     title: 'ウルトラマン総合研究',
     desc: 'ウルトラマンソフビの造形・塗装変遷データベースとウルトラマンカードゲーム（UCG）環境考察。',
-    href: '/divisions/hobby-labs',
+    href: '/ai-living-lab/divisions/hobby-labs',
     tone: 'tin',
   },
   {
@@ -67,7 +67,7 @@ const TOPIC_LABS = [
     badge: 'Local LLM & Automation',
     title: '総合AIハック・自律エージェント',
     desc: 'ローカルGPUクラスタ、YomiToku日本語OCR書類仕分け、スマートホーム統合の実践ドキュメント。',
-    href: '/divisions/smartailife',
+    href: '/ai-living-lab/divisions/smartailife',
     tone: 'green',
   },
 ];
@@ -80,7 +80,7 @@ const CONCERNS = [
     question: '電気代が高すぎる／太陽光や蓄電池を使いこなせていない',
     answerTitle: '自作AI HEMSで深夜電力を自動最適化',
     answerDesc: '翌日の日射量予報を解析し、晴れなら深夜充電をセーブ、雨なら16.3円の深夜電力を自動充電。卒FIT後の買電を最小化しています。',
-    link: '/divisions/ai-hems',
+    link: '/ai-living-lab/divisions/ai-hems',
     articleLink: '/articles/echonet-lite-nichicon-hems-jit-charging',
     buttonText: 'HEMSラボを見る',
     tone: 'sun',
@@ -92,7 +92,7 @@ const CONCERNS = [
     question: '5,200万ローンや教育費ピーク、老後資金が漠然と不安',
     answerTitle: '100歳キャッシュフローで生涯収支を可視化',
     answerDesc: '三菱UFJメイン口座と三井住友予備口座の役割分離、夫47〜53歳の教育費ダブルピーク、100歳までの資産推移を自作ツールで検証。',
-    link: '/divisions/wakwak-money',
+    link: '/ai-living-lab/divisions/wakwak-money',
     articleLink: '/articles/100-year-cashflow-simulation-double-education-peak',
     buttonText: '家計ラボを見る',
     tone: 'green',
@@ -116,7 +116,7 @@ const CONCERNS = [
     question: '持病の通院記録・処方薬・検査数値が散らかって把握しづらい',
     answerTitle: '難病・医療データポータルで診察室をスムーズに',
     answerDesc: '指定難病の医療費助成手続きから、好酸球数・血圧推移・抗体薬の記録まで構造化し、主治医への共有を効率化。',
-    link: '/divisions/nanbyo',
+    link: '/ai-living-lab/divisions/nanbyo',
     articleLink: 'https://eosinophilicgastroenteritis-ege.pages.dev',
     buttonText: '医療ラボを見る',
     tone: 'orange',
@@ -128,7 +128,7 @@ const CONCERNS = [
     question: '愛知県公立高校のA・Bグループ出願や内申点目安を知りたい',
     answerTitle: '愛知高校受験ナビで志望校・併願戦略を整理',
     answerDesc: '尾張・名古屋地区の公立高校複合選抜シミュレータ、当日点×内申点の配点方式（Ⅰ〜Ⅴ型）、AI家庭教師プロンプトを公開。',
-    link: '/divisions/aichi-high',
+    link: '/ai-living-lab/divisions/aichi-high',
     articleLink: '/articles/aichi-highschool-w-application-strategy-and-costs',
     buttonText: '高校受験ラボを見る',
     tone: 'sun',
@@ -261,7 +261,7 @@ try {
               <p class="eyebrow">Browse by Topic Lab</p>
               <h2>7つのラボ（テーマ別ナレッジベース）</h2>
             </div>
-            <a href="/divisions" class="btn">すべてのラボ一覧 →</a>
+            <a href="/ai-living-lab/divisions" class="btn">すべてのラボ一覧 →</a>
           </div>
 
           <div class="nc-category-cards">
@@ -360,7 +360,7 @@ try {
             </p>
             <div style="margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem;">
               <a href="/articles" class="btn btn-dark">実践記事一覧 ({publishedTotal}本)</a>
-              <a href="/divisions" class="btn btn-light">7つのラボ</a>
+              <a href="/ai-living-lab/divisions" class="btn btn-light">7つのラボ</a>
             </div>
           </div>
 
@@ -372,7 +372,7 @@ try {
               Nabu Casaのミニマル・インダストリアル設計をはじめ、高視認性タイポグラフィと構造化意思決定（Laya）の設計ショーケース。
             </p>
             <div style="margin-top: 0.5rem;">
-              <a href="/craft" class="btn btn-light">UI/UX Craftを見る →</a>
+              <a href="/ai-living-lab/craft" class="btn btn-light">UI/UX Craftを見る →</a>
             </div>
           </div>
 
@@ -402,6 +402,7 @@ try {
             </p>
             <div style="margin-top: 0.25rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
               <a href="/contact" class="btn btn-light" style="font-size: 0.82rem; padding: 0.45rem 0.9rem;">お問い合わせ</a>
+              <a href="https://www.youtube.com/@PotoRuthege" target="_blank" rel="noopener noreferrer" class="btn btn-light" style="font-size: 0.82rem; padding: 0.45rem 0.9rem;">📺 YouTube ↗</a>
               <a href="https://x.com/PotoRuthege" target="_blank" rel="noopener noreferrer" class="btn btn-light" style="font-size: 0.82rem; padding: 0.45rem 0.9rem;">𝕏 @PotoRuthege ↗</a>
             </div>
           </div>
