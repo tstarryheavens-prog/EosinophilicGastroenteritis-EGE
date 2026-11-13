@@ -1,17 +1,21 @@
 ---
-export const prerender = true;
+export const prerender = false;
 import { getCollection, render } from 'astro:content';
 import BlogPostLayoutEn from '../../../layouts/BlogPostLayoutEn.astro';
 
-export async function getStaticPaths() {
-  const posts = await getCollection('blog_en');
-  return posts.map(post => ({
-    params: { slug: post.data.slug },
-    props: { post },
-  }));
+const rawSlug = (Astro.params.slug || '').replace(/^\/+|\/+$/g, '');
+let decodedSlug = rawSlug;
+try {
+  decodedSlug = decodeURIComponent(rawSlug);
+} catch {}
+
+const posts = await getCollection('blog_en');
+const post = posts.find((p) => p.data.slug === decodedSlug || p.data.slug === rawSlug || p.id === decodedSlug);
+
+if (!post) {
+  return new Response('Not Found', { status: 404 });
 }
 
-const { post } = Astro.props;
 const { Content } = await render(post);
 ---
 

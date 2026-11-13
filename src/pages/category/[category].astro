@@ -1,22 +1,23 @@
 ---
-export const prerender = true;
+export const prerender = false;
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import AdSense from '../../components/AdSense.astro';
 
-export async function getStaticPaths() {
-  const posts = await getCollection('blog');
-  const categories = [...new Set(posts.map(p => p.data.category))];
-  return categories.map(category => ({
-    params: { category },
-    props: {
-      category,
-      posts: posts.filter(p => p.data.category === category).sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime())
-    }
-  }));
-}
+const rawCategory = (Astro.params.category || '').replace(/^\/+|\/+$/g, '');
+let category = rawCategory;
+try {
+  category = decodeURIComponent(rawCategory);
+} catch {}
 
-const { category, posts } = Astro.props;
+const allPosts = await getCollection('blog');
+const posts = allPosts
+  .filter(p => p.data.category === category)
+  .sort((a, b) => new Date(b.data.pubDate).getTime() - new Date(a.data.pubDate).getTime());
+
+if (posts.length === 0) {
+  return new Response('Not Found', { status: 404 });
+}
 ---
 
 <BaseLayout title={`${category}の記事一覧`} description={`${category}に関する闘病・服薬調査記事一覧です。`}>
