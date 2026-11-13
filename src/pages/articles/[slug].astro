@@ -17,6 +17,50 @@ const rawDrafts = import.meta.glob('../../../blog_drafts/*.html', {
 const rawSlug = (Astro.params.slug || '').replace(/\/+$/, '');
 const cleanSlug = rawSlug.replace(/^post_/, '');
 
+// 収益化済みの独立サイト「愛知高校受験ナビ」へ記事アクセスを恒久リダイレクト
+const AICHI_ROOT_GUIDES: Record<string, string> = {
+  'aichi-high-autumn-tour-guide': '/autumn-tour-guide.html',
+  'aichi-high-ep04-autumn-tour-guide': '/autumn-tour-guide.html',
+  'aichi-high-composite-selection-guide': '/composite-selection-guide.html',
+  'aichi-high-ep07-composite-selection-guide': '/composite-selection-guide.html',
+  'aichi-high-mock-exam-guide': '/mock-exam-guide.html',
+  'aichi-high-ep05-mock-exam-guide': '/mock-exam-guide.html',
+  'aichi-high-public-vs-private-guide': '/public-vs-private-guide.html',
+  'aichi-high-ep06-public-vs-private-guide': '/public-vs-private-guide.html',
+  'aichi-high-recommendation-guide': '/recommendation-guide.html',
+  'aichi-high-ep09-recommendation-and-tokushoku-guide': '/recommendation-guide.html',
+  'aichi-high-sns-real-voices': '/sns-real-voices.html',
+  'aichi-high-ep08-sns-real-voices-guide': '/sns-real-voices.html',
+  'aichi-high-ep10-sns-chusan-voices-autumn': '/sns-real-voices.html',
+  'aichi-high-tuition-guide': '/tuition-guide.html',
+  'aichi-high-test-study-guide': '/test-study-guide.html',
+  'aichi-high-ep02-test-study-guide': '/test-study-guide.html',
+  'aichi-high-techniques': '/techniques.html',
+  'aichi-high-ep01-naishin35-strategy-guide': '/techniques.html',
+  'aichi-high-schedule': '/schedule.html',
+  'aichi-high-community': '/community.html',
+  'aichi-high-ai-study-guide': '/ai-study-guide.html',
+  'aichi-high-ep03-ai-study-guide': '/ai-study-guide.html',
+  'aichi-high-ai-prompts': '/ai-prompts.html',
+  'aichi-high-ep11-marksheet-past-exam-guide': '/past-exam-guide.html',
+  'aichi-high-ep12-private-exam-combination-guide': '/private-exam-guide.html',
+  'aichi-high-ep13-term2-final-exam-naishin-guide': '/final-exam-naishin-guide.html',
+  'aichi-high-ep14-tokutai-scholarship-guide': '/tokutai-scholarship-guide.html',
+  'aichi-high-ep15-sansha-mendan-strategy': '/sansha-mendan-strategy.html',
+};
+if (cleanSlug in AICHI_ROOT_GUIDES) {
+  return Astro.redirect(`https://ikomainagoyaaichihighschool.pages.dev${AICHI_ROOT_GUIDES[cleanSlug]}`, 301);
+}
+if (cleanSlug === '02_aichi_high_science_physics_2026' || cleanSlug === 'aichi-high-science-physics-exam-prep-fxtwitter-2026') {
+  return Astro.redirect('https://ikomainagoyaaichihighschool.pages.dev/articles/aichi-high-science-physics-exam-prep-deep-dive-2026.html', 301);
+}
+if (cleanSlug === '22_aichi_highschool_w_application_and_education_costs') {
+  return Astro.redirect('https://ikomainagoyaaichihighschool.pages.dev/articles/aichi-highschool-w-application-strategy-and-costs.html', 301);
+}
+if (cleanSlug.startsWith('aichi-high')) {
+  return Astro.redirect(`https://ikomainagoyaaichihighschool.pages.dev/articles/${encodeURIComponent(cleanSlug)}.html`, 301);
+}
+
 // モータ学術論文など内部専用サイトの記事は公開面では出さない（運営面 NAS 側でだけ閲覧可）
 if (isInternalSlug(rawSlug) || isInternalSlug(cleanSlug)) {
   return new Response('Not Found', {
@@ -266,7 +310,7 @@ function portalHref(siteId?: string): string {
     case 'toyotahome': return '/toyotahome';
     case 'hobby-labs':
     case 'ultraman': return '/ultraman';
-    case 'aichi-high': return '/aichi-high';
+    case 'aichi-high': return 'https://ikomainagoyaaichihighschool.pages.dev';
     case 'wakwak-money': return '/wakwak-money';
     case 'ai-hems': return '/ai-hems';
     case 'nanbyo': return '/';

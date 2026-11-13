@@ -39,9 +39,9 @@ const TOPIC_LABS = [
     id: 'aichi-high',
     icon: '🎓',
     badge: 'Education DB',
-    title: '愛知高校受験ラボ',
-    desc: '愛知県公立高校の2校複合選抜合否シミュレーターと、内申点・私立併願・三者面談の実践ガイド。',
-    href: '/aichi-high',
+    title: '愛知高校受験ラボ ↗',
+    desc: '愛知県公立高校の2校複合選抜合否シミュレーターと、内申点・私立併願・三者面談・最新特集記事（独立公式サイト）。',
+    href: 'https://ikomainagoyaaichihighschool.pages.dev',
     tone: 'sun',
   },
   {
@@ -119,10 +119,10 @@ const CONCERNS = [
     badge: '高校受験・内申点',
     question: '愛知県公立高校のA・Bグループ出願や内申点目安を知りたい',
     answerTitle: '愛知高校受験ラボで志望校・併願戦略を整理',
-    answerDesc: '尾張・名古屋地区の公立高校合否シミュレーター、当日点×内申点の配点方式（Ⅰ〜Ⅴ型）、実践ガイド17本を公開。',
-    link: '/aichi-high',
-    articleLink: '/aichi-high/simulator.html',
-    buttonText: '合否シミュレーターへ',
+    answerDesc: '尾張・名古屋地区の公立高校合否シミュレーター、当日点×内申点の配点方式（Ⅰ〜Ⅴ型）、特集記事アーカイブを公開。',
+    link: 'https://ikomainagoyaaichihighschool.pages.dev',
+    articleLink: 'https://ikomainagoyaaichihighschool.pages.dev/simulator.html',
+    buttonText: '合否シミュレーターへ ↗',
     tone: 'sun',
   },
   {
@@ -175,12 +175,12 @@ let publishedTotal = ARTICLES.filter((a) => isPublicArticle(a) && a.siteId !== '
 try {
   const db: any = (cfWorkersEnv as any)?.DB || (Astro.locals as any)?.runtime?.env?.DB;
   if (db) {
-    const countRes: any = await db.prepare(`SELECT COUNT(*) AS cnt FROM ec_posts WHERE status = 'published' AND (deleted_at IS NULL) AND site_id NOT IN (${internalQuotedList()}, 'nanbyo', 'eosinophilic-gastroenteritis')`).all();
+    const countRes: any = await db.prepare(`SELECT COUNT(*) AS cnt FROM ec_posts WHERE status = 'published' AND (deleted_at IS NULL) AND site_id NOT IN (${internalQuotedList()}, 'nanbyo', 'eosinophilic-gastroenteritis', 'aichi-high')`).all();
     const cnt = Number(countRes?.results?.[0]?.cnt ?? 0);
     if (Number.isFinite(cnt) && cnt > publishedTotal) publishedTotal = cnt;
 
     const latest: any = await db
-      .prepare(`SELECT slug, title, excerpt, published_at, site_id FROM ec_posts WHERE status = ? AND (deleted_at IS NULL) AND site_id NOT IN (${internalQuotedList()}, 'nanbyo', 'eosinophilic-gastroenteritis') ORDER BY published_at DESC LIMIT 8`)
+      .prepare(`SELECT slug, title, excerpt, published_at, site_id FROM ec_posts WHERE status = ? AND (deleted_at IS NULL) AND site_id NOT IN (${internalQuotedList()}, 'nanbyo', 'eosinophilic-gastroenteritis', 'aichi-high') ORDER BY published_at DESC LIMIT 8`)
       .bind('published')
       .all();
     const rows = latest?.results || [];
@@ -235,7 +235,7 @@ try {
         <a href="/ai-hems" class="btn btn-light">⚡ AI Home HEMS</a>
         <a href="/toyotahome" class="btn btn-light">🏡 トヨタホーム10年記</a>
         <a href="/ultraman" class="btn btn-light">👾 ウルトラマン特設</a>
-        <a href="/aichi-high" class="btn btn-light">🎓 愛知高校受験ラボ</a>
+        <a href="https://ikomainagoyaaichihighschool.pages.dev" target="_blank" rel="noopener" class="btn btn-light">🎓 愛知高校受験ラボ ↗</a>
         <a href="/wakwak-money" class="btn btn-light">💰 わくわくマネー</a>
       </div>
     </div>

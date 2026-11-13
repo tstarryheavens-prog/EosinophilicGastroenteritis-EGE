@@ -136,7 +136,7 @@ export const DIVISIONS_DATA: Record<string, Division> = {
     themeText: '#064e3b',
     status: 'monetized',
     statusLabel: '本番稼働中・収益化',
-    extUrl: '/aichi-high',
+    extUrl: 'https://ikomainagoyaaichihighschool.pages.dev',
     extLabel: '愛知高校受験ラボ ↗',
     ghUrl: 'https://github.com/tstarryheavens-prog/AichiHighschoolRoom',
     path: '/Volumes/Docker/AichiHighschoolRoom',
