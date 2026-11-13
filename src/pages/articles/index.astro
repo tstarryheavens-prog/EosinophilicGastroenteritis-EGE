@@ -47,7 +47,7 @@ try {
     const MAX_ROWS = 1500;
     for (let offset = 0; offset < MAX_ROWS; offset += CHUNK) {
       const res: any = await db
-        .prepare(`SELECT id, slug, title, excerpt, published_at, created_at, site_id FROM ec_posts WHERE status = 'published' AND (deleted_at IS NULL) AND site_id NOT IN (${internalQuotedList()}, 'aichi-high') ORDER BY published_at DESC LIMIT ${CHUNK} OFFSET ${offset}`)
+        .prepare(`SELECT id, slug, title, excerpt, published_at, created_at, site_id FROM ec_posts WHERE status = 'published' AND (deleted_at IS NULL) AND site_id NOT IN (${internalQuotedList()}, 'aichi-high', 'toyotahome', 'ai-hems') ORDER BY published_at DESC LIMIT ${CHUNK} OFFSET ${offset}`)
         .all();
       const rows = res?.results || [];
       for (const p of rows) {
@@ -291,10 +291,10 @@ const pageHref = (p: number): string => {
           <h3>テーマ別ポータルから探す</h3>
           <p>住まい・お金・受験・ウルトラマン・HEMSの専用ページへ直接アクセスできます。</p>
           <div style="margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.4rem;">
-            <a href="/toyotahome" class="btn btn-dark">🏡 トヨタホーム</a>
+            <a href="https://mytoyotahomebottle.pages.dev" target="_blank" rel="noopener" class="btn btn-dark">🏡 トヨタホーム ↗</a>
             <a href="/ultraman" class="btn btn-light">👾 ウルトラマン</a>
             <a href="https://ikomainagoyaaichihighschool.pages.dev/articles/index.html" target="_blank" rel="noopener" class="btn btn-light">🎓 高校受験 ↗</a>
-            <a href="/ai-hems" class="btn btn-light">⚡ HEMS</a>
+            <a href="https://mytoyotahomebottle.pages.dev/solar-battery.html" target="_blank" rel="noopener" class="btn btn-light">⚡ HEMS ↗</a>
           </div>
         </div>
 

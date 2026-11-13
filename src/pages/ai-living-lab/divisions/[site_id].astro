@@ -15,6 +15,12 @@ const { site_id } = Astro.params;
 if (site_id === 'aichi-high') {
   return Astro.redirect('https://ikomainagoyaaichihighschool.pages.dev/articles/index.html', 301);
 }
+if (site_id === 'toyotahome') {
+  return Astro.redirect('https://mytoyotahomebottle.pages.dev/articles/index.html', 301);
+}
+if (site_id === 'ai-hems') {
+  return Astro.redirect('https://mytoyotahomebottle.pages.dev/solar-battery.html', 301);
+}
 
 // モータ学術論文など内部専用テーマは公開面では 404（運営面 = NAS HUD / NAS WebUI :8520 でのみ扱う）
 if (isInternalSiteId(site_id)) {

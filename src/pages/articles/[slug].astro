@@ -60,6 +60,24 @@ if (cleanSlug === '22_aichi_highschool_w_application_and_education_costs') {
 if (cleanSlug.startsWith('aichi-high')) {
   return Astro.redirect(`https://ikomainagoyaaichihighschool.pages.dev/articles/${encodeURIComponent(cleanSlug)}.html`, 301);
 }
+if (cleanSlug === 'ai-hems-battery-night-charging-solar-fxtwitter-2026') {
+  return Astro.redirect('https://mytoyotahomebottle.pages.dev/articles/ai-hems-battery-night-charging-solar-deep-dive-2026.html', 301);
+}
+if (cleanSlug === 'toyotahome-construction-cost-trouble-fxtwitter-2026') {
+  return Astro.redirect('https://mytoyotahomebottle.pages.dev/articles/toyotahome-construction-cost-trouble-prevention-deep-dive-2026.html', 301);
+}
+if (
+  cleanSlug.startsWith('toyotahome') ||
+  cleanSlug.startsWith('ai-hems') ||
+  cleanSlug.startsWith('solar-10year-') ||
+  cleanSlug.startsWith('ai-home-hems-') ||
+  cleanSlug.startsWith('en_open-energy-os-') ||
+  cleanSlug.startsWith('hems-echonet-lite-') ||
+  cleanSlug.startsWith('03_toyotahome_') ||
+  cleanSlug.startsWith('06_ai_hems_')
+) {
+  return Astro.redirect(`https://mytoyotahomebottle.pages.dev/articles/${encodeURIComponent(cleanSlug)}.html`, 301);
+}
 
 // モータ学術論文など内部専用サイトの記事は公開面では出さない（運営面 NAS 側でだけ閲覧可）
 if (isInternalSlug(rawSlug) || isInternalSlug(cleanSlug)) {
@@ -307,12 +325,12 @@ const heroInfo = SITE_LABELS[siteKey] || SITE_LABELS['smartailife'];
 
 function portalHref(siteId?: string): string {
   switch (siteId) {
-    case 'toyotahome': return '/toyotahome';
+    case 'toyotahome': return 'https://mytoyotahomebottle.pages.dev';
     case 'hobby-labs':
     case 'ultraman': return '/ultraman';
     case 'aichi-high': return 'https://ikomainagoyaaichihighschool.pages.dev';
     case 'wakwak-money': return '/wakwak-money';
-    case 'ai-hems': return '/ai-hems';
+    case 'ai-hems': return 'https://mytoyotahomebottle.pages.dev/solar-battery.html';
     case 'nanbyo': return '/';
     case 'smartailife': return '/ai-living-lab/divisions/smartailife';
     default: return siteId ? `/ai-living-lab/divisions/${siteId}` : '/ai-living-lab/divisions';
