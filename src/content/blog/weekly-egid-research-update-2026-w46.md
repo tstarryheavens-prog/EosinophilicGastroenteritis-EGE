@@ -4,7 +4,7 @@ description: "好酸球性消化管疾患（EGID/EGE/EoE）の最新エビデン
 pubDate: "2026-11-09"
 category: "好酸球性消化管疾患"
 tags: ["好酸球性胃腸炎", "EGID", "学術論文", "治験情報", "週刊ダイジェスト"]
-eyecatch: "https://assets.st-note.com/production/uploads/images/194838258/rectangle_large_type_2_d898657663115a59629819f3887dab55.png"
+eyecatch: "/images/eyecatches/weekly-egid-research-update-2026-w46.jpg"
 slug: "weekly-egid-research-update-2026-w46"
 ---
 

@@ -4,7 +4,7 @@ description: "A comprehensive real-world patient comparative review of Nurtec (R
 pubDate: "2026-10-31"
 category: "Medication & Pharmacology"
 tags: ["Cluster Headache", "Nurtec", "Rimegepant", "Rayvow", "Lasmiditan", "CGRP Antagonist", "Real-World Review"]
-eyecatch: "https://assets.st-note.com/production/uploads/images/194838258/rectangle_large_type_2_d898657663115a59629819f3887dab55.png"
+eyecatch: "/images/eyecatches/nurtec-rimegepant-rayvow-review.jpg"
 slug: "nurtec-rimegepant-vs-rayvow-cluster-headache-real-experience"
 originalJaSlug: "nurtec-rimegepant-rayvow-review"
 ---

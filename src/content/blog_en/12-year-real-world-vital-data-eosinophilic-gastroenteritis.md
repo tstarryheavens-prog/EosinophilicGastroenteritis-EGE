@@ -4,7 +4,7 @@ description: "A continuous 12-year longitudinal real-world study (4,389 days, 20
 pubDate: "2026-10-31"
 category: "Real-World Evidence"
 tags: ["EGID", "Eosinophilic Gastroenteritis", "Real-World Data", "Blood Pressure Surge", "Longitudinal Health", "Patient Research"]
-eyecatch: "https://assets.st-note.com/production/uploads/images/194838258/rectangle_large_type_2_d898657663115a59629819f3887dab55.png"
+eyecatch: "/images/eyecatches/ai-health-analytics-ep1-3gb-raw-data-reveal.jpg"
 slug: "12-year-real-world-vital-data-eosinophilic-gastroenteritis"
 originalJaSlug: "ai-health-analytics-ep1-3gb-raw-data-reveal"
 ---

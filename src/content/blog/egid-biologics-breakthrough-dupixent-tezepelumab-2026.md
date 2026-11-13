@@ -4,6 +4,7 @@ description: "好酸球性消化管疾患（EGID/EGE）におけるステロイ�
 pubDate: "2026-11-11"
 category: "分子標的薬・最新治療"
 tags: ["好酸球性胃腸炎", "EGID", "デュピクセント", "テゼペルマブ", "DEGAS試験", "指定難病98"]
+eyecatch: "/images/eyecatches/egid-biologics-breakthrough-dupixent-tezepelumab-2026.jpg"
 slug: "egid-biologics-breakthrough-dupixent-tezepelumab-2026"
 ---
 

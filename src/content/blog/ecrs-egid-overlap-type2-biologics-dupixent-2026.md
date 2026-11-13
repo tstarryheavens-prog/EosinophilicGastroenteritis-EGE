@@ -4,6 +4,7 @@ description: "気道（好酸球性副鼻腔炎：ECRS / 指定難病306）と�
 pubDate: "2026-11-12"
 category: "重複疾患・免疫機序"
 tags: ["好酸球性副鼻腔炎", "好酸球性胃腸炎", "ECRS", "EGID", "デュピクセント", "指定難病"]
+eyecatch: "/images/eyecatches/ecrs-egid-overlap-type2-biologics-dupixent-2026.jpg"
 slug: "ecrs-egid-overlap-type2-biologics-dupixent-2026"
 ---
 
