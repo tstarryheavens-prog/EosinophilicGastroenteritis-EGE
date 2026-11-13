@@ -212,7 +212,7 @@ const getCategoryPlaceholderStyle = (category: string) => {
       </aside>
 
       <!-- ================= 右カラム：コンテンツ表示エリア（8列・内部スクロール対応） ================= -->
-      <section class="md:col-span-8 bg-white rounded-3xl p-5 sm:p-7 md:p-8 warm-shadow border border-[#F0EAE1] overflow-y-auto flex flex-col justify-between">
+      <section id="nanbyo-tab-panel" class="md:col-span-8 bg-white rounded-3xl p-5 sm:p-7 md:p-8 warm-shadow border border-[#F0EAE1] overflow-y-auto flex flex-col justify-between scroll-mt-20">
         
         <!-- ================= タブ1：🌱 疾患・テーマ別カテゴリ（初期表示） ================= -->
         <div id="tab-diseases" class="tab-content space-y-5">
@@ -674,7 +674,7 @@ const getCategoryPlaceholderStyle = (category: string) => {
 </BaseLayout>
 
 <script is:inline>
-  function switchTab(tabId) {
+  function switchTab(tabId, skipScroll) {
     // 全タブコンテンツを非表示
     document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
     
@@ -701,6 +701,14 @@ const getCategoryPlaceholderStyle = (category: string) => {
       if (arrow) arrow.className = "text-sm font-bold opacity-90";
     }
 
+    // モバイル表示時はボタンの下にあるコンテンツ領域へスムーズにスクロール
+    if (!skipScroll && window.innerWidth < 768) {
+      const panel = document.getElementById('nanbyo-tab-panel');
+      if (panel) {
+        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
     // URLハッシュを更新（履歴を残さず同期）
     try {
       history.replaceState(null, '', '#' + tabId);
@@ -711,7 +719,7 @@ const getCategoryPlaceholderStyle = (category: string) => {
   window.addEventListener('DOMContentLoaded', () => {
     const hash = window.location.hash.replace('#', '');
     if (hash && document.getElementById(hash)) {
-      switchTab(hash);
+      switchTab(hash, true);
     }
   });
 </script>

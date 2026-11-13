@@ -489,37 +489,40 @@ export async function ALL(context: any) {
               }));
             }
           } catch {
-            const countRes: any = await db.prepare("SELECT count(*) as count FROM ec_posts").first();
-            total = countRes?.count ?? 0;
+            // site_id 絞り込み指定がある場合は他サイトの記事を混ぜない
+            if (!querySiteId) {
+              const countRes: any = await db.prepare("SELECT count(*) as count FROM ec_posts").first();
+              total = countRes?.count ?? 0;
 
-            const postsRes: any = await db.prepare(
-              "SELECT id, slug, status, author_id, created_at, updated_at, published_at, locale, title, content, excerpt FROM ec_posts ORDER BY published_at DESC LIMIT 200"
-            ).all();
+              const postsRes: any = await db.prepare(
+                "SELECT id, slug, status, author_id, created_at, updated_at, published_at, locale, title, content, excerpt FROM ec_posts ORDER BY published_at DESC LIMIT 200"
+              ).all();
 
-            if (postsRes?.results) {
-              items = postsRes.results.map((p: any) => ({
-                id: p.id,
-                slug: p.slug,
-                status: p.status || "published",
-                title: p.title || "無題",
-                excerpt: p.excerpt || "",
-                site_id: "smartailife",
-                siteId: "smartailife",
-                publishedAt: p.published_at || p.created_at,
-                updatedAt: p.updated_at || p.created_at,
-                createdAt: p.created_at,
-                locale: p.locale || "ja",
-                author: { id: "usr_admin_01", name: "ぽトル" },
-                authorId: "usr_admin_01",
-                data: {
+              if (postsRes?.results) {
+                items = postsRes.results.map((p: any) => ({
+                  id: p.id,
+                  slug: p.slug,
+                  status: p.status || "published",
                   title: p.title || "無題",
-                  content: p.content || "",
                   excerpt: p.excerpt || "",
                   site_id: "smartailife",
                   siteId: "smartailife",
-                  featured_image: p.featured_image || null,
-                },
-              }));
+                  publishedAt: p.published_at || p.created_at,
+                  updatedAt: p.updated_at || p.created_at,
+                  createdAt: p.created_at,
+                  locale: p.locale || "ja",
+                  author: { id: "usr_admin_01", name: "ぽトル" },
+                  authorId: "usr_admin_01",
+                  data: {
+                    title: p.title || "無題",
+                    content: p.content || "",
+                    excerpt: p.excerpt || "",
+                    site_id: "smartailife",
+                    siteId: "smartailife",
+                    featured_image: p.featured_image || null,
+                  },
+                }));
+              }
             }
           }
         } catch {}
