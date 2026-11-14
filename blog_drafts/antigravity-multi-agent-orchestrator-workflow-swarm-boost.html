@@ -1,0 +1,165 @@
+<div class="article-body">
+<p class="lead">AIエージェントを使って開発を進める際、「どの実行モードを選べばいいのか」で迷うことは少なくありません。Antigravity環境には、タスクの性質に応じて使い分けられる4つの代表的な協調パターン（<strong>Orchestrator</strong>・<strong><code>/run-workflow</code></strong>・<strong><code>/swarm</code></strong>・<strong><code>/boost</code></strong>）があります。本記事では、それぞれの仕組みと違い、具体的な使い方例をシンプルに整理しました。</p>
+
+<hr />
+
+<h2>1. 4つのモードの比較早見表</h2>
+
+<p>まずは全体像を一目で把握できるよう、制御方法・エージェント間の通信・得意なタスクを一覧表にまとめました。</p>
+
+<table border="1" cellpadding="8" style="border-collapse:collapse;width:100%;margin:16px 0;">
+  <thead>
+    <tr style="background:#f1f5f9;">
+      <th>モード</th>
+      <th>制御の主役</th>
+      <th>エージェント間のやり取り</th>
+      <th>向いているタスク</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Orchestrator</strong></td>
+      <td>単一会話内の高性能モデル</td>
+      <td>メインが指示し、高速モデルが実行</td>
+      <td>通常の機能開発・設計と実装の反復</td>
+    </tr>
+    <tr>
+      <td><strong><code>/run-workflow</code></strong></td>
+      <td>Python スクリプト</td>
+      <td>会話せず、構造化データのみ返す</td>
+      <td>大量ファイルの並列処理・定型パイプライン</td>
+    </tr>
+    <tr>
+      <td><strong><code>/swarm</code></strong></td>
+      <td>対等な複数エージェント</td>
+      <td>共有ボード上で <code>@メンション</code> 交渉</td>
+      <td>フロント／バック同時開発・仕様すり合わせ</td>
+    </tr>
+    <tr>
+      <td><strong><code>/boost</code></strong></td>
+      <td>深層推論 ＋ 独立検証</td>
+      <td>仮説構築と別視点の検証を集中実行</td>
+      <td>高難度の並行バグ・アルゴリズム設計</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2>2. 各モードの仕組みと使い方例</h2>
+
+<h3>① Orchestrator：高性能モデルが計画し、速いモデルが手を動かす</h3>
+<p>単一の会話スレッドの中で、<strong>推論力の高いメインモデルが全体設計と計画を立て、高速なモデル（Hydrogen など）が実際のコード記述や調査を素早く実行する</strong>基本スタイルです。人間が1つのチャット欄で対話しながら進めるため、途中で方針を変えても文脈が途切れにくいのが利点です。</p>
+
+<div class="code-block-container" style="position: relative; margin: 24px 0; background: #0d1117; border: 1px solid #30363d; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+  <div class="code-block-header" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; background: #161b22; border-bottom: 1px solid #30363d; user-select: none;">
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ff5f56; display: inline-block;"></span>
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ffbd2e; display: inline-block;"></span>
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #27c93f; display: inline-block;"></span>
+      <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #8b949e; text-transform: uppercase; margin-left: 10px;">PROMPT</span>
+    </div>
+    <button type="button" onclick="const c=this.closest('.code-block-container').querySelector('code, pre').innerText.trim(); navigator.clipboard.writeText(c).then(()=>{const t=this.querySelector('.btn-label'); t.innerText='コピー完了！'; this.style.borderColor='#10b981'; this.style.color='#34d399'; setTimeout(()=>{t.innerText='コピー'; this.style.borderColor='rgba(255,255,255,0.15)'; this.style.color='#cbd5e1';}, 2000);});" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.color='#cbd5e1';">
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+      </svg>
+      <span class="btn-label">コピー</span>
+    </button>
+  </div>
+  <pre style="margin: 0; padding: 16px 20px; overflow-x: auto; background: transparent; color: #e6edf3; font-size: 13.5px; line-height: 1.65; white-space: pre; font-family: inherit;"><code style="background: transparent; padding: 0; border: none; color: inherit; font-size: inherit;"># 使い方例（通常の指示だけで役割分担が走る）
+「認証まわりの設計方針をここで整理したあと、
+ 各エンドポイントのバリデーション実装とテスト追加は
+ 高速モデルのサブエージェントに割り振って進めてください」</code></pre>
+</div>
+
+<h3>② <code>/run-workflow</code>：Python が並列処理とパイプラインを厳密制御</h3>
+<p><strong>Python スクリプトが処理の順序と並列実行を厳密に管理する</strong>モードです。サブエージェント同士は自由におしゃべりをせず、決められた形式（構造化されたJSONやオブジェクト）の結果だけをスクリプトに返します。余計な対話コストが発生しないため、大量のファイル処理や多段パイプラインを安定して回せます。</p>
+
+<div class="code-block-container" style="position: relative; margin: 24px 0; background: #0d1117; border: 1px solid #30363d; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+  <div class="code-block-header" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; background: #161b22; border-bottom: 1px solid #30363d; user-select: none;">
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ff5f56; display: inline-block;"></span>
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ffbd2e; display: inline-block;"></span>
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #27c93f; display: inline-block;"></span>
+      <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #8b949e; text-transform: uppercase; margin-left: 10px;">PYTHON</span>
+    </div>
+    <button type="button" onclick="const c=this.closest('.code-block-container').querySelector('code, pre').innerText.trim(); navigator.clipboard.writeText(c).then(()=>{const t=this.querySelector('.btn-label'); t.innerText='コピー完了！'; this.style.borderColor='#10b981'; this.style.color='#34d399'; setTimeout(()=>{t.innerText='コピー'; this.style.borderColor='rgba(255,255,255,0.15)'; this.style.color='#cbd5e1';}, 2000);});" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.color='#cbd5e1';">
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+      </svg>
+      <span class="btn-label">コピー</span>
+    </button>
+  </div>
+  <pre style="margin: 0; padding: 16px 20px; overflow-x: auto; background: transparent; color: #e6edf3; font-size: 13.5px; line-height: 1.65; white-space: pre; font-family: inherit;"><code style="background: transparent; padding: 0; border: none; color: inherit; font-size: inherit;"># /run-workflow のイメージ：全ファイル並列レビュー＆集計
+results = parallel_map(
+    files,
+    lambda f: run_agent(f"Check security issues in {f}. Return JSON only.")
+)
+high_risk = [r for r in results if r["severity"] == "HIGH"]
+save_report("security_summary.json", high_risk)</code></pre>
+</div>
+
+<h3>③ <code>/swarm</code>：対等なエージェントが共有ボードで直接交渉</h3>
+<p>複数のエージェントが対等な立場で参加し、<strong>共有のメッセージボード上でお互いを <code>@メンション</code> しながら、APIスキーマやデータ構造のインターフェースを直接交渉する</strong>モードです。フロントエンド担当とバックエンド担当のように、作業を進めながら仕様の擦り合わせが何度も発生する開発に向いています。</p>
+
+<div class="code-block-container" style="position: relative; margin: 24px 0; background: #0d1117; border: 1px solid #30363d; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+  <div class="code-block-header" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; background: #161b22; border-bottom: 1px solid #30363d; user-select: none;">
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ff5f56; display: inline-block;"></span>
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ffbd2e; display: inline-block;"></span>
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #27c93f; display: inline-block;"></span>
+      <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #8b949e; text-transform: uppercase; margin-left: 10px;">PROMPT</span>
+    </div>
+    <button type="button" onclick="const c=this.closest('.code-block-container').querySelector('code, pre').innerText.trim(); navigator.clipboard.writeText(c).then(()=>{const t=this.querySelector('.btn-label'); t.innerText='コピー完了！'; this.style.borderColor='#10b981'; this.style.color='#34d399'; setTimeout(()=>{t.innerText='コピー'; this.style.borderColor='rgba(255,255,255,0.15)'; this.style.color='#cbd5e1';}, 2000);});" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.color='#cbd5e1';">
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+      </svg>
+      <span class="btn-label">コピー</span>
+    </button>
+  </div>
+  <pre style="margin: 0; padding: 16px 20px; overflow-x: auto; background: transparent; color: #e6edf3; font-size: 13.5px; line-height: 1.65; white-space: pre; font-family: inherit;"><code style="background: transparent; padding: 0; border: none; color: inherit; font-size: inherit;">/swarm
+api担当・ui担当・test担当の3人でダッシュボード新機能を同時実装して。
+api担当は型定義が固まったら @ui担当 にメンションで共有し、
+ui担当は画面を組んだら @test担当 に結合テストを依頼すること。</code></pre>
+</div>
+
+<h3>④ <code>/boost</code>：深層推論と独立検証で難題を徹底解決</h3>
+<p><strong>集中した深層推論に加えて、独立した検証プロセスを組み合わせる</strong>モードです。並列数を増やすのではなく、1つの難しい問題に対して思考と検証の密度を高めます。再現条件が複雑な非同期・並行バグや、境界条件の厳しいアルゴリズムを確実に解きたいときに使います。</p>
+
+<div class="code-block-container" style="position: relative; margin: 24px 0; background: #0d1117; border: 1px solid #30363d; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+  <div class="code-block-header" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; background: #161b22; border-bottom: 1px solid #30363d; user-select: none;">
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ff5f56; display: inline-block;"></span>
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ffbd2e; display: inline-block;"></span>
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #27c93f; display: inline-block;"></span>
+      <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #8b949e; text-transform: uppercase; margin-left: 10px;">PROMPT</span>
+    </div>
+    <button type="button" onclick="const c=this.closest('.code-block-container').querySelector('code, pre').innerText.trim(); navigator.clipboard.writeText(c).then(()=>{const t=this.querySelector('.btn-label'); t.innerText='コピー完了！'; this.style.borderColor='#10b981'; this.style.color='#34d399'; setTimeout(()=>{t.innerText='コピー'; this.style.borderColor='rgba(255,255,255,0.15)'; this.style.color='#cbd5e1';}, 2000);});" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.color='#cbd5e1';">
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+      </svg>
+      <span class="btn-label">コピー</span>
+    </button>
+  </div>
+  <pre style="margin: 0; padding: 16px 20px; overflow-x: auto; background: transparent; color: #e6edf3; font-size: 13.5px; line-height: 1.65; white-space: pre; font-family: inherit;"><code style="background: transparent; padding: 0; border: none; color: inherit; font-size: inherit;">/boost
+WebSocket の再接続処理とキュー消費が同時に走ったときだけ発生する
+デッドロックの原因を特定し、修正案と再現テストを作成してください。</code></pre>
+</div>
+
+<hr />
+
+<h2>3. 迷ったときの選び方（まとめ）</h2>
+
+<ul>
+  <li><strong>普段の開発・設計と実装をテンポよく回す</strong> → <strong>Orchestrator</strong></li>
+  <li><strong>手順が決まった大量の並列処理・データ集計</strong> → <strong><code>/run-workflow</code></strong></li>
+  <li><strong>役割の違う担当同士で仕様を擦り合わせながら並走</strong> → <strong><code>/swarm</code></strong></li>
+  <li><strong>難解な並行バグやアルゴリズムを1点突破で解決</strong> → <strong><code>/boost</code></strong></li>
+</ul>
+
+<p>すべてを同じモードで処理しようとせず、作業の性質に合わせて「会話で回すか・スクリプトで縛るか・ボードで交渉させるか・深掘り検証するか」を切り替えるのが、開発スピードと精度を両立する近道です。</p>
+</div>

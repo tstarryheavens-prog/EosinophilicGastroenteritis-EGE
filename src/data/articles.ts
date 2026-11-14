@@ -15,6 +15,19 @@ export interface Article {
 
 export const ARTICLES: Article[] = [
   {
+    slug: 'antigravity-multi-agent-orchestrator-workflow-swarm-boost',
+    title: '【完全整理】Antigravityの4つの自律協調モード（Orchestrator・/run-workflow・/swarm・/boost）の違いと使い分け',
+    excerpt: '単一会話のOrchestrator、Pythonパイプライン制御の/run-workflow、対等エージェント協調の/swarm、深層推論＋独立検証の/boost。4つの実行モードの仕組み・違い・具体的な使い方例をシンプルに整理しました。',
+    category: 'decision',
+    categoryLabel: '自律AI・エージェント設計',
+    tags: ['Antigravity', 'マルチエージェント', 'Orchestrator', 'run-workflow', 'swarm', 'boost'],
+    date: '2026-11-14',
+    readTime: '5分',
+    draftFile: 'antigravity-multi-agent-orchestrator-workflow-swarm-boost.html',
+    featured: true,
+    siteId: 'smartailife',
+  },
+  {
     slug: 'qwen38-27b-dspine-vs-llama-cpp-v1-mtp-benchmark',
     title: '【実機全計測】llama.cpp v1.0.0のMTP vs 既存D-Spine：Qwen3.8-27BでPython・日本語・推論を徹底比較',
     excerpt: 'llama.cpp v1.0.0で正式統合されたMTP（draft-mtp）と、既存のブロック予測型D-Spine（draft-dflash）をRTX 4070 Ti SUPER + RTX 3060環境で実測比較。英語コード（94.59 t/s）と数学推論（113.59 t/s）はD-Spineが圧勝、日本語長文（47.74 t/s）はMTP（n_max=2）が逆転する実測データを公開。',
