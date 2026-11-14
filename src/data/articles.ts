@@ -15,6 +15,32 @@ export interface Article {
 
 export const ARTICLES: Article[] = [
   {
+    slug: 'qwen38-27b-dspine-vs-llama-cpp-v1-mtp-benchmark',
+    title: '【実機全計測】llama.cpp v1.0.0のMTP vs 既存D-Spine：Qwen3.8-27BでPython・日本語・推論を徹底比較',
+    excerpt: 'llama.cpp v1.0.0で正式統合されたMTP（draft-mtp）と、既存のブロック予測型D-Spine（draft-dflash）をRTX 4070 Ti SUPER + RTX 3060環境で実測比較。英語コード（94.59 t/s）と数学推論（113.59 t/s）はD-Spineが圧勝、日本語長文（47.74 t/s）はMTP（n_max=2）が逆転する実測データを公開。',
+    category: 'decision',
+    categoryLabel: 'ローカルLLM・高速化',
+    tags: ['llama.cpp', 'Qwen3.8', 'D-Spine', 'MTP', 'ベンチマーク', 'ローカルLLM'],
+    date: '2026-11-14',
+    readTime: '6分',
+    draftFile: 'qwen38-27b-dspine-vs-llama-cpp-v1-mtp-benchmark.html',
+    featured: true,
+    siteId: 'smartailife',
+  },
+  {
+    slug: 'antigravity-sdk-local-ai-models-litert-gemma4-hybrid',
+    title: '【完全解説】Antigravity SDKがローカルAIモデルに公式対応！LiteRT（Gemma 4 26B）＆Ollama連携の仕組みと自宅GPUクラスタとの使い分け',
+    excerpt: 'Googleが発表したAntigravity Python SDKのローカルAIモデル公式対応（LiteRTAgentConfig / LocalOpenAIAgentConfig）を徹底解説。APIキー不要・オフラインで自律エージェントを動かす手順から、クラウド×ローカルのハイブリッド設計、さらに既存の自宅GPUサーバー（Ollama/vLLM）やHermes Agentとの併用・使い分けまでわかりやすくまとめました。',
+    category: 'decision',
+    categoryLabel: '自律AI・ローカルLLM',
+    tags: ['Antigravity SDK', 'Gemma 4', 'LiteRT', 'ローカルLLM', 'Ollama', 'ハイブリッドAI'],
+    date: '2026-11-14',
+    readTime: '8分',
+    draftFile: 'antigravity-sdk-local-ai-models-litert-gemma4-hybrid.html',
+    featured: true,
+    siteId: 'smartailife',
+  },
+  {
     slug: 'ultraman-card-game-family-beginner-deck-guide',
     title: '【親子で始める】ウルトラマンカードゲーム（UCG）スターターデッキ選びと3ステップ基本ルール',
     excerpt: '小学生の子どもと保護者が休日にすぐ楽しめるウルトラマンカードゲーム入門。スターターデッキ2種で始める理由、3エリア勝負の覚え方、無理のないパック買い足し方法をまとめました。',

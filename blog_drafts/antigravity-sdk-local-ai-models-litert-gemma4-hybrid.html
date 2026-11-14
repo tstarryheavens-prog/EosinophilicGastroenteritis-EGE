@@ -1,0 +1,237 @@
+<div class="article-body">
+<p class="lead">2026年9月23日、Google Developers Blogにて、Python向けエージェント開発キット<strong>「Antigravity SDK（google-antigravity）」がローカルAIモデルに公式対応した</strong>ことが発表されました。インターネット接続やクラウドのAPIキーを使わずに、手元のPCやローカルGPUサーバー上で自律型AIエージェントを動かせるようになります。</p>
+
+<p>本記事では、この機能がどのような仕組みで動くのか、具体的な導入手順（LiteRT版とOllama等のOpenAI互換サーバー版）、そしてすでに自宅GPUサーバーやHermes Agent等でローカルLLM環境を運用している場合に「何がメリットで、どう使い分けるべきか」を整理して解説します。</p>
+
+<p>一次出典：<a href="https://developers.googleblog.com/introducing-support-for-local-ai-models-in-the-antigravity-sdk/" target="_blank" rel="noopener noreferrer">Introducing Support for Local AI Models in the Antigravity SDK（Google Developers Blog）</a></p>
+
+<hr />
+
+<h2>1. どんな機能？2つのローカル実行方式</h2>
+
+<p>これまでAntigravity SDKで自律エージェント（ファイル読み書き、シェル実行、テスト検証など）を動かすには、クラウドのGemini APIへの接続が前提でした。今回のアップデートにより、バックエンドをローカルモデルに差し替えられる2つの設定クラスが追加されています。</p>
+
+<table border="1" cellpadding="8" style="border-collapse:collapse;width:100%;margin:16px 0;">
+  <thead>
+    <tr style="background:#f1f5f9;">
+      <th>設定クラス</th>
+      <th>接続先・ランタイム</th>
+      <th>APIキー</th>
+      <th>特徴と主な用途</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>LiteRTAgentConfig</code></td>
+      <td>Google AI Edge <strong>LiteRT-LM</strong>（<code>.litertlm</code>形式）</td>
+      <td>不要</td>
+      <td>Apple Silicon（Metal）やNVIDIA GPU（CUDA）、NPUを自動検出し、SDK側でローカル推論サーバーの起動から終了までを自動管理。Mac単体・完全オフライン環境に最適。</td>
+    </tr>
+    <tr>
+      <td><code>LocalOpenAIAgentConfig</code></td>
+      <td>外部のOpenAI互換サーバー（Ollama / LM Studio / vLLM等）</td>
+      <td>不要</td>
+      <td>すでに稼働しているローカル推論サーバーやLAN内のGPUマシンに<code>base_url</code>で接続。既存の推論環境をそのままエージェントの頭脳として再利用可能。</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>推奨スペックとして、公式ブログでは最適化された<strong>Gemma 4 26B A4B</strong>を動かす場合に「VRAMまたはユニファイドメモリ 24GB以上」を推奨しています。</p>
+
+<hr />
+
+<h2>2. なぜ注目されているのか？3つの技術的メリット</h2>
+
+<p>単に「ローカルLLMへテキストを投げる」だけであれば、既存のAPIクライアントでも実現できます。Antigravity SDKならではの強みは、<strong>ローカルモデルでも自律エージェントを安定して完走させるためのハーネス（制御基盤）が最初から組み込まれている点</strong>にあります。</p>
+
+<h3>① ローカルモデル専用の軽量化と自動コンテキスト圧縮</h3>
+<p>8B〜30Bクラスのローカルモデルは、クラウドの大型モデルと同じ長大なシステムプロンプトや大量のツール定義を渡すと、判断精度が落ちたりKVキャッシュが溢れたりしがちです。</p>
+<p>Antigravity SDKの<code>.lightweight()</code>プリセット（<code>LiteRTAgentConfig</code>では自動適用）を使うと、以下の最適化が自動で行われます。</p>
+<ul>
+  <li>プロンプトの冗長な記述を削減し、ローカルモデルでも指示を見失いにくくする。</li>
+  <li>標準ツールをコアな開発操作（<code>view</code> / <code>edit</code> / <code>write</code> / <code>bash</code> / <code>list_dir</code> / <code>grep</code>）に絞り込む。</li>
+  <li>LiteRTの64k KVキャッシュ容量に合わせ、40,960トークン到達時点で会話履歴を自動圧縮（Compaction）する。</li>
+</ul>
+
+<h3>② クラウド × ローカルのハイブリッド設計をPythonで直書きできる</h3>
+<p>Googleが公式ブログで特に強調しているのが<strong>「Architect-Builder パターン」</strong>です。</p>
+<p>たとえば、クラウド側のモデル（Gemini 3.8 Flash等）には「ファイル名と課題概要」だけを渡して全体の修正計画を立てさせます（ブログ内の実測例ではクラウド消費わずか95トークン）。実際のソースコードの読み込み、バグ再現、パッチ作成、回帰テストのループは、ローカルのGemma 4 26B群がすべて引き受けます。</p>
+<p>この構成により、<strong>社外秘のソースコードを外部に一切送信せず、全トークンの97.2%をローカルで無料処理しながら、計画の賢さだけはクラウドの恩恵を受ける</strong>というパイプラインをPythonコード1本で組めます。</p>
+
+<h3>③ サーバー管理不要のオンデバイス実行（LiteRT）</h3>
+<p><code>LiteRTAgentConfig</code>では、あらかじめ別のターミナルで推論サーバーを立ち上げておく必要がありません。<code>async with Agent(config) as agent:</code>が実行された瞬間に裏側でループバックサーバーが起動し、処理が終われば自動で閉じます。投機的デコーディング（<code>enable_speculative_decoding=True</code>）による生成高速化にも対応しています。</p>
+
+<hr />
+
+<h2>3. 導入手順とサンプルコード</h2>
+
+<h3>パターンA：LiteRT（Gemma 4 26B）をオンデバイスで動かす</h3>
+<p>Pythonの仮想環境を作成し、SDKと<code>litert-lm</code>をインストールした上で、Hugging Faceから<code>.litertlm</code>モデルを取得します（約16.8GB）。</p>
+
+<div class="code-block-container" style="position: relative; margin: 24px 0; background: #0d1117; border: 1px solid #30363d; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+  <div class="code-block-header" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; background: #161b22; border-bottom: 1px solid #30363d; user-select: none;">
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ff5f56; display: inline-block;"></span>
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ffbd2e; display: inline-block;"></span>
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #27c93f; display: inline-block;"></span>
+      <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #8b949e; text-transform: uppercase; margin-left: 10px;">BASH</span>
+    </div>
+    <button type="button" onclick="const c=this.closest('.code-block-container').querySelector('code, pre').innerText.trim(); navigator.clipboard.writeText(c).then(()=>{const t=this.querySelector('.btn-label'); t.innerText='コピー完了！'; this.style.borderColor='#10b981'; this.style.color='#34d399'; setTimeout(()=>{t.innerText='コピー'; this.style.borderColor='rgba(255,255,255,0.15)'; this.style.color='#cbd5e1';}, 2000);});" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.color='#cbd5e1';">
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+      </svg>
+      <span class="btn-label">コピー</span>
+    </button>
+  </div>
+  <pre style="margin: 0; padding: 16px 20px; overflow-x: auto; background: transparent; color: #e6edf3; font-size: 13.5px; line-height: 1.65; white-space: pre; font-family: inherit;"><code style="background: transparent; padding: 0; border: none; color: inherit; font-size: inherit;">python3 -m venv .venv
+source .venv/bin/activate
+pip install google-antigravity litert-lm
+
+litert-lm import \
+  --from-huggingface-repo=litert-community/gemma-4-26B-A4B-it-litert-lm \
+  gemma-4-26B-A4B-it-gpu.litertlm \
+  gemma4-26b</code></pre>
+</div>
+
+<p>モデルの準備ができたら、以下のPythonスクリプトで自律エージェントを起動できます。</p>
+
+<div class="code-block-container" style="position: relative; margin: 24px 0; background: #0d1117; border: 1px solid #30363d; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+  <div class="code-block-header" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; background: #161b22; border-bottom: 1px solid #30363d; user-select: none;">
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ff5f56; display: inline-block;"></span>
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ffbd2e; display: inline-block;"></span>
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #27c93f; display: inline-block;"></span>
+      <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #8b949e; text-transform: uppercase; margin-left: 10px;">PYTHON</span>
+    </div>
+    <button type="button" onclick="const c=this.closest('.code-block-container').querySelector('code, pre').innerText.trim(); navigator.clipboard.writeText(c).then(()=>{const t=this.querySelector('.btn-label'); t.innerText='コピー完了！'; this.style.borderColor='#10b981'; this.style.color='#34d399'; setTimeout(()=>{t.innerText='コピー'; this.style.borderColor='rgba(255,255,255,0.15)'; this.style.color='#cbd5e1';}, 2000);});" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.color='#cbd5e1';">
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+      </svg>
+      <span class="btn-label">コピー</span>
+    </button>
+  </div>
+  <pre style="margin: 0; padding: 16px 20px; overflow-x: auto; background: transparent; color: #e6edf3; font-size: 13.5px; line-height: 1.65; white-space: pre; font-family: inherit;"><code style="background: transparent; padding: 0; border: none; color: inherit; font-size: inherit;">import asyncio
+import os
+from google.antigravity import Agent, LiteRTAgentConfig
+from google.antigravity.hooks import policy
+
+MODEL_PATH = os.path.expanduser(&quot;~/.litert-lm/models/gemma4-26b/model.litertlm&quot;)
+WORKING_DIR = os.path.expanduser(&quot;~/agy-test&quot;)
+os.makedirs(WORKING_DIR, exist_ok=True)
+
+async def main():
+    config = LiteRTAgentConfig(
+        model_path=MODEL_PATH,
+        workspaces=[WORKING_DIR],
+        policies=[policy.allow_all()],
+    ).lightweight()
+
+    async with Agent(config=config) as agent:
+        response = await agent.chat(
+            &quot;CPUとメモリ使用率を表示する監視スクリプト monitor.py を作り、動作確認してください。&quot;
+        )
+        async for token in response:
+            print(token, end=&quot;&quot;, flush=True)
+        print()
+
+if __name__ == &quot;__main__&quot;:
+    asyncio.run(main())</code></pre>
+</div>
+
+<h3>パターンB：Ollamaや自宅GPUサーバーに繋ぐ（LocalOpenAIAgentConfig）</h3>
+<p>すでにOllama、LM Studio、vLLMなどのOpenAI互換APIサーバーが動いている場合は、モデルの再ダウンロードは不要です。<code>LocalOpenAIAgentConfig</code>に<code>model</code>と<code>base_url</code>を渡し、明示的に<code>.lightweight()</code>を呼ぶだけで接続できます。</p>
+
+<div class="code-block-container" style="position: relative; margin: 24px 0; background: #0d1117; border: 1px solid #30363d; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+  <div class="code-block-header" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; background: #161b22; border-bottom: 1px solid #30363d; user-select: none;">
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ff5f56; display: inline-block;"></span>
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ffbd2e; display: inline-block;"></span>
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #27c93f; display: inline-block;"></span>
+      <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #8b949e; text-transform: uppercase; margin-left: 10px;">PYTHON</span>
+    </div>
+    <button type="button" onclick="const c=this.closest('.code-block-container').querySelector('code, pre').innerText.trim(); navigator.clipboard.writeText(c).then(()=>{const t=this.querySelector('.btn-label'); t.innerText='コピー完了！'; this.style.borderColor='#10b981'; this.style.color='#34d399'; setTimeout(()=>{t.innerText='コピー'; this.style.borderColor='rgba(255,255,255,0.15)'; this.style.color='#cbd5e1';}, 2000);});" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.color='#cbd5e1';">
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+      </svg>
+      <span class="btn-label">コピー</span>
+    </button>
+  </div>
+  <pre style="margin: 0; padding: 16px 20px; overflow-x: auto; background: transparent; color: #e6edf3; font-size: 13.5px; line-height: 1.65; white-space: pre; font-family: inherit;"><code style="background: transparent; padding: 0; border: none; color: inherit; font-size: inherit;">import asyncio
+from google.antigravity import Agent, LocalOpenAIAgentConfig
+
+async def main():
+    # Ollama や vLLM、自宅GPUサーバー等の OpenAI 互換エンドポイントに接続
+    config = LocalOpenAIAgentConfig(
+        model=&quot;gemma4:26b&quot;,
+        base_url=&quot;http://localhost:11434/v1&quot;,
+    ).lightweight()
+
+    async with Agent(config=config) as agent:
+        response = await agent.chat(&quot;このディレクトリの構成と主要ファイルを要約してください。&quot;)
+        print(await response.text())
+
+if __name__ == &quot;__main__&quot;:
+    asyncio.run(main())</code></pre>
+</div>
+
+<p>※ <code>litert-lm serve</code>で立てたサーバーに<code>LocalOpenAIAgentConfig</code>で繋ぐのではなく、LiteRTを使う場合は<code>LiteRTAgentConfig</code>を直接指定する仕様になっています。</p>
+
+<hr />
+
+<h2>4. 既存の「自宅GPUクラスタ × Hermes Agent」構成と比較してどうなのか？</h2>
+
+<p>すでに自宅に推論用GPUサーバー（Ollama / vLLM / llama.cpp等）を立て、Hermes Agentや自作のモデルルーターでローカルLLMを運用している場合、Antigravity SDKは競合するのか、それとも併用できるのかを整理します。</p>
+
+<table border="1" cellpadding="8" style="border-collapse:collapse;width:100%;margin:16px 0;">
+  <thead>
+    <tr style="background:#f1f5f9;">
+      <th>比較項目</th>
+      <th>既存の自宅GPU ＋ Hermes Agent構成</th>
+      <th>Google Antigravity SDK（ローカル対応）</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>バックエンド共有</strong></td>
+      <td colspan="2">OpenAI互換API（<code>/v1</code>）を共有できるため、<strong>同じGPUサーバーを両方から同時に利用可能</strong>。（※ <code>.litertlm</code>ファイルだけは専用形式のため共有不可）</td>
+    </tr>
+    <tr>
+      <td><strong>推論速度とメモリ負荷</strong></td>
+      <td>常時稼働の専用GPUサーバー側で処理するため、手元のMacのメモリを圧迫せず高速。</td>
+      <td><code>LiteRTAgentConfig</code>は手元PCのメモリを24GB以上消費。ただし<code>LocalOpenAIAgentConfig</code>なら外部GPUサーバーを使える。</td>
+    </tr>
+    <tr>
+      <td><strong>普段使いのエージェント</strong></td>
+      <td>チャットUI、永続メモリ、タスク管理、Cron、ACP連携などが最初から揃っており強力。</td>
+      <td>あくまでPythonプログラムに組み込むSDK部品。UIや常駐管理は自前で組む必要がある。</td>
+    </tr>
+    <tr>
+      <td><strong>スクリプト単位の自動化</strong></td>
+      <td>単発のAPI呼び出しルーターと、高機能なHermes本体の中間領域はやや手間がかかる。</td>
+      <td>Python数十行で「ファイル編集・bash実行・テスト検証」の自律ループを軽量に量産でき、<code>policies</code>で権限も厳密に制限可能。</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>結論：置き換えではなく「軽量ワーカー部品」としての併用が最適</h3>
+<p>日常の対話やマルチエージェント運用、スケジュール実行といった基盤は、すでに完成している<strong>Hermes Agentや自宅GPUクラスタをそのまま使い続ける方が高機能で快適</strong>です。</p>
+<p>その上で、Antigravity SDKのローカル対応が活きるのは次の2つの場面です。</p>
+<ol>
+  <li><strong>特定の自動化バッチをPythonで切り出したいとき:</strong> <code>LocalOpenAIAgentConfig</code>の接続先に自宅のGPUサーバーを指定すれば、「夜間テストを実行し、失敗したらパッチを書いて再テストする」といった専用ワーカーを数十行のコードで安全に量産できます。</li>
+  <li><strong>外出先・完全オフラインでMac単体作業をしたいとき:</strong> 自宅サーバーへVPN接続できない環境でも、<code>LiteRTAgentConfig</code>を入れておけばMac単体でコード修正やスクリプト生成を完結できます。</li>
+</ol>
+
+<hr />
+
+<h2>5. まとめ</h2>
+<p>Antigravity SDKのローカルモデル公式対応は、クラウドAIの設計力とローカルAIのコスト・機密性を1つのコードベースで両立させる実践的なアップデートです。</p>
+<ul>
+  <li>オフライン単体運用なら<code>LiteRTAgentConfig</code>（Gemma 4 26B）</li>
+  <li>既存のOllamaや自宅GPUサーバーを活かすなら<code>LocalOpenAIAgentConfig</code></li>
+  <li>コード実行時は<code>.lightweight()</code>でプロンプト軽量化と自動圧縮を有効にする</li>
+</ul>
+<p>既存のHermes AgentやGPUサーバー資産を壊すことなく、用途に応じてPythonスクリプトから手軽にローカル自律エージェントを呼び出せる選択肢として、ぜひ押さえておきたい機能です。</p>
+</div>
