@@ -1,0 +1,145 @@
+<div class="article-body">
+<p class="lead">2026年11月13日にリリースされた <code>llama.cpp v1.0.0</code> では、Speculative Decoding（投機デコーディング）用の NextN / MTP API がコアヘッダ（<code>llama.h</code>）へ正式統合されました。これにより、<code>Qwen3.8-27B</code> に内蔵された MTP（Multi-Token Prediction）ヘッドを使うだけで、追加のドラフトモデルなしに推論速度を約1.8〜2倍へ引き上げられる構成が注目されています。</p>
+
+<p>一方で、自宅GPUサーバー「Strata（RTX 4070 Ti SUPER 16GB + RTX 3060 12GB）」には、すでにブロック予測型の投機デコーディング手法である <strong>D-Spine（<code>draft-dflash</code>）</strong> と KVキャッシュ量子化（<code>q4_0</code>）、Flash Attention を導入済みです。本記事では、同一ハードウェア・同一プロンプトを用いて <strong>投機なし / MTP（<code>n_max=2, 3</code>） / D-Spine</strong> の全パターンを実測し、本当に乗り換える価値があるのかを数値で検証しました。</p>
+
+<hr />
+
+<h2>1. 検証環境と計測条件</h2>
+
+<p>公平に比較するため、モデルはすべて同じ <code>Qwen3.8-27B-UD-Q4_K_M.gguf</code>（約16GB）を使用し、コンテキスト長 <code>65536</code>、KVキャッシュ量子化（<code>-ctk q4_0 -ctv q4_0</code>）、Flash Attention（<code>--flash-attn on</code>）、レイヤー分割（<code>-sm layer -ts 18,8</code>）を統一しました。</p>
+
+<table border="1" cellpadding="8" style="border-collapse:collapse;width:100%;margin:16px 0;">
+  <thead>
+    <tr style="background:#f1f5f9;">
+      <th>項目</th>
+      <th>仕様・設定値</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>GPU構成</strong></td>
+      <td>NVIDIA RTX 4070 Ti SUPER (16GB) + RTX 3060 (12GB)（計28GB VRAM）</td>
+    </tr>
+    <tr>
+      <td><strong>推論エンジン</strong></td>
+      <td><code>llama-server</code>（<code>0.9.0-dev build 1 commit d493f84</code> / <code>draft-mtp</code>・<code>draft-dflash</code> 両対応）</td>
+    </tr>
+    <tr>
+      <td><strong>ターゲットモデル</strong></td>
+      <td><code>Qwen3.8-27B-UD-Q4_K_M.gguf</code>（16GB・MTP用 <code>blk.64.nextn.*</code> テンソル内蔵）</td>
+    </tr>
+    <tr>
+      <td><strong>D-Spineドラフトモデル</strong></td>
+      <td><code>Qwen3.8-27B-DSpine-b16-Q4_K_M.gguf</code>（1.2GB / <code>block_size=16</code>, <code>n_min=4</code>, <code>n_max=15</code>）</td>
+    </tr>
+    <tr>
+      <td><strong>共通オプション</strong></td>
+      <td><code>--ctx-size 65536 -np 1 -ctk q4_0 -ctv q4_0 -ngl 99 -sm layer -ts 18,8 --flash-attn on</code></td>
+    </tr>
+    <tr>
+      <td><strong>計測タスク（各350トークン生成）</strong></td>
+      <td>① Coding（Python非同期レートリミッタ実装）<br />② 日本語解説（家庭用蓄電池の最適制御）<br />③ Reasoning（ベイズ確率のステップ計算）</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h2>2. 全パターン実測ベンチマーク結果</h2>
+
+<p>各構成で3種類のタスクを実行し、生成速度（tok/s）、ドラフト採用率（draft acceptance）、1ステップあたりの平均採用トークン長（mean len）を記録しました。</p>
+
+<table border="1" cellpadding="8" style="border-collapse:collapse;width:100%;margin:16px 0;">
+  <thead>
+    <tr style="background:#f1f5f9;">
+      <th>構成</th>
+      <th>Coding (Python)</th>
+      <th>日本語解説</th>
+      <th>Reasoning (数学)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>投機なし（Baseline）</strong></td>
+      <td>27.21 t/s<br /><small>1.00x（基準）</small></td>
+      <td>27.20 t/s<br /><small>1.00x（基準）</small></td>
+      <td>27.23 t/s<br /><small>1.00x（基準）</small></td>
+    </tr>
+    <tr>
+      <td><strong>MTP（<code>draft-mtp</code>, <code>n_max=2</code>）</strong><br /><small>追加ドラフトモデル不要</small></td>
+      <td>52.39 t/s（1.93x）<br /><small>採用率 86.7% / 平均長 2.73</small></td>
+      <td><strong>47.74 t/s（1.76x）</strong><br /><small>採用率 73.8% / 平均長 2.48</small></td>
+      <td>56.13 t/s（2.06x）<br /><small>採用率 95.4% / 平均長 2.91</small></td>
+    </tr>
+    <tr>
+      <td><strong>MTP（<code>draft-mtp</code>, <code>n_max=3</code>）</strong><br /><small>追加ドラフトモデル不要</small></td>
+      <td>57.19 t/s（2.10x）<br /><small>採用率 84.2% / 平均長 3.53</small></td>
+      <td>38.84 t/s（1.43x）<br /><small>採用率 45.6% / 平均長 2.37</small></td>
+      <td>58.47 t/s（2.15x）<br /><small>採用率 85.7% / 平均長 3.56</small></td>
+    </tr>
+    <tr>
+      <td><strong>現行 D-Spine（<code>draft-dflash</code>）</strong><br /><small>1.2GB ドラフトモデル併用</small></td>
+      <td><strong>94.59 t/s（3.48x）</strong><br /><small>採用率 40.5% / 平均長 6.98</small></td>
+      <td>38.00 t/s（1.40x）<br /><small>採用率 12.2% / 平均長 2.77</small></td>
+      <td><strong>113.59 t/s（4.17x）</strong><br /><small>採用率 50.7% / 平均長 8.51</small></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>※ 参考として、計測直前に稼働していた4,114トークンの実タスク（<code>task 99214</code>）における D-Spine の実測値は <code>34.98 t/s</code>（採用率 10.77% / 平均長 2.61）でした。</p>
+
+<hr />
+
+<h2>3. なぜここまで差がつくのか：ブロック予測 vs MTP</h2>
+
+<h3>英語コード・数式では D-Spine が圧勝（94〜113 t/s）</h3>
+<p>D-Spine（<code>draft-dflash</code>）は、1回のフォワードパスで最大15トークン（<code>block_size=16</code>）をまとめて先読みします。Pythonコードの構文や英語の論理展開はパターンが予測しやすいため、平均長が <code>6.98〜8.51</code> トークンまで伸び、<strong>27Bモデルでありながら 94.59〜113.59 t/s（ベースラインの3.5〜4.2倍）</strong>という高いスループットを記録しました。</p>
+
+<h3>日本語生成では MTP（<code>n_max=2</code>）が逆転（47.74 t/s）</h3>
+<p>一方で日本語の長文解説では、D-Spine のドラフト採用率が <code>12.2%</code> まで低下し、速度も <code>38.00 t/s</code> に留まりました。対照的に、ターゲットモデル内蔵の MTP（<code>draft-mtp</code>, <code>n_max=2</code>）は日本語でも <code>73.8%</code> の高い採用率を維持し、<strong>D-Spine より約26%速い 47.74 t/s</strong> を安定して出しています。</p>
+
+<p>なお、MTP で <code>n_max=3</code> に増やすと、英語コード（57.19 t/s）や推論（58.47 t/s）はわずかに伸びるものの、日本語では採用率が <code>45.6%</code> に落ちて <code>38.84 t/s</code> へ失速しました。マルチGPU環境で MTP を日本語メインに使うなら、<code>n_max=2</code> が最もバランスの良い設定です。</p>
+
+<hr />
+
+<h2>4. 用途別の起動コマンド例</h2>
+
+<p><code>llama.cpp v1.0.0</code> 以降で導入しやすいのは、追加ファイル（1.2GBのドラフトモデル）が不要な <strong>MTP 構成</strong> です。</p>
+
+<div class="code-block-container" style="position: relative; margin: 24px 0; background: #0d1117; border: 1px solid #30363d; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.4); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;">
+  <div class="code-block-header" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; background: #161b22; border-bottom: 1px solid #30363d; user-select: none;">
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ff5f56; display: inline-block;"></span>
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #ffbd2e; display: inline-block;"></span>
+      <span style="width: 10px; height: 10px; border-radius: 50%; background: #27c93f; display: inline-block;"></span>
+      <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #8b949e; text-transform: uppercase; margin-left: 10px;">BASH</span>
+    </div>
+    <button type="button" onclick="const c=this.closest('.code-block-container').querySelector('code, pre').innerText.trim(); navigator.clipboard.writeText(c).then(()=>{const t=this.querySelector('.btn-label'); t.innerText='コピー完了！'; this.style.borderColor='#10b981'; this.style.color='#34d399'; setTimeout(()=>{t.innerText='コピー'; this.style.borderColor='rgba(255,255,255,0.15)'; this.style.color='#cbd5e1';}, 2000);});" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.color='#cbd5e1';">
+      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+      </svg>
+      <span class="btn-label">コピー</span>
+    </button>
+  </div>
+  <pre style="margin: 0; padding: 16px 20px; overflow-x: auto; background: transparent; color: #e6edf3; font-size: 13.5px; line-height: 1.65; white-space: pre; font-family: inherit;"><code style="background: transparent; padding: 0; border: none; color: inherit; font-size: inherit;"># 汎用・日本語も速い MTP 構成（追加ドラフトモデル不要）
+llama-server \
+  -m Qwen3.8-27B-UD-Q4_K_M.gguf \
+  -ngl 99 -fa on -c 65536 \
+  -ctk q4_0 -ctv q4_0 \
+  --spec-type draft-mtp --spec-draft-n-max 2 \
+  --host 0.0.0.0 --port 47832</code></pre>
+</div>
+
+<p>一方で、プログラミングや英語での思考・数学推論を最速化したい場合は、従来通り <strong>D-Spine 構成</strong> を維持する方が約1.7〜2.0倍高速に動作します。</p>
+
+<hr />
+
+<h2>5. まとめ：乗り換えるべきか？</h2>
+
+<ul>
+  <li><strong>すでに D-Spine + KV量子化（<code>q4_0</code>）+ Flash Attention を運用中なら</strong>：コード生成や英語推論が主用途である限り、現行の D-Spine 維持が最も高速です（無理に乗り換える必要はありません）。</li>
+  <li><strong>これからローカルLLM環境を組む、または日本語長文生成が中心なら</strong>：<code>llama.cpp v1.0.0</code> の <code>--spec-type draft-mtp --spec-draft-n-max 2</code> が最適です。追加VRAM消費なしでベースラインの約1.8倍の速度が得られます。</li>
+</ul>
+</div>
